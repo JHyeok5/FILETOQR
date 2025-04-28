@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="무료로 다양한 파일 형식을 변환하세요. 이미지, 문서, 오디오, 데이터 파일을 쉽고 빠르게 변환합니다.">
+    <meta name="keywords" content="파일 변환, 이미지 변환, PDF 변환, 문서 변환, 온라인 변환, 무료 변환">
+    <title>파일 변환 - FileToQR</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/components/file-uploader.css">
+    <link rel="stylesheet" href="assets/css/components/converter.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 툴팁 스타일 */
+        .help-tooltip {
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        /* 드래그 오버 스타일 */
+        .dropzone.dragover {
+            border-color: #3B82F6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        /* 진행 단계 스타일 */
+        .step-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        /* 피드백 이모지 스타일 */
+        .feedback-rating {
+            font-size: 2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        
+        .feedback-rating:hover,
+        .feedback-rating.selected {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">FileToQR</a>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="/" class="font-medium hover:text-blue-600">홈</a></li>
+                    <li><a href="/convert.html" class="font-medium text-blue-600">파일 변환</a></li>
+                    <li><a href="/qrcode.html" class="font-medium hover:text-blue-600">QR 생성</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">파일 변환</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">파일 업로드</h2>
+                <div id="dropzone" class="dropzone p-8 text-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors">
+                    <div class="mb-4">
+                        <svg class="w-16 h-16 mx-auto text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    <p class="text-lg mb-2">파일을 여기에 드래그하거나 클릭하여 업로드</p>
+                    <p class="text-sm text-gray-500 mb-4">모든 파일 처리는 브라우저에서 이루어집니다. 파일이 서버로 전송되지 않습니다.</p>
+                    <input type="file" id="file-input" class="hidden" />
+                    <button id="select-file-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">파일 선택</button>
+                </div>
+            </div>
+
+            <div id="conversion-options" class="hidden mb-6">
+                <h2 class="text-xl font-semibold mb-4">변환 옵션</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- 왼쪽 열: 파일 정보 -->
+                    <div>
+                        <div class="border rounded-md p-4">
+                            <h3 class="font-medium mb-2">파일 정보</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex">
+                                    <span class="text-gray-500 w-24">파일명:</span>
+                                    <span id="file-name" class="font-medium"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-24">형식:</span>
+                                    <span id="file-type" class="font-medium"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-24">크기:</span>
+                                    <span id="file-size" class="font-medium"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 오른쪽 열: 변환 설정 -->
+                    <div>
+                        <div class="border rounded-md p-4">
+                            <h3 class="font-medium mb-2">변환 설정</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="output-format" class="block text-sm font-medium text-gray-700 mb-1">출력 형식</label>
+                                    <select id="output-format" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">형식 선택</option>
+                                        <!-- 자바스크립트로 동적 생성 -->
+                                    </select>
+                                </div>
+                                
+                                <div id="format-specific-options">
+                                    <!-- 선택된 형식에 따라 동적으로 옵션 표시 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="conversion-actions" class="hidden text-center">
+                <button id="convert-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">변환하기</button>
+            </div>
+        </div>
+
+        <!-- 변환 진행 상태 -->
+        <div id="conversion-progress" class="hidden bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">변환 진행 중...</h2>
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-center text-gray-600">준비 중...</p>
+            <!-- 상세 진행 단계는 자바스크립트로 동적 추가됨 -->
+        </div>
+
+        <!-- 변환 결과 -->
+        <div id="conversion-result" class="hidden bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">변환 완료</h2>
+            
+            <div class="mb-6 p-4 border rounded-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 id="result-file-name" class="font-medium"></h3>
+                        <p id="result-file-info" class="text-sm text-gray-500"></p>
+                    </div>
+                    <div>
+                        <button id="download-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">다운로드</button>
+                        <button id="convert-to-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md ml-2">QR 코드 생성</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <button id="convert-another-btn" class="text-blue-600 hover:underline">다른 파일 변환하기</button>
+            </div>
+            <!-- 피드백 UI는 자바스크립트로 동적 추가됨 -->
+        </div>
+
+        <section class="py-8">
+            <h2 class="text-2xl font-bold mb-4">파일 변환 가이드</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-2">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">파일 선택</h3>
+                    <p class="text-gray-600">변환하려는 파일을 드래그앤드롭하거나 파일 선택 버튼을 클릭하여 업로드합니다. 파일은 서버로 전송되지 않고 브라우저에서 처리됩니다.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-2">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">옵션 설정</h3>
+                    <p class="text-gray-600">원하는 출력 형식과 추가 옵션을 선택합니다. 파일 유형에 따라 적절한 옵션이 자동으로 제공됩니다.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-2">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">변환 및 다운로드</h3>
+                    <p class="text-gray-600">변환 버튼을 클릭하여 처리를 시작합니다. 변환이 완료되면 결과 파일을 다운로드할 수 있습니다.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">FileToQR</h3>
+                    <p class="text-gray-400">파일 변환 및 QR 코드 생성 플랫폼</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">제품</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/convert.html" class="text-gray-400 hover:text-white">파일 변환</a></li>
+                            <li><a href="/qrcode.html" class="text-gray-400 hover:text-white">QR 코드 생성</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">리소스</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/blog" class="text-gray-400 hover:text-white">블로그</a></li>
+                            <li><a href="/help" class="text-gray-400 hover:text-white">도움말</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">법적 정보</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/privacy.html" class="text-gray-400 hover:text-white">개인정보처리방침</a></li>
+                            <li><a href="/terms.html" class="text-gray-400 hover:text-white">이용약관</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-gray-400 text-sm text-center">
+                <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                <p class="mt-1">버전: 1.0.0 (최종 업데이트: 2025-04-28)</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/core/app-core.js" type="module"></script>
+    <script src="assets/js/converters/file-converter.js" type="module"></script>
+    <script src="assets/js/ui/progress-tracker.js" type="module"></script>
+    <script src="assets/js/ui/help-tooltip.js" type="module"></script>
+    <script src="assets/js/utils/usage-analytics.js" type="module"></script>
+</body>
+</html> 

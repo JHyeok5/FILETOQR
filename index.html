@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="파일 변환 및 QR 코드 생성 플랫폼. 이미지, 문서, 오디오 등 다양한 파일을 변환하고 맞춤형 QR 코드를 생성하세요.">
+    <meta name="keywords" content="파일 변환, QR 코드, 이미지 변환, 문서 변환, 온라인 변환, 무료 변환, PNG, JPG, PDF">
+    <title>FileToQR - 파일 변환 및 QR 코드 생성 플랫폼</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">FileToQR</a>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="/" class="font-medium hover:text-blue-600">홈</a></li>
+                    <li><a href="/convert.html" class="font-medium hover:text-blue-600">파일 변환</a></li>
+                    <li><a href="/qrcode.html" class="font-medium hover:text-blue-600">QR 생성</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <section class="text-center py-12">
+            <h1 class="text-4xl font-bold mb-4">파일 변환 및 QR 코드 생성 플랫폼</h1>
+            <p class="text-xl text-gray-600 mb-8">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="/convert.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">파일 변환 시작하기</a>
+                <a href="/qrcode.html" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium">QR 코드 생성하기</a>
+            </div>
+        </section>
+
+        <section class="grid md:grid-cols-2 gap-8 py-12">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">파일 변환</h2>
+                <p class="text-gray-600 mb-4">다양한 파일 형식 간 변환을 지원합니다. 이미지, 문서, 오디오, 비디오, 데이터 파일을 쉽게 변환하세요.</p>
+                <ul class="space-y-2 mb-4">
+                    <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>이미지 변환 (PNG, JPG, WebP, GIF, SVG 등)</li>
+                    <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>문서 변환 (PDF, DOCX, TXT 등)</li>
+                    <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>데이터 변환 (CSV, JSON, YAML, XML 등)</li>
+                </ul>
+                <a href="/convert.html" class="text-blue-600 font-medium hover:underline">파일 변환하기 →</a>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">QR 코드 생성</h2>
+                <p class="text-gray-600 mb-4">커스터마이징 가능한 QR 코드를 쉽게 생성하세요. 다양한 콘텐츠 형식을 지원합니다.</p>
+                <ul class="space-y-2 mb-4">
+                    <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>URL, 텍스트, 연락처, Wi-Fi 등 다양한 콘텐츠</li>
+                    <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>색상, 로고, 모서리 스타일 커스터마이징</li>
+                    <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>PNG, SVG, PDF 등 다양한 출력 형식</li>
+                </ul>
+                <a href="/qrcode.html" class="text-green-600 font-medium hover:underline">QR 코드 생성하기 →</a>
+            </div>
+        </section>
+
+        <section class="py-12">
+            <h2 class="text-2xl font-bold mb-6 text-center">왜 FileToQR인가요?</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="text-center p-4">
+                    <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1h12a1 1 0 011 1v6H3V5a1 1 0 011-1zm0 8h12v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">개인정보 보호</h3>
+                    <p class="text-gray-600">모든 파일 처리가 브라우저에서 이루어져 파일이 외부 서버로 전송되지 않습니다.</p>
+                </div>
+                <div class="text-center p-4">
+                    <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">사용 편의성</h3>
+                    <p class="text-gray-600">직관적인 인터페이스와 간편한 사용법으로 누구나 쉽게 파일을 변환하고 QR 코드를 생성할 수 있습니다.</p>
+                </div>
+                <div class="text-center p-4">
+                    <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">다양한 형식 지원</h3>
+                    <p class="text-gray-600">이미지, 문서, 오디오, 데이터 등 다양한 파일 형식을 지원하여 필요한 모든 변환 작업을 한 곳에서 해결할 수 있습니다.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">FileToQR</h3>
+                    <p class="text-gray-400">파일 변환 및 QR 코드 생성 플랫폼</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">제품</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/convert.html" class="text-gray-400 hover:text-white">파일 변환</a></li>
+                            <li><a href="/qrcode.html" class="text-gray-400 hover:text-white">QR 코드 생성</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">리소스</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/blog" class="text-gray-400 hover:text-white">블로그</a></li>
+                            <li><a href="/help" class="text-gray-400 hover:text-white">도움말</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">법적 정보</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/privacy.html" class="text-gray-400 hover:text-white">개인정보처리방침</a></li>
+                            <li><a href="/terms.html" class="text-gray-400 hover:text-white">이용약관</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-gray-400 text-sm text-center">
+                <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                <p class="mt-1">버전: 1.0.0 (최종 업데이트: 2025-04-28)</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/core/app-core.js" type="module"></script>
+</body>
+</html> 
