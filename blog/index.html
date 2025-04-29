@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FileToQR 블로그 - 파일 변환, QR 코드, 디지털 트렌드에 관한 최신 정보와 유용한 팁을 제공합니다.">
+    <meta name="keywords" content="FileToQR 블로그, 파일 변환 팁, QR 코드 활용, 디지털 트렌드">
+    <title>블로그 - FileToQR</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">FileToQR</a>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="/" class="font-medium hover:text-blue-600">홈</a></li>
+                    <li><a href="/convert.html" class="font-medium hover:text-blue-600">파일 변환</a></li>
+                    <li><a href="/qrcode.html" class="font-medium hover:text-blue-600">QR 생성</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 헤더 배너 광고 -->
+    <div id="ad-header" class="ad-container my-4 text-center">
+        <div class="ad-label text-xs text-gray-500">광고</div>
+        <div class="ad-slot">
+            <!-- Google AdSense 헤더 광고 코드 삽입 위치 -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold">블로그</h1>
+            <div class="relative">
+                <input type="text" placeholder="블로그 검색..." class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button class="absolute right-3 top-2.5 text-gray-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- 사이드바 (카테고리, 태그, 인기글) -->
+            <div class="md:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">카테고리</h2>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-blue-600 hover:underline">파일 변환 팁 (8)</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">QR 코드 활용 (12)</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">디지털 트렌드 (5)</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">사용자 가이드 (7)</a></li>
+                        <li><a href="#" class="text-blue-600 hover:underline">서비스 업데이트 (3)</a></li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold mb-4">인기 태그</h2>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#QR코드</a>
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#파일변환</a>
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#PDF</a>
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#이미지</a>
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#업무효율</a>
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#디지털전환</a>
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#마케팅</a>
+                        <a href="#" class="px-3 py-1 bg-gray-100 rounded-full text-sm hover:bg-gray-200">#팁</a>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold mb-4">인기 게시글</h2>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="#" class="block hover:text-blue-600">
+                                <h3 class="font-medium">QR 코드로 비즈니스 효율성 높이는 5가지 방법</h3>
+                                <p class="text-sm text-gray-500 mt-1">2025년 4월 15일</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:text-blue-600">
+                                <h3 class="font-medium">대용량 파일을 효과적으로 변환하는 방법</h3>
+                                <p class="text-sm text-gray-500 mt-1">2025년 4월 8일</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:text-blue-600">
+                                <h3 class="font-medium">PDF를 편집 가능한 Word 문서로 변환하기</h3>
+                                <p class="text-sm text-gray-500 mt-1">2025년 3월 28일</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block hover:text-blue-600">
+                                <h3 class="font-medium">이미지 최적화: 용량은 줄이고 품질은 유지하는 방법</h3>
+                                <p class="text-sm text-gray-500 mt-1">2025년 3월 20일</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 사이드바 광고 -->
+                <div id="ad-sidebar" class="ad-container mt-6 text-center">
+                    <div class="ad-label text-xs text-gray-500">광고</div>
+                    <div class="ad-slot">
+                        <!-- Google AdSense 사이드바 광고 코드 삽입 위치 -->
+                        <ins class="adsbygoogle"
+                            style="display:block"
+                            data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                            data-ad-slot="XXXXXXXXXX"
+                            data-ad-format="auto"
+                            data-full-width-responsive="true"></ins>
+                        <script>
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 메인 콘텐츠 영역 (블로그 포스트) -->
+            <div class="md:col-span-2">
+                <!-- 최신 게시글 -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex items-center text-sm text-gray-500 mb-2">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded">QR 코드 활용</span>
+                        <span class="mx-2">|</span>
+                        <span>2025년 4월 28일</span>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold mb-2">QR 코드로 마케팅 효과 극대화하기</h2>
+                    
+                    <div class="aspect-w-16 aspect-h-9 mb-4">
+                        <img src="https://via.placeholder.com/800x450" alt="QR 코드 마케팅" class="rounded-lg object-cover w-full h-48">
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4">디지털 마케팅의 핵심 도구로 자리 잡은 QR 코드는 오프라인과 온라인을 연결하는 강력한 다리 역할을 합니다. 본 게시글에서는 QR 코드를 활용하여 마케팅 효과를 극대화하는 실용적인 전략을 소개합니다.</p>
+                    
+                    <a href="#" class="text-blue-600 font-medium hover:underline">계속 읽기 →</a>
+                </div>
+                
+                <!-- 콘텐츠 중간 광고 -->
+                <div id="ad-content" class="ad-container mb-6 text-center">
+                    <div class="ad-label text-xs text-gray-500">광고</div>
+                    <div class="ad-slot">
+                        <!-- Google AdSense 콘텐츠 내 광고 코드 삽입 위치 -->
+                        <ins class="adsbygoogle"
+                            style="display:block"
+                            data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                            data-ad-slot="XXXXXXXXXX"
+                            data-ad-format="auto"
+                            data-full-width-responsive="true"></ins>
+                        <script>
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                    </div>
+                </div>
+                
+                <!-- 다른 게시글들 -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">파일 변환 팁</span>
+                            <span class="mx-2">|</span>
+                            <span>2025년 4월 22일</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold mb-2">이미지 파일 형식별 장단점 비교</h2>
+                        
+                        <div class="mb-2">
+                            <img src="https://via.placeholder.com/400x225" alt="이미지 파일 형식" class="rounded-lg object-cover w-full h-32">
+                        </div>
+                        
+                        <p class="text-gray-600 mb-3 text-sm">PNG, JPG, WebP, SVG 등 다양한 이미지 파일 형식의 특징과 각각 어떤 상황에서 사용하는 것이 적합한지 알아봅니다.</p>
+                        
+                        <a href="#" class="text-blue-600 text-sm font-medium hover:underline">계속 읽기 →</a>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-2">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">디지털 트렌드</span>
+                            <span class="mx-2">|</span>
+                            <span>2025년 4월 19일</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold mb-2">2025년 주목해야 할 디지털 전환 트렌드</h2>
+                        
+                        <div class="mb-2">
+                            <img src="https://via.placeholder.com/400x225" alt="디지털 전환 트렌드" class="rounded-lg object-cover w-full h-32">
+                        </div>
+                        
+                        <p class="text-gray-600 mb-3 text-sm">빠르게 변화하는 디지털 환경에서 기업과 개인이 주목해야 할 2025년 핵심 디지털 전환 트렌드를 살펴봅니다.</p>
+                        
+                        <a href="#" class="text-blue-600 text-sm font-medium hover:underline">계속 읽기 →</a>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-2">
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">사용자 가이드</span>
+                            <span class="mx-2">|</span>
+                            <span>2025년 4월 14일</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold mb-2">복잡한 PDF 파일을 쉽게 편집하는 방법</h2>
+                        
+                        <div class="mb-2">
+                            <img src="https://via.placeholder.com/400x225" alt="PDF 편집" class="rounded-lg object-cover w-full h-32">
+                        </div>
+                        
+                        <p class="text-gray-600 mb-3 text-sm">PDF 파일 편집에 어려움을 겪고 계신가요? FileToQR을 활용하여 PDF 파일을 쉽게 편집할 수 있는 단계별 가이드를 소개합니다.</p>
+                        
+                        <a href="#" class="text-blue-600 text-sm font-medium hover:underline">계속 읽기 →</a>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-2">
+                            <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded">서비스 업데이트</span>
+                            <span class="mx-2">|</span>
+                            <span>2025년 4월 10일</span>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold mb-2">FileToQR 새로운 기능 업데이트 소식</h2>
+                        
+                        <div class="mb-2">
+                            <img src="https://via.placeholder.com/400x225" alt="서비스 업데이트" class="rounded-lg object-cover w-full h-32">
+                        </div>
+                        
+                        <p class="text-gray-600 mb-3 text-sm">FileToQR의 최신 업데이트 소식을 알려드립니다. 향상된 변환 속도, 새로운 파일 형식 지원, UI 개선 등 다양한 변화가 있습니다.</p>
+                        
+                        <a href="#" class="text-blue-600 text-sm font-medium hover:underline">계속 읽기 →</a>
+                    </div>
+                </div>
+                
+                <!-- 페이지네이션 -->
+                <div class="flex justify-center mt-8">
+                    <nav class="flex items-center space-x-2">
+                        <a href="#" class="px-3 py-1 rounded border text-gray-600 hover:bg-gray-100">이전</a>
+                        <a href="#" class="px-3 py-1 rounded border bg-blue-600 text-white">1</a>
+                        <a href="#" class="px-3 py-1 rounded border text-gray-600 hover:bg-gray-100">2</a>
+                        <a href="#" class="px-3 py-1 rounded border text-gray-600 hover:bg-gray-100">3</a>
+                        <span class="px-3 py-1 text-gray-600">...</span>
+                        <a href="#" class="px-3 py-1 rounded border text-gray-600 hover:bg-gray-100">8</a>
+                        <a href="#" class="px-3 py-1 rounded border text-gray-600 hover:bg-gray-100">다음</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 광고 -->
+    <div id="ad-footer" class="ad-container my-4 text-center">
+        <div class="ad-label text-xs text-gray-500">광고</div>
+        <div class="ad-slot">
+            <!-- Google AdSense 푸터 광고 코드 삽입 위치 -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">FileToQR</h3>
+                    <p class="text-gray-400">파일 변환 및 QR 코드 생성 플랫폼</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">제품</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/convert.html" class="text-gray-400 hover:text-white">파일 변환</a></li>
+                            <li><a href="/qrcode.html" class="text-gray-400 hover:text-white">QR 코드 생성</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">리소스</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/blog" class="text-gray-400 hover:text-white">블로그</a></li>
+                            <li><a href="/help.html" class="text-gray-400 hover:text-white">도움말</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">법적 정보</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/privacy.html" class="text-gray-400 hover:text-white">개인정보처리방침</a></li>
+                            <li><a href="/terms.html" class="text-gray-400 hover:text-white">이용약관</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-gray-400 text-sm text-center">
+                <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                <p class="mt-1">버전: 1.0.0 (최종 업데이트: 2025-04-28)</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core Scripts -->
+    <script src="../assets/js/core/app-core.js" type="module"></script>
+    <script src="../assets/js/utils/adsense-manager.js" type="module"></script>
+</body>
+</html> 

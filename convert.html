@@ -168,6 +168,9 @@
             </div>
             <!-- 피드백 UI는 자바스크립트로 동적 추가됨 -->
         </div>
+        
+        <!-- 광고 삽입 위치 -->
+        <div id="ad-placement" class="my-8"></div>
 
         <section class="py-8">
             <h2 class="text-2xl font-bold mb-4">파일 변환 가이드</h2>
@@ -241,10 +244,20 @@
         </div>
     </footer>
 
+    <!-- Core Scripts -->
     <script src="assets/js/core/app-core.js" type="module"></script>
-    <script src="assets/js/converters/file-converter.js" type="module"></script>
-    <script src="assets/js/ui/progress-tracker.js" type="module"></script>
+    
+    <!-- UI Components -->
     <script src="assets/js/ui/help-tooltip.js" type="module"></script>
-    <script src="assets/js/utils/usage-analytics.js" type="module"></script>
+    <script src="assets/js/ui/progress-tracker.js" type="module"></script>
+    
+    <!-- Converter Module -->
+    <script src="assets/js/converters/file-converter.js" type="module"></script>
+    
+    <!-- Utils -->
+    <script src="assets/js/utils/file-utils.js" type="module"></script>
+    <script src="assets/js/utils/ui-utils.js" type="module"></script>
+    <script src="assets/js/utils/storage-utils.js" type="module"></script>
+    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
 </body>
 </html> 

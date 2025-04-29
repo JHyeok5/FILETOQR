@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="파일을 QR 코드로 변환하여 공유하세요. 텍스트, 이미지, 문서 등 다양한 파일을 QR 코드로 저장하고 복원할 수 있습니다.">
+    <meta name="keywords" content="파일 QR 코드, QR 코드 변환, 파일 저장, QR 코드 공유, 파일 백업">
+    <title>파일을 QR 코드로 변환 - FileToQR</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/components/file-uploader.css">
+    <link rel="stylesheet" href="assets/css/components/qr-generator.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 진행 단계 스타일 */
+        .step-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        /* QR 코드 갤러리 스타일 */
+        .qr-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .qr-gallery-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .qr-gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .qr-gallery-item-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem;
+            text-align: center;
+        }
+        
+        /* QR 코드 설정 카드 스타일 */
+        .setting-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* 헬프 툴팁 스타일 */
+        .help-tooltip {
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        /* 드래그 오버 스타일 */
+        .dropzone.dragover {
+            border-color: #3B82F6;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">FileToQR</a>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="/" class="font-medium hover:text-blue-600">홈</a></li>
+                    <li><a href="/convert.html" class="font-medium hover:text-blue-600">파일 변환</a></li>
+                    <li><a href="/filetoqr.html" class="font-medium text-blue-600">파일을 QR 코드로</a></li>
+                    <li><a href="/qrcode.html" class="font-medium hover:text-blue-600">QR 생성</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">파일을 QR 코드로 변환</h1>
+        
+        <!-- 파일 업로드 섹션 -->
+        <div id="upload-section" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">파일 선택</h2>
+            <div id="dropzone" class="dropzone p-8 text-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors">
+                <div class="mb-4">
+                    <svg class="w-16 h-16 mx-auto text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                </div>
+                <p class="text-lg mb-2">파일을 여기에 드래그하거나 클릭하여 업로드</p>
+                <p class="text-sm text-gray-500 mb-4">최대 파일 크기: 10MB. 모든 파일 처리는 브라우저에서 이루어집니다.</p>
+                <input type="file" id="file-input" class="hidden" />
+                <button id="select-file-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">파일 선택</button>
+            </div>
+            
+            <!-- 파일 정보 및 QR 코드 설정 -->
+            <div id="file-settings" class="hidden mt-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- 왼쪽 열: 파일 정보 -->
+                    <div>
+                        <div class="setting-card">
+                            <h3 class="font-medium mb-2">파일 정보</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex">
+                                    <span class="text-gray-500 w-24">파일명:</span>
+                                    <span id="file-name" class="font-medium"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-24">형식:</span>
+                                    <span id="file-type" class="font-medium"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-24">크기:</span>
+                                    <span id="file-size" class="font-medium"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-gray-500 w-24">예상 QR 수:</span>
+                                    <span id="estimated-qr-count" class="font-medium"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 오른쪽 열: QR 코드 설정 -->
+                    <div>
+                        <div class="setting-card">
+                            <h3 class="font-medium mb-2">QR 코드 설정</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="qr-error-correction" class="block text-sm font-medium text-gray-700 mb-1">오류 수정 레벨</label>
+                                    <select id="qr-error-correction" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="L">낮음 (7%)</option>
+                                        <option value="M" selected>중간 (15%)</option>
+                                        <option value="Q">높음 (25%)</option>
+                                        <option value="H">매우 높음 (30%)</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">높은 오류 수정 레벨은 QR 코드가 손상되어도 스캔할 수 있게 해줍니다.</p>
+                                </div>
+                                
+                                <div>
+                                    <label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1">QR 코드 크기</label>
+                                    <select id="qr-size" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="256">작게 (256x256px)</option>
+                                        <option value="512" selected>중간 (512x512px)</option>
+                                        <option value="1024">크게 (1024x1024px)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">전경색</label>
+                                        <div class="color-picker border p-1 rounded">
+                                            <input type="color" id="foreground-color" value="#000000" class="w-full h-8">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">배경색</label>
+                                        <div class="color-picker border p-1 rounded">
+                                            <input type="color" id="background-color" value="#FFFFFF" class="w-full h-8">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <button id="generate-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">QR 코드 생성</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 변환 진행 상태 -->
+        <div id="conversion-progress" class="hidden bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">QR 코드 생성 중...</h2>
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-center text-gray-600 mb-4">준비 중...</p>
+            
+            <!-- 상세 진행 단계 -->
+            <div id="progress-steps" class="mt-6 space-y-2">
+                <!-- 동적으로 추가될 단계 항목들 -->
+            </div>
+            
+            <div class="mt-6 text-center">
+                <button id="cancel-btn" class="text-red-600 hover:text-red-700 font-medium">취소</button>
+            </div>
+        </div>
+        
+        <!-- 변환 결과 -->
+        <div id="conversion-result" class="hidden bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">QR 코드 생성 완료</h2>
+            
+            <div class="mb-6">
+                <div class="p-4 mb-6 bg-green-50 text-green-800 rounded-md border border-green-200">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <h3 class="font-medium">파일 "<span id="result-file-name"></span>"이(가) QR 코드로 변환되었습니다.</h3>
+                    </div>
+                    <p class="text-sm mt-2">총 <span id="total-qr-count" class="font-medium"></span>개의 QR 코드가 생성되었습니다. 첫 번째 QR 코드에는 파일 복원에 필요한 메타데이터가 포함되어 있습니다.</p>
+                </div>
+                
+                <!-- QR 코드 갤러리 -->
+                <h3 class="font-medium mb-2">생성된 QR 코드</h3>
+                <div id="qr-gallery" class="qr-gallery mb-6">
+                    <!-- 동적으로 QR 코드 이미지가 추가됨 -->
+                </div>
+                
+                <div class="flex flex-col md:flex-row justify-between">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-sm text-gray-600 mb-2">모든 QR 코드를 ZIP 파일로 다운로드하여 보관하거나 인쇄할 수 있습니다.</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button id="download-zip-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">ZIP 파일로 다운로드</button>
+                        <button id="print-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">QR 코드 인쇄</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <button id="convert-another-btn" class="text-blue-600 hover:underline">다른 파일 변환하기</button>
+            </div>
+        </div>
+        
+        <!-- QR 코드 스캔 및 파일 복원 섹션 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">QR 코드 스캔 및 파일 복원</h2>
+            <p class="mb-4">생성된 QR 코드를 스캔하여 원본 파일을 복원할 수 있습니다.</p>
+            
+            <div class="flex items-center justify-center mb-4">
+                <a href="qrcode.html#scanner" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">QR 코드 스캐너로 이동</a>
+            </div>
+            
+            <div class="text-sm text-gray-600">
+                <p class="mb-2">파일을 복원하려면:</p>
+                <ol class="list-decimal list-inside space-y-1 ml-2">
+                    <li>먼저 메타데이터 QR 코드(첫 번째 QR 코드)를 스캔하세요.</li>
+                    <li>그런 다음 나머지 QR 코드를 순서대로 스캔하세요.</li>
+                    <li>모든 QR 코드가 스캔되면 원본 파일이 자동으로 복원됩니다.</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- 광고 삽입 위치 -->
+        <div id="ad-placement" class="my-8"></div>
+
+        <!-- 가이드 섹션 -->
+        <section class="py-8">
+            <h2 class="text-2xl font-bold mb-4">파일을 QR 코드로 변환하는 방법</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-2">
+                        <div class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                            <span class="text-blue-600 font-bold">1</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">파일 선택</h3>
+                    <p class="text-gray-600">변환하려는 파일을 드래그앤드롭하거나 파일 선택 버튼을 클릭하여 업로드합니다.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-2">
+                        <div class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                            <span class="text-blue-600 font-bold">2</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">QR 코드 설정</h3>
+                    <p class="text-gray-600">오류 수정 레벨, QR 코드 크기, 색상 등 원하는 설정을 선택합니다.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-2">
+                        <div class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                            <span class="text-blue-600 font-bold">3</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">QR 코드 생성</h3>
+                    <p class="text-gray-600">생성 버튼을 클릭하면 파일이 여러 개의 QR 코드로 나눠져 변환됩니다.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-2">
+                        <div class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                            <span class="text-blue-600 font-bold">4</span>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">다운로드 및 복원</h3>
+                    <p class="text-gray-600">QR 코드를 다운로드하고 필요할 때 스캔하여 원본 파일을 복원합니다.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- FAQ 섹션 -->
+        <section class="py-8">
+            <h2 class="text-2xl font-bold mb-6">자주 묻는 질문</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-2">Q: 얼마나 큰 파일을 QR 코드로 변환할 수 있나요?</h3>
+                    <p class="text-gray-600">A: 브라우저에서 처리해야 하므로 10MB 이하의 파일을 권장합니다. 파일 크기가 클수록 더 많은 QR 코드가 생성됩니다.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-2">Q: 파일이 안전하게 처리되나요?</h3>
+                    <p class="text-gray-600">A: 네, 모든 파일 처리는 브라우저에서 이루어지며 서버로 전송되지 않습니다. 변환된 QR 코드는 사용자의 기기에만 저장됩니다.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-2">Q: 모든 QR 코드가 필요한 이유는 무엇인가요?</h3>
+                    <p class="text-gray-600">A: 단일 QR 코드에 저장할 수 있는 데이터 양에는 제한이 있습니다. 큰 파일은 여러 개의 QR 코드로 나눠서 저장하고, 복원 시 모든 QR 코드를 스캔해야 합니다.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-2">Q: QR 코드 일부가 손상되면 어떻게 되나요?</h3>
+                    <p class="text-gray-600">A: 오류 수정 레벨에 따라 일부 손상된 QR 코드도 복원할 수 있습니다. 하지만 모든 QR 코드가 필요하므로, 중요한 데이터의 경우 안전하게 보관하고 가능한 높은 오류 수정 레벨을 선택하세요.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-xl font-bold mb-2">FileToQR</h3>
+                    <p class="text-gray-400">파일 변환 및 QR 코드 생성 플랫폼</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">제품</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/convert.html" class="text-gray-400 hover:text-white">파일 변환</a></li>
+                            <li><a href="/filetoqr.html" class="text-gray-400 hover:text-white">파일을 QR 코드로</a></li>
+                            <li><a href="/qrcode.html" class="text-gray-400 hover:text-white">QR 코드 생성</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">리소스</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/blog" class="text-gray-400 hover:text-white">블로그</a></li>
+                            <li><a href="/help.html" class="text-gray-400 hover:text-white">도움말</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold mb-3">법적 정보</h4>
+                        <ul class="space-y-2">
+                            <li><a href="/privacy.html" class="text-gray-400 hover:text-white">개인정보처리방침</a></li>
+                            <li><a href="/terms.html" class="text-gray-400 hover:text-white">이용약관</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-gray-400 text-sm text-center">
+                <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                <p class="mt-1">버전: 1.0.0 (최종 업데이트: 2025-04-28)</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 필수 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <!-- Core Scripts -->
+    <script src="assets/js/core/app-core.js" type="module"></script>
+    
+    <!-- QR 코드 관련 스크립트 -->
+    <script src="assets/js/qr-generator/qrcode.min.js" type="module"></script>
+    <script src="assets/js/qr-generator/qr-generator.js" type="module"></script>
+    <script src="assets/js/qr-generator/qr-scanner.js" type="module"></script>
+    <script src="assets/js/qr-generator/qr-to-file.js" type="module"></script>
+    
+    <!-- 변환기 모듈 -->
+    <script src="assets/js/converters/file-to-qr.js" type="module"></script>
+    
+    <!-- 유틸리티 스크립트 -->
+    <script src="assets/js/utils/file-utils.js" type="module"></script>
+    <script src="assets/js/utils/ui-utils.js" type="module"></script>
+    <script src="assets/js/utils/storage-utils.js" type="module"></script>
+    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 파일 업로드 처리
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('file-input');
+            const selectFileBtn = document.getElementById('select-file-btn');
+            const fileSettings = document.getElementById('file-settings');
+            const uploadSection = document.getElementById('upload-section');
+            const generateQrBtn = document.getElementById('generate-qr-btn');
+            const conversionProgress = document.getElementById('conversion-progress');
+            const conversionResult = document.getElementById('conversion-result');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const downloadZipBtn = document.getElementById('download-zip-btn');
+            const printQrBtn = document.getElementById('print-qr-btn');
+            const convertAnotherBtn = document.getElementById('convert-another-btn');
+            
+            // 파일 정보 요소
+            const fileName = document.getElementById('file-name');
+            const fileType = document.getElementById('file-type');
+            const fileSize = document.getElementById('file-size');
+            const estimatedQrCount = document.getElementById('estimated-qr-count');
+            const resultFileName = document.getElementById('result-file-name');
+            const totalQrCount = document.getElementById('total-qr-count');
+            
+            // QR 설정 요소
+            const errorCorrectionSelect = document.getElementById('qr-error-correction');
+            const qrSizeSelect = document.getElementById('qr-size');
+            const foregroundColorInput = document.getElementById('foreground-color');
+            const backgroundColorInput = document.getElementById('background-color');
+            
+            // 진행 상태 요소
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const progressSteps = document.getElementById('progress-steps');
+            
+            // QR 코드 갤러리 요소
+            const qrGallery = document.getElementById('qr-gallery');
+            
+            // 현재 선택된 파일
+            let selectedFile = null;
+            // 생성된 QR 코드 배열
+            let generatedQRCodes = [];
+            
+            // 파일 크기 포맷팅 함수
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // 예상 QR 코드 개수 계산 함수
+            function estimateQRCount(fileSize, bytesPerQR) {
+                // 메타데이터 QR 코드 1개 + 데이터 QR 코드
+                return 1 + Math.ceil(fileSize / bytesPerQR);
+            }
+            
+            // 파일 선택 처리
+            function handleFileSelect(file) {
+                if (!file) return;
+                
+                selectedFile = file;
+                
+                // 파일 정보 표시
+                fileName.textContent = file.name;
+                fileType.textContent = file.type || '알 수 없음';
+                fileSize.textContent = formatFileSize(file.size);
+                
+                // QR 코드 수 예상 (1000바이트당 하나의 QR 코드로 가정)
+                const bytesPerQR = 1000;
+                const count = estimateQRCount(file.size, bytesPerQR);
+                estimatedQrCount.textContent = count + '개';
+                
+                // 파일 크기 경고
+                if (file.size > 10 * 1024 * 1024) { // 10MB
+                    alert('경고: 10MB 이상의 파일은 변환 시간이 오래 걸리고 많은 QR 코드가 생성됩니다.');
+                }
+                
+                // 설정 UI 표시
+                fileSettings.classList.remove('hidden');
+            }
+            
+            // 파일 드롭 이벤트
+            dropzone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('dragover');
+            });
+            
+            dropzone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('dragover');
+            });
+            
+            dropzone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // 파일 선택 버튼 클릭
+            selectFileBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+            
+            // QR 코드 생성 버튼 클릭
+            generateQrBtn.addEventListener('click', function() {
+                if (!selectedFile) {
+                    alert('먼저 파일을 선택해주세요.');
+                    return;
+                }
+                
+                // QR 코드 설정
+                const options = {
+                    errorCorrectionLevel: errorCorrectionSelect.value,
+                    size: parseInt(qrSizeSelect.value),
+                    foregroundColor: foregroundColorInput.value,
+                    backgroundColor: backgroundColorInput.value
+                };
+                
+                // 진행 상태 UI 표시
+                uploadSection.classList.add('hidden');
+                conversionProgress.classList.remove('hidden');
+                
+                // 진행 상태 업데이트 콜백
+                const onProgress = function(progress) {
+                    progressBar.style.width = progress.percent + '%';
+                    progressText.textContent = progress.detail;
+                    
+                    // 단계 추가 (필요시)
+                    if (progress.stage) {
+                        let stepEl = document.getElementById('progress-step-' + progress.stage);
+                        if (!stepEl) {
+                            stepEl = document.createElement('div');
+                            stepEl.id = 'progress-step-' + progress.stage;
+                            stepEl.className = 'flex items-center';
+                            
+                            const indicator = document.createElement('div');
+                            indicator.className = 'step-indicator bg-blue-100 text-blue-600';
+                            indicator.textContent = progressSteps.children.length + 1;
+                            
+                            const text = document.createElement('div');
+                            text.className = 'step-text';
+                            text.textContent = progress.stage;
+                            
+                            stepEl.appendChild(indicator);
+                            stepEl.appendChild(text);
+                            progressSteps.appendChild(stepEl);
+                        }
+                    }
+                };
+                
+                // 가상의 QR 코드 생성 함수 (실제로는 FileToQR.fileToQR.convertFileToQR 함수 사용)
+                setTimeout(function() {
+                    // 실제 구현 시 다음 코드를 사용
+                    // FileToQR.fileToQR.convertFileToQR(selectedFile, options, onProgress)
+                    //   .then(function(qrCodes) {
+                    //     generatedQRCodes = qrCodes;
+                    //     displayQRCodes(qrCodes);
+                    //   })
+                    //   .catch(function(error) {
+                    //     alert('QR 코드 생성 중 오류가 발생했습니다: ' + error.message);
+                    //     uploadSection.classList.remove('hidden');
+                    //     conversionProgress.classList.add('hidden');
+                    //   });
+                    
+                    // 테스트용 코드
+                    const testProgress = [25, 50, 75, 100];
+                    let index = 0;
+                    
+                    const progressInterval = setInterval(function() {
+                        if (index < testProgress.length) {
+                            onProgress({
+                                percent: testProgress[index],
+                                stage: '파일을 QR 코드로 변환 중',
+                                detail: `청크 ${index + 1}/${testProgress.length} 처리 중...`
+                            });
+                            index++;
+                        } else {
+                            clearInterval(progressInterval);
+                            
+                            // 테스트 QR 코드 생성
+                            const testQRCodes = [];
+                            for (let i = 0; i < 5; i++) {
+                                // 실제로는 QR 코드 데이터 URL이 들어갈 자리
+                                testQRCodes.push(`data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...`);
+                            }
+                            
+                            generatedQRCodes = testQRCodes;
+                            displayQRCodes(testQRCodes);
+                        }
+                    }, 500);
+                }, 500);
+            });
+            
+            // QR 코드 표시 함수
+            function displayQRCodes(qrCodes) {
+                // 결과 표시 준비
+                resultFileName.textContent = selectedFile.name;
+                totalQrCount.textContent = qrCodes.length;
+                
+                // QR 코드 갤러리 비우기
+                qrGallery.innerHTML = '';
+                
+                // QR 코드 갤러리에 이미지 추가
+                qrCodes.forEach((qrUrl, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'qr-gallery-item';
+                    
+                    const img = document.createElement('img');
+                    img.src = qrUrl;
+                    img.alt = `QR 코드 ${index}`;
+                    
+                    const label = document.createElement('div');
+                    label.className = 'qr-gallery-item-label';
+                    label.textContent = index === 0 ? '메타데이터' : `청크 ${index}`;
+                    
+                    item.appendChild(img);
+                    item.appendChild(label);
+                    qrGallery.appendChild(item);
+                });
+                
+                // 진행 UI 숨기고 결과 UI 표시
+                conversionProgress.classList.add('hidden');
+                conversionResult.classList.remove('hidden');
+            }
+            
+            // ZIP 다운로드 버튼 클릭
+            downloadZipBtn.addEventListener('click', function() {
+                if (generatedQRCodes.length === 0) {
+                    alert('다운로드할 QR 코드가 없습니다.');
+                    return;
+                }
+                
+                // 실제 구현 시 다음 코드 사용
+                // FileToQR.fileToQR.downloadQRCodePack(generatedQRCodes, selectedFile.name + '_QR.zip')
+                //   .then(function(zipBlob) {
+                //     // 다운로드 링크 생성
+                //     const downloadLink = document.createElement('a');
+                //     downloadLink.href = URL.createObjectURL(zipBlob);
+                //     downloadLink.download = selectedFile.name + '_QR.zip';
+                //     downloadLink.click();
+                //     
+                //     setTimeout(() => {
+                //       URL.revokeObjectURL(downloadLink.href);
+                //     }, 100);
+                //   })
+                //   .catch(function(error) {
+                //     alert('ZIP 파일 생성 중 오류가 발생했습니다: ' + error.message);
+                //   });
+                
+                // 테스트용 코드
+                alert('ZIP 파일 다운로드가 시작됩니다. (테스트 모드)');
+            });
+            
+            // 인쇄 버튼 클릭
+            printQrBtn.addEventListener('click', function() {
+                if (generatedQRCodes.length === 0) {
+                    alert('인쇄할 QR 코드가 없습니다.');
+                    return;
+                }
+                
+                // 인쇄용 새 창 열기
+                const printWindow = window.open('', '_blank');
+                
+                // 인쇄용 HTML 생성
+                let printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${selectedFile.name} QR 코드</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; }
+                        .qr-container { page-break-inside: avoid; display: inline-block; margin: 10px; text-align: center; }
+                        .qr-image { width: 150px; height: 150px; }
+                        .qr-label { margin-top: 5px; font-size: 12px; }
+                        h1 { text-align: center; font-size: 18px; margin-bottom: 20px; }
+                        .metadata { text-align: center; margin-bottom: 20px; font-size: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${selectedFile.name} QR 코드</h1>
+                    <div class="metadata">
+                        <p>파일 크기: ${formatFileSize(selectedFile.size)} | 총 QR 코드 수: ${generatedQRCodes.length}개</p>
+                        <p>생성일: ${new Date().toLocaleString()}</p>
+                    </div>`;
+                
+                // QR 코드 이미지 추가
+                generatedQRCodes.forEach((qrUrl, index) => {
+                    printContent += `
+                    <div class="qr-container">
+                        <img class="qr-image" src="${qrUrl}" alt="QR 코드 ${index}">
+                        <div class="qr-label">${index === 0 ? '메타데이터' : `청크 ${index}`}</div>
+                    </div>`;
+                });
+                
+                printContent += `
+                </body>
+                </html>`;
+                
+                printWindow.document.open();
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                
+                // 문서 로드 후 인쇄 대화상자 표시
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            });
+            
+            // 취소 버튼 클릭
+            cancelBtn.addEventListener('click', function() {
+                // 실제 구현 시 다음 코드 사용
+                // FileToQR.fileToQR.cancelConversion();
+                
+                conversionProgress.classList.add('hidden');
+                uploadSection.classList.remove('hidden');
+            });
+            
+            // 다른 파일 변환 버튼 클릭
+            convertAnotherBtn.addEventListener('click', function() {
+                // 상태 초기화
+                selectedFile = null;
+                generatedQRCodes = [];
+                fileInput.value = '';
+                progressBar.style.width = '0%';
+                progressText.textContent = '준비 중...';
+                progressSteps.innerHTML = '';
+                
+                // UI 초기화
+                conversionResult.classList.add('hidden');
+                fileSettings.classList.add('hidden');
+                uploadSection.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html> 

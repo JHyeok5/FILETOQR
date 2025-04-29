@@ -1,5 +1,5 @@
 /**
- * qr-scanner.js - FileToQR QR 코드 스캔 모듈
+ * qr-scanner.js - QR 코드 스캔 기능을 제공하는 모듈
  * 버전: 1.0.0
  * 최종 업데이트: 2025-04-28
  * 
@@ -9,167 +9,185 @@
  * - 스캔 결과 처리 및 표시
  */
 
-import registry from '../registry.js';
-
 // 즉시 실행 함수로 네임스페이스 보호
 (function() {
   'use strict';
 
-  // 페이지 로드 후 초기화
-  document.addEventListener('DOMContentLoaded', initQRScanner);
-
-  // 전역 변수
+  // 전역 네임스페이스
+  const FileToQR = window.FileToQR = window.FileToQR || {};
+  
+  // 모듈 레지스트리 참조
+  const registry = FileToQR.registry;
+  
+  // DOM 요소 레퍼런스
   let video = null;
   let canvasElement = null;
   let canvas = null;
-  let scanning = false;
-  let cameraStream = null;
-
-  // QR 코드 스캐너 초기화
+  let loadingMessage = null;
+  let scannerContainer = null;
+  
+  // 스캐너 상태
+  let isScanning = false;
+  
+  // 파일 복원 모드 플래그
+  let isFileRecoveryMode = false;
+  
+  /**
+   * 모듈 초기화
+   */
   function initQRScanner() {
-    console.log('QR 코드 스캐너 초기화 중...');
+    console.log('QR 스캐너 초기화 중...');
     
-    // 탭 전환 기능 초기화
+    // DOM 요소 참조
+    canvasElement = document.getElementById('scanner-canvas');
+    if (!canvasElement) {
+      console.error('스캐너 캔버스를 찾을 수 없습니다.');
+      return;
+    }
+    
+    canvas = canvasElement.getContext('2d');
+    loadingMessage = document.getElementById('loading-message');
+    scannerContainer = document.getElementById('scanner-container');
+    
+    // 비디오 요소 생성
+    video = document.createElement('video');
+    
+    // 탭 초기화
     initTabs();
     
-    // 비디오 요소
-    video = document.getElementById('scanner-video');
+    // 이벤트 리스너 등록
+    registerEventListeners();
     
-    // 캔버스 요소 생성 (화면에 보이지 않음)
-    canvasElement = document.createElement('canvas');
-    canvas = canvasElement.getContext('2d');
-    
-    // 카메라 시작 버튼
-    const startScannerBtn = document.getElementById('start-scanner');
-    if (startScannerBtn) {
-      startScannerBtn.addEventListener('click', startScanner);
+    // 이미지에서 QR 코드 스캔 처리
+    const imageInput = document.getElementById('qr-image-input');
+    if (imageInput) {
+      imageInput.addEventListener('change', handleImageSelect);
     }
     
-    // 카메라 중지 버튼
-    const stopScannerBtn = document.getElementById('stop-scanner');
-    if (stopScannerBtn) {
-      stopScannerBtn.addEventListener('click', stopScanner);
-    }
-    
-    // 이미지 선택 버튼
-    const selectImageBtn = document.getElementById('select-image-btn');
-    const qrImageInput = document.getElementById('qr-image-input');
-    
-    if (selectImageBtn && qrImageInput) {
-      selectImageBtn.addEventListener('click', () => {
-        qrImageInput.click();
-      });
+    // 파일 복원 모드 체크
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    if (urlParams.has('mode') && urlParams.get('mode') === 'fileRecovery') {
+      isFileRecoveryMode = true;
       
-      qrImageInput.addEventListener('change', handleImageSelect);
+      // 파일 복원 UI 표시
+      const fileRecoveryUI = document.getElementById('file-recovery-ui');
+      if (fileRecoveryUI) {
+        fileRecoveryUI.classList.remove('hidden');
+      }
     }
     
-    // 이미지 스캔 버튼
-    const scanImageBtn = document.getElementById('scan-image');
-    if (scanImageBtn) {
-      scanImageBtn.addEventListener('click', scanImage);
-    }
-    
-    // 결과 복사 버튼
-    const copyResultBtn = document.getElementById('copy-result');
-    if (copyResultBtn) {
-      copyResultBtn.addEventListener('click', copyResultToClipboard);
-    }
-    
-    console.log('QR 코드 스캐너 초기화 완료');
+    console.log('QR 스캐너 초기화 완료');
   }
-  
-  // 탭 전환 기능 초기화
+
+  /**
+   * 탭 초기화
+   */
   function initTabs() {
-    const createTab = document.getElementById('tab-create');
-    const scanTab = document.getElementById('tab-scan');
-    const createContent = document.getElementById('create-content');
-    const scanContent = document.getElementById('scan-content');
+    const scannerTabs = document.querySelectorAll('.scanner-tab');
+    const scannerPanels = document.querySelectorAll('.scanner-panel');
     
-    if (createTab && scanTab && createContent && scanContent) {
-      createTab.addEventListener('click', () => {
-        // 스캐너가 활성화되어 있으면 중지
-        if (scanning) {
+    scannerTabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        // 모든 탭에서 active 클래스 제거
+        scannerTabs.forEach(t => t.classList.remove('active'));
+        // 클릭한 탭에 active 클래스 추가
+        this.classList.add('active');
+        
+        // 모든 패널 숨기기
+        scannerPanels.forEach(panel => panel.classList.add('hidden'));
+        
+        // 선택한 패널 표시
+        const panelId = this.getAttribute('data-panel');
+        const targetPanel = document.getElementById(panelId);
+        if (targetPanel) {
+          targetPanel.classList.remove('hidden');
+        }
+        
+        // 카메라 스캔 패널이 선택되면 스캐너 시작
+        if (panelId === 'camera-scan-panel') {
+          startScanner();
+        } else {
           stopScanner();
         }
-        
-        // 탭 활성화 스타일 변경
-        createTab.className = 'px-4 py-2 font-medium text-blue-600 bg-white rounded-t-lg border-b-2 border-blue-600';
-        scanTab.className = 'px-4 py-2 font-medium text-gray-500 hover:text-blue-600 bg-white rounded-t-lg hover:border-b-2 hover:border-blue-300';
-        
-        // 콘텐츠 표시/숨김
-        createContent.classList.add('active');
-        scanContent.classList.remove('active');
       });
-      
-      scanTab.addEventListener('click', () => {
-        // 탭 활성화 스타일 변경
-        scanTab.className = 'px-4 py-2 font-medium text-blue-600 bg-white rounded-t-lg border-b-2 border-blue-600';
-        createTab.className = 'px-4 py-2 font-medium text-gray-500 hover:text-blue-600 bg-white rounded-t-lg hover:border-b-2 hover:border-blue-300';
-        
-        // 콘텐츠 표시/숨김
-        scanContent.classList.add('active');
-        createContent.classList.remove('active');
-      });
+    });
+  }
+
+  /**
+   * 이벤트 리스너 등록
+   */
+  function registerEventListeners() {
+    // 스캔 결과 복사 버튼
+    const copyButton = document.getElementById('copy-result');
+    if (copyButton) {
+      copyButton.addEventListener('click', copyResultToClipboard);
+    }
+    
+    // 이미지에서 QR 코드 읽기 버튼
+    const scanImageButton = document.getElementById('scan-image');
+    if (scanImageButton) {
+      scanImageButton.addEventListener('click', scanImage);
+    }
+    
+    // 복원 작업 재설정 버튼
+    const resetRecoveryButton = document.getElementById('reset-recovery');
+    if (resetRecoveryButton) {
+      resetRecoveryButton.addEventListener('click', resetFileRecovery);
+    }
+    
+    // 파일 다운로드 버튼
+    const downloadFileButton = document.getElementById('download-file');
+    if (downloadFileButton) {
+      downloadFileButton.addEventListener('click', downloadRecoveredFile);
     }
   }
 
-  // 카메라 스캐너 시작
+  /**
+   * 카메라 스캐너 시작
+   */
   function startScanner() {
-    // 플레이스홀더 숨기기
-    const placeholder = document.getElementById('scanner-placeholder');
-    const startButton = document.getElementById('start-scanner');
-    const stopButton = document.getElementById('stop-scanner');
-    const scanRegion = document.querySelector('.scan-region-highlight');
+    if (isScanning) return;
     
-    if (placeholder) placeholder.classList.add('hidden');
-    if (startButton) startButton.classList.add('hidden');
-    if (stopButton) stopButton.classList.remove('hidden');
-    if (video) video.classList.remove('hidden');
-    if (scanRegion) scanRegion.classList.remove('hidden');
+    isScanning = true;
     
-    // 브라우저 지원 확인
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      // 비디오 크기 설정
-      const constraints = {
-        video: {
-          facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      };
+    // 로딩 메시지 표시
+    if (loadingMessage) loadingMessage.innerText = "⌛ 카메라 액세스 요청 중...";
+    
+    // 비디오 스트림 설정
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    }).then(function(stream) {
+      video.srcObject = stream;
+      video.setAttribute("playsinline", true);  // iOS Safari에 필요
+      video.play();
       
-      // 카메라 액세스 요청
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then(function(stream) {
-          cameraStream = stream;
-          video.srcObject = stream;
-          video.setAttribute('playsinline', true); // iOS 사파리에서 필요
-          video.play();
-          
-          // 스캔 시작
-          scanning = true;
-          requestAnimationFrame(tick);
-        })
-        .catch(function(error) {
-          console.error('카메라 액세스 오류:', error);
-          alert('카메라에 액세스할 수 없습니다. 권한을 확인하세요.');
-          resetScanner();
-        });
-    } else {
-      console.error('브라우저가 getUserMedia를 지원하지 않습니다.');
-      alert('이 브라우저는 카메라 액세스를 지원하지 않습니다.');
-      resetScanner();
-    }
+      // 비디오 재생 시작 시 스캔 루프 시작
+      requestAnimationFrame(tick);
+      
+      // 로딩 메시지 숨김
+      if (loadingMessage) loadingMessage.innerText = "";
+    }).catch(function(err) {
+      isScanning = false;
+      console.error(err);
+      if (loadingMessage) loadingMessage.innerText = "📵 카메라를 사용할 수 없습니다: " + err.message;
+    });
   }
 
-  // 스캔 프레임 처리
+  /**
+   * 스캔 루프 함수
+   */
   function tick() {
-    if (!scanning) return;
+    if (!isScanning) return;
     
+    // 비디오가 재생 중인지 확인
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      // 비디오 프레임 크기 설정
-      canvasElement.height = video.videoHeight;
+      // 로딩 메시지 숨김
+      if (loadingMessage) loadingMessage.hidden = true;
+      if (canvasElement) canvasElement.hidden = false;
+      
+      // 캔버스 크기 설정
       canvasElement.width = video.videoWidth;
+      canvasElement.height = video.videoHeight;
       
       // 비디오 프레임을 캔버스에 그리기
       canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
@@ -187,72 +205,64 @@ import registry from '../registry.js';
         if (code) {
           console.log('QR 코드 발견:', code.data);
           
-          // 처리 중 오버레이 표시
-          const overlay = document.getElementById('scanner-overlay');
-          if (overlay) overlay.classList.remove('hidden');
+          // 발견된 위치에 테두리 그리기
+          canvas.lineWidth = 4;
+          canvas.strokeStyle = "#FF3B58";
           
-          // 스캐닝 일시 중지
-          scanning = false;
+          // QR 코드 테두리
+          canvas.beginPath();
+          canvas.moveTo(code.location.topLeftCorner.x, code.location.topLeftCorner.y);
+          canvas.lineTo(code.location.topRightCorner.x, code.location.topRightCorner.y);
+          canvas.lineTo(code.location.bottomRightCorner.x, code.location.bottomRightCorner.y);
+          canvas.lineTo(code.location.bottomLeftCorner.x, code.location.bottomLeftCorner.y);
+          canvas.lineTo(code.location.topLeftCorner.x, code.location.topLeftCorner.y);
+          canvas.stroke();
           
-          // 결과 처리
-          setTimeout(() => {
-            processQRResult(code.data);
-            
-            // 오버레이 숨기기
-            if (overlay) overlay.classList.add('hidden');
-            
-            // 스캐닝 재개 (결과 처리 후)
-            scanning = true;
-            requestAnimationFrame(tick);
-          }, 1000);
-          
-          return;
+          // 일시 정지 및 결과 처리
+          stopScanner();
+          processQRResult(code.data);
         }
       } catch (error) {
         console.error('QR 코드 처리 오류:', error);
       }
     }
     
-    // 다음 프레임 요청
-    requestAnimationFrame(tick);
+    // 다음 프레임 처리
+    if (isScanning) {
+      requestAnimationFrame(tick);
+    }
   }
 
-  // 카메라 스캐너 중지
+  /**
+   * 스캐너 중지
+   */
   function stopScanner() {
-    scanning = false;
+    if (!isScanning) return;
     
-    // 카메라 스트림 중지
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => {
-        track.stop();
-      });
-      cameraStream = null;
+    isScanning = false;
+    
+    // 비디오 스트림 중지
+    if (video && video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
     }
     
-    // UI 초기화
-    resetScanner();
+    // 비디오 소스 제거
+    if (video) video.srcObject = null;
   }
-
-  // 스캐너 UI 초기화
+  
+  /**
+   * 스캐너 상태 초기화
+   */
   function resetScanner() {
-    const placeholder = document.getElementById('scanner-placeholder');
-    const startButton = document.getElementById('start-scanner');
-    const stopButton = document.getElementById('stop-scanner');
-    const scanRegion = document.querySelector('.scan-region-highlight');
-    const overlay = document.getElementById('scanner-overlay');
-    
-    if (placeholder) placeholder.classList.remove('hidden');
-    if (startButton) startButton.classList.remove('hidden');
-    if (stopButton) stopButton.classList.add('hidden');
-    if (video) video.classList.add('hidden');
-    if (scanRegion) scanRegion.classList.add('hidden');
-    if (overlay) overlay.classList.add('hidden');
+    stopScanner();
     
     // 비디오 소스 제거
     if (video) video.srcObject = null;
   }
 
-  // 이미지 선택 처리
+  /**
+   * 이미지 선택 처리
+   */
   function handleImageSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -276,7 +286,9 @@ import registry from '../registry.js';
     reader.readAsDataURL(file);
   }
 
-  // 이미지에서 QR 코드 스캔
+  /**
+   * 이미지에서 QR 코드 스캔
+   */
   function scanImage() {
     const previewImage = document.getElementById('preview-image');
     
@@ -339,9 +351,19 @@ import registry from '../registry.js';
     tempImage.src = previewImage.src;
   }
 
-  // QR 코드 결과 처리
+  /**
+   * QR 코드 결과 처리
+   */
   function processQRResult(data) {
     console.log('QR 코드 결과 처리:', data);
+    
+    // 파일 복원 모드인 경우
+    if (isFileRecoveryMode) {
+      processFileRecoveryQR(data);
+      return;
+    }
+    
+    // 일반 QR 코드 결과 처리
     
     // 결과 영역 표시
     const resultContainer = document.getElementById('scan-result');
@@ -441,6 +463,19 @@ import registry from '../registry.js';
         resultAction.classList.remove('hidden');
       }
     }
+    // FileToQR 메타데이터 또는 청크 인식
+    else if (data.startsWith('META:') || data.startsWith('CHUNK:')) {
+      contentType = 'FileToQR';
+      
+      // 파일 복원 페이지로 리디렉션 제안
+      if (resultContent) {
+        resultContent.innerHTML = `<div class="p-4 bg-blue-50 text-blue-800 rounded-md border border-blue-200">
+                                    <div class="font-medium mb-2">파일 QR 코드가 감지되었습니다!</div>
+                                    <div class="text-sm mb-3">이 QR 코드는 FileToQR 시스템으로 생성된 파일의 일부입니다.</div>
+                                    <a href="qrcode.html#scanner?mode=fileRecovery" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md inline-block text-sm">파일 복원 모드로 전환</a>
+                                   </div>`;
+      }
+    }
     
     // 타입 표시
     if (resultType) resultType.textContent = contentType;
@@ -451,7 +486,9 @@ import registry from '../registry.js';
     }
   }
 
-  // 결과 클립보드에 복사
+  /**
+   * 결과 클립보드에 복사
+   */
   function copyResultToClipboard() {
     const resultContent = document.getElementById('result-content');
     
@@ -470,6 +507,159 @@ import registry from '../registry.js';
         alert('클립보드 복사에 실패했습니다. 브라우저 권한을 확인하세요.');
       });
   }
+  
+  /**
+   * 파일 복원 QR 코드 처리
+   */
+  function processFileRecoveryQR(data) {
+    // QR-파일 모듈 확인
+    if (!FileToQR.qrToFile) {
+      alert('파일 복원 모듈이 로드되지 않았습니다.');
+      return;
+    }
+    
+    try {
+      // QR 코드 데이터 처리
+      const recoveryState = FileToQR.qrToFile.processQRData(data, updateRecoveryProgress);
+      
+      // 복원 상태 UI 업데이트
+      updateRecoveryUI(recoveryState);
+    } catch (error) {
+      console.error('파일 복원 오류:', error);
+      alert('QR 코드 처리 중 오류가 발생했습니다: ' + error.message);
+    }
+  }
+  
+  /**
+   * 파일 복원 진행 상황 업데이트
+   */
+  function updateRecoveryProgress(progress) {
+    // 진행 상황 막대
+    const progressBar = document.getElementById('recovery-progress-bar');
+    if (progressBar) {
+      progressBar.style.width = progress.percent + '%';
+    }
+    
+    // 진행 상황 텍스트
+    const progressText = document.getElementById('recovery-progress-text');
+    if (progressText) {
+      progressText.textContent = progress.detail;
+    }
+    
+    // 메타데이터 정보 표시
+    if (progress.metadata) {
+      const filenameElement = document.getElementById('recovery-filename');
+      const filesizeElement = document.getElementById('recovery-filesize');
+      const filetypeElement = document.getElementById('recovery-filetype');
+      
+      if (filenameElement) filenameElement.textContent = progress.metadata.filename;
+      if (filesizeElement) filesizeElement.textContent = progress.metadata.filesize;
+      if (filetypeElement) filetypeElement.textContent = progress.metadata.filetype;
+    }
+    
+    // 복구 완료 시 다운로드 버튼 활성화
+    if (progress.isComplete) {
+      const downloadButton = document.getElementById('download-file');
+      if (downloadButton) {
+        downloadButton.disabled = false;
+        downloadButton.classList.remove('bg-gray-400');
+        downloadButton.classList.add('bg-green-600', 'hover:bg-green-700');
+      }
+      
+      // 완료 메시지 표시
+      const completeMessage = document.getElementById('recovery-complete-message');
+      if (completeMessage) {
+        completeMessage.classList.remove('hidden');
+      }
+    }
+  }
+  
+  /**
+   * 복원 상태 UI 업데이트
+   */
+  function updateRecoveryUI(state) {
+    // 복원 상태 요약
+    const summaryElement = document.getElementById('recovery-summary');
+    if (summaryElement) {
+      if (state.metadata) {
+        summaryElement.textContent = `${state.recoveredChunks}/${state.totalChunks} 청크가 처리됨`;
+      } else {
+        summaryElement.textContent = '메타데이터 QR 코드를 먼저 스캔하세요.';
+      }
+    }
+    
+    // 메타데이터 섹션
+    const metadataSection = document.getElementById('recovery-metadata-section');
+    if (metadataSection) {
+      if (state.metadata) {
+        metadataSection.classList.remove('hidden');
+      } else {
+        metadataSection.classList.add('hidden');
+      }
+    }
+  }
+  
+  /**
+   * 파일 복원 작업 재설정
+   */
+  function resetFileRecovery() {
+    if (!FileToQR.qrToFile) return;
+    
+    // 복원 상태 초기화
+    FileToQR.qrToFile.resetRecovery();
+    
+    // UI 초기화
+    const progressBar = document.getElementById('recovery-progress-bar');
+    if (progressBar) progressBar.style.width = '0%';
+    
+    const progressText = document.getElementById('recovery-progress-text');
+    if (progressText) progressText.textContent = '복원 준비 중...';
+    
+    const summaryElement = document.getElementById('recovery-summary');
+    if (summaryElement) summaryElement.textContent = '메타데이터 QR 코드를 먼저 스캔하세요.';
+    
+    const metadataSection = document.getElementById('recovery-metadata-section');
+    if (metadataSection) metadataSection.classList.add('hidden');
+    
+    const completeMessage = document.getElementById('recovery-complete-message');
+    if (completeMessage) completeMessage.classList.add('hidden');
+    
+    const downloadButton = document.getElementById('download-file');
+    if (downloadButton) {
+      downloadButton.disabled = true;
+      downloadButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+      downloadButton.classList.add('bg-gray-400');
+    }
+    
+    // 알림
+    alert('파일 복원 작업이 재설정되었습니다.');
+  }
+  
+  /**
+   * 복원된 파일 다운로드
+   */
+  function downloadRecoveredFile() {
+    if (!FileToQR.qrToFile) return;
+    
+    // 복원 상태 가져오기
+    const state = FileToQR.qrToFile.getRecoveryState();
+    
+    if (!state.isComplete) {
+      alert('모든 QR 코드를 스캔해야 파일을 다운로드할 수 있습니다.');
+      return;
+    }
+    
+    // 파일 재구성
+    FileToQR.qrToFile.reconstructFile()
+      .then(result => {
+        // 파일 다운로드
+        FileToQR.qrToFile.downloadReconstructedFile(result.blob, result.metadata.name);
+      })
+      .catch(error => {
+        console.error('파일 재구성 오류:', error);
+        alert('파일 재구성 중 오류가 발생했습니다: ' + error.message);
+      });
+  }
 
   // 모듈 등록
   if (registry) {
@@ -483,4 +673,7 @@ import registry from '../registry.js';
       console.warn('레지스트리 등록 실패:', e);
     }
   }
+  
+  // 페이지 로드 시 QR 스캐너 초기화
+  document.addEventListener('DOMContentLoaded', initQRScanner);
 })(); 
