@@ -158,7 +158,6 @@
                     </div>
                     <div>
                         <button id="download-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">다운로드</button>
-                        <button id="convert-to-qr-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md ml-2">QR 코드 생성</button>
                     </div>
                 </div>
             </div>
@@ -246,6 +245,21 @@
 
     <!-- Core Scripts -->
     <script src="assets/js/core/app-core.js" type="module"></script>
+    
+    <!-- 필요한 폴리필 및 글로벌 객체 정의 -->
+    <script>
+    window.ProgressTracker = window.ProgressTracker || function() {
+      this.start = function() { console.log('Progress tracking started'); };
+      this.updateProgress = function(percent, message) { console.log(percent + '%: ' + message); };
+      this.complete = function() { console.log('Progress tracking completed'); };
+    };
+    
+    window.analytics = window.analytics || {
+      trackPageView: function() { console.log('Page view tracked'); },
+      trackAction: function() { console.log('Action tracked:', arguments); },
+      trackConversion: function() { console.log('Conversion tracked:', arguments); }
+    };
+    </script>
     
     <!-- UI Components -->
     <script src="assets/js/ui/help-tooltip.js" type="module"></script>

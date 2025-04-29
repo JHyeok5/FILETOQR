@@ -1,7 +1,7 @@
 # FileToQR 프로젝트 디렉토리 구조 설명
 
-**버전**: 1.0.0  
-**최종 업데이트**: 2025-04-28
+**버전**: 1.1.0  
+**최종 업데이트**: 2025-06-10
 
 ## 개요
 
@@ -107,7 +107,8 @@ assets/
 | `audio-converter.js` | 오디오 파일 변환 (MP3, WAV, FLAC 등) |
 | `video-converter.js` | 비디오 파일 변환 (MP4, WebM, AVI 등) |
 | `data-converter.js` | 데이터 파일 변환 (CSV, JSON, YAML 등) |
-| `file-converter.js` | 파일을 데이터 URI로 인코딩 (QR 코드 생성용) |
+| `file-converter.js` | 파일 변환 및 QR 코드 기능 연동 |
+| `file-to-qr.js` | 파일을 QR 코드로 변환하는 기능 |
 
 **목적**: 다양한 유형의 파일 변환 기능 제공
 
@@ -120,8 +121,10 @@ QR 코드 생성 모듈을 포함합니다.
 | `qr-generator.js` | QR 코드 생성 기본 로직, 파일 기반 QR 코드 지원 포함 |
 | `qr-designer.js` | QR 코드 디자인 커스터마이징 (색상, 모양, 로고 등) |
 | `qr-content-formatter.js` | 콘텐츠 포맷팅 (URL, 텍스트, vCard, WiFi, 파일 등) |
+| `qr-scanner.js` | 브라우저에서 카메라를 사용하여 QR 코드를 스캔하는 기능 |
+| `qr-to-file.js` | QR 코드에서 인코딩된 데이터를 원본 파일로 복원하는 기능 |
 
-**목적**: QR 코드 생성 및 커스터마이징 기능 제공
+**목적**: QR 코드 생성, 스캔 및 커스터마이징 기능 제공
 
 ### assets/js/ui/
 

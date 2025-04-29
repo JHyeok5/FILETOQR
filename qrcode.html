@@ -566,13 +566,20 @@
     </footer>
 
     <!-- Core Scripts -->
-    <script src="assets/js/core/app-core.js" type="module"></script>
-    <script src="assets/js/qr-generator/qrcode.min.js" type="module"></script>
-    <script src="assets/js/qr-generator/qr-generator.js" type="module"></script>
-    <script src="assets/js/utils/file-utils.js" type="module"></script>
-    <script src="assets/js/utils/ui-utils.js" type="module"></script>
-    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
+    <script src="assets/js/core/app-core.js"></script>
     
+    <!-- QR 코드 생성 라이브러리 - 모듈 타입 제거 및 올바른 순서로 로드 -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    
+    <!-- 유틸리티 스크립트 - 모듈 타입 제거 -->
+    <script src="assets/js/utils/file-utils.js"></script>
+    <script src="assets/js/utils/ui-utils.js"></script>
+    <script src="assets/js/utils/adsense-manager.js"></script>
+    
+    <!-- QR 코드 생성 스크립트 - 중복 로드 제거 -->
+    <script src="assets/js/qr-generator/qr-generator.js"></script>
+    
+    <!-- 이벤트 추적 스크립트 -->
     <script>
         // 콘텐츠 유형 탭 전환 처리
         document.addEventListener('DOMContentLoaded', function() {
@@ -612,13 +619,19 @@
             // QR 코드 생성 버튼 이벤트 처리
             const generateQrButton = document.getElementById('generate-qr');
             generateQrButton.addEventListener('click', function() {
-                // 여기서 실제 QR 코드 생성 로직이 실행됨
-                // 실제 구현은 qr-generator.js에서 처리
-                document.getElementById('download-options').style.display = 'block';
-                
-                // 미리보기 영역에 QR 코드 생성 결과 표시 (임시 예시)
-                const previewContainer = document.getElementById('qr-preview');
-                previewContainer.innerHTML = '<img src="https://via.placeholder.com/300x300" alt="QR 코드 미리보기" class="w-full h-auto">';
+                // qr-generator.js의 generateQRCode 함수 호출
+                generateQRCode();
+            });
+            
+            // 다운로드 버튼 이벤트 처리
+            document.getElementById('download-png').addEventListener('click', function() {
+                downloadQRCode('png');
+            });
+            document.getElementById('download-svg').addEventListener('click', function() {
+                downloadQRCode('svg');
+            });
+            document.getElementById('download-jpeg').addEventListener('click', function() {
+                downloadQRCode('jpeg');
             });
         });
     </script>
