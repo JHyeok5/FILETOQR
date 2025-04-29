@@ -2,7 +2,7 @@
   "metadata": {
     "project": "FileToQR",
     "description": "파일 변환 및 QR 코드 생성 플랫폼",
-    "lastUpdated": "2025-05-20",
+    "lastUpdated": "2025-06-10",
     "version": "1.1.0"
   },
   "files": {
@@ -375,6 +375,27 @@
       },
       "exports": ["fileConverter"],
       "lastModified": "2025-05-25"
+    },
+    "assets/js/qr-generator/qr-scanner.js": {
+      "purpose": "QR 코드 스캐너",
+      "description": "브라우저에서 카메라를 사용하여 QR 코드를 스캔하고 데이터를 추출하는 모듈",
+      "dependencies": ["assets/js/qr-generator/qr-generator.js", "assets/js/registry.js"],
+      "exports": ["qrScanner"],
+      "lastModified": "2025-05-20"
+    },
+    "assets/js/qr-generator/qr-to-file.js": {
+      "purpose": "QR 코드를 파일로 변환",
+      "description": "QR 코드에서 인코딩된 데이터를 원본 파일로 복원",
+      "dependencies": ["assets/js/registry.js", "assets/js/utils/file-utils.js"],
+      "exports": ["qrToFile"],
+      "lastModified": "2025-05-20"
+    },
+    "assets/js/converters/file-to-qr.js": {
+      "purpose": "파일을 QR 코드로 변환",
+      "description": "파일을 QR 코드로 변환하여 저장하거나 인쇄할 수 있는 기능 제공",
+      "dependencies": ["assets/js/registry.js", "assets/js/utils/file-utils.js"],
+      "exports": ["fileToQR"],
+      "lastModified": "2025-05-20"
     }
   }
 }
