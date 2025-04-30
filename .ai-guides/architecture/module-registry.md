@@ -662,4 +662,220 @@ function checkForFileData() {
 - **1.2.0** (2025-05-20): 파일 미리보기 모듈 예제 추가 및 UI 미리보기 카테고리 추가
 - **1.1.0** (2025-05-15): 파일 기반 QR 코드 생성 기능을 위한 파일 포맷터 예제 추가
 - **1.0.0** (2025-04-28): 최초 문서 작성
+
+# FileToQR 모듈 레지스트리
+
+## 개요
+
+이 문서는 FileToQR 애플리케이션의 모듈 아키텍처 및 레지스트리 구조를 설명합니다. 애플리케이션은 모듈화된 구조를 통해 유지보수와 확장이 용이하며, 세부 기능은 전용 모듈로 분리되어 관리됩니다.
+
+## 핵심 아키텍처
+
+FileToQR 애플리케이션은 다음과 같은 핵심 아키텍처 계층으로 구성됩니다:
+
+1. **코어 계층**: 애플리케이션의 기본 동작과 초기화를 담당
+2. **모듈 계층**: 다양한 기능을 모듈화하여 제공
+3. **유틸리티 계층**: 공통 기능과 도구를 제공
+4. **UI 계층**: 사용자 인터페이스와 관련된 모듈 관리
+5. **워커 계층**: 백그라운드 처리와 성능 최적화 담당
+
+## 기반 시스템
+
+### 컴포넌트 시스템
+
+컴포넌트 시스템은 UI 요소의 생성, 관리, 렌더링을 표준화하는 프레임워크입니다.
+
+#### 핵심 모듈
+
+- **component-system.js**: 컴포넌트 정의, 라이프사이클 관리, 상태 관리 제공
+- **template-utils.js**: 템플릿 기반 HTML 렌더링 및 데이터 바인딩 기능 제공
+- **ui-components.js**: 재사용 가능한 UI 컴포넌트 라이브러리
+
+#### 핵심 기능
+
+1. **컴포넌트 라이프사이클 관리**:
+   - `onCreate`: 컴포넌트 생성 시점
+   - `onMount`: DOM에 마운트 시점
+   - `onUpdate`: 속성 또는 상태 업데이트 시점
+   - `onDestroy`: 컴포넌트 제거 시점
+
+2. **이벤트 핸들링**:
+   - 데이터 속성 기반 이벤트 바인딩 (`data-event="click:handleClick"`)
+   - 자동 이벤트 등록 및 정리
+
+3. **상태 관리**:
+   - 반응형 컴포넌트 상태
+   - 상태 변경에 따른 자동 UI 업데이트
+
+4. **템플릿 렌더링**:
+   - 변수 삽입 (`${변수명}`)
+   - 조건부 렌더링 (`<!-- if 조건 -->내용<!-- endif -->`)
+   - 반복 렌더링 (`<!-- for 항목 in 배열 -->내용<!-- endfor -->`)
+
+#### 사용 예제
+
+```javascript
+// 컴포넌트 정의
+ComponentSystem.defineComponent('alert', {
+  version: '1.0.0',
+  initialState: {
+    visible: false,
+    type: 'info',
+    message: ''
+  },
+  render(props, state) {
+    if (!state.visible) return '';
+    return `<div class="alert alert-${state.type}">${state.message}</div>`;
+  },
+  methods: {
+    show(options) {
+      ComponentSystem.setState(this.id, { visible: true, ...options });
+    },
+    close() {
+      ComponentSystem.setState(this.id, { visible: false });
+    }
+  }
+});
+
+// 컴포넌트 사용
+const alertId = ComponentSystem.mountComponent('alert', document.getElementById('alert-container'));
+const alertInstance = ComponentSystem.instances.get(alertId);
+alertInstance.definition.show.call(alertInstance, { message: '성공!', type: 'success' });
+```
+
+### 버전 관리 시스템
+
+버전 관리 시스템은 모듈과 컴포넌트의 버전을 추적하고 호환성을 보장합니다.
+
+#### 핵심 모듈
+
+- **version-manager.js**: 시맨틱 버전 관리 및 호환성 확인 기능 제공
+- **module-loader.js**: 동적 모듈 로딩, 의존성 관리
+
+#### 핵심 기능
+
+1. **버전 등록 및 관리**:
+   - 모듈 버전 등록 및 추적
+   - 시맨틱 버전 관리 규칙 준수
+
+2. **버전 호환성 확인**:
+   - 모듈 간 호환성 검증
+   - 의존성 관계 확인
+
+3. **동적 모듈 로딩**:
+   - 필요한 시점에 모듈 로드
+   - 중복 로드 방지
+   - 의존성 문제 해결
+
+#### 사용 예제
+
+```javascript
+// 버전 등록
+VersionManager.registerVersion('ui-components', '1.0.0', {
+  dependencies: ['component-system@1.0.0', 'template-utils@1.0.0']
+});
+
+// 모듈 로드
+const module = await ModuleLoader.loadModule('assets/js/ui/ui-components.js');
+
+// 호환성 확인
+const isCompatible = VersionManager.isCompatible('component-system', '1.0.0');
+if (!isCompatible) {
+  console.warn('컴포넌트 시스템 버전이 호환되지 않습니다.');
+}
+```
+
+## 파일 변환 흐름
+
+### 개요
+
+파일 변환 프로세스는 여러 모듈의 협력으로 이루어지며, 각 모듈은 파일 변환 흐름의 특정 부분을 담당합니다.
+
+### 등록된 모듈
+
+- **converter-core**
+  - 변환 프로세스 초기화 및 조정
+  - 변환 옵션 및 설정 관리
+
+- **file-converter**
+  - 파일 업로드 및 변환 UI 관리
+  - 파일 처리 및 변환 결과 표시
+
+- **document-converter**, **image-converter**, **audio-converter**, **video-converter**, **data-converter**
+  - 특정 파일 타입에 대한 변환 로직 제공
+  - 파일 유형별 최적화된 변환 구현
+
+### 변환 흐름
+
+1. 사용자가 파일 업로드
+2. 파일 타입 감지
+3. 적절한 변환기 모듈 로드
+4. 변환 옵션 설정
+5. 변환 프로세스 실행
+6. 변환 결과 표시 및 다운로드 옵션 제공
+
+## QR 코드 생성 흐름
+
+### 개요
+
+QR 코드 생성은 다양한 콘텐츠 유형을 QR 코드로 변환하는 과정입니다. 이 기능은 일반 텍스트, URL부터 파일 데이터까지 다양한 내용을 지원합니다.
+
+### 등록된 모듈
+
+- **qr-core**
+  - QR 코드 생성의 기본 기능 제공
+  - 외부 QR 라이브러리 연동
+
+- **qr-generator**
+  - 다양한 콘텐츠 유형의 QR 코드 생성
+  - QR 코드 커스터마이징 및 다운로드 기능
+
+- **qr-designer**
+  - QR 코드 디자인 요소 커스터마이징
+  - 색상, 모양, 로고 등 설정
+
+- **qr-content-formatter**
+  - 다양한 데이터 유형을 QR 형식으로 포맷팅
+  - vCard, WiFi, URL 등 특수 형식 지원
+
+### QR 생성 흐름
+
+1. 사용자가 콘텐츠 유형 선택
+2. 콘텐츠 입력 또는 파일 업로드
+3. 콘텐츠 형식에 맞게 데이터 포맷팅
+4. QR 코드 생성 및 미리보기 표시
+5. 디자인 옵션 적용 (색상, 크기 등)
+6. 완성된 QR 코드 다운로드 또는 공유
+
+## 파일 변환 → QR 코드 생성 흐름
+
+### 개요
+
+파일 변환 결과를 QR 코드로 직접 생성하는 기능은 `file-converter.js`와 `qr-generator.js` 모듈 간의 연동을 통해 구현됩니다. 이 흐름을 통해 사용자는 변환된 파일을 QR 코드로 생성하여 공유하거나 다운로드할 수 있습니다.
+
+### 등록된 모듈
+
+- **file-converter**
+  - 파일 변환 및 다운로드 기능 제공
+  - `handleConvertToQRClick()` 함수를 통해 QR 코드 생성 페이지 연동
+
+- **qr-generator**
+  - 다양한 콘텐츠 유형의 QR 코드 생성 기능 제공
+  - `checkForFileData()` 함수를 통해 파일 변환 페이지에서 전달된 파일 데이터 처리
+  - `encodeFileToQR()` 함수로 파일을 QR 코드로 인코딩
+
+### 데이터 흐름
+
+1. 사용자가 파일 변환 페이지에서 변환 작업 완료 후 "QR 코드 생성" 버튼 클릭
+2. `handleConvertToQRClick()` 함수가 호출되어 변환 결과를 세션 스토리지에 저장
+3. 사용자가 QR 코드 생성 페이지(qrcode.html?contentType=file)로 리디렉션됨
+4. QR 생성 페이지 로드 시 `checkForFileData()` 함수가 세션 스토리지에서 파일 데이터 확인
+5. 파일 콘텐츠 유형이 자동 선택되고 파일 정보 표시
+6. `generateQRCode()` 함수를 통해 파일 데이터를 QR 코드로 자동 생성
+
+### 구현 고려사항
+
+- 세션 스토리지 용량 제한으로 인해 파일 크기는 최대 2KB로 제한
+- 파일 크기가 클 경우 자동 축소 또는 압축 처리
+- 바이너리 데이터를 위한 Base64 인코딩 사용
   

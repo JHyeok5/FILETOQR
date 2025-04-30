@@ -19,6 +19,12 @@
   // 모듈 레지스트리 참조
   const registry = FileToQR.registry;
   
+  // 파일 유틸리티 참조
+  let fileUtils = null;
+  
+  // QR 스캐너 객체
+  const qrScanner = FileToQR.qrScanner = {};
+  
   // DOM 요소 레퍼런스
   let video = null;
   let canvasElement = null;
@@ -37,6 +43,15 @@
    */
   function initQRScanner() {
     console.log('QR 스캐너 초기화 중...');
+    
+    // FileToQR.utils가 준비되었는지 확인
+    if (FileToQR.utils && FileToQR.utils.file) {
+      fileUtils = FileToQR.utils.file;
+      console.log('파일 유틸리티 참조 설정 완료');
+    } else {
+      console.warn('파일 유틸리티를 찾을 수 없습니다. 내부 기능으로 대체합니다.');
+      fileUtils = null;
+    }
     
     // DOM 요소 참조
     canvasElement = document.getElementById('scanner-canvas');
@@ -661,19 +676,34 @@
       });
   }
 
-  // 모듈 등록
-  if (registry) {
-    try {
-      registry.register('qr-generator', 'qr-scanner', {
-        startScanner,
-        stopScanner,
-        processQRResult
-      });
-    } catch (e) {
-      console.warn('레지스트리 등록 실패:', e);
+  /**
+   * 파일 크기 형식화
+   * file-converter.js의 함수 재사용
+   */
+  function formatFileSize(bytes) {
+    // fileUtils가 있으면 해당 함수 사용, 없으면 내부 구현 사용
+    if (fileUtils && fileUtils.formatSize) {
+      return fileUtils.formatSize(bytes);
     }
+    
+    // 폴백 구현
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
+
+  // 모듈 API 설정
+  qrScanner.init = initQRScanner;
+  qrScanner.startScanner = startScanner;
+  qrScanner.stopScanner = stopScanner;
+  qrScanner.resetScanner = resetScanner;
+  qrScanner.scanImage = scanImage;
+  qrScanner.formatFileSize = formatFileSize;
   
-  // 페이지 로드 시 QR 스캐너 초기화
-  document.addEventListener('DOMContentLoaded', initQRScanner);
+  // 글로벌 네임스페이스에 등록
+  window.qrScanner = qrScanner;
 })(); 

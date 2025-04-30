@@ -49,8 +49,7 @@ filetoqr/
 │   │   │   ├── audio-converter.js # 오디오 변환
 │   │   │   ├── video-converter.js # 비디오 변환
 │   │   │   ├── data-converter.js  # 데이터 파일 변환
-│   │   │   ├── file-converter.js  # 파일 변환 및 QR 코드 연동
-│   │   │   └── file-to-qr.js      # 파일을 QR 코드로 변환 기능
+│   │   │   └── file-converter.js  # 파일 변환 및 QR 코드 연동
 │   │   │
 │   │   ├── qr-generator/          # QR 코드 생성 모듈
 │   │   │   ├── qr-generator.js    # QR 코드 생성 기본 로직 (파일 기반 QR 코드 지원)
@@ -185,7 +184,6 @@ filetoqr/
 3. **파일 기반 QR 코드 확장**: 
    - `file-converter.js`에서 `handleConvertToQRClick()` 함수를 통한 데이터 전달 방식 확장
    - `qr-generator.js`에서 `checkForFileData()` 및 `encodeFileToQR()` 함수를 통한 파일 지원 유형 확장
-   - `file-to-qr.js`에서 파일 변환 및 청크 처리 로직 확장
    - `qr-to-file.js`에서 QR 코드 스캔 및 파일 복원 기능 확장
 4. **UI 커스터마이징**: `components/` 디렉토리와 `assets/css/components/`에서 컴포넌트 수정
 5. **기능 확장**: 레지스트리 기반 플러그인 구조를 통해 새로운 기능 모듈 추가

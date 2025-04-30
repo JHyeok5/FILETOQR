@@ -18,9 +18,6 @@ const fileConverter = {};
 (function() {
   'use strict';
 
-  // 페이지 로드 후 초기화
-  document.addEventListener('DOMContentLoaded', initFileConverter);
-
   // 전역 상태 변수
   let currentFile = null;
   let selectedOutputFormat = '';
@@ -39,6 +36,7 @@ const fileConverter = {};
     const outputFormatSelect = document.getElementById('output-format');
     const downloadBtn = document.getElementById('download-btn');
     const convertAnotherBtn = document.getElementById('convert-another-btn');
+    const convertToQrBtn = document.getElementById('convert-to-qr-btn');
     
     // 진행 상태 추적기 초기화 - 오류 방지
     try {
@@ -106,6 +104,10 @@ const fileConverter = {};
     
     if (downloadBtn) {
       downloadBtn.addEventListener('click', handleDownloadClick);
+    }
+    
+    if (convertToQrBtn) {
+      convertToQrBtn.addEventListener('click', handleConvertToQRClick);
     }
     
     if (convertAnotherBtn) {
@@ -630,29 +632,102 @@ const fileConverter = {};
     }
   }
 
-  // 파일을 데이터 URI로 인코딩
+  // QR 코드 변환 버튼 클릭 핸들러
+  function handleConvertToQRClick() {
+    if (!convertedFile) return;
+    
+    try {
+      // 파일 데이터 저장 (최적화를 위해 필수 정보만 저장)
+      fileToDataUri(convertedFile).then(dataUri => {
+        const fileData = {
+          name: convertedFile.name,
+          type: convertedFile.type,
+          size: convertedFile.size,
+          dataUri: dataUri || null
+        };
+        
+        // 세션 스토리지에 저장 (크기 제한 확인)
+        const fileDataJson = JSON.stringify(fileData);
+        
+        // 세션 스토리지 크기 제한 확인 (약 5MB)
+        if (fileDataJson.length > 5000000) {
+          alert('파일 크기가 너무 커서 QR 코드로 변환할 수 없습니다. 더 작은 파일을 사용해주세요.');
+          return;
+        }
+        
+        sessionStorage.setItem('fileToQR', fileDataJson);
+        
+        // QR 코드 페이지로 리디렉션
+        window.location.href = 'qrcode.html?contentType=file';
+        
+        // 사용자 행동 추적
+        if (typeof analytics !== 'undefined') {
+          analytics.trackAction('convert', 'to_qr_code', convertedFile.type, {
+            fileSize: convertedFile.size,
+            fileName: convertedFile.name
+          });
+        }
+      }).catch(error => {
+        console.error('파일을 QR 코드로 변환하는 중 오류가 발생했습니다:', error);
+        alert('파일을 QR 코드로 변환하는 중 오류가 발생했습니다.');
+      });
+    } catch (e) {
+      console.error('파일을 QR 코드로 변환하는 중 오류가 발생했습니다:', e);
+      alert('파일을 QR 코드로 변환하는 중 오류가 발생했습니다.');
+    }
+  }
+
+  // 파일 유틸리티 함수 - 외부 API로 노출
+  
+  /**
+   * 파일명에서 확장자 추출
+   * @param {string} filename - 파일명
+   * @returns {string} 파일 확장자
+   */
+  function getFileExtension(filename) {
+    return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2).toLowerCase();
+  }
+  
+  /**
+   * 파일 크기를 사람이 읽기 쉬운 형태로 변환
+   * @param {number} bytes - 바이트 단위 크기
+   * @returns {string} 형식화된 파일 크기
+   */
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  /**
+   * 파일을 데이터 URI로 변환
+   * @param {File} file - 변환할 파일 객체
+   * @returns {Promise<string>} 데이터 URI
+   */
   function fileToDataUri(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
-      reader.onload = function(event) {
-        resolve(event.target.result);
+      reader.onload = function(e) {
+        resolve(e.target.result);
       };
-      
-      reader.onerror = function(error) {
-        reject(error);
+      reader.onerror = function(e) {
+        console.error('파일을 데이터 URI로 변환하는 중 오류가 발생했습니다:', e);
+        reject(e);
       };
-      
       reader.readAsDataURL(file);
     });
   }
-
-  // 모듈 API 설정
-  fileConverter.initFileConverter = initFileConverter;
+  
+  // API 노출
+  fileConverter.handleFile = handleFile;
   fileConverter.getFileExtension = getFileExtension;
   fileConverter.formatFileSize = formatFileSize;
   fileConverter.fileToDataUri = fileToDataUri;
-
+  fileConverter.getMimeType = getMimeType;
+  fileConverter.init = initFileConverter;
+  
   // 글로벌 네임스페이스에 등록
   window.fileConverter = fileConverter;
 })();
