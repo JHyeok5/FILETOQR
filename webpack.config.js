@@ -50,7 +50,23 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env']
+            presets: [
+              ['@babel/preset-env', {
+                modules: false, // ES 모듈을 그대로 유지
+                useBuiltIns: 'usage',
+                corejs: 3,
+                targets: {
+                  browsers: [
+                    'last 2 versions',
+                    'not dead',
+                    'not < 2%'
+                  ]
+                }
+              }]
+            ],
+            plugins: [
+              '@babel/plugin-transform-runtime'
+            ]
           }
         }
       },
@@ -105,7 +121,7 @@ module.exports = {
       return new HtmlWebpackPlugin({
         template: `./${page}.html`,
         filename: `${page}.html`,
-        chunks: ['common', page],
+        chunks: ['app', 'vendors'],
         minify: {
           collapseWhitespace: true,
           removeComments: true,
@@ -127,6 +143,14 @@ module.exports = {
     hot: true
   },
   resolve: {
-    extensions: ['.js']
+    extensions: ['.js'],
+    // 절대 경로 별칭 설정
+    alias: {
+      '@core': path.resolve(__dirname, 'assets/js/core/'),
+      '@utils': path.resolve(__dirname, 'assets/js/utils/'),
+      '@converters': path.resolve(__dirname, 'assets/js/converters/'),
+      '@qr': path.resolve(__dirname, 'assets/js/qr-generator/'),
+      '@ui': path.resolve(__dirname, 'assets/js/ui/')
+    }
   }
 }; 

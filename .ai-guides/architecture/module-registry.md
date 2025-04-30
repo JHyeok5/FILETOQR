@@ -1,7 +1,7 @@
 # 모듈 레지스트리 가이드
 
-**버전**: 1.2.0  
-**최종 업데이트**: 2025-05-20
+**버전**: 1.4.0  
+**최종 업데이트**: 2025-06-20
 
 ## 개요
 
@@ -16,41 +16,93 @@
 3. **파일 형식 매핑**: 지원되는 변환 형식 간의 관계 관리
 4. **모듈 메타데이터**: 버전, 설명 등 모듈 정보 저장
 5. **확장성 제공**: 플러그인 패턴을 통한 기능 확장 지원
+6. **오류 처리 및 추적**: 모듈 로딩 및 의존성 오류 처리
+
+## 핵심 모듈 현황
+
+### 1. converter-core.js
+
+파일 변환의 핵심 로직을 제공하는 모듈입니다:
+
+- **용도**: 다양한 파일 형식 간 변환 구현 및 변환 프로세스 관리
+- **지원 형식**: 
+  - 이미지: png, jpg, jpeg, gif, webp, bmp, svg
+  - 문서: txt, md, csv, json, xml, html
+  - 오디오: mp3, wav, ogg
+- **주요 기능**:
+  - `convertFile`: 파일 변환 시작 및 프로세스 관리
+  - `canConvert`: 변환 가능 여부 확인
+  - 형식별 변환 로직 (이미지, 문서, 오디오)
+  - 진행 상황 알림 처리
+- **의존성**: `utils.file`
+
+### 2. qr-core.js
+
+QR 코드 생성의 핵심 로직을 제공하는 모듈입니다:
+
+- **용도**: 다양한 콘텐츠 유형의 QR 코드 생성 및 커스터마이징
+- **지원 콘텐츠 타입**: url, text, email, phone, vcard, wifi, file
+- **주요 기능**:
+  - `generateQRCode`: QR 코드 생성 작업 실행
+  - `validateContent`: QR 코드 콘텐츠 유효성 검증
+  - `formatContent`: 콘텐츠 타입별 포맷팅
+  - `addLogoToQRCode`: QR 코드에 로고 추가
+  - `exportQRCode`: 다양한 형식(PNG, JPEG, SVG)으로 내보내기
+- **의존성**: `utils.file`
+
+### 3. theme-manager.js
+
+UI 테마 관리 및 다크 모드 지원을 담당하는 모듈입니다:
+
+- **용도**: 시스템 및 사용자 선호에 따른 테마 적용 관리
+- **주요 기능**:
+  - `initTheme`: 초기 테마 설정 감지 및 적용
+  - `toggleTheme`: 테마 전환 (다크/라이트)
+  - `setTheme`: 특정 테마로 직접 설정
+  - `getPreferredTheme`: 사용자 선호 테마 조회
+  - `listenForChanges`: 시스템 테마 변경 감지
+- **의존성**: `utils.storage`
+
+### 4. progress-tracker.js
+
+진행 상태 시각화 및 피드백을 담당하는 모듈입니다:
+
+- **용도**: 파일 변환, QR 코드 생성 등 시간이 소요되는 작업 상태 표시
+- **주요 기능**:
+  - `start`: 진행 표시 시작 및 초기화
+  - `updateProgress`: 진행률 업데이트
+  - `complete`: 성공적 완료 처리
+  - `error`: 오류 상태 표시
+  - `reset`: 진행 상태 초기화
+- **의존성**: `utils.ui`
+
+### 5. form-validator.js
+
+사용자 입력 유효성 검사 및 피드백을 담당하는 모듈입니다:
+
+- **용도**: 폼 입력 검증 및 사용자 피드백 제공
+- **주요 기능**:
+  - `validateField`: 개별 입력 필드 검증
+  - `validateForm`: 전체 폼 유효성 검증
+  - `showFieldError`: 필드별 오류 표시
+  - `clearFieldError`: 오류 상태 제거
+  - `addValidationListeners`: 실시간 검증 이벤트 등록
+- **의존성**: `utils.validation`
 
 ## 레지스트리 구조
 
 ```javascript
 registry
-├── modules                 // 등록된 모듈 컨테이너
-│   ├── core                // 핵심 모듈
-│   ├── converters          // 파일 변환기
-│   │   ├── image           // 이미지 변환기
-│   │   ├── document        // 문서 변환기
-│   │   ├── audio           // 오디오 변환기
-│   │   ├── video           // 비디오 변환기
-│   │   └── data            // 데이터 변환기
-│   ├── qr                  // QR 생성 관련 모듈
-│   │   ├── generators      // QR 코드 생성기
-│   │   ├── formatters      // QR 콘텐츠 포맷터
-│   │   └── designers       // QR 디자인 모듈
-│   ├── ui                  // UI 컴포넌트
-│   ├── utils               // 유틸리티
-│   └── workers             // Web Workers
-│
-├── formatMappings          // 변환 형식 매핑
-│   └── conversions         // 입력 → 출력 형식 → 변환기 ID
-│
-├── supportedFormats        // 지원되는 파일 유형
-│   ├── image               // 이미지 형식 목록
-│   ├── document            // 문서 형식 목록
-│   ├── audio               // 오디오 형식 목록
-│   ├── video               // 비디오 형식 목록
-│   └── data                // 데이터 형식 목록
-│
-├── dependencies            // 모듈 의존성 그래프
-└── listeners               // 이벤트 리스너
-    ├── register            // 등록 이벤트 리스너
-    └── unregister          // 등록 해제 이벤트 리스너
+├── _modules                 // 등록된 모듈 저장소 (Map)
+├── _dependencies            // 모듈 의존성 그래프 (Map)
+├── _metadata                // 모듈 메타데이터 (Map)
+├── _subscribers             // 이벤트 구독자
+│   ├── register             // 등록 이벤트 리스너
+│   ├── load                 // 로드 이벤트 리스너
+│   ├── error                // 오류 이벤트 리스너
+│   └── dependencyError      // 의존성 오류 이벤트 리스너
+├── _loadingStatus           // 모듈 로딩 상태 (Map)
+└── _initialized             // 초기화 여부 (boolean)
 ```
 
 ## 기본 사용법
@@ -67,12 +119,14 @@ const myModule = {
   validate: (input) => { /* 검증 로직 */ }
 };
 
-// 레지스트리에 등록
-registry.register('category.subcategory', 'module-id', myModule, {
+// 레지스트리에 등록 - 의존성 포함
+registry.register('namespace', 'module-name', myModule, 
+  ['utils.file', 'core.converter'], // 의존성 목록
+  {
   version: '1.0.0',
-  description: '모듈 설명',
-  dependencies: ['dependency1', 'dependency2']
-});
+    description: '모듈 설명'
+  } // 메타데이터
+);
 
 export default myModule;
 ```
@@ -81,32 +135,97 @@ export default myModule;
 
 ```javascript
 // 모듈 조회
-const module = registry.get('category.subcategory', 'module-id');
+const module = registry.get('namespace', 'module-name');
 
 if (module) {
   // 모듈 사용
   const result = module.process(data);
 }
-```
 
-### 변환기 조회
-
-```javascript
-// 특정 파일 형식 변환에 사용할 변환기 조회
-const converter = registry.getConverter('png', 'jpg');
-
-if (converter) {
-  // 변환기 사용
-  const result = await converter.convert(file, options);
+// 모듈 조회 - 없을 경우 예외 발생
+try {
+  const criticalModule = registry.get('namespace', 'critical-module', true);
+  // 모듈 사용
+} catch (error) {
+  console.error('필수 모듈을 찾을 수 없습니다:', error);
 }
 ```
 
-### 지원되는 형식 조회
+### 모듈과 의존성 함께 조회
 
 ```javascript
-// 특정 입력 형식에 대해 지원되는 출력 형식 목록 조회
-const outputFormats = registry.getSupportedOutputFormats('png');
-console.log(outputFormats); // ['jpg', 'webp', 'gif', 'pdf', ...]
+// 모듈과 의존성 함께 조회
+const moduleWithDeps = registry.getWithDependencies('namespace', 'module-name');
+
+if (moduleWithDeps) {
+  const { module, dependencies } = moduleWithDeps;
+  
+  // 모듈 사용
+  const result = module.process(data);
+  
+  // 의존성 모듈 사용
+  if (dependencies['utils.file']) {
+    const fileExtension = dependencies['utils.file'].getFileExtension('example.jpg');
+  }
+}
+```
+
+### 의존성 관리
+
+```javascript
+// 모듈 의존성 조회
+const dependencies = registry.getDependencies('namespace', 'module-name');
+console.log(dependencies); // ['utils.file', 'core.converter']
+
+// 모듈 의존성 업데이트
+registry.updateDependencies('namespace', 'module-name', 
+  ['utils.file', 'core.converter', 'new.dependency']
+);
+
+// 의존성 오류 확인
+const hasMissingDeps = registry.getModules().filter(
+  module => module.metadata.hasMissingDependencies
+);
+console.log(hasMissingDeps); // 누락된 의존성이 있는 모듈 목록
+
+// 순환 의존성 확인
+const hasCircular = registry.hasCircularDependency('namespace', 'module-name');
+if (hasCircular) {
+  console.warn('순환 의존성이 감지되었습니다!');
+}
+
+// 의존성 트리 조회
+const depTree = registry.getDependencyTree('namespace', 'module-name');
+console.log(depTree);
+/* 출력 예시:
+{
+  id: 'namespace.module-name',
+  namespace: 'namespace',
+  name: 'module-name',
+  version: '1.0.0',
+  dependencies: [
+    {
+      id: 'utils.file',
+      namespace: 'utils',
+      name: 'file',
+      version: '1.0.0',
+      dependencies: []
+    },
+    {
+      id: 'core.converter',
+      namespace: 'core',
+      name: 'converter',
+      version: '1.0.0',
+      dependencies: [
+        {
+          id: 'utils.file',
+          circular: true // 순환 의존성 표시
+        }
+      ]
+    }
+  ]
+}
+*/
 ```
 
 ### 이벤트 리스닝
@@ -114,461 +233,492 @@ console.log(outputFormats); // ['jpg', 'webp', 'gif', 'pdf', ...]
 ```javascript
 // 모듈 등록 이벤트 리스닝
 registry.on('register', (data) => {
-  console.log(`Module ${data.id} registered in ${data.type}`);
+  console.log(`모듈 등록됨: ${data.moduleId}`);
 });
 
-// 모듈 등록 해제 이벤트 리스닝
-registry.on('unregister', (data) => {
-  console.log(`Module ${data.id} unregistered from ${data.type}`);
+// 오류 이벤트 리스닝
+registry.on('error', (error) => {
+  console.error(`모듈 오류 발생: ${error.message}`, error);
 });
-```
 
-## 변환기 모듈 등록
-
-변환기 모듈은 추가 메타데이터를 포함해야 합니다:
-
-```javascript
-// 이미지 변환기 등록
-registry.register('converters.image', 'png-to-jpg', pngToJpgConverter, {
-  version: '1.0.0',
-  description: 'PNG에서 JPG로 변환',
-  dependencies: ['assets/js/utils/file-utils.js'],
-  formats: {
-    input: ['png'],
-    output: ['jpg', 'jpeg']
-  }
+// 의존성 오류 이벤트 리스닝
+registry.on('dependencyError', (data) => {
+  console.warn(`의존성 문제 발생: ${data.moduleId}에서 ${data.dependencies.join(', ')} 의존성을 찾을 수 없습니다.`);
 });
 ```
 
-변환기 등록 시 `formats` 속성이 있으면 자동으로 형식 매핑이 생성됩니다.
+## 의존성 관리 심화
 
-## 모듈 카테고리 구조
+### 의존성 명시 규칙
 
-레지스트리에서 사용하는 모듈 카테고리 경로는 다음과 같습니다:
-
-| 카테고리 경로 | 설명 | 예시 모듈 |
-|--------------|------|----------|
-| `core` | 핵심 애플리케이션 모듈 | `app-core`, `converter-core` |
-| `converters.image` | 이미지 변환기 | `png-to-jpg`, `webp-optimizer` |
-| `converters.document` | 문서 변환기 | `pdf-to-text`, `docx-to-html` |
-| `converters.audio` | 오디오 변환기 | `mp3-to-wav`, `audio-compressor` |
-| `converters.video` | 비디오 변환기 | `mp4-to-webm`, `video-to-gif` |
-| `converters.data` | 데이터 변환기 | `csv-to-json`, `xml-formatter` |
-| `converters.file` | 파일 인코딩 변환기 | `file-to-data-uri`, `file-to-base64` |
-| `qr.generators` | QR 코드 생성기 | `basic-qr-generator`, `dynamic-qr` |
-| `qr.formatters` | QR 콘텐츠 포맷터 | `url-formatter`, `vcard-formatter`, `wifi-formatter`, `file-formatter` |
-| `qr.designers` | QR 디자인 도구 | `color-designer`, `logo-integrator` |
-| `ui` | UI 컴포넌트 | `file-uploader`, `progress-tracker` |
-| `ui.previews` | 미리보기 컴포넌트 | `image-preview`, `text-preview`, `file-preview` |
-| `utils` | 유틸리티 함수 | `file-utils`, `ui-utils` |
-| `workers` | Web Worker 스크립트 | `image-worker`, `compression-worker` |
-
-## 의존성 관리
-
-레지스트리는 모듈 간 의존성을 추적합니다:
+의존성은 항상 `namespace.name` 형식으로 지정해야 합니다:
 
 ```javascript
-// 의존성이 있는 모듈 등록
-registry.register('ui', 'result-viewer', resultViewerModule, {
-  dependencies: [
-    'utils/file-utils',
-    'utils/ui-utils',
-    'core/converter-core'
-  ]
-});
+// 올바른 의존성 명시
+registry.register('ui', 'component', uiComponent, [
+  'utils.file',
+  'core.converter',
+  'ui.previews.file'
+]);
 
-// 특정 모듈의 의존성 확인
-const dependencies = registry.dependencies.get('ui/result-viewer');
-console.log([...dependencies]); // ['utils/file-utils', 'utils/ui-utils', 'core/converter-core']
+// 잘못된 의존성 명시 (오류 발생)
+registry.register('ui', 'component', uiComponent, [
+  'utils',          // 네임스페이스만 지정 (오류)
+  'file-utils.js',  // 파일명 지정 (오류)
+  'core/converter'  // 경로 형식 지정 (오류)
+]);
 ```
 
-## 모듈 비활성화
+### 의존성 검증
 
-필요한 경우 모듈을 비활성화할 수 있습니다:
-
-```javascript
-// 모듈 비활성화
-registry.disable('converters.video', 'mp4-to-webm');
-
-// 비활성화된 모듈은 get() 메서드로 조회되지 않음
-const disabledModule = registry.get('converters.video', 'mp4-to-webm'); // null
-```
-
-## 새로운 카테고리 확장
-
-프로젝트가 확장됨에 따라 새로운 모듈 카테고리가 필요할 수 있습니다. 이 경우 레지스트리 초기화 시 새 카테고리를 추가해야 합니다:
+모듈 등록 시 의존성이 자동으로 검증됩니다:
 
 ```javascript
-// registry.js의 constructor 내부
-this.modules = {
-  // 기존 카테고리
-  core: new Map(),
-  converters: { /* ... */ },
+// 존재하지 않는 의존성이 있는 모듈 등록
+registry.register('ui', 'new-component', newComponent, [
+  'utils.file',               // 존재함
+  'nonexistent.module'        // 존재하지 않음
+]);
+
+// 콘솔에 경고 출력:
+// "모듈 ui.new-component의 의존성을 찾을 수 없습니다: nonexistent.module"
+
+// 의존성 오류 이벤트 발생
+registry.on('dependencyError', (data) => {
+  // 누락된 의존성 처리 로직
+  console.warn(`모듈 ${data.moduleId}에 누락된 의존성이 있습니다: ${data.dependencies.join(', ')}`);
   
-  // 새 카테고리 추가
-  newCategory: {
-    subCategory: new Map()
+  // 예: 필요한 모듈 동적 로드
+  if (data.dependencies.includes('nonexistent.module')) {
+    loadModuleAsynchronously('nonexistent.module')
+      .then(() => {
+        console.log('누락된 모듈을 로드했습니다.');
+      })
+      .catch(error => {
+        console.error('모듈 로드 실패:', error);
+      });
   }
+});
+```
+
+### 의존성이 있는 모듈 찾기
+
+특정 모듈에 의존하는 다른 모듈을 찾을 수 있습니다:
+
+```javascript
+// 특정 모듈에 의존하는 모듈 목록 조회
+const dependentModules = registry.getDependentModules('utils', 'file');
+console.log(dependentModules);
+/* 출력 예시:
+[
+  {
+    id: 'core.converter',
+    namespace: 'core',
+    name: 'converter',
+    metadata: { ... }
+  },
+  {
+    id: 'core.qr',
+    namespace: 'core',
+    name: 'qr',
+    metadata: { ... }
+  }
+]
+*/
+
+// 특정 모듈 업데이트 후 의존 모듈에게 알림
+function updateModuleAndNotifyDependents(namespace, name) {
+  // 모듈 업데이트 로직...
+  
+  // 의존 모듈 조회
+  const dependents = registry.getDependentModules(namespace, name);
+  
+  // 각 의존 모듈에게 알림
+  dependents.forEach(dep => {
+    const module = registry.get(dep.namespace, dep.name);
+    if (module && typeof module.onDependencyUpdated === 'function') {
+      module.onDependencyUpdated(namespace, name);
+    }
+  });
+}
+```
+
+## 오류 처리 개선
+
+### 오류 유형
+
+레지스트리는 다음 오류 유형을 정의합니다:
+
+```javascript
+const ErrorTypes = {
+  MODULE_NOT_FOUND: 'MODULE_NOT_FOUND',
+  DEPENDENCY_NOT_FOUND: 'DEPENDENCY_NOT_FOUND',
+  CIRCULAR_DEPENDENCY: 'CIRCULAR_DEPENDENCY',
+  INVALID_MODULE: 'INVALID_MODULE',
+  INITIALIZATION_ERROR: 'INITIALIZATION_ERROR'
 };
 ```
 
-## 모듈 레지스트리 확장
-
-레지스트리 자체에 새로운 기능이 필요한 경우 다음과 같이 확장할 수 있습니다:
+### 오류 처리 흐름
 
 ```javascript
-// registry.js에 새 메서드 추가
-class Registry {
-  // 기존 메서드들...
+// 오류 이벤트 구독
+registry.on('error', (error) => {
+  switch(error.type) {
+    case 'MODULE_NOT_FOUND':
+      console.error('모듈을 찾을 수 없습니다:', error.message);
+      // UI에 오류 표시 또는 대체 모듈 로드 시도
+      break;
+      
+    case 'DEPENDENCY_NOT_FOUND':
+      console.warn('의존성 문제:', error.message);
+      // 누락된 의존성 동적 로드 시도
+      break;
+      
+    case 'CIRCULAR_DEPENDENCY':
+      console.error('순환 의존성 감지:', error.message);
+      // 개발자에게 알림 또는 의존성 구조 재구성 시도
+      break;
+      
+    case 'INVALID_MODULE':
+      console.error('유효하지 않은 모듈:', error.message);
+      // 개발자에게 알림
+      break;
+      
+    case 'INITIALIZATION_ERROR':
+      console.error('모듈 초기화 오류:', error.message);
+      // 사용자에게 오류 알림 및 재시도 옵션 제공
+      break;
+      
+    default:
+      console.error('알 수 없는 오류:', error);
+  }
   
-  /**
-   * 특정 카테고리의 모든 모듈 조회
-   * @param {string} category - 카테고리 경로
-   * @returns {Array} 모듈 배열
-   */
-  getAllInCategory(category) {
-    const path = category.split('.');
-    let target = this.modules;
-    
-    for (const segment of path) {
-      if (!target[segment]) {
-        return [];
-      }
-      target = target[segment];
-    }
-    
-    if (!(target instanceof Map)) {
-      return [];
-    }
-    
-    return Array.from(target.entries())
-      .filter(([, entry]) => entry.metadata.enabled)
-      .map(([id, entry]) => ({
-        id,
-        module: entry.module,
-        metadata: entry.metadata
-      }));
-  }
-}
-```
-
-## 모범 사례
-
-### 레지스트리 사용 모범 사례
-
-1. **명시적 의존성**: 모듈이 필요로 하는 모든 의존성을 명시적으로 선언
-2. **의미 있는 ID**: 모듈 ID는 기능을 명확히 설명하는 이름 사용
-3. **적절한 카테고리**: 모듈의 기능에 맞는 카테고리에 등록
-4. **메타데이터 충실히 작성**: 버전, 설명 등 메타데이터 상세히 제공
-5. **이벤트 활용**: 모듈 등록/해제 이벤트를 활용한 느슨한 결합 구현
-
-### 일반적인 실수 방지
-
-1. **하드코딩된 모듈 참조**: 직접 모듈을 임포트하는 대신 항상 레지스트리를 통해 조회
-2. **중복 등록**: 동일 ID로 여러 번 등록하지 않도록 주의
-3. **누락된 의존성**: 사용하는 모든 모듈을 의존성에 명시
-4. **순환 의존성**: 상호 의존적인 모듈 구조 피하기
-
-## 실제 사용 예시
-
-### 이미지 변환기 구현
-
-```javascript
-// assets/js/converters/image-converter.js
-import registry from '../registry.js';
-import fileUtils from '../utils/file-utils.js';
-
-/**
- * PNG에서 JPG로 변환하는 변환기
- */
-const pngToJpgConverter = {
-  /**
-   * PNG 이미지를 JPG로 변환
-   * @param {File} inputFile - 입력 PNG 파일
-   * @param {Object} options - 변환 옵션 (품질, 크기 등)
-   * @returns {Promise<Blob>} JPG 파일 Blob
-   */
-  async convert(inputFile, options = {}) {
-    // 이미지를 캔버스에 로드
-    const image = await fileUtils.fileToImage(inputFile);
-    const canvas = document.createElement('canvas');
-    canvas.width = image.width;
-    canvas.height = image.height;
-    
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(image, 0, 0);
-    
-    // JPG로 변환
-    const quality = options.quality || 0.92;
-    return new Promise(resolve => {
-      canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
-    });
-  }
-};
-
-// 레지스트리에 등록
-registry.register('converters.image', 'png-to-jpg', pngToJpgConverter, {
-  version: '1.0.0',
-  description: 'PNG 이미지를 JPG로 변환',
-  dependencies: ['utils/file-utils'],
-  formats: {
-    input: ['png'],
-    output: ['jpg', 'jpeg']
-  }
+  // 오류 로깅 또는 분석 시스템에 보고
+  logError(error);
 });
-
-export default pngToJpgConverter;
 ```
 
-### 변환 기능 사용
+### 강건한 모듈 로딩
+
+모듈 로더와 레지스트리를 결합하여 강건한 모듈 로딩 구현:
 
 ```javascript
-// convert.html의 스크립트
-import registry from './assets/js/registry.js';
-
-// 파일 형식 감지
-function detectFormat(file) {
-  const extension = file.name.split('.').pop().toLowerCase();
-  return extension;
-}
-
-// 파일 변환 처리
-async function handleFileConversion(file, targetFormat) {
-  const sourceFormat = detectFormat(file);
-  
-  // 레지스트리에서 적절한 변환기 조회
-  const converter = registry.getConverter(sourceFormat, targetFormat);
-  
-  if (!converter) {
-    throw new Error(`No converter available for ${sourceFormat} to ${targetFormat}`);
-  }
-  
-  // 변환 옵션 구성
-  const options = {
-    quality: 0.9,
-    // 기타 옵션
-  };
-  
-  // 변환 실행
-  return await converter.convert(file, options);
-}
-```
-
-### 파일 기반 QR 코드 포맷터 구현
-
-```javascript
-// assets/js/qr-generator/formatters/file-formatter.js
-import registry from '../../../registry.js';
-import fileConverter from '../../converters/file-converter.js';
-
-/**
- * 파일을 QR 코드로 변환하는 포맷터
- */
-const fileQrFormatter = {
-  /**
-   * 파일을 QR 코드 콘텐츠로 포맷팅
-   * @param {File} file - 입력 파일
-   * @param {Object} options - 포맷팅 옵션
-   * @returns {Promise<string>} QR 코드 콘텐츠
-   */
-  async format(file, options = {}) {
-    if (!file) {
-      throw new Error('파일이 필요합니다');
+// module-loader.js에서 모듈 로드 시
+async function loadModuleWithDependencies(namespace, name) {
+  try {
+    // 레지스트리에서 모듈 확인
+    if (registry.isLoaded(namespace, name)) {
+      return registry.get(namespace, name);
     }
     
-    // 파일 크기 검증 (QR 코드 용량 제한)
-    const maxSizeKB = options.maxSizeKB || 2;
-    if (file.size > maxSizeKB * 1024) {
-      throw new Error(`파일 크기가 최대 허용 크기(${maxSizeKB}KB)를 초과합니다`);
+    // 모듈 경로 추정
+    const path = guessModulePath(namespace, name);
+    if (!path) {
+      throw new Error(`모듈 경로를 추정할 수 없음: ${namespace}.${name}`);
+    }
+    
+    // 모듈 로드
+    const module = await import(path);
+    
+    // 모듈이 자동 등록되지 않은 경우 등록
+    if (!registry.isLoaded(namespace, name)) {
+      registry.register(namespace, name, module.default);
+    }
+    
+    return registry.get(namespace, name);
+  } catch (error) {
+    registry._handleError('MODULE_NOT_FOUND', 
+      `모듈 로드 중 오류: ${namespace}.${name}`, error);
+    throw error;
+  }
+}
+```
+
+## 모듈 로더 통합
+
+Registry와 ModuleLoader의 통합으로 동적 모듈 로딩 및 의존성 해결이 간소화되었습니다:
+
+```javascript
+// module-loader.js에서 의존성 자동 로드
+async function loadDependencies(module, namespace, name) {
+  if (!registry) return;
+  
+  // 의존성 목록 조회
+  const dependencies = registry.getDependencies(namespace, name);
+  if (!dependencies || dependencies.length === 0) return;
+  
+  // 각 의존성 모듈 로드
+  const promises = dependencies.map(async (dep) => {
+    const [depNamespace, depName] = dep.split('.');
+    
+    // 이미 로드된 모듈인지 확인
+    if (registry.isLoaded(depNamespace, depName)) {
+      return registry.get(depNamespace, depName);
+    }
+    
+    // 의존성 모듈 경로 추정 및 로드
+    const depPath = guessModulePath(depNamespace, depName);
+    if (!depPath) {
+      console.warn(`의존성 모듈 경로를 추정할 수 없음: ${dep}`);
+      return null;
+    }
+    
+    // 모듈 로드
+    return await loadModule(depPath);
+  });
+  
+  // 모든 의존성 로드 완료 대기
+  await Promise.all(promises);
+}
+```
+
+## QR 코드 생성과 파일 변환 연동
+
+QR 코드 생성 모듈과 파일 변환 모듈 간의 연동이 레지스트리를 통해 개선되었습니다:
+
+```javascript
+// qr-generator.js 모듈이 레지스트리에 등록될 때 의존성 명시
+registry.register('qr-generator', 'qr-generator', qrGenerator, 
+  ['core.qr', 'converters.file-converter']
+);
+
+// 파일에서 QR 코드 생성 시 의존성 모듈 사용
+async function generateQRFromFile(file) {
+  // 레지스트리에서 필요한 모듈 가져오기
+  const qrCore = registry.get('core', 'qr', true); // 필수 모듈
+  const fileConverter = registry.get('converters', 'file-converter', true); // 필수 모듈
+  
+  try {
+    // 파일 크기 확인 (QR 코드 용량 제한)
+    if (file.size > 2 * 1024) { // 2KB 제한
+      throw new Error('파일 크기가 너무 큽니다. 2KB 이하여야 합니다.');
     }
     
     // 파일을 Data URI로 변환
-    try {
       const dataUri = await fileConverter.fileToDataUri(file);
-      return dataUri;
+    
+    // QR 코드 생성
+    const qrOptions = {
+      errorCorrectionLevel: 'M',
+      margin: 4,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    };
+    
+    return await qrCore.generateQRCode('file', dataUri, qrOptions);
     } catch (error) {
-      throw new Error(`파일 인코딩 오류: ${error.message}`);
-    }
+    registry._handleError('INITIALIZATION_ERROR', 
+      '파일에서 QR 코드 생성 중 오류 발생', error);
+    throw error;
   }
-};
-
-// 레지스트리에 등록
-registry.register('qr.formatters', 'file', fileQrFormatter, {
-  version: '1.0.0',
-  description: '파일을 QR 코드로 인코딩하는 포맷터',
-  dependencies: ['converters.file/file-to-data-uri'],
-  contentTypes: ['file']
-});
-
-export default fileQrFormatter;
+}
 ```
 
-### 파일 미리보기 모듈 구현
+## 요약
+
+개선된 모듈 레지스트리는 다음과 같은 이점을 제공합니다:
+
+1. **명확한 의존성 관리**: 모듈 간 의존성을 명시적으로 정의하고 추적
+2. **강건한 오류 처리**: 의존성 누락, 순환 의존성 등 다양한 오류 상황 감지 및 처리
+3. **자동화된 의존성 해결**: ModuleLoader와의 통합을 통한 의존성 자동 해결
+4. **오류 알림 체계**: 오류 및 의존성 문제에 대한 이벤트 기반 알림
+5. **의존성 트리 시각화**: 복잡한 의존성 관계 분석 및 디버깅 지원
+
+새로운 모듈을 개발할 때는 항상 의존성을 명확히 명시하고, 레지스트리를 통해 다른 모듈을 참조하세요. 이를 통해 모듈 간 결합도를 낮추고 유지보수성을 높일 수 있습니다.
+
+## 변경 이력
+
+- **1.3.0** (2025-06-15): 의존성 관리 개선 및 오류 처리 기능 강화
+- **1.2.0** (2025-05-20): 파일 미리보기 모듈 예제 추가 및 UI 미리보기 카테고리 추가
+- **1.1.0** (2025-05-15): 파일 기반 QR 코드 생성 기능을 위한 파일 포맷터 예제 추가
+- **1.0.0** (2025-04-28): 최초 문서 작성
+
+# FileToQR 모듈 레지스트리
+
+## 개요
+
+이 문서는 FileToQR 애플리케이션의 모듈 아키텍처 및 레지스트리 구조를 설명합니다. 애플리케이션은 모듈화된 구조를 통해 유지보수와 확장이 용이하며, 세부 기능은 전용 모듈로 분리되어 관리됩니다.
+
+## 핵심 아키텍처
+
+FileToQR 애플리케이션은 다음과 같은 핵심 아키텍처 계층으로 구성됩니다:
+
+1. **코어 계층**: 애플리케이션의 기본 동작과 초기화를 담당
+2. **모듈 계층**: 다양한 기능을 모듈화하여 제공
+3. **유틸리티 계층**: 공통 기능과 도구를 제공
+4. **UI 계층**: 사용자 인터페이스와 관련된 모듈 관리
+5. **워커 계층**: 백그라운드 처리와 성능 최적화 담당
+
+## 기반 시스템
+
+### 컴포넌트 시스템
+
+컴포넌트 시스템은 UI 요소의 생성, 관리, 렌더링을 표준화하는 프레임워크입니다.
+
+#### 핵심 모듈
+
+- **component-system.js**: 컴포넌트 정의, 라이프사이클 관리, 상태 관리 제공
+- **template-utils.js**: 템플릿 기반 HTML 렌더링 및 데이터 바인딩 기능 제공
+- **ui-components.js**: 재사용 가능한 UI 컴포넌트 라이브러리
+
+#### 핵심 기능
+
+1. **컴포넌트 라이프사이클 관리**:
+   - `onCreate`: 컴포넌트 생성 시점
+   - `onMount`: DOM에 마운트 시점
+   - `onUpdate`: 속성 또는 상태 업데이트 시점
+   - `onDestroy`: 컴포넌트 제거 시점
+
+2. **이벤트 핸들링**:
+   - 데이터 속성 기반 이벤트 바인딩 (`data-event="click:handleClick"`)
+   - 자동 이벤트 등록 및 정리
+
+3. **상태 관리**:
+   - 반응형 컴포넌트 상태
+   - 상태 변경에 따른 자동 UI 업데이트
+
+4. **템플릿 렌더링**:
+   - 변수 삽입 (`${변수명}`)
+   - 조건부 렌더링 (`<!-- if 조건 -->내용<!-- endif -->`)
+   - 반복 렌더링 (`<!-- for 항목 in 배열 -->내용<!-- endfor -->`)
+
+#### 사용 예제
 
 ```javascript
-// assets/js/ui/previews/file-preview.js
-import registry from '../../../registry.js';
-
-/**
- * 다양한 유형의 파일 미리보기를 제공하는 모듈
- */
-const filePreviewModule = {
-  /**
-   * 파일 유형에 따라 적절한 미리보기 생성
-   * @param {File} file - 미리보기할 파일
-   * @param {HTMLElement} container - 미리보기를 표시할 컨테이너
-   * @returns {Promise<boolean>} 미리보기 생성 성공 여부
-   */
-  async renderPreview(file, container) {
-    if (!file || !container) {
-      return false;
-    }
-    
-    // 이미지 미리보기
-    if (file.type.match('image.*')) {
-      return this._renderImagePreview(file, container);
-    }
-    
-    // 텍스트 미리보기
-    if (file.type.match('text.*') || file.type === 'application/json') {
-      return this._renderTextPreview(file, container);
-    }
-    
-    // 오디오 미리보기
-    if (file.type.match('audio.*')) {
-      return this._renderAudioPreview(file, container);
-    }
-    
-    // 비디오 미리보기
-    if (file.type.match('video.*')) {
-      return this._renderVideoPreview(file, container);
-    }
-    
-    // 일반 파일 미리보기
-    return this._renderGenericPreview(file, container);
-  },
-  
-  /**
-   * 이미지 파일 미리보기 렌더링
-   * @private
-   */
-  async _renderImagePreview(file, container) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        container.innerHTML = `<img src="${e.target.result}" alt="이미지 미리보기" class="preview-image">`;
-        resolve(true);
-      };
-      reader.onerror = () => resolve(false);
-      reader.readAsDataURL(file);
-    });
-  },
-  
-  /**
-   * 텍스트 파일 미리보기 렌더링
-   * @private
-   */
-  async _renderTextPreview(file, container) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
-        // 텍스트 길이 제한 (최대 500자)
-        const previewText = text.length > 500 ? text.substr(0, 500) + '...' : text;
-        container.innerHTML = `
-          <div class="text-preview">
-            <pre>${previewText}</pre>
-          </div>
-        `;
-        resolve(true);
-      };
-      reader.onerror = () => resolve(false);
-      reader.readAsText(file);
-    });
-  },
-  
-  /**
-   * 오디오 파일 미리보기 렌더링
-   * @private
-   */
-  async _renderAudioPreview(file, container) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        container.innerHTML = `
-          <audio controls class="preview-audio">
-            <source src="${e.target.result}" type="${file.type}">
-            브라우저가 오디오 재생을 지원하지 않습니다.
-          </audio>
-        `;
-        resolve(true);
-      };
-      reader.onerror = () => resolve(false);
-      reader.readAsDataURL(file);
-    });
-  },
-  
-  /**
-   * 비디오 파일 미리보기 렌더링
-   * @private
-   */
-  async _renderVideoPreview(file, container) {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        container.innerHTML = `
-          <video controls class="preview-video">
-            <source src="${e.target.result}" type="${file.type}">
-            브라우저가 비디오 재생을 지원하지 않습니다.
-          </video>
-        `;
-        resolve(true);
-      };
-      reader.onerror = () => resolve(false);
-      reader.readAsDataURL(file);
-    });
-  },
-  
-  /**
-   * 일반 파일 미리보기 렌더링
-   * @private
-   */
-  async _renderGenericPreview(file, container) {
-    const extension = file.name.split('.').pop().toUpperCase();
-    container.innerHTML = `
-      <div class="generic-preview">
-        <div class="file-icon">${extension}</div>
-        <div class="file-info">
-          <div class="file-name">${file.name}</div>
-          <div class="file-size">${this._formatFileSize(file.size)}</div>
-        </div>
-      </div>
-    `;
-    return true;
-  },
-  
-  /**
-   * 파일 크기를 읽기 쉬운 형식으로 변환
-   * @private
-   */
-  _formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-};
-
-// 레지스트리에 등록
-registry.register('ui.previews', 'file-preview', filePreviewModule, {
+// 컴포넌트 정의
+ComponentSystem.defineComponent('alert', {
   version: '1.0.0',
-  description: '다양한 유형의 파일 미리보기 컴포넌트',
-  dependencies: []
+  initialState: {
+    visible: false,
+    type: 'info',
+    message: ''
+  },
+  render(props, state) {
+    if (!state.visible) return '';
+    return `<div class="alert alert-${state.type}">${state.message}</div>`;
+  },
+  methods: {
+    show(options) {
+      ComponentSystem.setState(this.id, { visible: true, ...options });
+    },
+    close() {
+      ComponentSystem.setState(this.id, { visible: false });
+    }
+  }
 });
 
-export default filePreviewModule;
+// 컴포넌트 사용
+const alertId = ComponentSystem.mountComponent('alert', document.getElementById('alert-container'));
+const alertInstance = ComponentSystem.instances.get(alertId);
+alertInstance.definition.show.call(alertInstance, { message: '성공!', type: 'success' });
 ```
+
+### 버전 관리 시스템
+
+버전 관리 시스템은 모듈과 컴포넌트의 버전을 추적하고 호환성을 보장합니다.
+
+#### 핵심 모듈
+
+- **version-manager.js**: 시맨틱 버전 관리 및 호환성 확인 기능 제공
+- **module-loader.js**: 동적 모듈 로딩, 의존성 관리
+
+#### 핵심 기능
+
+1. **버전 등록 및 관리**:
+   - 모듈 버전 등록 및 추적
+   - 시맨틱 버전 관리 규칙 준수
+
+2. **버전 호환성 확인**:
+   - 모듈 간 호환성 검증
+   - 의존성 관계 확인
+
+3. **동적 모듈 로딩**:
+   - 필요한 시점에 모듈 로드
+   - 중복 로드 방지
+   - 의존성 문제 해결
+
+#### 사용 예제
+
+```javascript
+// 버전 등록
+VersionManager.registerVersion('ui-components', '1.0.0', {
+  dependencies: ['component-system@1.0.0', 'template-utils@1.0.0']
+});
+
+// 모듈 로드
+const module = await ModuleLoader.loadModule('assets/js/ui/ui-components.js');
+
+// 호환성 확인
+const isCompatible = VersionManager.isCompatible('component-system', '1.0.0');
+if (!isCompatible) {
+  console.warn('컴포넌트 시스템 버전이 호환되지 않습니다.');
+}
+```
+
+## 파일 변환 흐름
+
+### 개요
+
+파일 변환 프로세스는 여러 모듈의 협력으로 이루어지며, 각 모듈은 파일 변환 흐름의 특정 부분을 담당합니다.
+
+### 등록된 모듈
+
+- **converter-core**
+  - 변환 프로세스 초기화 및 조정
+  - 변환 옵션 및 설정 관리
+
+- **file-converter**
+  - 파일 업로드 및 변환 UI 관리
+  - 파일 처리 및 변환 결과 표시
+
+- **document-converter**, **image-converter**, **audio-converter**, **video-converter**, **data-converter**
+  - 특정 파일 타입에 대한 변환 로직 제공
+  - 파일 유형별 최적화된 변환 구현
+
+### 변환 흐름
+
+1. 사용자가 파일 업로드
+2. 파일 타입 감지
+3. 적절한 변환기 모듈 로드
+4. 변환 옵션 설정
+5. 변환 프로세스 실행
+6. 변환 결과 표시 및 다운로드 옵션 제공
+
+## QR 코드 생성 흐름
+
+### 개요
+
+QR 코드 생성은 다양한 콘텐츠 유형을 QR 코드로 변환하는 과정입니다. 이 기능은 일반 텍스트, URL부터 파일 데이터까지 다양한 내용을 지원합니다.
+
+### 등록된 모듈
+
+- **qr-core**
+  - QR 코드 생성의 기본 기능 제공
+  - 외부 QR 라이브러리 연동
+
+- **qr-generator**
+  - 다양한 콘텐츠 유형의 QR 코드 생성
+  - QR 코드 커스터마이징 및 다운로드 기능
+
+- **qr-designer**
+  - QR 코드 디자인 요소 커스터마이징
+  - 색상, 모양, 로고 등 설정
+
+- **qr-content-formatter**
+  - 다양한 데이터 유형을 QR 형식으로 포맷팅
+  - vCard, WiFi, URL 등 특수 형식 지원
+
+### QR 생성 흐름
+
+1. 사용자가 콘텐츠 유형 선택
+2. 콘텐츠 입력 또는 파일 업로드
+3. 콘텐츠 형식에 맞게 데이터 포맷팅
+4. QR 코드 생성 및 미리보기 표시
+5. 디자인 옵션 적용 (색상, 크기 등)
+6. 완성된 QR 코드 다운로드 또는 공유
 
 ## 파일 변환 → QR 코드 생성 흐름
 

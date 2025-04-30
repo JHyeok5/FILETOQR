@@ -1,7 +1,7 @@
 # FileToQR AI 개발 가이드
 
-**버전**: 1.2.0  
-**최종 업데이트**: 2025-06-10
+**버전**: 1.4.0  
+**최종 업데이트**: 2025-06-25
 
 ## 개요
 
@@ -36,6 +36,46 @@
 ### 4. 아키텍처 문서
 
 - [모듈 레지스트리](./architecture/module-registry.md) - 모듈 등록 및 관리 시스템 가이드
+- [모듈 아키텍처](./architecture/module-architecture.md) - 모듈 아키텍처 및 상호작용 방식
+
+### 5. 코드 개선 및 최적화
+
+- [QR 코드 개선 사항](./code/qr-code-improvements.md) - QR 코드 생성 모듈 개선 내용
+- [코드 리팩토링 요약](./code/refactoring-summary.md) - 공통 유틸리티 모듈 통합 작업 요약
+- [UI/UX 개선 사항](./code/ui-ux-improvements.md) - 사용자 인터페이스 및 경험 개선 내용
+- [모듈 패턴 표준화](./code/module-pattern-standardization.md) - 모듈 로딩 방식 표준화 작업 내용
+
+## 핵심 모듈 구현 현황
+
+프로젝트의 핵심 모듈이 구현되었습니다:
+
+1. **converter-core.js**: 파일 변환 핵심 로직
+   - 다양한 파일 형식 간 변환 구현 (이미지, 문서, 오디오)
+   - 변환 프로세스 관리 및 진행 상황 추적
+   - 파일 형식 지원 및 호환성 정보 제공
+
+2. **qr-core.js**: QR 코드 생성 핵심 로직
+   - 다양한 콘텐츠 유형의 QR 코드 생성
+   - 커스텀 스타일링 (색상, 크기, 오류 수정 레벨 등)
+   - 로고 추가 기능
+   - 다양한 형식으로 내보내기 (PNG, SVG, JPEG)
+
+3. **UI/UX 개선**
+   - 모바일 반응형 디자인 강화
+   - 다크 모드 지원 추가
+   - 드래그 앤 드롭 인터페이스 개선
+   - 로딩 상태 및 진행률 시각화
+   - 폼 입력 검증 및 피드백 개선
+   - 접근성(WCAG 2.1 AA) 준수
+
+4. **모듈 로딩 방식 표준화**
+   - ES 모듈 패턴으로 통일
+   - 의존성 관리 개선
+   - 전역 네임스페이스 정리
+   - 초기화 프로세스 표준화
+   - 내부 API와 공개 API 구분
+
+자세한 구현 내용은 `.ai-guides/code/coding-standards.md`, `.ai-guides/architecture/module-registry.md`, `.ai-guides/code/ui-ux-improvements.md`, `.ai-guides/code/module-pattern-standardization.md` 문서를 참조하세요.
 
 ## 사용 지침
 

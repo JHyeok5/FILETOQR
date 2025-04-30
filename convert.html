@@ -244,25 +244,19 @@
         </div>
     </footer>
 
-    <!-- Core Scripts -->
-    <script src="assets/js/core/app-core.js" type="module"></script>
+    <!-- 진행 상태 추적 라이브러리 -->
+    <script src="assets/js/utils/progress-tracker.js"></script>
     
-    <!-- 필요한 폴리필 및 글로벌 객체 정의 -->
-    <script>
-    window.ProgressTracker = window.ProgressTracker || function() {
-      this.start = function() { console.log('Progress tracking started'); };
-      this.updateProgress = function(percent, message) { console.log(percent + '%: ' + message); };
-      this.complete = function() { console.log('Progress tracking completed'); };
-    };
+    <!-- 파일 변환 유틸리티 모듈 -->
+    <script src="assets/js/utils/file-utils.js" type="module"></script>
     
-    window.analytics = window.analytics || {
-      trackPageView: function() { console.log('Page view tracked'); },
-      trackAction: function() { console.log('Action tracked:', arguments); },
-      trackConversion: function() { console.log('Conversion tracked:', arguments); }
-    };
-    </script>
+    <!-- 핵심 모듈 -->
+    <script src="assets/js/core/converter-core.js" type="module"></script>
     
-    <!-- Converter Module -->
+    <!-- 파일 변환 모듈 -->
     <script src="assets/js/converters/file-converter.js" type="module"></script>
+    
+    <!-- 사용자 경험 분석 -->
+    <script src="assets/js/utils/usage-analytics.js"></script>
 </body>
 </html> 
