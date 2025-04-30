@@ -9,6 +9,9 @@
  * - 스캔 결과 처리 및 표시
  */
 
+// 공통 유틸리티 모듈 임포트
+import FileUtils from '../utils/file-utils.js';
+
 // 즉시 실행 함수로 네임스페이스 보호
 (function() {
   'use strict';
@@ -50,7 +53,7 @@
       console.log('파일 유틸리티 참조 설정 완료');
     } else {
       console.warn('파일 유틸리티를 찾을 수 없습니다. 내부 기능으로 대체합니다.');
-      fileUtils = null;
+      fileUtils = FileUtils; // 새 유틸리티 모듈 사용
     }
     
     // DOM 요소 참조
@@ -676,33 +679,12 @@
       });
   }
 
-  /**
-   * 파일 크기 형식화
-   * file-converter.js의 함수 재사용
-   */
-  function formatFileSize(bytes) {
-    // fileUtils가 있으면 해당 함수 사용, 없으면 내부 구현 사용
-    if (fileUtils && fileUtils.formatSize) {
-      return fileUtils.formatSize(bytes);
-    }
-    
-    // 폴백 구현
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  }
-
   // 모듈 API 설정
   qrScanner.init = initQRScanner;
   qrScanner.startScanner = startScanner;
   qrScanner.stopScanner = stopScanner;
   qrScanner.resetScanner = resetScanner;
   qrScanner.scanImage = scanImage;
-  qrScanner.formatFileSize = formatFileSize;
   
   // 글로벌 네임스페이스에 등록
   window.qrScanner = qrScanner;
