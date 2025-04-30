@@ -1,13 +1,79 @@
-# FileToQR 코딩 표준
+# FileToQR 코딩 표준 가이드
 
-**버전**: 1.0.0  
+**버전**: 1.1.0  
 **최종 업데이트**: 2025-06-15
 
 ## 개요
 
-이 문서는 FileToQR 프로젝트에서 일관된 코드 스타일과 구조를 유지하기 위한 코딩 표준을 정의합니다. 모든 코드 기여 시 이 가이드라인을 준수해야 합니다.
+이 문서는 FileToQR 프로젝트의 코딩 표준, 컨벤션, 모범 사례를 정의합니다. 모든 코드 작성 시 이 가이드라인을 따라 일관성 있는 코드베이스를 유지해 주세요.
 
-## 일반 코딩 규칙
+## 핵심 모듈 구현 표준
+
+프로젝트의 핵심 모듈은 다음 표준을 준수합니다:
+
+### converter-core.js (파일 변환 핵심 모듈)
+
+- 모듈 네임스페이스: `ConverterCore`
+- 주요 책임: 파일 형식 변환 관리 및 구현
+- 주요 API 패턴:
+  ```javascript
+  // 모듈 초기화
+  import FileUtils from '../utils/file-utils.js';
+  
+  // 객체 리터럴 패턴으로 모듈 정의
+  const ConverterCore = {};
+  
+  // 지원하는 형식 정의
+  ConverterCore.supportedFormats = { ... };
+  
+  // 주요 API 메서드
+  ConverterCore.convertFile = async function(file, outputFormat, options, progressCallback) { ... };
+  
+  // 유틸리티 메서드
+  ConverterCore.canConvert = function(inputFormat, outputFormat) { ... };
+  
+  // 특정 변환 기능 구현
+  ConverterCore.convertImage = function(...) { ... };
+  ConverterCore.convertDocument = function(...) { ... };
+  
+  // 글로벌 네임스페이스 등록 및 모듈 내보내기
+  window.FileToQR.core.converter = ConverterCore;
+  export default ConverterCore;
+  ```
+
+### qr-core.js (QR 코드 생성 핵심 모듈)
+
+- 모듈 네임스페이스: `QRCore`
+- 주요 책임: QR 코드 생성 및 커스터마이징
+- 주요 API 패턴:
+  ```javascript
+  // 모듈 초기화
+  import FileUtils from '../utils/file-utils.js';
+  
+  // 객체 리터럴 패턴으로 모듈 정의
+  const QRCore = {};
+  
+  // 기본 설정 및 지원 콘텐츠 타입 정의
+  QRCore.defaultSettings = { ... };
+  QRCore.contentTypes = { ... };
+  
+  // 주요 API 메서드
+  QRCore.generateQRCode = async function(contentType, content, settings) { ... };
+  
+  // 유틸리티 메서드
+  QRCore.validateContent = function(contentType, content) { ... };
+  QRCore.formatContent = function(contentType, content) { ... };
+  
+  // 특정 기능 구현
+  QRCore.addLogoToQRCode = function(...) { ... };
+  QRCore.exportQRCode = function(...) { ... };
+  
+  // 글로벌 네임스페이스 등록 및 모듈 내보내기
+  window.FileToQR.core.qr = QRCore;
+  export default QRCore;
+  ```
+
+## 일반 코딩 표준
 
 ### 기본 원칙
 
