@@ -131,6 +131,7 @@
                         <button data-type="phone">전화번호</button>
                         <button data-type="vcard">연락처</button>
                         <button data-type="wifi">WiFi</button>
+                        <button data-type="file">파일</button>
                     </div>
                     
                     <!-- URL 입력 폼 (기본값) -->
@@ -229,6 +230,29 @@
                         <div class="flex items-center mb-4">
                             <input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700">숨겨진 네트워크</label>
+                        </div>
+                    </div>
+
+                    <!-- 파일 입력 폼 -->
+                    <div class="content-form hidden" id="file-form">
+                        <div class="mb-4">
+                            <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1">파일 선택</label>
+                            <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">5MB 이하의 파일만 QR 코드로 변환이 가능합니다.</p>
+                        </div>
+                        <div class="file-info p-4 border rounded-md mb-4 hidden">
+                            <h3 class="font-medium mb-2">파일 정보</h3>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="text-gray-600">파일명:</div>
+                                <div class="file-name font-medium"></div>
+                                <div class="text-gray-600">파일 유형:</div>
+                                <div class="file-type font-medium"></div>
+                                <div class="text-gray-600">파일 크기:</div>
+                                <div class="file-size font-medium"></div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
+                            <p>QR 코드로 변환된 파일은 크기 제한으로 인해 작은 파일에 적합합니다. 큰 파일은 여러 QR 코드로 나누어집니다.</p>
                         </div>
                     </div>
                 </div>
@@ -566,21 +590,17 @@
     </footer>
 
     <!-- Core Scripts -->
-    <script src="assets/js/core/app-core.js"></script>
+    <script src="assets/js/core/app-core.js" type="module"></script>
     
-    <!-- QR 코드 생성 라이브러리 - 모듈 타입 제거 및 올바른 순서로 로드 -->
+    <!-- QR 코드 생성 라이브러리 -->
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     
-    <!-- 유틸리티 스크립트 - 모듈 타입 제거 -->
-    <script src="assets/js/utils/file-utils.js"></script>
-    <script src="assets/js/utils/ui-utils.js"></script>
-    <script src="assets/js/utils/adsense-manager.js"></script>
-    
-    <!-- QR 코드 생성 스크립트 - 중복 로드 제거 -->
-    <script src="assets/js/qr-generator/qr-generator.js"></script>
+    <!-- QR 코드 생성 스크립트 -->
+    <script src="assets/js/qr-generator/qr-generator.js" type="module"></script>
+    <script src="assets/js/qr-generator/qr-scanner.js" type="module"></script>
     
     <!-- 이벤트 추적 스크립트 -->
-    <script>
+    <script type="module">
         // 콘텐츠 유형 탭 전환 처리
         document.addEventListener('DOMContentLoaded', function() {
             const contentTypeTabs = document.querySelectorAll('#content-type-tabs button');
@@ -634,6 +654,49 @@
                 downloadQRCode('jpeg');
             });
         });
+    </script>
+
+    <!-- 필요한 폴리필 및 글로벌 객체 정의 -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 파일 선택 이벤트 리스너 추가
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    const fileInfoEl = document.querySelector('.file-info');
+                    const fileNameEl = document.querySelector('.file-name');
+                    const fileTypeEl = document.querySelector('.file-type');
+                    const fileSizeEl = document.querySelector('.file-size');
+                    
+                    if (fileInfoEl) fileInfoEl.classList.remove('hidden');
+                    if (fileNameEl) fileNameEl.textContent = file.name;
+                    if (fileTypeEl) fileTypeEl.textContent = file.type || '알 수 없음';
+                    
+                    // 파일 크기 포맷
+                    if (fileSizeEl) {
+                        const formatFileSize = function(bytes) {
+                            if (bytes === 0) return '0 Bytes';
+                            const k = 1024;
+                            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                            const i = Math.floor(Math.log(bytes) / Math.log(k));
+                            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                        };
+                        
+                        fileSizeEl.textContent = formatFileSize(file.size);
+                    }
+                    
+                    // 파일 크기 제한 확인
+                    if (file.size > 5000000) { // 5MB
+                        alert('파일 크기가 너무 큽니다. 5MB 이하의 파일만 QR 코드로 변환할 수 있습니다.');
+                        fileInput.value = ''; // 입력 초기화
+                        if (fileInfoEl) fileInfoEl.classList.add('hidden');
+                    }
+                }
+            });
+        }
+    });
     </script>
 </body>
 </html> 

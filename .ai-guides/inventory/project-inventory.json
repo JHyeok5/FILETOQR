@@ -234,6 +234,113 @@
       "exports": ["adSenseManager"],
       "lastModified": "2025-04-28"
     },
+    "assets/js/utils/version-manager.js": {
+      "purpose": "버전 관리 시스템",
+      "description": "모듈 및 컴포넌트 버전 관리, 호환성 확인, 업데이트 추적",
+      "dependencies": [],
+      "exports": ["VersionManager"],
+      "features": [
+        "시맨틱 버전 관리",
+        "모듈 간 버전 호환성 확인",
+        "의존성 추적",
+        "업데이트 필요성 탐지"
+      ],
+      "functions": {
+        "registerVersion": "모듈 버전 등록",
+        "getVersion": "모듈 버전 조회",
+        "compareVersions": "버전 간 비교",
+        "isCompatible": "버전 호환성 확인",
+        "checkDependencies": "의존성 호환성 확인",
+        "checkForUpdates": "업데이트 필요 여부 확인"
+      },
+      "lastModified": "2025-06-15"
+    },
+    "assets/js/utils/template-utils.js": {
+      "purpose": "템플릿 처리 유틸리티",
+      "description": "HTML 템플릿 렌더링, 변수 삽입, 조건부 렌더링 지원",
+      "dependencies": [],
+      "exports": ["TemplateUtils"],
+      "features": [
+        "변수 삽입",
+        "조건부 렌더링",
+        "반복문 처리",
+        "템플릿 캐싱"
+      ],
+      "functions": {
+        "render": "템플릿 렌더링",
+        "cache": "템플릿 캐싱 관리",
+        "escapeHTML": "HTML 이스케이프 처리",
+        "loadFromElement": "DOM 요소에서 템플릿 로드"
+      },
+      "lastModified": "2025-06-15"
+    },
+    "assets/js/utils/module-loader.js": {
+      "purpose": "모듈 로딩 시스템",
+      "description": "동적 모듈 로딩, 의존성 관리, 비동기 모듈 초기화",
+      "dependencies": ["assets/js/utils/version-manager.js"],
+      "exports": ["ModuleLoader"],
+      "features": [
+        "ES 모듈 동적 로드",
+        "모듈 캐싱",
+        "의존성 관리",
+        "모듈 별칭 및 심 지원"
+      ],
+      "functions": {
+        "loadModule": "모듈 로드",
+        "loadModules": "다중 모듈 로드",
+        "resetModule": "모듈 리셋",
+        "setAliases": "모듈 별칭 설정"
+      },
+      "lastModified": "2025-06-15"
+    },
+    
+    "assets/js/core/component-system.js": {
+      "purpose": "컴포넌트 시스템",
+      "description": "UI 컴포넌트 정의, 생성, 관리를 위한 시스템",
+      "dependencies": [],
+      "exports": ["ComponentSystem"],
+      "features": [
+        "컴포넌트 라이프사이클",
+        "이벤트 핸들링",
+        "상태 관리",
+        "DOM 렌더링"
+      ],
+      "functions": {
+        "defineComponent": "컴포넌트 정의",
+        "mountComponent": "컴포넌트 마운트",
+        "updateComponent": "컴포넌트 업데이트",
+        "unmountComponent": "컴포넌트 언마운트",
+        "setState": "컴포넌트 상태 관리"
+      },
+      "lastModified": "2025-06-15"
+    },
+    
+    "assets/js/ui/ui-components.js": {
+      "purpose": "UI 컴포넌트 모음",
+      "description": "재사용 가능한 UI 컴포넌트 모듈",
+      "dependencies": [
+        "assets/js/core/component-system.js", 
+        "assets/js/utils/template-utils.js",
+        "assets/js/utils/version-manager.js"
+      ],
+      "exports": ["UIComponents"],
+      "components": [
+        "alert", 
+        "modal", 
+        "tabs", 
+        "progressBar", 
+        "toast"
+      ],
+      "features": [
+        "알림 및 경고창",
+        "모달 다이얼로그",
+        "탭 컨트롤",
+        "진행 상태 표시",
+        "토스트 메시지",
+        "각 컴포넌트별 이벤트 처리"
+      ],
+      "lastModified": "2025-06-15"
+    },
     
     "assets/js/registry.js": {
       "purpose": "모듈 레지스트리",
@@ -388,13 +495,6 @@
       "description": "QR 코드에서 인코딩된 데이터를 원본 파일로 복원",
       "dependencies": ["assets/js/registry.js", "assets/js/utils/file-utils.js"],
       "exports": ["qrToFile"],
-      "lastModified": "2025-05-20"
-    },
-    "assets/js/converters/file-to-qr.js": {
-      "purpose": "파일을 QR 코드로 변환",
-      "description": "파일을 QR 코드로 변환하여 저장하거나 인쇄할 수 있는 기능 제공",
-      "dependencies": ["assets/js/registry.js", "assets/js/utils/file-utils.js"],
-      "exports": ["fileToQR"],
       "lastModified": "2025-05-20"
     }
   }

@@ -14,6 +14,9 @@
   // QR 코드 생성기 네임스페이스
   const qrGenerator = FileToQR.qrGenerator = {};
   
+  // 파일 유틸리티 참조 (file-converter.js에서 제공)
+  let fileUtils = null;
+  
   // QR 코드 설정
   let qrSettings = {
     foregroundColor: '#000000',
@@ -41,12 +44,33 @@
   function init() {
     console.log('QR 코드 생성기 초기화 중...');
     
+    // FileToQR.utils가 준비되었는지 확인
+    if (FileToQR.utils && FileToQR.utils.file) {
+      fileUtils = FileToQR.utils.file;
+      console.log('파일 유틸리티 참조 설정 완료');
+    } else {
+      console.warn('파일 유틸리티를 찾을 수 없습니다. 내부 기능으로 대체합니다.');
+      fileUtils = null;
+    }
+    
     // QRCode 라이브러리 로드 확인
     if (typeof QRCode === 'undefined') {
       console.warn('QRCode 라이브러리가 로드되지 않았습니다. 라이브러리를 로드 중입니다...');
-      loadQRCodeLibrary();
+      loadQRCodeLibrary().then(() => {
+        console.log('QRCode 라이브러리 로드 완료');
+        initUI();
+      }).catch(error => {
+        console.error('QRCode 라이브러리 로드 실패:', error);
+      });
+    } else {
+      initUI();
     }
-    
+  }
+  
+  /**
+   * UI 초기화 및 이벤트 바인딩
+   */
+  function initUI() {
     // DOM 요소 참조
     const elements = {
       generateButton: document.getElementById('generate-qr'),
@@ -73,6 +97,9 @@
     
     // 이벤트 리스너 등록
     bindEvents(elements);
+    
+    // URL 파라미터 및 세션 스토리지 데이터 확인
+    checkForFileData();
     
     console.log('QR 코드 생성기 초기화 완료');
   }
@@ -294,6 +321,36 @@
           if (encryption !== 'nopass') content += 'P:' + password + ';';
           if (hidden) content += 'H:true;';
           content += ';';
+          break;
+          
+        case 'file':
+          const fileForm = document.getElementById('file-form');
+          if (fileForm) {
+            const fileDataUri = fileForm.dataset.fileDataUri;
+            const fileName = fileForm.dataset.fileName;
+            const fileType = fileForm.dataset.fileType;
+            
+            if (fileDataUri && fileName) {
+              content = encodeFileToQR(fileDataUri, fileName, fileType);
+            } else {
+              // 파일 입력이 있는지 확인
+              const fileInput = document.getElementById('file-input');
+              if (fileInput && fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                // 파일을 데이터 URI로 읽기
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                  const dataUri = e.target.result;
+                  content = encodeFileToQR(dataUri, file.name, file.type);
+                  // QR 코드 다시 생성
+                  generateQRCode();
+                };
+                reader.readAsDataURL(file);
+                // 임시 내용 반환
+                return "파일 데이터 준비 중...";
+              }
+            }
+          }
           break;
       }
     } catch (error) {
@@ -741,12 +798,129 @@
     }, 3000);
   }
   
+  /**
+   * 파일 변환 페이지에서 전달된 파일 데이터 확인
+   */
+  function checkForFileData() {
+    // URL 파라미터 확인
+    const urlParams = new URLSearchParams(window.location.search);
+    const contentType = urlParams.get('contentType');
+    
+    if (contentType === 'file') {
+      // 세션 스토리지에서 파일 데이터 가져오기
+      const fileDataJson = sessionStorage.getItem('fileToQR');
+      if (fileDataJson) {
+        try {
+          const fileData = JSON.parse(fileDataJson);
+          
+          // UI 업데이트
+          currentContentType = 'file';
+          
+          // 콘텐츠 유형 탭 업데이트
+          const contentTypeTabs = document.querySelectorAll('#content-type-tabs button');
+          contentTypeTabs.forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.type === 'file') {
+              tab.classList.add('active');
+            }
+          });
+          
+          // 폼 업데이트
+          const contentForms = document.querySelectorAll('.content-form');
+          contentForms.forEach(form => {
+            form.classList.add('hidden');
+            form.classList.remove('active');
+          });
+          
+          const fileForm = document.getElementById('file-form');
+          if (fileForm) {
+            fileForm.classList.remove('hidden');
+            fileForm.classList.add('active');
+            
+            // 파일 정보 업데이트
+            const fileNameEl = fileForm.querySelector('.file-name');
+            const fileSizeEl = fileForm.querySelector('.file-size');
+            const fileTypeEl = fileForm.querySelector('.file-type');
+            
+            if (fileNameEl) fileNameEl.textContent = fileData.name;
+            if (fileSizeEl) fileSizeEl.textContent = formatFileSize(fileData.size);
+            if (fileTypeEl) fileTypeEl.textContent = fileData.type;
+            
+            // 파일 데이터를 임시 저장
+            fileForm.dataset.fileDataUri = fileData.dataUri;
+            fileForm.dataset.fileName = fileData.name;
+            fileForm.dataset.fileType = fileData.type;
+            fileForm.dataset.fileSize = fileData.size;
+          }
+          
+          // 높은 에러 수정 레벨 설정 (파일 데이터는 복잡함)
+          const errorCorrectionSelect = document.getElementById('error-correction');
+          if (errorCorrectionSelect) {
+            errorCorrectionSelect.value = 'H';
+            qrSettings.errorCorrectionLevel = 'H';
+          }
+          
+          // QR 코드 자동 생성
+          generateQRCode();
+          
+          // 세션 스토리지 정리
+          sessionStorage.removeItem('fileToQR');
+        } catch (error) {
+          console.error('파일 데이터 처리 중 오류가 발생했습니다:', error);
+        }
+      }
+    }
+  }
+
+  /**
+   * 파일 크기를 형식화하는 함수
+   * file-converter.js의 동일 함수 재사용
+   */
+  function formatFileSize(bytes) {
+    // fileUtils가 있으면 해당 함수 사용, 없으면 내부 구현 사용
+    if (fileUtils && fileUtils.formatSize) {
+      return fileUtils.formatSize(bytes);
+    }
+
+    // 폴백 구현 (file-converter.js에서 제공하는 함수와 동일)
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  /**
+   * 파일을 QR 코드로 인코딩하는 함수
+   */
+  function encodeFileToQR(dataUri, fileName, fileType) {
+    // 간단한 메타데이터 포맷 (JSON)
+    const fileData = {
+      name: fileName,
+      type: fileType,
+      data: dataUri
+    };
+    
+    return JSON.stringify(fileData);
+  }
+  
   // 모듈 API 설정
   qrGenerator.init = init;
   qrGenerator.generateQRCode = generateQRCode;
   qrGenerator.downloadQRCode = downloadQRCode;
   qrGenerator.showError = showError;
+  qrGenerator.checkForFileData = checkForFileData;
+  qrGenerator.encodeFileToQR = encodeFileToQR;
+  qrGenerator.formatFileSize = formatFileSize;
+  qrGenerator.getCurrentContentName = getCurrentContentName;
+  qrGenerator.updatePreview = function() {
+    if (generatedQRDataURL) {
+      generateQRCode();
+    }
+  };
   
-  // DOM 로드 완료 시 초기화
-  document.addEventListener('DOMContentLoaded', init);
+  // 글로벌 네임스페이스에 등록
+  window.qrGenerator = qrGenerator;
 })(); 
