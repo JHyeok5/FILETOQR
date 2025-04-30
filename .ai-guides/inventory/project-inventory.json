@@ -2,7 +2,7 @@
   "metadata": {
     "project": "FileToQR",
     "description": "파일 변환 및 QR 코드 생성 플랫폼",
-    "lastUpdated": "2025-06-10",
+    "lastUpdated": "2025-06-15",
     "version": "1.1.0"
   },
   "files": {
@@ -39,17 +39,32 @@
     
     "assets/js/core/converter-core.js": {
       "purpose": "파일 변환 핵심 로직",
-      "description": "모든 파일 변환 작업의 기본 로직과 인터페이스 정의",
-      "dependencies": ["assets/js/utils/file-utils.js", "assets/js/registry.js"],
-      "exports": ["converterCore"],
-      "lastModified": "2025-04-28"
+      "description": "다양한 파일 형식 간 변환 구현, 변환 프로세스 관리, 파일 형식 지원 및 호환성 정보 제공",
+      "dependencies": ["assets/js/utils/file-utils.js"],
+      "formats": {
+        "image": {
+          "inputs": ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"],
+          "outputs": ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"]
+        },
+        "document": {
+          "inputs": ["txt", "md", "csv", "json", "xml", "html"],
+          "outputs": ["txt", "md", "csv", "json", "xml", "html"]
+        },
+        "audio": {
+          "inputs": ["mp3", "wav", "ogg"],
+          "outputs": ["mp3", "wav", "ogg"]
+        }
+      },
+      "exports": ["ConverterCore"],
+      "lastModified": "2025-06-15"
     },
     "assets/js/core/qr-core.js": {
       "purpose": "QR 코드 생성 핵심 로직",
-      "description": "QR 코드 생성의 기본 로직과 인터페이스 정의",
-      "dependencies": ["assets/js/registry.js"],
-      "exports": ["qrCore"],
-      "lastModified": "2025-04-28"
+      "description": "다양한 콘텐츠 유형의 QR 코드 생성, 커스텀 스타일링(색상, 크기, 오류 수정 레벨 등), 로고 추가 기능, 다양한 형식으로 내보내기(PNG, SVG, JPEG)",
+      "dependencies": ["assets/js/utils/file-utils.js"],
+      "contentTypes": ["url", "text", "email", "phone", "vcard", "wifi", "file"],
+      "exports": ["QRCore"],
+      "lastModified": "2025-06-15"
     },
     "assets/js/core/app-core.js": {
       "purpose": "애플리케이션 코어",
