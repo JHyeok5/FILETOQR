@@ -209,11 +209,51 @@
     <script src="assets/js/utils/file-utils.js"></script>
     <script src="assets/js/core/converter-core.js"></script>
     <script type="module">
-        import fileConverter from './assets/js/converters/file-converter.js';
+        // 모듈을 여러 경로로 시도하여 임포트
+        async function loadModule(paths) {
+            for (const path of paths) {
+                try {
+                    console.log(`모듈 로드 시도: ${path}`);
+                    const module = await import(path);
+                    console.log(`모듈 로드 성공: ${path}`);
+                    return module.default;
+                } catch (error) {
+                    console.warn(`모듈 로드 실패 (${path}):`, error);
+                }
+            }
+            console.error('모든 모듈 로드 경로 시도 실패');
+            return null;
+        }
         
         // DOM이 로드된 후 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            fileConverter.init();
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('파일 변환 페이지 초기화 중...');
+            
+            // 다양한 경로 패턴으로 시도
+            const fileConverter = await loadModule([
+                './assets/js/converters/file-converter.js',
+                '/assets/js/converters/file-converter.js',
+                'assets/js/converters/file-converter.js'
+            ]);
+            
+            if (fileConverter) {
+                fileConverter.init();
+                
+                // 변환 버튼 이벤트 처리
+                const convertBtn = document.getElementById('convert-btn');
+                if (convertBtn) {
+                    convertBtn.addEventListener('click', function() {
+                        console.log('변환 버튼 클릭됨');
+                        if (fileConverter && fileConverter.convertFile) {
+                            fileConverter.convertFile();
+                        } else {
+                            console.error('fileConverter.convertFile 메소드를 찾을 수 없습니다.');
+                        }
+                    });
+                }
+            } else {
+                console.error('fileConverter 모듈을 찾을 수 없습니다.');
+            }
         });
     </script>
     
