@@ -319,35 +319,97 @@ function initGlobalComponents() {
 
 /**
  * 공통 UI 컴포넌트 초기화
- * 헤더, 푸터 등 모든 페이지에서 공통으로 사용되는 UI 컴포넌트 초기화
- * @private
  * @async
+ * @private
  */
 async function initCommonUI() {
   try {
-    // 헤더와 푸터 로드
-    const headerContainer = document.getElementById('header-container');
-    const footerContainer = document.getElementById('footer-container');
+    console.log('공통 UI 컴포넌트 초기화 중...');
     
-    // 템플릿 유틸리티 확인
-    const templateUtils = (typeof window !== 'undefined' && window.FileToQR && window.FileToQR.TemplateUtils) ? 
-      window.FileToQR.TemplateUtils : null;
+    // 헤더 푸터 로드
+    await loadHeaderFooter();
     
-    if (templateUtils) {
-      // 헤더 로드
-      if (headerContainer) {
-        await templateUtils.loadComponent('header', headerContainer);
-      }
-      
-      // 푸터 로드
-      if (footerContainer) {
-        await templateUtils.loadComponent('footer', footerContainer);
-      }
-    } else {
-      console.warn('템플릿 유틸리티를 찾을 수 없습니다.');
-    }
+    console.log('공통 UI 컴포넌트 초기화 완료');
+    return true;
   } catch (error) {
     console.error('공통 UI 컴포넌트 초기화 실패:', error);
+    return false;
+  }
+}
+
+/**
+ * 헤더와 푸터 로드
+ * @async
+ * @private
+ * @param {number} retryCount - 재시도 횟수 (기본값: 3)
+ * @returns {Promise<boolean>} 로드 성공 여부
+ */
+async function loadHeaderFooter(retryCount = 3) {
+  // DOM 요소 확인
+  const headerContainer = document.getElementById('header-container');
+  const footerContainer = document.getElementById('footer-container');
+  
+  // 요소가 없으면 중단
+  if (!headerContainer && !footerContainer) {
+    console.warn('헤더/푸터 컨테이너를 찾을 수 없습니다.');
+    return false;
+  }
+  
+  try {
+    // 템플릿 유틸리티 로드
+    const TemplateUtils = await loadTemplateUtils();
+    
+    if (!TemplateUtils) {
+      throw new Error('템플릿 유틸리티를 로드할 수 없습니다.');
+    }
+    
+    let success = true;
+    
+    // 헤더 로드
+    if (headerContainer) {
+      console.log('헤더 컴포넌트 로드 중...');
+      const headerSuccess = await TemplateUtils.loadComponent('header', headerContainer);
+      
+      if (!headerSuccess) {
+        console.warn('헤더 컴포넌트 로드 실패');
+        success = false;
+      } else {
+        console.log('헤더 컴포넌트 로드 완료');
+      }
+    }
+    
+    // 푸터 로드
+    if (footerContainer) {
+      console.log('푸터 컴포넌트 로드 중...');
+      const footerSuccess = await TemplateUtils.loadComponent('footer', footerContainer);
+      
+      if (!footerSuccess) {
+        console.warn('푸터 컴포넌트 로드 실패');
+        success = false;
+      } else {
+        console.log('푸터 컴포넌트 로드 완료');
+      }
+    }
+    
+    // 하나라도 실패했고 재시도 횟수가 남아있으면 재시도
+    if (!success && retryCount > 0) {
+      console.log(`헤더/푸터 로드 재시도 (남은 시도: ${retryCount})...`);
+      setTimeout(() => loadHeaderFooter(retryCount - 1), 300);
+      return false;
+    }
+    
+    return success;
+  } catch (error) {
+    console.error('헤더/푸터 로드 중 오류 발생:', error);
+    
+    // 재시도 횟수가 남아있으면 재시도
+    if (retryCount > 0) {
+      console.log(`헤더/푸터 로드 재시도 (남은 시도: ${retryCount})...`);
+      setTimeout(() => loadHeaderFooter(retryCount - 1), 300);
+      return false;
+    }
+    
+    return false;
   }
 }
 
@@ -600,11 +662,94 @@ function navigateTo(page, params = {}) {
   window.location.href = url;
 }
 
-// 앱 자동 초기화 (index.html과 같은 진입점에서 직접 호출해도 됨)
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
+/**
+ * 페이지 로딩 완료 시 초기화 수행
+ * @private
+ */
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('app-core.js 로드됨 - 초기화 시작...');
+  try {
+    // 초기화 함수 호출
+    await init();
+    console.log('앱 초기화 완료');
+  } catch (error) {
+    console.error('앱 초기화 실패:', error);
+  }
+});
+
+/**
+ * 모듈을 안전하게 임포트하는 함수
+ * @param {string} modulePath - 임포트할 모듈 경로
+ * @returns {Promise<Object>} 임포트된 모듈
+ */
+async function safeImport(modulePath) {
+  try {
+    // 경로가 /로 시작하는지 확인 (절대 경로)
+    if (modulePath.startsWith('/')) {
+      // 앞의 / 제거
+      modulePath = modulePath.substring(1);
+    }
+    
+    // 상대 경로인지 확인
+    if (!modulePath.startsWith('./') && !modulePath.startsWith('../')) {
+      // 상대 경로로 변환
+      modulePath = './' + modulePath;
+    }
+    
+    console.log(`모듈 임포트 시도: ${modulePath}`);
+    return await import(modulePath);
+  } catch (error) {
+    console.error(`모듈 임포트 실패 (${modulePath}):`, error);
+    
+    // 두 번째 시도: 다른 경로 패턴 시도
+    try {
+      const altPath = modulePath.startsWith('./') 
+        ? modulePath.substring(2) // './' 제거
+        : './' + modulePath;
+      
+      console.log(`대체 경로로 모듈 임포트 시도: ${altPath}`);
+      return await import(altPath);
+    } catch (altError) {
+      console.error(`대체 경로 모듈 임포트도 실패 (${modulePath}):`, altError);
+      throw new Error(`모듈 로드 실패: ${modulePath}`);
+    }
+  }
+}
+
+/**
+ * 템플릿 유틸리티 로드
+ * @returns {Promise<Object>} 템플릿 유틸리티 모듈
+ */
+async function loadTemplateUtils() {
+  try {
+    // 모듈 경로 목록 (시도할 순서대로)
+    const paths = [
+      './assets/js/utils/template-utils.js',
+      '../utils/template-utils.js',
+      '/assets/js/utils/template-utils.js'
+    ];
+    
+    let lastError = null;
+    
+    // 각 경로 시도
+    for (const path of paths) {
+      try {
+        console.log(`템플릿 유틸리티 로드 시도: ${path}`);
+        const module = await import(path);
+        console.log('템플릿 유틸리티 로드 성공');
+        return module.default;
+      } catch (error) {
+        console.warn(`경로 ${path}에서 로드 실패:`, error);
+        lastError = error;
+      }
+    }
+    
+    // 모든 시도 실패
+    throw lastError || new Error('템플릿 유틸리티 로드 실패');
+  } catch (error) {
+    console.error('템플릿 유틸리티 로드 중 오류 발생:', error);
+    throw error;
+  }
 }
 
 // 하위 호환성을 위한 전역 참조
