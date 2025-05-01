@@ -747,27 +747,48 @@ const qrGenerator = {
   init() {
     console.log('QR 코드 생성기 초기화 중...');
     
-    // FileToQR.utils가 준비되었는지 확인
-    if (typeof window !== 'undefined' && window.FileToQR?.utils?.file) {
-      fileUtils = window.FileToQR.utils.file;
-      console.log('파일 유틸리티 참조 설정 완료');
-    } else {
-      console.warn('파일 유틸리티를 찾을 수 없습니다. 내부 기능으로 대체합니다.');
-      fileUtils = FileUtils; // 새 유틸리티 모듈 사용
-    }
+    // QRCode 라이브러리가 로드되었는지 확인
+    const initializeAfterDependencies = () => {
+      // FileUtils 참조 설정
+      if (typeof window !== 'undefined' && window.FileToQR?.utils?.file) {
+        fileUtils = window.FileToQR.utils.file;
+        console.log('파일 유틸리티 참조 설정 완료');
+      } else if (typeof FileUtils !== 'undefined') {
+        fileUtils = FileUtils;
+        console.log('파일 유틸리티 모듈 참조 설정 완료');
+      } else {
+        console.error('파일 유틸리티를 찾을 수 없습니다. UI 초기화를 계속합니다.');
+      }
+      
+      // QRCore 참조 확인
+      if (typeof window !== 'undefined' && window.QRCore) {
+        console.log('QRCore 참조 설정 완료');
+      } else if (typeof QRCore === 'undefined') {
+        console.warn('QRCore 모듈을 찾을 수 없습니다. 일부 기능이 제한될 수 있습니다.');
+      }
+      
+      // UI 초기화
+      initUI();
+    };
     
-    // QRCode 라이브러리 로드 확인
+    // QRCode 라이브러리 로드 확인 및 동적 로드
     if (typeof QRCode === 'undefined') {
       console.warn('QRCode 라이브러리가 로드되지 않았습니다. 라이브러리를 로드 중입니다...');
-      loadQRCodeLibrary().then(() => {
-        console.log('QRCode 라이브러리 로드 완료');
-        initUI();
-      }).catch(error => {
-        console.error('QRCode 라이브러리 로드 실패:', error);
-      });
+      loadQRCodeLibrary()
+        .then(() => {
+          console.log('QRCode 라이브러리 로드 완료');
+          initializeAfterDependencies();
+        })
+        .catch(error => {
+          console.error('QRCode 라이브러리 로드 실패:', error);
+          // 실패해도 UI 초기화 시도
+          initializeAfterDependencies();
+        });
     } else {
-      initUI();
+      initializeAfterDependencies();
     }
+    
+    return this;
   },
   
   /**
@@ -810,18 +831,5 @@ if (typeof window !== 'undefined') {
   window.FileToQR.qrGenerator = qrGenerator;
 }
 
-// 페이지 로드 시 자동 초기화 (DOMContentLoaded 이벤트 사용)
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    qrGenerator.init();
-  });
-}
-
 // 모듈 내보내기 추가
-export default {
-  init,
-  generateQRCode,
-  downloadQRCode,
-  updateSettings,
-  setFileData
-}; 
+export default qrGenerator; 
