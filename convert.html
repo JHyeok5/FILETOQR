@@ -232,73 +232,89 @@
             }
         };
         
-        // 파일 변환기 로드 및 초기화
+        // 파일 변환기 로드 및 초기화 - 여러 경로 시도
         const initFileConverter = async () => {
-            try {
-                console.log('파일 변환기 로드 시도');
-                const module = await import('./assets/js/converters/file-converter.js');
-                const FileConverter = module.default;
-                
-                console.log('파일 변환기 로드 성공, 초기화 중...');
-                if (FileConverter) {
-                    await FileConverter.init();
-                    console.log('파일 변환기 초기화 완료');
-                    
-                    // 변환 버튼에 이벤트 리스너 추가
-                    const convertBtn = document.getElementById('convert-btn');
-                    if (convertBtn) {
-                        convertBtn.addEventListener('click', function() {
-                            console.log('변환 버튼 클릭됨');
-                            try {
-                                FileConverter.convertFile();
-                            } catch (error) {
-                                console.error('파일 변환 중 오류 발생:', error);
-                                alert('파일 변환 중 오류가 발생했습니다. 콘솔을 확인하세요.');
-                            }
-                        });
+            // 모듈을 로드할 여러 경로 시도
+            const paths = [
+                './assets/js/converters/file-converter.js',
+                '/assets/js/converters/file-converter.js',
+                '../converters/file-converter.js',
+                'assets/js/converters/file-converter.js'
+            ];
+            
+            let FileConverter = null;
+            let lastError = null;
+            
+            // 각 경로 시도
+            for (const path of paths) {
+                try {
+                    console.log(`파일 변환기 로드 시도 (경로: ${path})`);
+                    const module = await import(path);
+                    if (module && module.default) {
+                        FileConverter = module.default;
+                        console.log('파일 변환기 모듈 로드 성공');
+                        break;
                     }
-                    
-                    return FileConverter;
-                } else {
-                    throw new Error('파일 변환기 모듈이 유효하지 않습니다');
+                } catch (error) {
+                    console.warn(`경로 ${path}에서 모듈 로드 실패:`, error);
+                    lastError = error;
                 }
+            }
+            
+            if (!FileConverter) {
+                console.error('모든 경로에서 파일 변환기 로드 실패:', lastError);
+                showLoadError(lastError);
+                // 폴백: 기본 UI는 계속 작동하도록 함
+                setupBasicUI();
+                return null;
+            }
+            
+            try {
+                console.log('파일 변환기 초기화 중...');
+                await FileConverter.init();
+                console.log('파일 변환기 초기화 완료');
+                
+                // 변환 버튼에 이벤트 리스너 추가
+                const convertBtn = document.getElementById('convert-btn');
+                if (convertBtn) {
+                    convertBtn.addEventListener('click', function() {
+                        console.log('변환 버튼 클릭됨');
+                        try {
+                            FileConverter.convertFile();
+                        } catch (error) {
+                            console.error('파일 변환 중 오류 발생:', error);
+                            alert('파일 변환 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+                        }
+                    });
+                }
+                
+                return FileConverter;
             } catch (error) {
-                console.error('파일 변환기 로드 또는 초기화 실패:', error);
-                // 사용자에게 오류 알림
-                const options = document.getElementById('conversion-options');
-                if (options) {
-                    options.innerHTML = `
-                        <div class="p-4 bg-red-100 text-red-800 rounded-lg">
-                            <h3 class="font-medium mb-2">파일 변환 기능을 로드할 수 없습니다</h3>
-                            <p>기술적 문제로 파일 변환 기능을 현재 사용할 수 없습니다. 나중에 다시 시도해 주세요.</p>
-                            <p class="text-sm mt-2">오류: ${error.message}</p>
-                        </div>
-                    `;
-                    options.classList.remove('hidden');
-                }
+                console.error('파일 변환기 초기화 실패:', error);
+                showLoadError(error);
+                // 폴백: 기본 UI는 계속 작동하도록 함
+                setupBasicUI();
                 return null;
             }
         };
         
-        // DOM이 로드된 후 초기화
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('파일 변환 페이지 초기화 시작');
-            
-            // 디버그 모드 활성화
-            const DebugHelper = await activateDebugMode();
-            
-            // 브라우저 환경 정보 출력
-            console.log('브라우저 환경:', {
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                cookiesEnabled: navigator.cookieEnabled,
-                baseURL: window.location.origin,
-                currentURL: window.location.href
-            });
-            
-            // 파일 변환기 초기화
-            const FileConverter = await initFileConverter();
-            
+        // 로드 오류 표시 함수
+        function showLoadError(error) {
+            const options = document.getElementById('conversion-options');
+            if (options) {
+                options.innerHTML = `
+                    <div class="p-4 bg-red-100 text-red-800 rounded-lg">
+                        <h3 class="font-medium mb-2">파일 변환 기능을 로드할 수 없습니다</h3>
+                        <p>기술적 문제로 파일 변환 기능을 현재 사용할 수 없습니다. 나중에 다시 시도해 주세요.</p>
+                        <p class="text-sm mt-2">오류: ${error?.message || '알 수 없는 오류'}</p>
+                    </div>
+                `;
+                options.classList.remove('hidden');
+            }
+        }
+        
+        // 기본 UI 설정 함수 (모듈 없이도 파일 선택 및 정보 표시 가능)
+        function setupBasicUI() {
             // 파일 드래그 앤 드롭 이벤트 처리
             const dropzone = document.getElementById('dropzone');
             const fileInput = document.getElementById('file-input');
@@ -342,61 +358,156 @@
                     }
                 });
                 
-                // 파일 선택 처리 함수
-                function handleFileSelect(file) {
-                    // 파일 정보 표시
-                    document.getElementById('file-name').textContent = file.name;
-                    document.getElementById('file-type').textContent = file.type || '알 수 없는 형식';
-                    
-                    // 파일 크기 포맷팅
-                    const formatSize = (bytes) => {
-                        if (bytes === 0) return '0 Bytes';
-                        const k = 1024;
-                        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-                        const i = Math.floor(Math.log(bytes) / Math.log(k));
-                        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-                    };
-                    
-                    document.getElementById('file-size').textContent = formatSize(file.size);
-                    
-                    // 변환 옵션 표시
-                    document.getElementById('conversion-options').classList.remove('hidden');
-                    document.getElementById('conversion-actions').classList.remove('hidden');
-                    
-                    // 출력 형식 옵션 업데이트 (FileConverter 사용)
-                    if (FileConverter) {
-                        updateOutputFormats(file);
-                    }
-                }
-                
-                // 출력 형식 업데이트 함수
-                function updateOutputFormats(file) {
-                    const formatSelector = document.getElementById('output-format');
-                    const extension = file.name.split('.').pop().toLowerCase();
-                    
-                    // 선택기 초기화
-                    formatSelector.innerHTML = '<option value="">형식 선택</option>';
-                    
-                    // 지원되는 출력 형식 가져오기
-                    const supportedFormats = FileConverter.getSupportedFormats(extension);
-                    
-                    if (supportedFormats && supportedFormats.length > 0) {
-                        supportedFormats.forEach(format => {
-                            const option = document.createElement('option');
-                            option.value = format;
-                            option.textContent = format.toUpperCase();
-                            formatSelector.appendChild(option);
-                        });
-                        formatSelector.disabled = false;
-                    } else {
-                        const option = document.createElement('option');
-                        option.value = "";
-                        option.textContent = "지원되는 형식 없음";
-                        formatSelector.appendChild(option);
-                        formatSelector.disabled = true;
-                    }
-                }
+                console.log('기본 파일 업로드 UI 설정 완료');
             }
+        }
+        
+        // 파일 선택 처리 함수
+        function handleFileSelect(file) {
+            console.log('파일 선택됨:', file.name);
+            
+            // 파일 정보 표시
+            const fileNameEl = document.getElementById('file-name');
+            const fileTypeEl = document.getElementById('file-type');
+            const fileSizeEl = document.getElementById('file-size');
+            
+            if (fileNameEl) fileNameEl.textContent = file.name;
+            if (fileTypeEl) fileTypeEl.textContent = file.type || '알 수 없는 형식';
+            
+            // 파일 크기 포맷팅
+            const formatSize = (bytes) => {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            };
+            
+            if (fileSizeEl) fileSizeEl.textContent = formatSize(file.size);
+            
+            // 변환 옵션과 액션 버튼 표시
+            const optionsEl = document.getElementById('conversion-options');
+            const actionsEl = document.getElementById('conversion-actions');
+            
+            if (optionsEl) optionsEl.classList.remove('hidden');
+            if (actionsEl) actionsEl.classList.remove('hidden');
+            
+            // 파일 정보 섹션에 직접 표시 (백업 방법)
+            const fileInfoDiv = document.getElementById('file-info');
+            if (fileInfoDiv) {
+                fileInfoDiv.innerHTML = `
+                    <div class="mt-4 p-4 bg-gray-100 rounded-lg">
+                        <h3 class="font-medium">파일 정보</h3>
+                        <p>이름: ${file.name}</p>
+                        <p>크기: ${formatSize(file.size)}</p>
+                        <p>형식: ${file.type || '알 수 없는 형식'}</p>
+                    </div>
+                `;
+            }
+            
+            // 파일 확장자에 따른 기본 출력 형식 업데이트
+            updateBasicOutputFormats(file);
+        }
+        
+        // 기본 출력 형식 업데이트 (FileConverter 없이도 작동)
+        function updateBasicOutputFormats(file) {
+            const formatSelector = document.getElementById('output-format');
+            if (!formatSelector) return;
+            
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            // 선택기 초기화
+            formatSelector.innerHTML = '<option value="">형식 선택</option>';
+            
+            // 기본 지원 형식 맵 (FileConverter가 없을 때 사용)
+            const basicFormatMap = {
+                'png': ['jpg', 'webp', 'gif'],
+                'jpg': ['png', 'webp', 'gif'],
+                'jpeg': ['png', 'webp', 'gif'],
+                'webp': ['png', 'jpg', 'gif'],
+                'gif': ['png', 'jpg', 'webp'],
+                'pdf': ['txt'],
+                'txt': ['pdf'],
+                'json': ['csv', 'xml'],
+                'csv': ['json', 'xml'],
+                'xml': ['json', 'csv']
+            };
+            
+            const supportedFormats = basicFormatMap[extension] || [];
+            
+            if (supportedFormats.length > 0) {
+                supportedFormats.forEach(format => {
+                    const option = document.createElement('option');
+                    option.value = format;
+                    option.textContent = format.toUpperCase();
+                    formatSelector.appendChild(option);
+                });
+                formatSelector.disabled = false;
+            } else {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "지원되는 형식 없음";
+                formatSelector.appendChild(option);
+                formatSelector.disabled = true;
+            }
+        }
+        
+        // FileConverter로 출력 형식 업데이트
+        function updateOutputFormats(file, FileConverter) {
+            if (!FileConverter) {
+                updateBasicOutputFormats(file);
+                return;
+            }
+            
+            const formatSelector = document.getElementById('output-format');
+            if (!formatSelector) return;
+            
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            // 선택기 초기화
+            formatSelector.innerHTML = '<option value="">형식 선택</option>';
+            
+            // 지원되는 출력 형식 가져오기
+            const supportedFormats = FileConverter.getSupportedFormats(extension);
+            
+            if (supportedFormats && supportedFormats.length > 0) {
+                supportedFormats.forEach(format => {
+                    const option = document.createElement('option');
+                    option.value = format;
+                    option.textContent = format.toUpperCase();
+                    formatSelector.appendChild(option);
+                });
+                formatSelector.disabled = false;
+            } else {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "지원되는 형식 없음";
+                formatSelector.appendChild(option);
+                formatSelector.disabled = true;
+            }
+        }
+        
+        // DOM이 로드된 후 초기화
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('파일 변환 페이지 초기화 시작');
+            
+            // 디버그 모드 활성화
+            const DebugHelper = await activateDebugMode();
+            
+            // 브라우저 환경 정보 출력
+            console.log('브라우저 환경:', {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                cookiesEnabled: navigator.cookieEnabled,
+                baseURL: window.location.origin,
+                currentURL: window.location.href
+            });
+            
+            // 항상 기본 UI 먼저 설정 (모듈이 로드되지 않아도 기본 동작 가능)
+            setupBasicUI();
+            
+            // 파일 변환기 초기화
+            const FileConverter = await initFileConverter();
             
             // 진단 유틸리티 실행 (선택적)
             if (!FileConverter) {
