@@ -9,11 +9,46 @@
  * - 전역 이벤트 설정
  */
 
-// 필요한 모듈 가져오기
-import TemplateUtils from '../utils/template-utils.js';
-import ComponentSystem from './component-system.js';
-import FileConverter from '../converters/file-converter.js';
-import QRGenerator from '../qr-generator/qr-generator.js';
+// 필요한 모듈 동적 임포트 준비
+const importTemplateUtils = async () => {
+  try {
+    const module = await import('../utils/template-utils.js');
+    return module.default;
+  } catch (error) {
+    console.error('TemplateUtils 모듈 로드 실패:', error);
+    return null;
+  }
+};
+
+const importComponentSystem = async () => {
+  try {
+    const module = await import('./component-system.js');
+    return module.default;
+  } catch (error) {
+    console.error('ComponentSystem 모듈 로드 실패:', error);
+    return null;
+  }
+};
+
+const importFileConverter = async () => {
+  try {
+    const module = await import('../converters/file-converter.js');
+    return module.default;
+  } catch (error) {
+    console.error('FileConverter 모듈 로드 실패:', error);
+    return null;
+  }
+};
+
+const importQRGenerator = async () => {
+  try {
+    const module = await import('../qr-generator/qr-generator.js');
+    return module.default;
+  } catch (error) {
+    console.error('QRGenerator 모듈 로드 실패:', error);
+    return null;
+  }
+};
 
 // 메인 애플리케이션 모듈
 const Main = {
@@ -21,6 +56,12 @@ const Main = {
   state: {
     initialized: false,
     currentPage: '',
+    modules: {
+      templateUtils: null,
+      componentSystem: null,
+      fileConverter: null,
+      qrGenerator: null
+    }
   },
   
   /**
@@ -37,6 +78,10 @@ const Main = {
       
       // 현재 페이지 확인
       this._detectCurrentPage();
+      
+      // 코어 모듈 로드
+      this.state.modules.templateUtils = await importTemplateUtils();
+      this.state.modules.componentSystem = await importComponentSystem();
       
       // 공통 컴포넌트 로드
       await this._loadCommonComponents();
@@ -61,7 +106,7 @@ const Main = {
     const pathname = window.location.pathname;
     const filename = pathname.split('/').pop();
     
-    if (pathname.endsWith('/') || filename === '') {
+    if (pathname.endsWith('/') || filename === '' || filename === 'index.html') {
       this.state.currentPage = 'index';
     } else {
       this.state.currentPage = filename.replace('.html', '');
@@ -77,6 +122,12 @@ const Main = {
    */
   async _loadCommonComponents() {
     try {
+      const TemplateUtils = this.state.modules.templateUtils;
+      if (!TemplateUtils) {
+        console.error('TemplateUtils 모듈이 로드되지 않았습니다.');
+        return false;
+      }
+      
       // 헤더 로드
       const headerContainer = document.getElementById('header-container');
       if (headerContainer) {
@@ -110,15 +161,17 @@ const Main = {
           
         case 'convert':
           // 파일 변환 모듈 초기화
-          if (FileConverter) {
-            await FileConverter.init();
+          this.state.modules.fileConverter = await importFileConverter();
+          if (this.state.modules.fileConverter) {
+            await this.state.modules.fileConverter.init();
           }
           break;
           
         case 'qrcode':
           // QR 코드 생성 모듈 초기화
-          if (QRGenerator) {
-            await QRGenerator.init();
+          this.state.modules.qrGenerator = await importQRGenerator();
+          if (this.state.modules.qrGenerator) {
+            await this.state.modules.qrGenerator.init();
           }
           break;
           
