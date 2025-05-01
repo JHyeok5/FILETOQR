@@ -50,26 +50,34 @@ const QRGenerator = {
    */
   async init() {
     if (this.state.initialized) {
+      console.log('QRGenerator가 이미 초기화되어 있습니다.');
       return true;
     }
     
     try {
-      console.log('QR 코드 생성기 초기화 중...');
+      console.log('QR 코드 생성기 초기화 시작...');
       
       // QR 코드 라이브러리 로드
+      console.log('QR 코드 라이브러리 로드 시도');
       this.state.qrLibrary = await importQRCodeLibrary();
+      console.log('QR 코드 라이브러리 로드 성공:', this.state.qrLibrary);
       
       // UI 요소 초기화
+      console.log('UI 요소 초기화 시작');
       this._initUI();
       
       // 이벤트 리스너 등록
+      console.log('이벤트 리스너 등록 시작');
       this._registerEventListeners();
       
       this.state.initialized = true;
-      console.log('QR 코드 생성기 초기화 완료');
+      console.log('QR 코드 생성기 초기화 완료. 상태:', this.state);
       return true;
     } catch (error) {
-      console.error('QR 코드 생성기 초기화 실패:', error);
+      console.error('QR 코드 생성기 초기화 중 에러 발생:', error);
+      // 에러 상세 추적
+      console.error('스택 트레이스:', error.stack);
+      console.error('에러 발생 시 모듈 상태:', JSON.stringify(this.state));
       return false;
     }
   },
@@ -80,6 +88,14 @@ const QRGenerator = {
    */
   generateQRCode() {
     console.log('QRGenerator.generateQRCode 호출됨');
+    
+    // 상태 확인
+    if (!this.state.initialized) {
+      console.error('QRGenerator가 초기화되지 않았습니다. init() 먼저 호출하세요.');
+      return;
+    }
+    
+    console.log('QR 코드 생성 시작, 현재 상태:', this.state);
     this._handleFormSubmit();
   },
   
@@ -89,6 +105,18 @@ const QRGenerator = {
    */
   downloadQRCode(format) {
     console.log(`QRGenerator.downloadQRCode 호출됨: ${format}`);
+    
+    // 상태 확인
+    if (!this.state.initialized) {
+      console.error('QRGenerator가 초기화되지 않았습니다. init() 먼저 호출하세요.');
+      return;
+    }
+    
+    if (!this.state.generatedQR) {
+      console.error('생성된 QR 코드가 없습니다. generateQRCode()를 먼저 호출하세요.');
+      return;
+    }
+    
     this._downloadQRCode(format);
   },
   
@@ -310,22 +338,51 @@ const QRGenerator = {
    * @private
    */
   _handleFormSubmit() {
-    const contentInput = document.getElementById('qr-content');
-    const typeSelector = document.getElementById('qr-type');
+    console.log('QRGenerator._handleFormSubmit 호출됨');
     
-    if (!contentInput || !typeSelector) return;
+    // URL 또는 텍스트 입력 필드 확인
+    const contentInputs = {
+      'url': document.getElementById('url-input'),
+      'text': document.getElementById('text-input'),
+      'email': document.getElementById('email-address'),
+      'phone': document.getElementById('phone-input'),
+      'vcard': document.getElementById('vcard-name')
+    };
+    
+    // 활성화된 입력 폼 찾기
+    const activeForm = document.querySelector('.content-form.active');
+    console.log('활성화된 입력 폼:', activeForm?.id);
+    
+    if (!activeForm) {
+      console.error('활성화된 입력 폼을 찾을 수 없습니다.');
+      return;
+    }
+    
+    // 폼 유형 결정
+    const formType = activeForm.id.split('-')[0]; // 'url-form' -> 'url'
+    console.log('결정된 폼 유형:', formType);
+    
+    // 해당 유형의 입력 필드 확인
+    const contentInput = contentInputs[formType];
+    
+    if (!contentInput) {
+      console.error(`폼 유형 ${formType}에 대한 입력 필드를 찾을 수 없습니다.`);
+      return;
+    }
     
     const content = contentInput.value.trim();
-    const type = typeSelector.value;
+    console.log('입력된 콘텐츠:', content);
     
     if (!content) {
+      console.warn('QR 코드 내용이 비어 있습니다.');
       alert('QR 코드 내용을 입력해주세요.');
       return;
     }
     
     // 상태 업데이트
     this.state.currentOptions.content = content;
-    this.state.currentOptions.type = type;
+    this.state.currentOptions.type = formType;
+    console.log('QR 코드 옵션 업데이트:', this.state.currentOptions);
     
     // QR 코드 생성
     this._generateQRCode();
@@ -336,13 +393,19 @@ const QRGenerator = {
    * @private
    */
   async _generateQRCode() {
-    const qrPreview = document.getElementById('qr-preview');
-    const downloadBtns = document.getElementById('download-buttons');
+    console.log('QRGenerator._generateQRCode 호출됨');
     
-    if (!qrPreview) return;
+    const qrPreview = document.getElementById('qr-preview');
+    const downloadBtns = document.getElementById('download-options');
+    
+    if (!qrPreview) {
+      console.error('QR 코드 프리뷰 컨테이너를 찾을 수 없습니다.');
+      return;
+    }
     
     try {
       // 로딩 상태 표시
+      console.log('QR 코드 생성 중... 로딩 상태 표시');
       qrPreview.innerHTML = `
         <div class="flex justify-center items-center h-64">
           <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
@@ -350,7 +413,9 @@ const QRGenerator = {
       `;
       
       // 내용 포맷팅
+      console.log('내용 포맷팅 시작');
       const formattedContent = this._formatContent();
+      console.log('포맷팅된 내용:', formattedContent);
       
       // QR 코드 옵션 설정
       const options = {
@@ -362,31 +427,59 @@ const QRGenerator = {
         margin: this.state.currentOptions.margin,
         correctLevel: this._getErrorCorrectionLevel()
       };
+      console.log('QR 코드 옵션:', options);
+      
+      // QR 코드 라이브러리 확인
+      if (!this.state.qrLibrary) {
+        console.error('QR 코드 라이브러리가 로드되지 않았습니다.');
+        throw new Error('QR 코드 라이브러리가 초기화되지 않았습니다.');
+      }
       
       // QR 코드 생성 (캔버스)
+      console.log('QR 코드 캔버스 생성 시작');
       const canvas = document.createElement('canvas');
+      
+      // 라이브러리 메서드 확인
+      if (typeof this.state.qrLibrary.toCanvas !== 'function') {
+        console.error('QR 라이브러리 toCanvas 메서드를 찾을 수 없습니다.');
+        console.log('QR 라이브러리 구조:', this.state.qrLibrary);
+        throw new Error('QR 코드 라이브러리가 필요한 메서드를 지원하지 않습니다.');
+      }
+      
       await this.state.qrLibrary.toCanvas(canvas, formattedContent, options);
+      console.log('QR 코드 캔버스 생성 완료');
       
       // 로고 추가 (있는 경우)
       if (this.state.currentOptions.logo) {
+        console.log('로고 추가 시작');
         this._addLogoToCanvas(canvas);
       } else {
         // 결과 표시
+        console.log('QR 코드 프리뷰 표시');
         qrPreview.innerHTML = '';
         qrPreview.appendChild(canvas);
         
         // 다운로드 버튼 표시
-        if (downloadBtns) downloadBtns.classList.remove('hidden');
+        if (downloadBtns) {
+          console.log('다운로드 버튼 표시');
+          downloadBtns.style.display = 'block';
+        }
         
         // 생성된 QR 코드 저장
         this.state.generatedQR = canvas;
+        console.log('생성된 QR 코드가 상태에 저장됨');
       }
     } catch (error) {
       console.error('QR 코드 생성 중 오류 발생:', error);
+      console.error('스택 트레이스:', error.stack);
+      
       qrPreview.innerHTML = `
         <div class="p-4 bg-red-100 rounded-lg text-red-800">
           <h3 class="font-medium">QR 코드 생성 실패</h3>
           <p>${error.message}</p>
+          <div class="mt-2 text-xs bg-red-50 p-2 rounded-md overflow-auto">
+            <pre>${error.stack || '스택 트레이스 없음'}</pre>
+          </div>
         </div>
       `;
     }

@@ -34,13 +34,19 @@ const FileUtils = {
    * @returns {string} 포맷팅된 파일 크기 (예: "1.5 MB")
    */
   formatFileSize(bytes, decimals = 2) {
+    console.log('FileUtils.formatFileSize 호출:', bytes, decimals);
+    
     if (bytes === 0) return '0 Bytes';
     
     const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
     
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const result = parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    
+    console.log('파일 크기 변환 결과:', result);
+    return result;
   },
 
   /**
@@ -49,6 +55,8 @@ const FileUtils = {
    * @returns {string} MIME 타입
    */
   getMimeType(format) {
+    console.log('FileUtils.getMimeType 호출:', format);
+    
     const mimeTypes = {
       // 이미지
       'png': 'image/png',
@@ -100,7 +108,9 @@ const FileUtils = {
       'gz': 'application/gzip'
     };
     
-    return mimeTypes[format?.toLowerCase()] || 'application/octet-stream';
+    const mimeType = mimeTypes[format?.toLowerCase()] || 'application/octet-stream';
+    console.log('MIME 타입 추론 결과:', format, mimeType);
+    return mimeType;
   },
 
   /**
