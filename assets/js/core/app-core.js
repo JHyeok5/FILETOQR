@@ -15,9 +15,12 @@
  */
 
 // 코어 유틸리티 임포트
-import ModuleLoader from '../utils/module-loader.js';
-import UrlUtils from '../utils/url-utils.js';
-import registry from '../registry.js';
+import ModuleLoader from '@utils/module-loader.js';
+import UrlUtils from '@utils/url-utils.js';
+import registry from '@core/registry.js';
+
+// registry는 동적으로 로드
+let registry = null;
 
 // 애플리케이션 설정 및 상수
 const CONFIG = {
@@ -63,6 +66,10 @@ async function init() {
   console.log('FileToQR 앱 초기화 중...');
   
   try {
+    // registry 동적 로드
+    const registryModule = await import('../registry.js');
+    registry = registryModule.default;
+    
     // 모듈 로더 초기화
     initModuleLoader();
     
