@@ -202,112 +202,95 @@
     <!-- 코어 스크립트 -->
     <script src="assets/js/core/app-core.js" type="module"></script>
     
-    <!-- 파일 변환 라이브러리 직접 로드 -->
-    <script src="assets/js/converters/file-converter.js" type="module"></script>
+    <!-- 외부 의존성 먼저 로드 -->
+    <script>
+        // 모듈 로딩 상태 추적
+        window.FileToQR = window.FileToQR || {};
+        window.FileToQR.moduleStatus = {
+            fileConverterLoaded: false,
+            initialized: false
+        };
+        
+        // 콘솔에 로그 표시
+        console.log('파일 변환 페이지 초기화 중...');
+    </script>
+    
+    <!-- QR 라이브러리 직접 로드 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     
     <!-- 파일 유틸리티 모듈 -->
     <script src="assets/js/utils/file-utils.js" type="module"></script>
     
+    <!-- 파일 변환기 모듈 (비모듈 방식으로 로드) -->
+    <script>
+        // 비모듈 방식으로 직접 스크립트 로드
+        function loadScript(url, callback) {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+            script.onload = function() {
+                console.log(`스크립트 로드 성공: ${url}`);
+                if (callback) callback(true);
+            };
+            script.onerror = function(e) {
+                console.error(`스크립트 로드 실패: ${url}`, e);
+                if (callback) callback(false);
+            };
+            document.head.appendChild(script);
+        }
+        
+        // 파일 변환기 스크립트 로드
+        loadScript('assets/js/converters/file-converter.js', function(success) {
+            window.FileToQR.moduleStatus.fileConverterLoaded = success;
+            
+            if (success && window.FileToQR.FileConverter) {
+                console.log('파일 변환기 로드 완료, 초기화 시작...');
+                window.FileToQR.FileConverter.init().then(function(initSuccess) {
+                    console.log('파일 변환기 초기화 ' + (initSuccess ? '성공' : '실패'));
+                    window.FileToQR.moduleStatus.initialized = initSuccess;
+                    
+                    // 변환 버튼에 이벤트 리스너 추가
+                    const convertBtn = document.getElementById('convert-btn');
+                    if (convertBtn) {
+                        convertBtn.addEventListener('click', function() {
+                            if (window.FileToQR.FileConverter) {
+                                console.log('변환 버튼 클릭됨');
+                                try {
+                                    window.FileToQR.FileConverter.convertFile();
+                                } catch (error) {
+                                    console.error('파일 변환 중 오류 발생:', error);
+                                    alert('파일 변환 중 오류가 발생했습니다.');
+                                }
+                            } else {
+                                alert('파일 변환기가 로드되지 않았습니다.');
+                            }
+                        });
+                    }
+                });
+            } else {
+                console.error('파일 변환기 로드 실패');
+                // 기본 UI 설정
+                setupBasicUI();
+            }
+        });
+    </script>
+    
     <!-- 변환 기능 초기화 스크립트 -->
-    <script type="module">
+    <script>
         // 디버그 모드 활성화
-        const activateDebugMode = async () => {
+        function activateDebugMode() {
+            console.log('디버그 모드 활성화 시도');
             try {
-                const debugModule = await import('/assets/js/utils/debug-helper.js');
-                const DebugHelper = debugModule.default;
-                DebugHelper.setDebugMode(true);
-                console.log('디버그 모드가 활성화되었습니다.');
-                return DebugHelper;
+                if (window.FileToQR.DebugHelper) {
+                    window.FileToQR.DebugHelper.setDebugMode(true);
+                    console.log('디버그 모드가 활성화되었습니다.');
+                    return window.FileToQR.DebugHelper;
+                }
             } catch (error) {
                 console.error('디버그 모드 활성화 실패:', error);
-                return null;
             }
-        };
-
-        // 진단 유틸리티 로드
-        const loadDiagnostics = async () => {
-            try {
-                const diagModule = await import('./assets/js/utils/diagnostics.js');
-                return diagModule.default;
-            } catch (error) {
-                console.error('진단 유틸리티 로드 실패:', error);
-                return null;
-            }
-        };
-        
-        // 파일 변환기 로드 및 초기화 - 여러 경로 시도
-        const initFileConverter = async () => {
-            // 모듈을 로드할 여러 경로 시도
-            const paths = [
-                '/assets/js/converters/file-converter.js',
-                './assets/js/converters/file-converter.js',
-                '../converters/file-converter.js',
-                'assets/js/converters/file-converter.js'
-            ];
-            
-            let FileConverter = null;
-            
-            // 전역 객체에서 먼저 확인
-            if (window.FileToQR && window.FileToQR.FileConverter) {
-                console.log('전역 객체에서 FileConverter 발견');
-                FileConverter = window.FileToQR.FileConverter;
-            } else {
-                console.log('전역 객체에서 FileConverter를 찾을 수 없음, 모듈 로드 시도');
-                
-                // 각 경로 시도
-                let lastError = null;
-                for (const path of paths) {
-                    try {
-                        console.log(`파일 변환기 로드 시도 (경로: ${path})`);
-                        const module = await import(path);
-                        if (module && module.default) {
-                            FileConverter = module.default;
-                            console.log('파일 변환기 모듈 로드 성공');
-                            break;
-                        }
-                    } catch (error) {
-                        console.warn(`경로 ${path}에서 모듈 로드 실패:`, error);
-                        lastError = error;
-                    }
-                }
-                
-                if (!FileConverter) {
-                    console.error('모든 경로에서 파일 변환기 로드 실패:', lastError);
-                    showLoadError(lastError);
-                    // 폴백: 기본 UI는 계속 작동하도록 함
-                    setupBasicUI();
-                    return null;
-                }
-            }
-            
-            try {
-                console.log('파일 변환기 초기화 중...');
-                await FileConverter.init();
-                console.log('파일 변환기 초기화 완료');
-                
-                // 변환 버튼에 이벤트 리스너 추가
-                const convertBtn = document.getElementById('convert-btn');
-                if (convertBtn) {
-                    convertBtn.addEventListener('click', function() {
-                        console.log('변환 버튼 클릭됨');
-                        try {
-                            FileConverter.convertFile();
-                        } catch (error) {
-                            console.error('파일 변환 중 오류 발생:', error);
-                            alert('파일 변환 중 오류가 발생했습니다. 콘솔을 확인하세요.');
-                        }
-                    });
-                }
-                
-                return FileConverter;
-            } catch (error) {
-                console.error('파일 변환기 초기화 실패:', error);
-                showLoadError(error);
-                // 폴백: 기본 UI는 계속 작동하도록 함
-                setupBasicUI();
-                return null;
-            }
-        };
+            return null;
+        }
         
         // 로드 오류 표시 함수
         function showLoadError(error) {
@@ -463,47 +446,12 @@
             }
         }
         
-        // FileConverter로 출력 형식 업데이트
-        function updateOutputFormats(file, FileConverter) {
-            if (!FileConverter) {
-                updateBasicOutputFormats(file);
-                return;
-            }
-            
-            const formatSelector = document.getElementById('output-format');
-            if (!formatSelector) return;
-            
-            const extension = file.name.split('.').pop().toLowerCase();
-            
-            // 선택기 초기화
-            formatSelector.innerHTML = '<option value="">형식 선택</option>';
-            
-            // 지원되는 출력 형식 가져오기
-            const supportedFormats = FileConverter.getSupportedFormats(extension);
-            
-            if (supportedFormats && supportedFormats.length > 0) {
-                supportedFormats.forEach(format => {
-                    const option = document.createElement('option');
-                    option.value = format;
-                    option.textContent = format.toUpperCase();
-                    formatSelector.appendChild(option);
-                });
-                formatSelector.disabled = false;
-            } else {
-                const option = document.createElement('option');
-                option.value = "";
-                option.textContent = "지원되는 형식 없음";
-                formatSelector.appendChild(option);
-                formatSelector.disabled = true;
-            }
-        }
-        
         // DOM이 로드된 후 초기화
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('파일 변환 페이지 초기화 시작');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('페이지 로드 완료, 초기화 시작...');
             
             // 디버그 모드 활성화
-            const DebugHelper = await activateDebugMode();
+            activateDebugMode();
             
             // 브라우저 환경 정보 출력
             console.log('브라우저 환경:', {
@@ -516,24 +464,140 @@
             
             // 항상 기본 UI 먼저 설정 (모듈이 로드되지 않아도 기본 동작 가능)
             setupBasicUI();
-            
-            // 파일 변환기 초기화
-            const FileConverter = await initFileConverter();
-            
-            // 진단 유틸리티 실행 (선택적)
-            if (!FileConverter) {
-                console.log('오류 진단 실행 중...');
-                const Diagnostics = await loadDiagnostics();
-                if (Diagnostics) {
-                    try {
-                        await Diagnostics.diagnoseModuleSystem();
-                        await Diagnostics.checkNetworkConnectivity();
-                    } catch (error) {
-                        console.error('진단 실행 중 오류:', error);
-                    }
-                }
-            }
         });
+    </script>
+    
+    <!-- 이미지 변환 구현 (팔백) -->
+    <script>
+    // 로컬 스크립트를 사용한 폴백 파일 변환 기능 구현
+    document.addEventListener('DOMContentLoaded', function() {
+        // 변환 버튼 이벤트
+        const convertBtn = document.getElementById('convert-btn');
+        if (convertBtn) {
+            convertBtn.addEventListener('click', function() {
+                // 모듈이 로드되었으면 이 핸들러는 무시됨 (중복 방지)
+                if (window.FileToQR && window.FileToQR.moduleStatus && window.FileToQR.moduleStatus.initialized) {
+                    console.log('모듈이 초기화되어 기본 변환 핸들러 무시');
+                    return;
+                }
+                
+                const fileInput = document.getElementById('file-input');
+                const outputFormat = document.getElementById('output-format').value;
+                
+                if (!fileInput.files[0]) {
+                    alert('파일을 선택해주세요.');
+                    return;
+                }
+                
+                if (!outputFormat) {
+                    alert('출력 형식을 선택해주세요.');
+                    return;
+                }
+                
+                // 이미지 변환 폴백
+                if (fileInput.files[0].type.startsWith('image/') && ['png', 'jpg', 'jpeg', 'webp'].includes(outputFormat)) {
+                    convertImage(fileInput.files[0], outputFormat);
+                } else {
+                    showConversionError('브라우저에서 현재 지원하지 않는 변환 형식입니다.');
+                }
+            });
+        }
+        
+        // 기본 이미지 변환 함수
+        function convertImage(file, format) {
+            const reader = new FileReader();
+            const resultContainer = document.getElementById('conversion-result');
+            
+            // 변환 중 상태 표시
+            resultContainer.classList.remove('hidden');
+            resultContainer.innerHTML = `
+                <div class="my-4 p-4 bg-blue-100 rounded-lg text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+                    <span class="text-blue-800 font-medium">이미지 변환 중...</span>
+                </div>
+            `;
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // 캔버스 생성
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // 이미지 그리기
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 형식에 따른 MIME 타입
+                    let mimeType = 'image/png';
+                    if (format === 'jpg' || format === 'jpeg') mimeType = 'image/jpeg';
+                    else if (format === 'webp') mimeType = 'image/webp';
+                    
+                    // 데이터 URL 생성
+                    const dataUrl = canvas.toDataURL(mimeType, 0.92);
+                    
+                    // 결과 표시
+                    resultContainer.innerHTML = `
+                        <h2 class="text-xl font-semibold mb-4">변환 완료</h2>
+                        <div class="mb-6 p-4 border rounded-md">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-medium">${file.name.replace(/\.[^/.]+$/, '.' + format)}</h3>
+                                    <p class="text-sm text-gray-500">형식: ${mimeType}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="${dataUrl}" download="${file.name.replace(/\.[^/.]+$/, '.' + format)}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">다운로드</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button id="convert-another-btn" class="text-blue-600 hover:underline">다른 파일 변환하기</button>
+                        </div>
+                    `;
+                    
+                    // 다른 파일 변환 버튼
+                    document.getElementById('convert-another-btn')?.addEventListener('click', function() {
+                        resultContainer.classList.add('hidden');
+                        document.getElementById('file-input').value = '';
+                    });
+                };
+                
+                img.onerror = function() {
+                    showConversionError('이미지 로드 중 오류가 발생했습니다.');
+                };
+                
+                img.src = e.target.result;
+            };
+            
+            reader.onerror = function() {
+                showConversionError('파일 읽기 중 오류가 발생했습니다.');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // 변환 오류 표시
+        function showConversionError(message) {
+            const resultContainer = document.getElementById('conversion-result');
+            resultContainer.classList.remove('hidden');
+            resultContainer.innerHTML = `
+                <div class="my-4 p-4 bg-red-100 rounded-lg">
+                    <h3 class="text-red-800 font-medium mb-2">변환 실패</h3>
+                    <p>${message}</p>
+                </div>
+                <div class="text-center mt-4">
+                    <button id="convert-another-btn" class="text-blue-600 hover:underline">다른 파일 변환하기</button>
+                </div>
+            `;
+            
+            // 다른 파일 변환 버튼
+            document.getElementById('convert-another-btn')?.addEventListener('click', function() {
+                resultContainer.classList.add('hidden');
+                document.getElementById('file-input').value = '';
+            });
+        }
+    });
     </script>
     
     <!-- 사용자 경험 분석 -->
