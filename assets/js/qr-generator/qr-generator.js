@@ -9,6 +9,15 @@
  * - 생성된 QR 코드 다운로드 (PNG, SVG, PDF)
  */
 
+// 로컬 QR 코드 라이브러리 파일 경로 시도 목록
+const QR_LIB_PATHS = [
+  'assets/js/vendor/qrcode.min.js',
+  '/assets/js/vendor/qrcode.min.js',
+  './assets/js/vendor/qrcode.min.js',
+  '../js/vendor/qrcode.min.js',
+  '../../assets/js/vendor/qrcode.min.js'
+];
+
 // QR 코드 생성 라이브러리 임포트 (QRCode.js 사용)
 const importQRCodeLibrary = async () => {
   // 라이브러리가 이미 로드되었는지 확인
@@ -28,34 +37,47 @@ const importQRCodeLibrary = async () => {
       return QRCode;
     }
     
-    // 두 번째 방법: CDN에서 로드 + 로컬 fallback
-    return new Promise((resolve, reject) => {
-      // 로컬 파일이 있는지 먼저 확인
-      fetch('assets/js/vendor/qrcode.min.js')
-        .then(response => {
+    // 두 번째 방법: 동적 스크립트 로드
+    return new Promise(async (resolve, reject) => {
+      // 로컬 파일이 있는지 확인 - 여러 경로 시도
+      let localPathFound = false;
+      
+      for (const path of QR_LIB_PATHS) {
+        try {
+          console.log(`로컬 경로 시도: ${path}`);
+          const response = await fetch(path, { method: 'HEAD' });
+          
           if (response.ok) {
-            console.log('로컬 QRCode 라이브러리 파일 발견, 로드 중...');
+            console.log(`로컬 QRCode 라이브러리 파일 발견 (${path}), 로드 중...`);
+            localPathFound = true;
+            
             const script = document.createElement('script');
-            script.src = 'assets/js/vendor/qrcode.min.js';
+            script.src = path;
             script.onload = () => {
               console.log('로컬 QRCode 라이브러리 로드 성공');
               window.QRCode = QRCode;
               resolve(QRCode);
             };
-            script.onerror = () => {
-              console.warn('로컬 QRCode 라이브러리 로드 실패, CDN 시도...');
+            script.onerror = (error) => {
+              console.warn(`로컬 QRCode 라이브러리 파일 로드 실패 (${path}):`, error);
+              // 다음 경로 시도 대신 CDN으로 넘어감
               loadFromCDN();
             };
             document.head.appendChild(script);
-          } else {
-            console.log('로컬 QRCode 라이브러리 없음, CDN 시도...');
-            loadFromCDN();
+            
+            // 로컬 파일을 찾았으므로 루프 중단
+            break;
           }
-        })
-        .catch(() => {
-          console.log('로컬 QRCode 라이브러리 확인 실패, CDN 시도...');
-          loadFromCDN();
-        });
+        } catch (error) {
+          console.warn(`로컬 경로 확인 실패 (${path}):`, error);
+        }
+      }
+      
+      // 로컬 파일을 찾지 못했으면 CDN에서 로드
+      if (!localPathFound) {
+        console.log('로컬 QRCode 라이브러리 없음, CDN 시도...');
+        loadFromCDN();
+      }
       
       // CDN에서 로드하는 함수
       function loadFromCDN() {
