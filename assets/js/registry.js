@@ -1,6 +1,6 @@
 /**
  * registry.js - FileToQR 모듈 레지스트리
- * 버전: 1.2.0
+ * 버전: 1.3.0
  * 최종 업데이트: 2025-06-15
  * 참조: ../../docs/architecture/module-registry.md
  * 
@@ -14,6 +14,7 @@ const ErrorTypes = {
   DEPENDENCY_NOT_FOUND: 'DEPENDENCY_NOT_FOUND',
   CIRCULAR_DEPENDENCY: 'CIRCULAR_DEPENDENCY',
   INVALID_MODULE: 'INVALID_MODULE',
+  INVALID_DEPENDENCY: 'INVALID_DEPENDENCY',
   INITIALIZATION_ERROR: 'INITIALIZATION_ERROR'
 };
 
@@ -42,6 +43,9 @@ class ModuleRegistry {
     
     // 모듈 로딩 상태
     this._loadingStatus = new Map();
+    
+    // 최대 재귀 깊이 제한 (순환 참조 탐지용)
+    this._maxDepth = 100;
   }
   
   /**
@@ -59,11 +63,19 @@ class ModuleRegistry {
     
     // 필수 파라미터 검증
     if (!namespace || !name) {
-      throw new Error(`네임스페이스와 이름은 필수입니다: ${namespace}.${name}`);
+      const error = this._handleError(
+        ErrorTypes.INVALID_MODULE,
+        `네임스페이스와 이름은 필수입니다: ${namespace}.${name}`
+      );
+      throw new Error(error.message);
     }
     
     if (!moduleObject || typeof moduleObject !== 'object') {
-      throw new Error(`유효한 모듈 객체가 필요합니다: ${moduleId}`);
+      const error = this._handleError(
+        ErrorTypes.INVALID_MODULE,
+        `유효한 모듈 객체가 필요합니다: ${moduleId}`
+      );
+      throw new Error(error.message);
     }
     
     // 이미 등록된 모듈인지 확인
@@ -72,20 +84,46 @@ class ModuleRegistry {
       return this;
     }
     
-    // 순환 참조 검사
-    if (this.hasCircularDependency(namespace, name, dependencies)) {
-      throw new Error(`순환 참조가 발견되었습니다: ${moduleId}`);
+    // 의존성 형식 검증
+    const invalidDependencies = this._validateDependencyFormat(dependencies);
+    if (invalidDependencies.length > 0) {
+      const errorMessage = `잘못된 의존성 형식: ${invalidDependencies.join(', ')}`;
+      
+      if (metadata.requireValidDependencies) {
+        const error = this._handleError(ErrorTypes.INVALID_DEPENDENCY, errorMessage);
+        throw new Error(error.message);
+      }
+      
+      console.warn(errorMessage);
+      
+      // 유효하지 않은 의존성 제거
+      dependencies = dependencies.filter(dep => !invalidDependencies.includes(dep));
     }
     
-    // 의존성 검증
-    const missingDependencies = this._validateDependencies(dependencies);
+    // 순환 참조 검사
+    try {
+      if (this.hasCircularDependency(namespace, name, dependencies)) {
+        const errorMessage = `순환 참조가 발견되었습니다: ${moduleId}`;
+        const error = this._handleError(ErrorTypes.CIRCULAR_DEPENDENCY, errorMessage);
+        throw new Error(error.message);
+      }
+    } catch (circularError) {
+      if (circularError.message.includes('순환 참조가 발견되었습니다')) {
+        throw circularError;
+      }
+      console.warn(`순환 참조 검사 중 오류 발생: ${circularError.message}`);
+    }
+    
+    // 의존성 존재 검증
+    const missingDependencies = this._validateDependenciesExist(dependencies);
     
     if (missingDependencies.length > 0) {
       const errorMessage = `모듈 ${moduleId}의 의존성을 찾을 수 없습니다: ${missingDependencies.join(', ')}`;
       
       // 필수 의존성이 누락된 경우 에러 발생
       if (metadata.requireAllDependencies) {
-        throw new Error(errorMessage);
+        const error = this._handleError(ErrorTypes.DEPENDENCY_NOT_FOUND, errorMessage);
+        throw new Error(error.message);
       }
       
       console.warn(errorMessage);
@@ -127,21 +165,39 @@ class ModuleRegistry {
   }
   
   /**
-   * 의존성 검증
+   * 의존성 형식 검증
+   * @param {Array<string>} dependencies - 의존성 목록
+   * @returns {Array<string>} 유효하지 않은 의존성 목록
+   * @private
+   */
+  _validateDependencyFormat(dependencies) {
+    if (!Array.isArray(dependencies)) return [];
+    
+    return dependencies.filter(dep => {
+      if (typeof dep !== 'string') return true;
+      
+      // 의존성 문자열 파싱 ('namespace.name' 형식)
+      const parts = dep.split('.');
+      if (parts.length !== 2) return true;
+      
+      const [namespace, name] = parts;
+      return !namespace || !name;
+    });
+  }
+  
+  /**
+   * 의존성 존재 검증
    * @param {Array<string>} dependencies - 의존성 목록
    * @returns {Array<string>} 누락된 의존성 목록
    * @private
    */
-  _validateDependencies(dependencies) {
+  _validateDependenciesExist(dependencies) {
     if (!Array.isArray(dependencies)) return [];
     
     return dependencies.filter(dep => {
       // 의존성 문자열 파싱 ('namespace.name' 형식)
       const parts = dep.split('.');
-      if (parts.length !== 2) {
-        console.warn(`잘못된 의존성 형식: ${dep}. 'namespace.name' 형식이어야 합니다.`);
-        return true; // 누락으로 간주
-      }
+      if (parts.length !== 2) return false; // 이미 형식 검증에서 처리됨
       
       const [namespace, name] = parts;
       return !this.isLoaded(namespace, name);
@@ -174,8 +230,8 @@ class ModuleRegistry {
       const errorMsg = `모듈을 찾을 수 없음: ${moduleId}`;
       
       if (throwOnMissing) {
-        this._handleError(ErrorTypes.MODULE_NOT_FOUND, errorMsg);
-        throw new Error(errorMsg);
+        const error = this._handleError(ErrorTypes.MODULE_NOT_FOUND, errorMsg);
+        throw new Error(error.message);
       } else {
         console.warn(errorMsg);
         return null;
@@ -374,30 +430,40 @@ class ModuleRegistry {
     const moduleId = this._createModuleId(namespace, name);
     const visited = new Set();
     
-    const checkCycle = (currentId, path = new Set()) => {
-      if (path.has(currentId)) {
-        return true; // 순환 참조 발견
+    const checkCycle = (currentId, path = [], depth = 0) => {
+      // 깊이 제한 초과 검사
+      if (depth > this._maxDepth) {
+        console.warn(`최대 순환 참조 검사 깊이 초과: ${currentId}`);
+        return false;
       }
       
+      // 현재 경로에 이미 포함된 모듈이면 순환 참조
+      if (path.includes(currentId)) {
+        return true;
+      }
+      
+      // 이미 방문했고 순환 참조가 없다고 확인된 모듈
       if (visited.has(currentId)) {
-        return false; // 이미 검사한 경로
+        return false;
       }
       
       visited.add(currentId);
-      path.add(currentId);
+      
+      // 현재 경로에 현재 모듈 추가
+      const newPath = [...path, currentId];
       
       // 현재 모듈의 의존성 확인
       const deps = currentId === moduleId ? 
         newDependencies : 
         (this._dependencies.get(currentId) || []);
       
+      // 각 의존성에 대해 순환 참조 검사
       for (const dep of deps) {
-        if (checkCycle(dep, new Set(path))) {
+        if (checkCycle(dep, newPath, depth + 1)) {
           return true;
         }
       }
       
-      path.delete(currentId);
       return false;
     };
     
@@ -615,15 +681,142 @@ class ModuleRegistry {
     
     return buildTree(rootId);
   }
+  
+  /**
+   * 의존성 로드
+   * @param {string} namespace - 모듈 네임스페이스
+   * @param {string} name - 모듈 이름
+   * @returns {Promise<Object>} 성공 여부 및 결과 정보
+   */
+  async loadDependencies(namespace, name) {
+    try {
+      const moduleId = this._createModuleId(namespace, name);
+      const dependencies = this.getDependencies(namespace, name);
+      
+      if (!dependencies || dependencies.length === 0) {
+        return {
+          success: true,
+          moduleId,
+          loadedDependencies: [],
+          missingDependencies: []
+        };
+      }
+      
+      const loadedDependencies = [];
+      const missingDependencies = [];
+      
+      // 각 의존성 상태 확인
+      for (const depId of dependencies) {
+        try {
+          const [depNamespace, depName] = depId.split('.');
+          
+          if (this.isLoaded(depNamespace, depName)) {
+            loadedDependencies.push(depId);
+          } else {
+            missingDependencies.push(depId);
+            console.warn(`의존성 모듈 로딩 필요: ${depId}`);
+          }
+        } catch (depError) {
+          console.error(`의존성 검사 중 오류 발생: ${depId}`, depError);
+          missingDependencies.push(depId);
+        }
+      }
+      
+      // 이벤트 발생
+      this._notify('load', {
+        moduleId,
+        dependencies,
+        loadedDependencies,
+        missingDependencies
+      });
+      
+      return {
+        success: missingDependencies.length === 0,
+        moduleId,
+        loadedDependencies,
+        missingDependencies
+      };
+    } catch (error) {
+      console.error(`의존성 로드 실패: ${namespace}.${name}`, error);
+      return {
+        success: false,
+        error: error.message,
+        moduleId: this._createModuleId(namespace, name)
+      };
+    }
+  }
+  
+  /**
+   * 안전한 모듈 획득 (의존성 확인 후 로드)
+   * @param {string} namespace - 모듈 네임스페이스
+   * @param {string} name - 모듈 이름
+   * @param {boolean} loadDependencies - 의존성 로드 여부
+   * @returns {Promise<Object>} 모듈 객체와 로딩 상태
+   */
+  async safeGet(namespace, name, loadDependencies = true) {
+    const moduleId = this._createModuleId(namespace, name);
+    
+    if (!this.isLoaded(namespace, name)) {
+      return {
+        success: false,
+        module: null,
+        error: `모듈을 찾을 수 없음: ${moduleId}`
+      };
+    }
+    
+    const module = this.get(namespace, name);
+    
+    if (loadDependencies) {
+      const dependencyResult = await this.loadDependencies(namespace, name);
+      
+      return {
+        success: dependencyResult.success,
+        module,
+        dependencyResult
+      };
+    }
+    
+    return {
+      success: true,
+      module
+    };
+  }
 }
 
-// 모듈 레지스트리 인스턴스 생성
+// Registry 인스턴스 생성
 const registry = new ModuleRegistry();
 
-// 하위 호환성을 위한 전역 참조
+// 글로벌 네임스페이스에 등록
 if (typeof window !== 'undefined') {
   window.FileToQR = window.FileToQR || {};
   window.FileToQR.registry = registry;
+  
+  // 진단 도구 등록 (순환 참조 방지)
+  if (window.DEBUG_MODE) {
+    // 진단 도구가 이미 로드되어 있는지 확인하고 레지스트리에 등록
+    const registerDiagnosticsTool = () => {
+      // 이미 로드된 진단 도구 사용 (index.html에서 이미 로드됨)
+      if (window.FileToQR.Diagnostics) {
+        try {
+          registry.register('utils', 'diagnostics', window.FileToQR.Diagnostics);
+          console.log('진단 도구가 레지스트리에 등록되었습니다.');
+        } catch (error) {
+          console.warn('진단 도구 등록 실패:', error);
+        }
+      } else {
+        // 아직 로드되지 않은 경우 잠시 후 다시 시도
+        setTimeout(registerDiagnosticsTool, 500);
+      }
+    };
+    
+    // 페이지 로드 완료 후 진단 도구 등록 시도
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerDiagnosticsTool);
+    } else {
+      registerDiagnosticsTool();
+    }
+  }
 }
 
+// 모듈 익스포트
 export default registry; 
