@@ -252,24 +252,19 @@
                     // 변환 버튼에 이벤트 리스너 추가
                     const convertBtn = document.getElementById('convert-btn');
                     if (convertBtn) {
-                        // 이미 이벤트 핸들러가 연결되어 있는지 확인
-                        if (!convertBtn.fileConversionHandlerAttached) {
-                            convertBtn.addEventListener('click', function() {
-                                if (window.FileToQR.FileConverter) {
-                                    console.log('변환 버튼 클릭됨');
-                                    try {
-                                        window.FileToQR.FileConverter.convertFile();
-                                    } catch (error) {
-                                        console.error('파일 변환 중 오류 발생:', error);
-                                        alert('파일 변환 중 오류가 발생했습니다.');
-                                    }
-                                } else {
-                                    alert('파일 변환기가 로드되지 않았습니다.');
+                        convertBtn.addEventListener('click', function() {
+                            if (window.FileToQR.FileConverter) {
+                                console.log('변환 버튼 클릭됨');
+                                try {
+                                    window.FileToQR.FileConverter.convertFile();
+                                } catch (error) {
+                                    console.error('파일 변환 중 오류 발생:', error);
+                                    alert('파일 변환 중 오류가 발생했습니다.');
                                 }
-                            });
-                            // 이벤트 핸들러 연결 표시
-                            convertBtn.fileConversionHandlerAttached = true;
-                        }
+                            } else {
+                                alert('파일 변환기가 로드되지 않았습니다.');
+                            }
+                        });
                     }
                 });
             } else {
@@ -321,12 +316,9 @@
             
             if (dropzone && fileInput && selectFileBtn) {
                 // 파일 선택 버튼 클릭 이벤트
-                selectFileBtn.addEventListener('click', (e) => {
-                    e.preventDefault(); // 이벤트 전파 방지
-                    e.stopPropagation(); // 이벤트 버블링 방지
-                    if (!fileInput.clickEventAttached) {
-                        fileInput.click();
-                    }
+                selectFileBtn.addEventListener('click', () => {
+                    // 단순히 파일 입력 클릭 이벤트 트리거
+                    fileInput.click();
                 });
                 
                 // 파일 선택 이벤트
@@ -335,9 +327,6 @@
                         handleFileSelect(e.target.files[0]);
                     }
                 });
-                
-                // 클릭 이벤트 플래그 설정
-                fileInput.clickEventAttached = true;
                 
                 // 드래그 오버 이벤트
                 dropzone.addEventListener('dragover', (e) => {
@@ -481,13 +470,14 @@
             const logEventListeners = () => {
                 const fileInput = document.getElementById('file-input');
                 const selectFileBtn = document.getElementById('select-file-btn');
-                console.log('이벤트 핸들러 상태:', {
-                    fileInputAttached: fileInput ? !!fileInput.clickEventAttached : false,
-                    selectFileBtnHasListeners: selectFileBtn ? selectFileBtn.onclick !== null : false
+                console.log('UI 요소 상태:', {
+                    fileInputExists: !!fileInput,
+                    selectFileBtnExists: !!selectFileBtn,
+                    hasDragDropZone: !!document.getElementById('dropzone')
                 });
             };
             
-            // 1초 후 이벤트 리스너 상태 확인
+            // 1초 후 UI 요소 상태 확인
             setTimeout(logEventListeners, 1000);
         });
     </script>
@@ -526,9 +516,6 @@
                     showConversionError('브라우저에서 현재 지원하지 않는 변환 형식입니다.');
                 }
             });
-            
-            // 버튼에 플래그 설정 - 중복 이벤트 처리 방지
-            convertBtn.fileConversionHandlerAttached = true;
         }
         
         // 기본 이미지 변환 함수
