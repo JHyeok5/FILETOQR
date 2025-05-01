@@ -621,6 +621,29 @@ const FileConverter = {
 if (typeof window !== 'undefined') {
   window.FileToQR = window.FileToQR || {};
   window.FileToQR.FileConverter = FileConverter;
+  
+  // 브라우저 환경에서 직접 로드된 경우에 대한 처리
+  if (typeof document !== 'undefined' && document.readyState !== 'loading') {
+    console.log('FileConverter 모듈이 직접 로드되었습니다. 자동 초기화를 시도합니다.');
+    setTimeout(() => {
+      // 이미 DOM이 로드되었다면 초기화 시도
+      if (!FileConverter.state.initialized) {
+        FileConverter.init().then(success => {
+          console.log('FileConverter 자동 초기화 결과:', success ? '성공' : '실패');
+        });
+      }
+    }, 100);
+  } else if (typeof document !== 'undefined') {
+    // DOM이 아직 로드되지 않았다면 이벤트 리스너 등록
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM 로드 완료 후 FileConverter 자동 초기화 시도');
+      if (!FileConverter.state.initialized) {
+        FileConverter.init().then(success => {
+          console.log('FileConverter 자동 초기화 결과:', success ? '성공' : '실패');
+        });
+      }
+    });
+  }
 }
 
 export default FileConverter; 
