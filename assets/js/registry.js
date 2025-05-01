@@ -2,7 +2,7 @@
  * registry.js - FileToQR 모듈 레지스트리
  * 버전: 1.2.0
  * 최종 업데이트: 2025-06-15
- * 참조: ../.ai-guides/architecture/module-registry.md
+ * 참조: ../../docs/architecture/module-registry.md
  * 
  * 이 모듈은 FileToQR 프로젝트의 핵심 아키텍처 구성 요소로,
  * 모든 기능 모듈을 관리하고 의존성을 추적하는 중앙 시스템입니다.
