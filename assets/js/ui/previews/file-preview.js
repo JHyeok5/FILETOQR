@@ -1,8 +1,8 @@
 /**
  * file-preview.js - FileToQR 파일 미리보기 모듈
  * 버전: 1.0.0
- * 최종 업데이트: 2025-05-22
- * 참조: ../.ai-guides/architecture/module-registry.md
+ * 최종 업데이트: 2025-06-15
+ * 참조: ../../../docs/architecture/module-registry.md
  * 
  * 이 모듈은 다양한 파일 유형의 미리보기를 처리합니다:
  * - 이미지 파일 미리보기
@@ -12,7 +12,7 @@
  * - 기타 파일 유형 기본 미리보기
  */
 
-import registry from '../../registry.js';
+import registry from '../../../assets/js/registry.js';
 
 // 파일 미리보기 모듈 (외부로 노출되는 API)
 const filePreview = {};
