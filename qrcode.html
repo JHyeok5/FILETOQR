@@ -547,10 +547,15 @@
     <!-- Core Scripts -->
     <script src="assets/js/core/app-core.js" type="module"></script>
     
+    <!-- QR 코드 라이브러리 (CDN에서 백업) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
     <!-- 파일 유틸리티 모듈 -->
     <script src="assets/js/utils/file-utils.js" type="module"></script>
     <script src="assets/js/core/qr-core.js" type="module"></script>
     <script src="assets/js/utils/debug-helper.js" type="module"></script>
+    
+    <!-- QR 코드 생성기 초기화 스크립트 -->
     <script type="module">
         // 디버그 모드 활성화
         const activateDebugMode = async () => {
@@ -566,108 +571,203 @@
             }
         };
 
-        // 진단 유틸리티 로드
-        const loadDiagnostics = async () => {
+        // QR 코드 생성기 초기화 - 여러 경로 시도
+        const initQRGenerator = async () => {
+            // 모듈을 로드할 여러 경로 시도
+            const paths = [
+                './assets/js/qr-generator/qr-generator.js',
+                '/assets/js/qr-generator/qr-generator.js',
+                '../qr-generator/qr-generator.js',
+                'assets/js/qr-generator/qr-generator.js'
+            ];
+            
+            let QRGenerator = null;
+            let lastError = null;
+            
+            // 각 경로 시도
+            for (const path of paths) {
+                try {
+                    console.log(`QR 생성기 모듈 로드 시도 (경로: ${path})`);
+                    const module = await import(path);
+                    if (module && module.default) {
+                        QRGenerator = module.default;
+                        console.log('QR 생성기 모듈 로드 성공');
+                        break;
+                    }
+                } catch (error) {
+                    console.warn(`경로 ${path}에서 모듈 로드 실패:`, error);
+                    lastError = error;
+                }
+            }
+            
+            if (!QRGenerator) {
+                console.error('모든 경로에서 QR 생성기 로드 실패:', lastError);
+                // 폴백: 기본 QR 생성 인터페이스 사용
+                setupBasicQRInterface();
+                return null;
+            }
+            
             try {
-                const diagModule = await import('./assets/js/utils/diagnostics.js');
-                return diagModule.default;
+                console.log('QR 생성기 초기화 중...');
+                await QRGenerator.init();
+                console.log('QR 생성기 초기화 완료');
+                
+                // 생성 버튼에 이벤트 리스너 추가
+                const generateBtn = document.getElementById('generate-qr');
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', () => {
+                        console.log('QR 코드 생성 버튼 클릭됨');
+                        QRGenerator.generateQRCode();
+                    });
+                }
+                
+                // 다운로드 버튼 이벤트 리스너
+                const downloadPngBtn = document.getElementById('download-png');
+                const downloadSvgBtn = document.getElementById('download-svg');
+                
+                if (downloadPngBtn) {
+                    downloadPngBtn.addEventListener('click', () => {
+                        QRGenerator.downloadQRCode('png');
+                    });
+                }
+                
+                if (downloadSvgBtn) {
+                    downloadSvgBtn.addEventListener('click', () => {
+                        QRGenerator.downloadQRCode('svg');
+                    });
+                }
+                
+                return QRGenerator;
             } catch (error) {
-                console.error('진단 유틸리티 로드 실패:', error);
+                console.error('QR 생성기 초기화 실패:', error);
+                // 폴백: 기본 QR 생성 인터페이스 사용
+                setupBasicQRInterface();
                 return null;
             }
         };
         
-        // QR 코드 생성기 로드 및 초기화
-        const initQRGenerator = async () => {
+        // 기본 QR 생성 인터페이스 설정 (모듈 없이도 작동)
+        function setupBasicQRInterface() {
+            console.log('기본 QR 생성 인터페이스 설정 중...');
+            
+            // 생성 버튼에 이벤트 리스너 추가
+            const generateBtn = document.getElementById('generate-qr');
+            if (generateBtn) {
+                generateBtn.addEventListener('click', () => {
+                    console.log('QR 코드 생성 버튼 클릭됨 (기본 인터페이스)');
+                    generateBasicQRCode();
+                });
+            }
+        }
+        
+        // 기본 QR 코드 생성 함수
+        function generateBasicQRCode() {
+            // 폼에서 데이터 가져오기
+            const contentInput = document.getElementById('qr-content');
+            const content = contentInput?.value.trim() || '';
+            
+            if (!content) {
+                alert('QR 코드에 포함할 내용을 입력해주세요.');
+                return;
+            }
+            
+            // QR 라이브러리 사용 가능 여부 확인
+            if (typeof QRCode === 'undefined') {
+                alert('QR 코드 생성 라이브러리를 로드할 수 없습니다.');
+                return;
+            }
+            
+            // 기존 QR 코드 제거
+            const previewContainer = document.getElementById('qr-preview');
+            previewContainer.innerHTML = '';
+            
             try {
-                console.log('QR 코드 생성기 로드 시도');
-                const module = await import('./assets/js/qr-generator/qr-generator.js');
-                const QRGenerator = module.default;
+                // QR 코드 생성
+                new QRCode(previewContainer, {
+                    text: content,
+                    width: 256,
+                    height: 256,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
                 
-                console.log('QR 코드 생성기 로드 성공, 초기화 중...');
-                if (QRGenerator) {
-                    await QRGenerator.init();
-                    console.log('QR 코드 생성기 초기화 완료');
-                    
-                    // QR 코드 생성 버튼에 이벤트 리스너 추가
-                    const generateQrButton = document.getElementById('generate-qr');
-                    if (generateQrButton) {
-                        generateQrButton.addEventListener('click', function() {
-                            console.log('QR 코드 생성 버튼 클릭됨');
-                            try {
-                                QRGenerator.generateQRCode();
-                            } catch (error) {
-                                console.error('QR 코드 생성 중 오류 발생:', error);
-                                alert('QR 코드 생성 중 오류가 발생했습니다. 콘솔을 확인하세요.');
-                            }
-                        });
+                // 다운로드 옵션 표시
+                const downloadOptions = document.getElementById('download-options');
+                if (downloadOptions) {
+                    downloadOptions.style.display = 'block';
+                }
+                
+                // 다운로드 버튼 이벤트 리스너
+                setupBasicDownloadButtons(previewContainer);
+            } catch (error) {
+                console.error('QR 코드 생성 실패:', error);
+                previewContainer.innerHTML = `
+                    <div class="p-4 bg-red-100 rounded-lg text-red-800">
+                        <h3 class="font-medium">QR 코드 생성 실패</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 기본 다운로드 버튼 설정
+        function setupBasicDownloadButtons(container) {
+            const downloadPngBtn = document.getElementById('download-png');
+            
+            if (downloadPngBtn) {
+                downloadPngBtn.addEventListener('click', () => {
+                    // 캔버스 찾기
+                    const canvas = container.querySelector('canvas');
+                    if (!canvas) {
+                        alert('다운로드할 QR 코드를 찾을 수 없습니다.');
+                        return;
                     }
                     
-                    // 다운로드 버튼 이벤트 리스너 추가
-                    document.getElementById('download-png')?.addEventListener('click', function() {
-                        QRGenerator.downloadQRCode('png');
-                    });
-                    
-                    document.getElementById('download-svg')?.addEventListener('click', function() {
-                        QRGenerator.downloadQRCode('svg');
-                    });
-                    
-                    document.getElementById('download-jpeg')?.addEventListener('click', function() {
-                        QRGenerator.downloadQRCode('jpeg');
-                    });
-                    
-                    return QRGenerator;
-                } else {
-                    throw new Error('QR 코드 생성기 모듈이 유효하지 않습니다');
-                }
-            } catch (error) {
-                console.error('QR 코드 생성기 로드 또는 초기화 실패:', error);
-                // 사용자에게 오류 알림
-                const qrPreviewEl = document.getElementById('qr-preview');
-                if (qrPreviewEl) {
-                    qrPreviewEl.innerHTML = `
-                        <div class="p-4 bg-red-100 text-red-800 rounded-lg">
-                            <h3 class="font-medium mb-2">QR 코드 생성기를 로드할 수 없습니다</h3>
-                            <p>기술적 문제로 QR 코드 생성 기능을 현재 사용할 수 없습니다. 나중에 다시 시도해 주세요.</p>
-                            <p class="text-sm mt-2">오류: ${error.message}</p>
-                        </div>
-                    `;
-                }
-                return null;
+                    // PNG 다운로드
+                    const dataUrl = canvas.toDataURL('image/png');
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = dataUrl;
+                    downloadLink.download = `qrcode_${new Date().getTime()}.png`;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
             }
-        };
+        }
         
         // DOM이 로드된 후 초기화
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('QR 코드 페이지 초기화 시작');
+            console.log('QR 코드 생성 페이지 초기화 시작');
             
             // 디버그 모드 활성화
-            const DebugHelper = await activateDebugMode();
+            await activateDebugMode();
             
-            // 브라우저 환경 정보 출력
-            console.log('브라우저 환경:', {
-                userAgent: navigator.userAgent,
-                language: navigator.language,
-                cookiesEnabled: navigator.cookieEnabled,
-                baseURL: window.location.origin,
-                currentURL: window.location.href
-            });
+            // URL에서 파라미터 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialContent = urlParams.get('content');
             
-            // QR 코드 생성기 초기화
+            // 초기 콘텐츠가 있으면 입력 필드에 채우기
+            if (initialContent) {
+                const contentInput = document.getElementById('qr-content');
+                if (contentInput) {
+                    contentInput.value = initialContent;
+                    console.log('URL에서 초기 콘텐츠 설정:', initialContent);
+                }
+            }
+            
+            // QR 생성기 초기화
             const QRGenerator = await initQRGenerator();
             
-            // 진단 유틸리티 실행 (선택적)
-            if (!QRGenerator) {
-                console.log('오류 진단 실행 중...');
-                const Diagnostics = await loadDiagnostics();
-                if (Diagnostics) {
-                    try {
-                        await Diagnostics.diagnoseModuleSystem();
-                        await Diagnostics.checkNetworkConnectivity();
-                    } catch (error) {
-                        console.error('진단 실행 중 오류:', error);
-                    }
-                }
+            // URL 파라미터에 내용이 있고 모듈이 로드되었으면 자동 생성
+            if (initialContent && QRGenerator) {
+                setTimeout(() => {
+                    console.log('URL 파라미터가 있어 자동으로 QR 코드 생성');
+                    QRGenerator.generateQRCode();
+                }, 500);
+            } else if (initialContent) {
+                // 모듈이 로드되지 않았지만 URL 파라미터가 있는 경우
+                setTimeout(generateBasicQRCode, 500);
             }
         });
     </script>
