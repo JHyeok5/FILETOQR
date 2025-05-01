@@ -550,6 +550,9 @@
     <!-- QR 코드 라이브러리 (CDN에서 백업) -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     
+    <!-- QR 생성기 모듈 직접 로드 -->
+    <script src="assets/js/qr-generator/qr-generator.js" type="module"></script>
+    
     <!-- 파일 유틸리티 모듈 -->
     <script src="assets/js/utils/file-utils.js" type="module"></script>
     <script src="assets/js/core/qr-core.js" type="module"></script>
@@ -560,7 +563,7 @@
         // 디버그 모드 활성화
         const activateDebugMode = async () => {
             try {
-                const debugModule = await import('./assets/js/utils/debug-helper.js');
+                const debugModule = await import('/assets/js/utils/debug-helper.js');
                 const DebugHelper = debugModule.default;
                 DebugHelper.setDebugMode(true);
                 console.log('디버그 모드가 활성화되었습니다.');
@@ -575,36 +578,44 @@
         const initQRGenerator = async () => {
             // 모듈을 로드할 여러 경로 시도
             const paths = [
-                './assets/js/qr-generator/qr-generator.js',
                 '/assets/js/qr-generator/qr-generator.js',
+                './assets/js/qr-generator/qr-generator.js',
                 '../qr-generator/qr-generator.js',
                 'assets/js/qr-generator/qr-generator.js'
             ];
             
             let QRGenerator = null;
-            let lastError = null;
             
-            // 각 경로 시도
-            for (const path of paths) {
-                try {
-                    console.log(`QR 생성기 모듈 로드 시도 (경로: ${path})`);
-                    const module = await import(path);
-                    if (module && module.default) {
-                        QRGenerator = module.default;
-                        console.log('QR 생성기 모듈 로드 성공');
-                        break;
+            // 전역 객체에서 먼저 확인
+            if (window.FileToQR && window.FileToQR.QRGenerator) {
+                console.log('전역 객체에서 QRGenerator 발견');
+                QRGenerator = window.FileToQR.QRGenerator;
+            } else {
+                console.log('전역 객체에서 QRGenerator를 찾을 수 없음, 모듈 로드 시도');
+                
+                // 각 경로 시도
+                let lastError = null;
+                for (const path of paths) {
+                    try {
+                        console.log(`QR 생성기 모듈 로드 시도 (경로: ${path})`);
+                        const module = await import(path);
+                        if (module && module.default) {
+                            QRGenerator = module.default;
+                            console.log('QR 생성기 모듈 로드 성공');
+                            break;
+                        }
+                    } catch (error) {
+                        console.warn(`경로 ${path}에서 모듈 로드 실패:`, error);
+                        lastError = error;
                     }
-                } catch (error) {
-                    console.warn(`경로 ${path}에서 모듈 로드 실패:`, error);
-                    lastError = error;
                 }
-            }
-            
-            if (!QRGenerator) {
-                console.error('모든 경로에서 QR 생성기 로드 실패:', lastError);
-                // 폴백: 기본 QR 생성 인터페이스 사용
-                setupBasicQRInterface();
-                return null;
+                
+                if (!QRGenerator) {
+                    console.error('모든 경로에서 QR 생성기 로드 실패:', lastError);
+                    // 폴백: 기본 QR 생성 인터페이스 사용
+                    setupBasicQRInterface();
+                    return null;
+                }
             }
             
             try {
