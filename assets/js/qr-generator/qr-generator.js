@@ -798,7 +798,10 @@ const qrGenerator = {
     }
     
     return this;
-  }
+  },
+  
+  generateQRCode,
+  downloadQRCode
 };
 
 // 하위 호환성을 위한 전역 참조
@@ -814,5 +817,11 @@ if (typeof document !== 'undefined') {
   });
 }
 
-// 모듈 내보내기
-export default qrGenerator; 
+// 모듈 내보내기 추가
+export default {
+  init,
+  generateQRCode,
+  downloadQRCode,
+  updateSettings,
+  setFileData
+}; 
