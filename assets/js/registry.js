@@ -52,19 +52,18 @@ class ModuleRegistry {
    * @param {Array<string>} dependencies - 의존성 목록 (기본값: [])
    * @param {Object} metadata - 메타데이터 (기본값: {})
    * @returns {ModuleRegistry} 메서드 체이닝을 위한 인스턴스 반환
+   * @throws {Error} 순환 참조나 필수 의존성이 누락된 경우
    */
   register(namespace, name, moduleObject, dependencies = [], metadata = {}) {
     const moduleId = this._createModuleId(namespace, name);
     
     // 필수 파라미터 검증
     if (!namespace || !name) {
-      this._handleError(ErrorTypes.INVALID_MODULE, `네임스페이스와 이름은 필수입니다: ${namespace}.${name}`);
-      return this;
+      throw new Error(`네임스페이스와 이름은 필수입니다: ${namespace}.${name}`);
     }
     
     if (!moduleObject || typeof moduleObject !== 'object') {
-      this._handleError(ErrorTypes.INVALID_MODULE, `유효한 모듈 객체가 필요합니다: ${moduleId}`);
-      return this;
+      throw new Error(`유효한 모듈 객체가 필요합니다: ${moduleId}`);
     }
     
     // 이미 등록된 모듈인지 확인
@@ -73,11 +72,22 @@ class ModuleRegistry {
       return this;
     }
     
+    // 순환 참조 검사
+    if (this.hasCircularDependency(namespace, name, dependencies)) {
+      throw new Error(`순환 참조가 발견되었습니다: ${moduleId}`);
+    }
+    
     // 의존성 검증
     const missingDependencies = this._validateDependencies(dependencies);
     
     if (missingDependencies.length > 0) {
       const errorMessage = `모듈 ${moduleId}의 의존성을 찾을 수 없습니다: ${missingDependencies.join(', ')}`;
+      
+      // 필수 의존성이 누락된 경우 에러 발생
+      if (metadata.requireAllDependencies) {
+        throw new Error(errorMessage);
+      }
+      
       console.warn(errorMessage);
       
       // 의존성 문제 이벤트 발생
@@ -100,7 +110,7 @@ class ModuleRegistry {
     });
     
     // 로딩 상태 업데이트
-    this._loadingStatus.set(moduleId, true); // 로드됨
+    this._loadingStatus.set(moduleId, true);
     
     console.log(`모듈 등록 완료: ${moduleId}`);
     
@@ -354,37 +364,44 @@ class ModuleRegistry {
   }
   
   /**
-   * 순환 의존성 확인
+   * 순환 참조 검사
    * @param {string} namespace - 모듈 네임스페이스
    * @param {string} name - 모듈 이름
-   * @returns {boolean} 순환 의존성 존재 여부
+   * @param {Array<string>} newDependencies - 새로운 의존성 목록
+   * @returns {boolean} 순환 참조 존재 여부
    */
-  hasCircularDependency(namespace, name) {
-    const startId = this._createModuleId(namespace, name);
+  hasCircularDependency(namespace, name, newDependencies = []) {
+    const moduleId = this._createModuleId(namespace, name);
+    const visited = new Set();
     
-    // 순환 의존성 탐지를 위한 재귀 함수
-    const hasCycle = (id, path = []) => {
-      // 경로에 현재 ID가 이미 있으면 순환 의존성 존재
-      if (path.includes(id)) {
-        console.warn(`순환 의존성 감지: ${path.join(' -> ')} -> ${id}`);
-        return true;
+    const checkCycle = (currentId, path = new Set()) => {
+      if (path.has(currentId)) {
+        return true; // 순환 참조 발견
       }
       
-      // 이 모듈의 의존성 가져오기
-      const deps = this._dependencies.get(id) || [];
+      if (visited.has(currentId)) {
+        return false; // 이미 검사한 경로
+      }
       
-      // 각 의존성에 대해 확인
+      visited.add(currentId);
+      path.add(currentId);
+      
+      // 현재 모듈의 의존성 확인
+      const deps = currentId === moduleId ? 
+        newDependencies : 
+        (this._dependencies.get(currentId) || []);
+      
       for (const dep of deps) {
-        // 현재 경로에 ID 추가하고 재귀 호출
-        if (hasCycle(dep, [...path, id])) {
+        if (checkCycle(dep, new Set(path))) {
           return true;
         }
       }
       
+      path.delete(currentId);
       return false;
     };
     
-    return hasCycle(startId);
+    return checkCycle(moduleId);
   }
   
   /**
