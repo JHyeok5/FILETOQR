@@ -592,6 +592,8 @@ if (typeof window !== 'undefined') {
   window.FileToQR = window.FileToQR || {};
   window.FileToQR.core = window.FileToQR.core || {};
   window.FileToQR.core.converter = ConverterCore;
+  // 직접 접근을 위한 전역 참조 추가
+  window.ConverterCore = ConverterCore;
 }
 
 // 모듈 내보내기
