@@ -13,16 +13,49 @@
 const importQRCodeLibrary = async () => {
   // 라이브러리가 이미 로드되었는지 확인
   if (window.QRCode) {
+    console.log('QRCode 라이브러리가 이미 전역 객체에 있습니다.');
     return window.QRCode;
   }
   
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js';
-    script.onload = () => resolve(window.QRCode);
-    script.onerror = () => reject(new Error('QRCode 라이브러리 로드 실패'));
-    document.head.appendChild(script);
-  });
+  try {
+    // QRCode 라이브러리 번들에서 가져오기 또는 CDN에서 로드
+    console.log('QRCode 라이브러리 로드 시도');
+    
+    // 첫 번째 방법: 글로벌 스크립트 태그에서 로드된 경우
+    if (typeof QRCode !== 'undefined') {
+      console.log('QRCode가 글로벌 스코프에서 발견되었습니다.');
+      window.QRCode = QRCode;
+      return QRCode;
+    }
+    
+    // 두 번째 방법: CDN에서 로드
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+      script.onload = () => {
+        console.log('QRCode 라이브러리 CDN에서 로드 성공');
+        window.QRCode = QRCode;
+        resolve(QRCode);
+      };
+      script.onerror = (error) => {
+        console.error('QRCode 라이브러리 로드 실패, 백업 CDN 시도:', error);
+        
+        // 백업 CDN 시도
+        const backupScript = document.createElement('script');
+        backupScript.src = 'https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js';
+        backupScript.onload = () => {
+          console.log('QRCode 라이브러리 백업 CDN에서 로드 성공');
+          resolve(window.QRCode);
+        };
+        backupScript.onerror = () => reject(new Error('모든 QRCode 라이브러리 로드 실패'));
+        document.head.appendChild(backupScript);
+      };
+      document.head.appendChild(script);
+    });
+  } catch (error) {
+    console.error('QRCode 라이브러리 로드 중 오류 발생:', error);
+    throw error;
+  }
 };
 
 // QR 코드 생성기 모듈

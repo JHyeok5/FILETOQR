@@ -547,9 +547,6 @@
     <!-- Core Scripts -->
     <script src="assets/js/core/app-core.js" type="module"></script>
     
-    <!-- QR 코드 생성 라이브러리 -->
-    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-    
     <!-- 파일 유틸리티 모듈 -->
     <script src="assets/js/utils/file-utils.js" type="module"></script>
     <script src="assets/js/core/qr-core.js" type="module"></script>
@@ -580,33 +577,72 @@
             }
         };
         
-        // 모듈을 여러 경로로 시도하여 임포트
-        async function loadModule(paths) {
-            for (const path of paths) {
-                try {
-                    console.log(`모듈 로드 시도: ${path}`);
-                    const module = await import(path);
-                    console.log(`모듈 로드 성공: ${path}`);
-                    return module.default;
-                } catch (error) {
-                    console.warn(`모듈 로드 실패 (${path}):`, error);
+        // QR 코드 생성기 로드 및 초기화
+        const initQRGenerator = async () => {
+            try {
+                console.log('QR 코드 생성기 로드 시도');
+                const module = await import('./assets/js/qr-generator/qr-generator.js');
+                const QRGenerator = module.default;
+                
+                console.log('QR 코드 생성기 로드 성공, 초기화 중...');
+                if (QRGenerator) {
+                    await QRGenerator.init();
+                    console.log('QR 코드 생성기 초기화 완료');
+                    
+                    // QR 코드 생성 버튼에 이벤트 리스너 추가
+                    const generateQrButton = document.getElementById('generate-qr');
+                    if (generateQrButton) {
+                        generateQrButton.addEventListener('click', function() {
+                            console.log('QR 코드 생성 버튼 클릭됨');
+                            try {
+                                QRGenerator.generateQRCode();
+                            } catch (error) {
+                                console.error('QR 코드 생성 중 오류 발생:', error);
+                                alert('QR 코드 생성 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+                            }
+                        });
+                    }
+                    
+                    // 다운로드 버튼 이벤트 리스너 추가
+                    document.getElementById('download-png')?.addEventListener('click', function() {
+                        QRGenerator.downloadQRCode('png');
+                    });
+                    
+                    document.getElementById('download-svg')?.addEventListener('click', function() {
+                        QRGenerator.downloadQRCode('svg');
+                    });
+                    
+                    document.getElementById('download-jpeg')?.addEventListener('click', function() {
+                        QRGenerator.downloadQRCode('jpeg');
+                    });
+                    
+                    return QRGenerator;
+                } else {
+                    throw new Error('QR 코드 생성기 모듈이 유효하지 않습니다');
                 }
+            } catch (error) {
+                console.error('QR 코드 생성기 로드 또는 초기화 실패:', error);
+                // 사용자에게 오류 알림
+                const qrPreviewEl = document.getElementById('qr-preview');
+                if (qrPreviewEl) {
+                    qrPreviewEl.innerHTML = `
+                        <div class="p-4 bg-red-100 text-red-800 rounded-lg">
+                            <h3 class="font-medium mb-2">QR 코드 생성기를 로드할 수 없습니다</h3>
+                            <p>기술적 문제로 QR 코드 생성 기능을 현재 사용할 수 없습니다. 나중에 다시 시도해 주세요.</p>
+                            <p class="text-sm mt-2">오류: ${error.message}</p>
+                        </div>
+                    `;
+                }
+                return null;
             }
-            console.error('모든 모듈 로드 경로 시도 실패');
-            return null;
-        }
+        };
         
         // DOM이 로드된 후 초기화
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('DOMContentLoaded 이벤트 발생: QRGenerator 초기화 시도');
+            console.log('QR 코드 페이지 초기화 시작');
             
             // 디버그 모드 활성화
             const DebugHelper = await activateDebugMode();
-            
-            // QR 라이브러리 및 모듈 확인
-            if (typeof QRCode === 'undefined') {
-                console.error('QRCode 라이브러리가 로드되지 않았습니다. QR 코드 생성이 작동하지 않을 수 있습니다.');
-            }
             
             // 브라우저 환경 정보 출력
             console.log('브라우저 환경:', {
@@ -617,86 +653,21 @@
                 currentURL: window.location.href
             });
             
-            // 다양한 경로 패턴으로 시도
-            const QRGenerator = await loadModule([
-                './assets/js/qr-generator/qr-generator.js',
-                '/assets/js/qr-generator/qr-generator.js',
-                'assets/js/qr-generator/qr-generator.js'
-            ]);
+            // QR 코드 생성기 초기화
+            const QRGenerator = await initQRGenerator();
             
-            // 모듈 로드 상태 확인
-            if (QRGenerator) {
-                console.log('QRGenerator 모듈 로드됨', QRGenerator);
-                console.log('QRGenerator 초기화 시작...');
-                
-                try {
-                    await QRGenerator.init();
-                    console.log('QRGenerator 초기화 완료!');
-                } catch (error) {
-                    console.error('QRGenerator 초기화 실패:', error);
-                }
-                
-                // QR 코드 생성 버튼 이벤트 처리
-                const generateQrButton = document.getElementById('generate-qr');
-                if (generateQrButton) {
-                    generateQrButton.addEventListener('click', function() {
-                        console.log('QR 코드 생성 버튼 클릭됨');
-                        // QRGenerator 모듈 메소드 호출
-                        if (QRGenerator && QRGenerator.generateQRCode) {
-                            try {
-                                QRGenerator.generateQRCode();
-                                console.log('QR 코드 생성 함수 호출 성공');
-                            } catch (error) {
-                                console.error('QR 코드 생성 중 오류 발생:', error);
-                            }
-                        } else {
-                            console.error('QRGenerator.generateQRCode 메소드를 찾을 수 없습니다.');
-                        }
-                    });
-                } else {
-                    console.error('QR 코드 생성 버튼을 찾을 수 없습니다.');
-                }
-                
-                // 다운로드 버튼 이벤트 처리
-                document.getElementById('download-png')?.addEventListener('click', function() {
-                    console.log('PNG 다운로드 버튼 클릭됨');
-                    if (QRGenerator && QRGenerator.downloadQRCode) {
-                        QRGenerator.downloadQRCode('png');
-                    } else {
-                        console.error('QRGenerator.downloadQRCode 메소드를 찾을 수 없습니다.');
-                    }
-                });
-                
-                document.getElementById('download-svg')?.addEventListener('click', function() {
-                    console.log('SVG 다운로드 버튼 클릭됨');
-                    if (QRGenerator && QRGenerator.downloadQRCode) {
-                        QRGenerator.downloadQRCode('svg');
-                    } else {
-                        console.error('QRGenerator.downloadQRCode 메소드를 찾을 수 없습니다.');
-                    }
-                });
-                
-                document.getElementById('download-jpeg')?.addEventListener('click', function() {
-                    console.log('JPEG 다운로드 버튼 클릭됨');
-                    if (QRGenerator && QRGenerator.downloadQRCode) {
-                        QRGenerator.downloadQRCode('jpeg');
-                    } else {
-                        console.error('QRGenerator.downloadQRCode 메소드를 찾을 수 없습니다.');
-                    }
-                });
-                
-                // 모듈 시스템 진단
+            // 진단 유틸리티 실행 (선택적)
+            if (!QRGenerator) {
+                console.log('오류 진단 실행 중...');
                 const Diagnostics = await loadDiagnostics();
                 if (Diagnostics) {
                     try {
-                        const results = await Diagnostics.diagnoseModuleSystem();
-                        console.log('모듈 시스템 진단 결과:', results);
+                        await Diagnostics.diagnoseModuleSystem();
+                        await Diagnostics.checkNetworkConnectivity();
                     } catch (error) {
-                        console.error('모듈 시스템 진단 중 오류 발생:', error);
+                        console.error('진단 실행 중 오류:', error);
                     }
                 }
-            } else {
-                console.error('QRGenerator 모듈을 찾을 수 없습니다.');
             }
         });
     </script>
