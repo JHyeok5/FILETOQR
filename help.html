@@ -11,18 +11,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-    <header class="bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-blue-600">FileToQR</a>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li><a href="/" class="font-medium hover:text-blue-600">홈</a></li>
-                    <li><a href="/convert.html" class="font-medium hover:text-blue-600">파일 변환</a></li>
-                    <li><a href="/qrcode.html" class="font-medium hover:text-blue-600">QR 생성</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <!-- 헤더 컴포넌트 -->
+    <div id="header-container"></div>
 
     <!-- 헤더 배너 광고 -->
     <div id="ad-header" class="ad-container my-4 text-center">
@@ -201,63 +191,37 @@
         </section>
     </main>
 
-    <!-- 푸터 광고 -->
-    <div id="ad-footer" class="ad-container my-4 text-center">
-        <div class="ad-label text-xs text-gray-500">광고</div>
-        <div class="ad-slot">
-            <!-- Google AdSense 푸터 광고 코드 삽입 위치 -->
-            <ins class="adsbygoogle"
-                style="display:block"
-                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                data-ad-slot="XXXXXXXXXX"
-                data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
-    </div>
+    <!-- 푸터 컴포넌트 -->
+    <div id="footer-container"></div>
 
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="mb-6 md:mb-0">
-                    <h3 class="text-xl font-bold mb-2">FileToQR</h3>
-                    <p class="text-gray-400">파일 변환 및 QR 코드 생성 플랫폼</p>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-                    <div>
-                        <h4 class="text-lg font-semibold mb-3">제품</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/convert.html" class="text-gray-400 hover:text-white">파일 변환</a></li>
-                            <li><a href="/qrcode.html" class="text-gray-400 hover:text-white">QR 코드 생성</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-3">리소스</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/blog" class="text-gray-400 hover:text-white">블로그</a></li>
-                            <li><a href="/help.html" class="text-gray-400 hover:text-white">도움말</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-3">법적 정보</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/privacy.html" class="text-gray-400 hover:text-white">개인정보처리방침</a></li>
-                            <li><a href="/terms.html" class="text-gray-400 hover:text-white">이용약관</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-6 text-gray-400 text-sm text-center">
-                <p>&copy; 2025 FileToQR. All rights reserved.</p>
-                <p class="mt-1">버전: 1.0.0 (최종 업데이트: 2025-04-28)</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Core Scripts -->
+    <!-- 코어 스크립트 -->
     <script src="assets/js/core/app-core.js" type="module"></script>
     <script src="assets/js/utils/adsense-manager.js" type="module"></script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('도움말 페이지 초기화 중...');
+            
+            // 헤더 및 푸터 포함
+            try {
+                // 헤더 컴포넌트 로드
+                const headerContainer = document.getElementById('header-container');
+                if (headerContainer && headerContainer.innerHTML === '') {
+                    const templateModule = await import('./assets/js/utils/template-utils.js');
+                    const TemplateUtils = templateModule.default;
+                    await TemplateUtils.loadComponent('header', headerContainer);
+                }
+                
+                // 푸터 컴포넌트 로드
+                const footerContainer = document.getElementById('footer-container');
+                if (footerContainer && footerContainer.innerHTML === '') {
+                    const templateModule = await import('./assets/js/utils/template-utils.js');
+                    const TemplateUtils = templateModule.default;
+                    await TemplateUtils.loadComponent('footer', footerContainer);
+                }
+            } catch (error) {
+                console.error('컴포넌트 로드 중 오류 발생:', error);
+            }
+        });
+    </script>
 </body>
 </html> 
