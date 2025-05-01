@@ -1,7 +1,8 @@
 /**
- * qr-generator.js - QR 코드 생성 기능을 구현하는 모듈
- * 버전: 1.2.0
- * 최종 업데이트: 2025-06-25
+ * qr-generator.js - FileToQR QR 코드 생성 모듈
+ * 버전: 1.0.0
+ * 최종 업데이트: 2025-06-15
+ * 참조: ../../docs/architecture/qr-system.md
  */
 
 // 공통 유틸리티 모듈 임포트
