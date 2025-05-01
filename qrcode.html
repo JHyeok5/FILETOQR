@@ -595,18 +595,26 @@
     <!-- QR 코드 생성 라이브러리 -->
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     
-    <!-- 파일 변환 유틸리티 모듈 -->
-    <script src="assets/js/utils/file-utils.js"></script>
-    <script src="assets/js/core/qr-core.js"></script>
+    <!-- 파일 유틸리티 모듈 -->
+    <script src="assets/js/utils/file-utils.js" type="module"></script>
+    <script src="assets/js/core/qr-core.js" type="module"></script>
     <script type="module">
         import QRGenerator from './assets/js/qr-generator/qr-generator.js';
         
         // DOM이 로드된 후 초기화
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof QRGenerator.init === 'function') {
+            console.log('DOMContentLoaded 이벤트 발생: QRGenerator 초기화 시도');
+            
+            // QR 라이브러리 및 모듈 확인
+            if (typeof QRCode === 'undefined') {
+                console.error('QRCode 라이브러리가 로드되지 않았습니다. QR 코드 생성이 작동하지 않을 수 있습니다.');
+            }
+            
+            if (QRGenerator) {
+                console.log('QRGenerator 모듈 로드됨, 초기화 시작...');
                 QRGenerator.init();
             } else {
-                console.error('QRGenerator 초기화 함수를 찾을 수 없습니다.');
+                console.error('QRGenerator 모듈을 찾을 수 없습니다.');
             }
         });
     </script>
