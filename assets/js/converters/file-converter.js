@@ -11,10 +11,9 @@
  * - 파일 다운로드 기능
  */
 
-// 공통 유틸리티 모듈 임포트
-import FileUtils from '../utils/file-utils.js';
-// 핵심 변환 모듈 임포트
-import ConverterCore from '../core/converter-core.js';
+// 글로벌 컨텍스트에서 필요한 기능 가져오기
+const FileUtils = window.FileUtils || {};
+const ConverterCore = window.ConverterCore || {};
 
 // 전역 상태 변수
 let currentFile = null;

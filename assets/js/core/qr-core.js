@@ -619,6 +619,8 @@ QRCore.unescapeWifiString = function(str) {
 if (typeof window !== 'undefined') {
   window.FileToQR = window.FileToQR || {};
   window.FileToQR.QRCore = QRCore;
+  // 직접 접근을 위한 전역 참조 추가
+  window.QRCore = QRCore;
 }
 
 // 모듈 레지스트리에 등록 (하위 호환성)
