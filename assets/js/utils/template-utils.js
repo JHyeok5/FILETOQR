@@ -18,10 +18,11 @@ const TemplateUtils = {
    * 컴포넌트 로드 및 삽입
    * @param {string} componentName - 컴포넌트 이름 (파일명)
    * @param {HTMLElement|string} container - 컴포넌트를 삽입할 컨테이너 (DOM 요소 또는 선택자)
+   * @param {string} basePath - 기본 경로 (서브 디렉토리에서 호출 시 사용, 예: '../')
    * @param {Object} data - 템플릿에 전달할 데이터 (옵션)
    * @returns {Promise<boolean>} 로드 성공 여부
    */
-  async loadComponent(componentName, container, data = {}) {
+  async loadComponent(componentName, container, basePath = '', data = {}) {
     try {
       // 컨테이너 확인
       const targetContainer = typeof container === 'string' ? 
@@ -36,10 +37,9 @@ const TemplateUtils = {
       let template = null;
       const possiblePaths = [
         // 확장자가 없는 경우 다양한 경로 패턴 시도
-        componentName.endsWith('.html') ? componentName : `${componentName}.html`,
-        componentName.endsWith('.html') ? componentName : `/components/${componentName}.html`,
-        componentName.endsWith('.html') ? componentName : `components/${componentName}.html`,
-        componentName.includes('/') ? componentName : `/components/${componentName}`
+        componentName.endsWith('.html') ? `${basePath}${componentName}` : `${basePath}${componentName}.html`,
+        componentName.endsWith('.html') ? `${basePath}${componentName}` : `${basePath}components/${componentName}.html`,
+        componentName.includes('/') ? `${basePath}${componentName}` : `${basePath}components/${componentName}`
       ];
       
       // 가능한 모든 경로를 순차적으로 시도
