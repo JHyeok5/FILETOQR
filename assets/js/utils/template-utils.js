@@ -32,8 +32,29 @@ const TemplateUtils = {
         return false;
       }
       
-      // 템플릿 가져오기
-      const template = await this.getTemplate(componentName);
+      // 템플릿 가져오기 - 여러 경로 패턴 시도
+      let template = null;
+      const possiblePaths = [
+        // 확장자가 없는 경우 다양한 경로 패턴 시도
+        componentName.endsWith('.html') ? componentName : `${componentName}.html`,
+        componentName.endsWith('.html') ? componentName : `/components/${componentName}.html`,
+        componentName.endsWith('.html') ? componentName : `components/${componentName}.html`,
+        componentName.includes('/') ? componentName : `/components/${componentName}`
+      ];
+      
+      // 가능한 모든 경로를 순차적으로 시도
+      for (const path of possiblePaths) {
+        try {
+          template = await this.getTemplate(path);
+          if (template) {
+            console.log(`컴포넌트 '${componentName}' 템플릿을 '${path}'에서 로드했습니다.`);
+            break; // 성공하면 루프 종료
+          }
+        } catch (err) {
+          // 개별 시도 실패는 무시하고 다음 경로 패턴으로 넘어갑니다
+          console.debug(`경로 '${path}'에서 로드 실패, 다른 경로 시도 중...`);
+        }
+      }
       
       if (!template) {
         console.warn(`컴포넌트 '${componentName}' 템플릿을 로드할 수 없습니다.`);
@@ -57,70 +78,114 @@ const TemplateUtils = {
   },
   
   /**
-   * 템플릿 가져오기 (캐시 사용)
-   * @param {string} componentName - 컴포넌트 이름 (파일명)
+   * 컴포넌트 템플릿 가져오기
+   * @param {string} componentName - 컴포넌트 경로
    * @returns {Promise<string>} 템플릿 HTML
    */
   async getTemplate(componentName) {
-    // 확장자가 없으면 .html 추가
-    const fileName = componentName.endsWith('.html') ? 
-      componentName : `${componentName}.html`;
-    
-    // 상대 경로 확인
-    const path = fileName.includes('/') ? fileName : `/components/${fileName}`;
-    
-    // 캐시 확인
-    if (templateCache.has(path)) {
-      return templateCache.get(path);
-    }
-    
     try {
-      // fetch를 사용하여 템플릿 가져오기
-      const response = await fetch(path);
+      // 경로 정규화 - 이미 .html로 끝나는지 확인
+      const templatePath = componentName.endsWith('.html') 
+        ? componentName 
+        : `${componentName}.html`;
+      
+      // 절대 경로 또는 상대 경로 처리
+      const fullPath = templatePath.startsWith('/') 
+        ? templatePath.substring(1) // 앞의 '/' 제거
+        : templatePath;
+        
+      console.log(`템플릿 로드 시도: ${fullPath}`);
+      
+      // 캐시 방지를 위한 타임스탬프 추가
+      const cacheBuster = `?_=${Date.now()}`;
+      
+      // 템플릿 가져오기
+      const response = await fetch(fullPath + cacheBuster, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'text/html',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+        cache: 'no-store'
+      });
       
       if (!response.ok) {
-        // 기본 경로 실패 시 다른 경로 시도
-        const altPath = path.startsWith('/') ? path.substring(1) : `/${path}`;
-        const altResponse = await fetch(altPath);
-        
-        if (!altResponse.ok) {
-          throw new Error(`HTTP 오류: ${response.status} (원본), ${altResponse.status} (대체)`);
-        }
-        
-        const template = await altResponse.text();
-        templateCache.set(path, template);
-        return template;
+        throw new Error(`템플릿 로드 실패: ${response.status} ${response.statusText}`);
       }
       
       const template = await response.text();
-      templateCache.set(path, template);
       return template;
     } catch (error) {
-      console.error(`템플릿 '${path}' 로드 실패:`, error);
-      return null;
+      console.error(`템플릿 '${componentName}' 로드 중 오류 발생:`, error);
+      throw error;
     }
   },
   
   /**
-   * 템플릿 데이터 처리
-   * @param {string} template - 템플릿 HTML
-   * @param {Object} data - 템플릿에 전달할 데이터
+   * 템플릿 처리 (변수 교체)
+   * @param {string} template - 처리할 템플릿
+   * @param {Object} data - 삽입할 데이터
    * @returns {string} 처리된 템플릿
    */
-  processTemplate(template, data) {
-    if (!data || Object.keys(data).length === 0) {
-      return template;
+  processTemplate(template, data = {}) {
+    if (!template) return '';
+    
+    try {
+      // 기본 데이터 추가
+      const processData = {
+        timestamp: new Date().toISOString(),
+        baseUrl: window.location.origin,
+        currentPath: window.location.pathname,
+        ...data
+      };
+      
+      // 템플릿 변수 교체 ({{변수명}})
+      let processed = template;
+      
+      // 모든 {{변수명}} 패턴 찾기
+      const variablePattern = /\{\{([^}]+)\}\}/g;
+      let match;
+      
+      while ((match = variablePattern.exec(template)) !== null) {
+        const fullMatch = match[0]; // {{변수명}}
+        const variableName = match[1].trim(); // 변수명
+        
+        // 변수 값 가져오기 (점 표기법 지원)
+        let value = processData;
+        const parts = variableName.split('.');
+        
+        try {
+          for (const part of parts) {
+            if (value === undefined || value === null) break;
+            value = value[part];
+          }
+          
+          // undefined나 null이면 빈 문자열로
+          if (value === undefined || value === null) {
+            value = '';
+          }
+          
+          // 객체나 배열이면 JSON 문자열로 변환
+          if (typeof value === 'object') {
+            value = JSON.stringify(value);
+          }
+          
+          // 변수 교체
+          processed = processed.replace(fullMatch, value);
+        } catch (err) {
+          console.warn(`템플릿 변수 '${variableName}' 처리 중 오류:`, err);
+          // 오류 발생 시 빈 문자열로 교체
+          processed = processed.replace(fullMatch, '');
+        }
+      }
+      
+      return processed;
+    } catch (error) {
+      console.error('템플릿 처리 중 오류 발생:', error);
+      return template; // 오류 시 원본 반환
     }
-    
-    // 간단한 템플릿 처리: {{변수명}} 패턴 대체
-    let processed = template;
-    
-    for (const [key, value] of Object.entries(data)) {
-      const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-      processed = processed.replace(regex, value);
-    }
-    
-    return processed;
   },
   
   /**

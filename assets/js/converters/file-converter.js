@@ -99,6 +99,35 @@ const FileConverter = {
   },
   
   /**
+   * 파일 변환 시작 (공개 메서드)
+   * UI에서 선택된 파일과 포맷으로 변환 작업 시작
+   */
+  convertFile() {
+    console.log('FileConverter.convertFile 호출됨');
+    this._handleFileConversion();
+  },
+  
+  /**
+   * 지원 포맷 확인 (공개 메서드)
+   * @param {string} fileExtension - 확인할 파일 확장자
+   * @returns {Array|null} 지원되는 출력 포맷 배열 또는 null
+   */
+  getSupportedFormats(fileExtension) {
+    if (!this.state.supportedFormats) return null;
+    
+    const ext = fileExtension.toLowerCase().replace('.', '');
+    
+    // 각 카테고리별 확인
+    for (const category of ['image', 'document', 'data']) {
+      if (this.state.supportedFormats[category][ext]) {
+        return this.state.supportedFormats[category][ext];
+      }
+    }
+    
+    return null;
+  },
+  
+  /**
    * UI 요소 초기화
    * @private
    */
