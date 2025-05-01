@@ -362,18 +362,27 @@ async function loadHeaderFooter(retryCount = 3) {
       throw new Error('템플릿 유틸리티를 로드할 수 없습니다.');
     }
     
+    // 현재 경로에 따라 basePath 설정
+    const path = window.location.pathname;
+    const isSubdirectory = path.split('/').filter(Boolean).length > 1;
+    const basePath = isSubdirectory ? '../' : '';
+    
+    console.log(`현재 경로: ${path}, basePath: ${basePath}`);
+    
     // 헤더 로드
     if (headerContainer) {
       console.log('헤더 로드 시도...');
       try {
-        const headerSuccess = await TemplateUtils.loadComponent('header', headerContainer);
+        const headerSuccess = await TemplateUtils.loadComponent('header', headerContainer, basePath, {
+          basePath: basePath
+        });
         console.log('헤더 로드 결과:', headerSuccess ? '성공' : '실패');
         
         if (!headerSuccess) {
           // 직접 헤더 템플릿 가져오기 시도
           console.log('직접 헤더 가져오기 시도...');
           try {
-            const headerResponse = await fetch('components/header.html');
+            const headerResponse = await fetch(basePath + 'components/header.html');
             
             if (!headerResponse.ok) {
               console.error(`헤더 가져오기 실패: ${headerResponse.status} ${headerResponse.statusText}`);
@@ -395,14 +404,16 @@ async function loadHeaderFooter(retryCount = 3) {
     if (footerContainer) {
       console.log('푸터 로드 시도...');
       try {
-        const footerSuccess = await TemplateUtils.loadComponent('footer', footerContainer);
+        const footerSuccess = await TemplateUtils.loadComponent('footer', footerContainer, basePath, {
+          basePath: basePath
+        });
         console.log('푸터 로드 결과:', footerSuccess ? '성공' : '실패');
         
         if (!footerSuccess) {
           // 직접 푸터 템플릿 가져오기 시도
           console.log('직접 푸터 가져오기 시도...');
           try {
-            const footerResponse = await fetch('components/footer.html');
+            const footerResponse = await fetch(basePath + 'components/footer.html');
             
             if (!footerResponse.ok) {
               console.error(`푸터 가져오기 실패: ${footerResponse.status} ${footerResponse.statusText}`);
