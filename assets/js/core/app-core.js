@@ -1,8 +1,8 @@
 /**
  * app-core.js - FileToQR 애플리케이션 코어 모듈
  * 버전: 1.2.0
- * 최종 업데이트: 2023-06-15
- * 참조: ../.ai-guides/architecture/module-registry.md
+ * 최종 업데이트: 2025-06-15
+ * 참조: ../../docs/architecture/module-registry.md
  * 
  * 이 모듈은 애플리케이션의 핵심 기능을 관리합니다:
  * - 모듈 초기화 및 등록
