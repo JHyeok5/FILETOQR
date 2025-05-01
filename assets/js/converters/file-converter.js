@@ -247,9 +247,9 @@ const FileConverter = {
     const defaultFormats = ['png', 'jpg', 'webp', 'pdf', 'json', 'csv'];
     
     defaultFormats.forEach(format => {
-      const option = document.createElement('option');
-      option.value = format;
-      option.textContent = format.toUpperCase();
+    const option = document.createElement('option');
+    option.value = format;
+    option.textContent = format.toUpperCase();
       formatSelector.appendChild(option);
     });
     
@@ -431,8 +431,8 @@ const FileConverter = {
             <span class="text-blue-800 font-medium">파일 변환 중...</span>
           </div>
         `;
-        break;
-        
+      break;
+      
       case 'success':
         resultContainer.innerHTML = `
           <div class="my-4 p-4 bg-green-100 rounded-lg">
@@ -443,11 +443,11 @@ const FileConverter = {
                 class="inline-block px-4 py-2 bg-green-600 text-white font-medium rounded hover:bg-green-700">
                 변환된 파일 다운로드
               </a>
-            </div>
-          </div>
-        `;
-        break;
-        
+        </div>
+        </div>
+      `;
+      break;
+      
       case 'error':
         resultContainer.innerHTML = `
           <div class="my-4 p-4 bg-red-100 rounded-lg">
@@ -455,8 +455,8 @@ const FileConverter = {
             <p>${state.error || '파일 변환 중 오류가 발생했습니다.'}</p>
           </div>
         `;
-        break;
-    }
+      break;
+  }
   },
   
   /**
@@ -474,9 +474,9 @@ const FileConverter = {
     
     if (!file) {
       alert('변환할 파일을 선택해주세요.');
-      return;
-    }
-    
+    return;
+  }
+  
     if (!outputFormat) {
       alert('출력 형식을 선택해주세요.');
       return;
