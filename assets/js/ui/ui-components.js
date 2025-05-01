@@ -2,6 +2,7 @@
  * ui-components.js - FileToQR UI 컴포넌트
  * 버전: 1.0.0
  * 최종 업데이트: 2025-06-15
+ * 참조: ../../docs/architecture/ui-components.md
  * 
  * 이 모듈은 FileToQR의 재사용 가능한 UI 컴포넌트를 제공합니다:
  * - 경고창
