@@ -8,7 +8,40 @@
  * 가벼운 컴포넌트 시스템을 제공합니다.
  */
 
-import AppCore from './app-core.js';
+import EventEmitter from '../utils/event-emitter.js';
+
+// 컴포넌트 이벤트 관리를 위한 이벤트 이미터 인스턴스
+const componentEvents = new EventEmitter();
+
+// 컴포넌트 레지스트리
+const components = new Map();
+
+// 컴포넌트 시스템 API
+const ComponentSystem = {
+  register,
+  init,
+  mount,
+  unmount,
+  update,
+  on: componentEvents.on.bind(componentEvents),
+  off: componentEvents.off.bind(componentEvents),
+  emit: componentEvents.emit.bind(componentEvents)
+};
+
+/**
+ * 컴포넌트 등록
+ * @param {string} name - 컴포넌트 이름
+ * @param {Object} component - 컴포넌트 정의
+ */
+function register(name, component) {
+  if (components.has(name)) {
+    console.warn(`컴포넌트가 이미 등록되어 있습니다: ${name}`);
+    return;
+  }
+  
+  components.set(name, component);
+  componentEvents.emit('componentRegistered', { name, component });
+}
 
 // 즉시 실행 함수로 네임스페이스 보호
 (function() {
