@@ -13,19 +13,99 @@
 const importHelpers = async () => {
   try {
     // 필요한 라이브러리 동적 로드
-    const imageConv = await import('./image-converter.js').catch(() => null);
-    const docConv = await import('./document-converter.js').catch(() => null);
-    const dataConv = await import('./data-converter.js').catch(() => null);
+    let imageConv = null;
+    let docConv = null;
+    let dataConv = null;
+    
+    // 각 모듈 개별적으로 로드 시도 (오류가 발생해도 계속 진행)
+    try {
+      console.log('이미지 변환기 모듈 로드 시도...');
+      imageConv = await import('./image-converter.js').catch(error => {
+        console.warn('이미지 변환기 모듈을 로드할 수 없습니다:', error.message);
+        return { default: createFallbackConverter('image') };
+      });
+      imageConv = imageConv?.default || createFallbackConverter('image');
+    } catch (error) {
+      console.warn('이미지 변환기 모듈 로드 실패:', error);
+      imageConv = createFallbackConverter('image');
+    }
+    
+    try {
+      console.log('문서 변환기 모듈 로드 시도...');
+      docConv = await import('./document-converter.js').catch(error => {
+        console.warn('문서 변환기 모듈을 로드할 수 없습니다:', error.message);
+        return { default: createFallbackConverter('document') };
+      });
+      docConv = docConv?.default || createFallbackConverter('document');
+    } catch (error) {
+      console.warn('문서 변환기 모듈 로드 실패:', error);
+      docConv = createFallbackConverter('document');
+    }
+    
+    try {
+      console.log('데이터 변환기 모듈 로드 시도...');
+      dataConv = await import('./data-converter.js').catch(error => {
+        console.warn('데이터 변환기 모듈을 로드할 수 없습니다:', error.message);
+        return { default: createFallbackConverter('data') };
+      });
+      dataConv = dataConv?.default || createFallbackConverter('data');
+    } catch (error) {
+      console.warn('데이터 변환기 모듈 로드 실패:', error);
+      dataConv = createFallbackConverter('data');
+    }
     
     return {
-      imageConverter: imageConv?.default || null,
-      documentConverter: docConv?.default || null,
-      dataConverter: dataConv?.default || null
+      imageConverter: imageConv,
+      documentConverter: docConv,
+      dataConverter: dataConv
     };
   } catch (error) {
     console.error('변환 헬퍼 모듈 로드 실패:', error);
-    return {};
+    
+    // 모든 모듈 로드 실패 시 기본 대체 변환기 제공
+    return {
+      imageConverter: createFallbackConverter('image'),
+      documentConverter: createFallbackConverter('document'),
+      dataConverter: createFallbackConverter('data')
+    };
   }
+};
+
+// 대체 변환기 생성 함수
+const createFallbackConverter = (type) => {
+  console.log(`${type} 변환기에 대한 대체 모듈 생성 중...`);
+  
+  return {
+    name: `${type}-fallback-converter`,
+    version: '1.0.0',
+    supportedFormats: {
+      'image': { 'png': ['jpg', 'webp'], 'jpg': ['png', 'webp'], 'webp': ['png', 'jpg'] },
+      'document': { 'pdf': ['txt'], 'txt': ['pdf'] },
+      'data': { 'json': ['csv', 'xml'], 'csv': ['json', 'xml'], 'xml': ['json', 'csv'] }
+    }[type] || {},
+    
+    convert: async (file, format) => {
+      console.warn(`${type} 파일 변환 실패: 실제 변환기 모듈이 로드되지 않았습니다.`);
+      
+      // 변환 실패 오류 반환
+      return {
+        success: false,
+        error: `변환 실패: ${type} 변환기 모듈을 로드할 수 없습니다. 추후 다시 시도해주세요.`,
+        file: null
+      };
+    },
+    
+    // 형식 변환 지원 여부 확인
+    canConvert: (sourceFormat, targetFormat) => {
+      const formats = {
+        'image': { 'png': ['jpg', 'webp'], 'jpg': ['png', 'webp'], 'webp': ['png', 'jpg'] },
+        'document': { 'pdf': ['txt'], 'txt': ['pdf'] },
+        'data': { 'json': ['csv', 'xml'], 'csv': ['json', 'xml'], 'xml': ['json', 'csv'] }
+      }[type] || {};
+      
+      return formats[sourceFormat]?.includes(targetFormat) || false;
+    }
+  };
 };
 
 // 파일 유형별 처리기 정의
