@@ -595,10 +595,22 @@
     <!-- QR 코드 생성 라이브러리 -->
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     
-    <!-- QR 코드 생성 스크립트 -->
-    <script src="assets/js/qr-generator/qr-generator.js" type="module"></script>
-    <script src="assets/js/qr-generator/qr-scanner.js" type="module"></script>
-    
+    <!-- 파일 변환 유틸리티 모듈 -->
+    <script src="assets/js/utils/file-utils.js"></script>
+    <script src="assets/js/core/qr-core.js"></script>
+    <script type="module">
+        import QRGenerator from './assets/js/qr-generator/qr-generator.js';
+        
+        // DOM이 로드된 후 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof QRGenerator.init === 'function') {
+                QRGenerator.init();
+            } else {
+                console.error('QRGenerator 초기화 함수를 찾을 수 없습니다.');
+            }
+        });
+    </script>
+
     <!-- 이벤트 추적 스크립트 -->
     <script type="module">
         // 콘텐츠 유형 탭 전환 처리
