@@ -1,7 +1,7 @@
 /**
  * url-utils.js - FileToQR URL 유틸리티
  * 버전: 1.0.0
- * 최종 업데이트: 2023-06-15
+ * 최종 업데이트: 2025-06-15
  * 
  * 이 유틸리티는 내부 링크 형식을 통일하고 URL 처리 기능을 제공합니다.
  */
@@ -12,6 +12,16 @@ const UrlUtils = (function() {
   // 내부 페이지 목록
   const internalPages = [
     'index',
+    'convert',
+    'qrcode',
+    'help',
+    'privacy',
+    'terms',
+    'blog'
+  ];
+  
+  // 확장자가 필요한 페이지 목록
+  const pagesRequiringExtension = [
     'convert',
     'qrcode',
     'help',
@@ -57,13 +67,11 @@ const UrlUtils = (function() {
       url = '/' + url;
     }
     
-    // 루트 경로 처리
-    if (url === '/' || url === '/index') {
-      return includeExtension ? '/index.html' + query + hash : '/' + query + hash;
-    }
+    // 페이지 이름 추출
+    const pageName = url === '/' ? 'index' : url.substring(1);
     
-    // 확장자 추가 (필요한 경우)
-    if (includeExtension) {
+    // 확장자 처리
+    if (includeExtension && pagesRequiringExtension.includes(pageName)) {
       url = url + '.html';
     }
     
@@ -108,29 +116,73 @@ const UrlUtils = (function() {
   }
   
   /**
+   * 기본 URL 경로 가져오기
+   * @returns {string} 기본 URL 경로
+   */
+  function getBasePath() {
+    // script 태그에서 기본 경로 찾기
+    const scripts = document.getElementsByTagName('script');
+    for (const script of scripts) {
+      if (script.src.includes('app-core.js')) {
+        const url = new URL(script.src);
+        return url.pathname.substring(0, url.pathname.indexOf('/assets/'));
+      }
+    }
+    
+    // meta 태그에서 기본 경로 찾기
+    const baseTag = document.querySelector('base');
+    if (baseTag && baseTag.href) {
+      const baseUrl = new URL(baseTag.href);
+      return baseUrl.pathname;
+    }
+    
+    return '';
+  }
+  
+  /**
+   * 상대 URL 생성
+   * @param {string} path - 대상 경로
+   * @returns {string} 상대 URL
+   */
+  function getRelativeUrl(path) {
+    const basePath = getBasePath();
+    
+    // 시작 슬래시 제거
+    if (path.startsWith('/')) {
+      path = path.substring(1);
+    }
+    
+    // 기본 경로가 있는 경우에만 추가
+    if (basePath && basePath !== '/') {
+      // 끝 슬래시 처리
+      const basePathWithSlash = basePath.endsWith('/') ? basePath : basePath + '/';
+      return basePathWithSlash + path;
+    }
+    
+    return path;
+  }
+  
+  /**
    * 모든 내부 링크 표준화
-   * 페이지 내의 모든 내부 링크를 동일한 형식으로 변경
-   * @param {boolean} includeExtension - .html 확장자 포함 여부 (기본값: true)
+   * @param {boolean} includeExtension - 확장자 포함 여부
    */
   function standardizeLinks(includeExtension = true) {
-    // 모든 앵커 태그 선택
-    const links = document.querySelectorAll('a[href]');
-    
-    links.forEach(link => {
+    const links = document.getElementsByTagName('a');
+    const basePath = getBasePath();
+
+    for (const link of links) {
       const href = link.getAttribute('href');
+      if (!href) continue;
       
-      // 내부 링크인 경우만 처리
-      if (
-        href && 
-        (href.startsWith('/') || 
-         !href.startsWith('http://') && 
-         !href.startsWith('https://') && 
-         !href.startsWith('#'))
-      ) {
-        const normalizedHref = normalizeUrl(href, includeExtension);
-        link.setAttribute('href', normalizedHref);
+      // 내부 링크인 경우에만 처리
+      if (isInternalUrl(href)) {
+        // URL 정규화
+        const normalizedUrl = normalizeUrl(href, includeExtension);
+        // 상대 경로 변환
+        const relativeUrl = getRelativeUrl(normalizedUrl);
+        link.setAttribute('href', relativeUrl);
       }
-    });
+    }
   }
   
   /**
@@ -174,7 +226,9 @@ const UrlUtils = (function() {
     isInternalUrl,
     standardizeLinks,
     getUrlParameter,
-    setUrlParameter
+    setUrlParameter,
+    getBasePath,
+    getRelativeUrl
   };
 })();
 

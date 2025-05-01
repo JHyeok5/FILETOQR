@@ -11,12 +11,14 @@ const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms'];
 module.exports = {
   mode: 'production',
   entry: {
-    'app': './assets/js/core/app-core.js'
+    'app-core': './assets/js/core/app-core.js',
+    'file-converter': './assets/js/converters/file-converter.js',
+    'qr-generator': './assets/js/qr-generator/qr-generator.js'
   },
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist/js'),
-    publicPath: '/dist/js/'
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/dist/'
   },
   optimization: {
     minimizer: [
@@ -33,13 +35,8 @@ module.exports = {
       })
     ],
     splitChunks: {
-      cacheGroups: {
-        vendors: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all'
-        }
-      }
+      chunks: 'all',
+      name: 'vendors'
     }
   },
   module: {
@@ -50,23 +47,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: [
-              ['@babel/preset-env', {
-                modules: false, // ES 모듈을 그대로 유지
-                useBuiltIns: 'usage',
-                corejs: 3,
-                targets: {
-                  browsers: [
-                    'last 2 versions',
-                    'not dead',
-                    'not < 2%'
-                  ]
-                }
-              }]
-            ],
-            plugins: [
-              '@babel/plugin-transform-runtime'
-            ]
+            presets: ['@babel/preset-env']
           }
         }
       },
@@ -121,7 +102,7 @@ module.exports = {
       return new HtmlWebpackPlugin({
         template: `./${page}.html`,
         filename: `${page}.html`,
-        chunks: ['app', 'vendors'],
+        chunks: ['app-core', 'vendors'],
         minify: {
           collapseWhitespace: true,
           removeComments: true,
@@ -144,13 +125,12 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js'],
-    // 절대 경로 별칭 설정
     alias: {
-      '@core': path.resolve(__dirname, 'assets/js/core/'),
-      '@utils': path.resolve(__dirname, 'assets/js/utils/'),
-      '@converters': path.resolve(__dirname, 'assets/js/converters/'),
-      '@qr': path.resolve(__dirname, 'assets/js/qr-generator/'),
-      '@ui': path.resolve(__dirname, 'assets/js/ui/')
+      '@core': path.resolve(__dirname, 'assets/js/core'),
+      '@utils': path.resolve(__dirname, 'assets/js/utils'),
+      '@converters': path.resolve(__dirname, 'assets/js/converters'),
+      '@qr': path.resolve(__dirname, 'assets/js/qr-generator'),
+      '@ui': path.resolve(__dirname, 'assets/js/ui')
     }
   }
 }; 

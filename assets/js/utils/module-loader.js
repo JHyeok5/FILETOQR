@@ -2,7 +2,7 @@
  * module-loader.js - FileToQR 모듈 로딩 유틸리티
  * 버전: 1.0.0
  * 최종 업데이트: 2025-06-15
- * 참조: ../.ai-guides/architecture/module-registry.md
+ * 참조: ../../.ai-guides/architecture/module-registry.md
  * 
  * 이 모듈은 동적 모듈 로딩, 의존성 관리, 비동기 모듈 초기화를 담당합니다:
  * - ES 모듈 동적 로드
