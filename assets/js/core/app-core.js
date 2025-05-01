@@ -1,6 +1,6 @@
 /**
  * app-core.js - FileToQR 애플리케이션 코어 모듈
- * 버전: 1.2.0
+ * 버전: 1.0.1
  * 최종 업데이트: 2025-06-15
  * 참조: ../../docs/architecture/module-registry.md
  * 
@@ -15,12 +15,26 @@
  */
 
 // 코어 유틸리티 임포트
-import ModuleLoader from '@utils/module-loader.js';
-import UrlUtils from '@utils/url-utils.js';
-import registry from '@core/registry.js';
+import ModuleLoader from '../utils/module-loader.js';
+import UrlUtils from '../utils/url-utils.js';
 
-// registry는 동적으로 로드
+// 안전한 registry 참조
 let registry = null;
+
+// registry 초기화 함수 (지연 로딩)
+async function initRegistry() {
+  try {
+    if (!registry) {
+      // registry가 없는 경우에만 로드
+      const registryModule = await import('../registry.js');
+      registry = registryModule.default;
+    }
+    return registry;
+  } catch (error) {
+    console.error('레지스트리 초기화 실패:', error);
+    return null;
+  }
+}
 
 // 애플리케이션 설정 및 상수
 const CONFIG = {
@@ -45,7 +59,8 @@ const appCore = {
   getConfig: () => CONFIG,
   reloadPage: () => window.location.reload(),
   ModuleLoader,
-  UrlUtils
+  UrlUtils,
+  getRegistry: () => registry
 };
 
 // 내부 상태 관리
@@ -66,15 +81,20 @@ async function init() {
   console.log('FileToQR 앱 초기화 중...');
   
   try {
-    // registry 동적 로드
-    const registryModule = await import('../registry.js');
-    registry = registryModule.default;
+    // registry 초기화 (지연 로딩)
+    await initRegistry();
+    
+    // 글로벌 네임스페이스에 등록 (하위 호환성)
+    if (typeof window !== 'undefined' && registry) {
+      window.FileToQR = window.FileToQR || {};
+      window.FileToQR.registry = registry;
+    }
     
     // 모듈 로더 초기화
     initModuleLoader();
     
     // 레지스트리 초기화
-    initRegistry();
+    await ensureRegistryInitialized();
     
     // URL 표준화
     standardizeUrls();
@@ -136,21 +156,32 @@ function getCurrentPage() {
  * @private
  */
 function initModuleLoader() {
-  // 핵심 모듈만 등록 - 나머지는 registry.js에서 통합 관리
+  // 핵심 모듈만 등록
   ModuleLoader.registerModule('app-core', '/assets/js/core/app-core.js', []);
   ModuleLoader.registerModule('url-utils', '/assets/js/utils/url-utils.js', []);
   ModuleLoader.registerModule('module-loader', '/assets/js/utils/module-loader.js', []);
-  ModuleLoader.registerModule('registry', '/assets/js/registry.js', ['app-core']);
+  
+  // registry 모듈은 app-core 의존성에서 제외하고 별도 등록
+  ModuleLoader.registerModule('registry', '/assets/js/registry.js', []);
   
   console.log('모듈 로더 초기화 완료');
 }
 
 /**
- * 모듈 레지스트리 초기화
+ * 레지스트리 초기화 확인
  * @private
+ * @async
  */
-function initRegistry() {
+async function ensureRegistryInitialized() {
+  if (!registry) {
+    await initRegistry();
+  }
+  
   if (registry) {
+    // 레지스트리가 이미 초기화되었는지 확인
+    if (!registry.isInitialized()) {
+      registry.setInitialized(true);
+    }
     console.log('모듈 레지스트리 초기화 완료');
   } else {
     console.warn('모듈 레지스트리가 로드되지 않았습니다. registry.js 파일을 확인하세요.');
@@ -333,7 +364,6 @@ function initDarkModeToggle() {
 
 /**
  * 페이지별 초기화
- * 현재 페이지에 맞는 초기화 로직 실행
  * @private
  * @async
  * @param {string} page - 페이지 식별자
@@ -343,7 +373,20 @@ async function initPageSpecific(page) {
   
   switch (page) {
     case 'home':
-      initHomePage();
+      try {
+        // 상대 경로 사용으로 변경
+        const homePage = await import('../pages/home.js').then(module => module.default);
+        if (homePage && typeof homePage.init === 'function') {
+          homePage.init();
+        } else {
+          console.warn('홈페이지 모듈을 찾을 수 없거나 초기화 메서드가 없습니다. 기본 초기화를 사용합니다.');
+          initHomePage();
+        }
+      } catch (error) {
+        console.error('홈페이지 모듈 초기화 실패:', error);
+        // 폴백: 기본 홈페이지 초기화 사용
+        initHomePage();
+      }
       break;
       
     case 'convert':
@@ -357,6 +400,16 @@ async function initPageSpecific(page) {
         }
       } catch (error) {
         console.error('파일 변환기 초기화 실패:', error);
+        // 첫 로드 실패 시 대체 경로 시도
+        try {
+          const fileConverter = await import('/assets/js/converters/file-converter.js').then(module => module.default);
+          if (fileConverter && typeof fileConverter.init === 'function') {
+            fileConverter.init();
+            console.log('파일 변환기 모듈을 대체 경로로 로드했습니다.');
+          }
+        } catch (altError) {
+          console.error('파일 변환기 모듈 대체 경로 로드도 실패:', altError);
+        }
       }
       break;
       
@@ -371,6 +424,16 @@ async function initPageSpecific(page) {
         }
       } catch (error) {
         console.error('QR 코드 생성기 초기화 실패:', error);
+        // 첫 로드 실패 시 대체 경로 시도
+        try {
+          const qrGenerator = await import('/assets/js/qr-generator/qr-generator.js').then(module => module.default);
+          if (qrGenerator && typeof qrGenerator.init === 'function') {
+            qrGenerator.init();
+            console.log('QR 코드 생성기 모듈을 대체 경로로 로드했습니다.');
+          }
+        } catch (altError) {
+          console.error('QR 코드 생성기 모듈 대체 경로 로드도 실패:', altError);
+        }
       }
       break;
       
@@ -391,155 +454,19 @@ async function initPageSpecific(page) {
  * @private
  */
 function initHomePage() {
-  // 기능 애니메이션
-  initFeatureAnimation();
+  console.log('기본 홈페이지 초기화 - 가능한 경우 home.js 모듈을 사용하세요.');
   
-  // 예제 슬라이더
-  initExampleSlider();
+  // 슬라이더 기능은 home.js로 이동했으므로 여기서는 더 이상 직접 구현하지 않음
+  // 기능 애니메이션 및 홈페이지 관련 기능은 pages/home.js 모듈에서 처리함
   
-  // 시작하기 버튼 이벤트 리스너
+  // 완전히 제거하지 않고 최소한의 폴백만 구현
+  // 시작하기 버튼 이벤트만 남겨둠 (중요한 기능이므로)
   const getStartedBtns = document.querySelectorAll('.get-started-btn');
   getStartedBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       window.location.href = '/convert.html';
     });
   });
-}
-
-/**
- * 기능 애니메이션 초기화
- * @private
- */
-function initFeatureAnimation() {
-  const features = document.querySelectorAll('.feature');
-  
-  // 기능 요소가 화면에 나타날 때 애니메이션 적용
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animated');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  
-  features.forEach(feature => {
-    observer.observe(feature);
-  });
-}
-
-/**
- * 예제 슬라이더 초기화
- * @private
- */
-function initExampleSlider() {
-  const slider = document.querySelector('.example-slider');
-  const slides = document.querySelectorAll('.example-slide');
-  const prevBtn = document.querySelector('.slider-prev');
-  const nextBtn = document.querySelector('.slider-next');
-  const dots = document.querySelector('.slider-dots');
-  
-  if (!slider || slides.length === 0) return;
-  
-  let currentSlide = 0;
-  let slideInterval;
-  
-  // 슬라이더 자동 재생
-  const startSlider = () => {
-    slideInterval = setInterval(() => {
-      navigateSlider(1);
-    }, 5000);
-  };
-  
-  // 슬라이더 정지
-  const stopSlider = () => {
-    clearInterval(slideInterval);
-  };
-  
-  // 인디케이터 점 생성
-  if (dots) {
-    for (let i = 0; i < slides.length; i++) {
-      const dot = document.createElement('span');
-      dot.classList.add('slider-dot');
-      if (i === 0) dot.classList.add('active');
-      dot.addEventListener('click', () => {
-        showSlide(i);
-      });
-      dots.appendChild(dot);
-    }
-  }
-  
-  // 슬라이더 제어 버튼
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => {
-      navigateSlider(-1);
-    });
-  }
-  
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      navigateSlider(1);
-    });
-  }
-  
-  // 슬라이더 시작
-  startSlider();
-  
-  // 마우스 호버 시 슬라이더 일시 정지
-  slider.addEventListener('mouseenter', stopSlider);
-  slider.addEventListener('mouseleave', startSlider);
-}
-
-/**
- * 슬라이더 탐색
- * @private
- * @param {number} direction - 이동 방향 (1: 다음, -1: 이전)
- */
-function navigateSlider(direction) {
-  const slides = document.querySelectorAll('.example-slide');
-  const dots = document.querySelectorAll('.slider-dot');
-  
-  if (slides.length === 0) return;
-  
-  // 현재 슬라이드 숨기기
-  slides[currentSlide].classList.remove('active');
-  if (dots.length > 0) {
-    dots[currentSlide].classList.remove('active');
-  }
-  
-  // 다음/이전 슬라이드 인덱스 계산
-  currentSlide = (currentSlide + direction + slides.length) % slides.length;
-  
-  // 새 슬라이드 표시
-  slides[currentSlide].classList.add('active');
-  if (dots.length > 0) {
-    dots[currentSlide].classList.add('active');
-  }
-}
-
-/**
- * 특정 슬라이드 표시
- * @private
- * @param {number} index - 표시할 슬라이드 인덱스
- */
-function showSlide(index) {
-  const slides = document.querySelectorAll('.example-slide');
-  const dots = document.querySelectorAll('.slider-dot');
-  
-  if (index < 0 || index >= slides.length) return;
-  
-  // 현재 슬라이드 숨기기
-  slides[currentSlide].classList.remove('active');
-  if (dots.length > 0) {
-    dots[currentSlide].classList.remove('active');
-  }
-  
-  // 새 슬라이드 표시
-  currentSlide = index;
-  slides[currentSlide].classList.add('active');
-  if (dots.length > 0) {
-    dots[currentSlide].classList.add('active');
-  }
 }
 
 /**

@@ -1,7 +1,8 @@
 /**
  * converter-core.js - FileToQR 파일 변환 핵심 모듈
- * 버전: 1.1.0
- * 최종 업데이트: 2025-06-25
+ * 버전: 1.0.0
+ * 최종 업데이트: 2025-06-15
+ * 참조: ../../docs/architecture/converter-system.md
  * 
  * 이 모듈은 파일 변환 기능의 핵심 로직을 제공합니다:
  * - 다양한 파일 형식 간 변환 구현
@@ -9,7 +10,6 @@
  * - 파일 형식 지원 및 호환성 정보
  */
 
-// 공통 유틸리티 모듈 임포트
 import FileUtils from '../utils/file-utils.js';
 
 // 컨버터 코어 모듈 정의

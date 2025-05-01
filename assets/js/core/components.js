@@ -1,8 +1,8 @@
 /**
  * components.js - FileToQR 컴포넌트 시스템
- * 버전: 1.1.0
- * 최종 업데이트: 2023-06-15
- * 참조: ../.ai-guides/architecture/component-system.md
+ * 버전: 1.0.0
+ * 최종 업데이트: 2025-06-15
+ * 참조: ../../docs/architecture/component-system.md
  * 
  * 이 모듈은 재사용 가능한 UI 컴포넌트를 등록, 초기화, 라이프사이클 관리하기 위한
  * 가벼운 컴포넌트 시스템을 제공합니다.
