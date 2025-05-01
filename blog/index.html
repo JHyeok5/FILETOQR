@@ -283,7 +283,9 @@
                 if (headerContainer && headerContainer.innerHTML === '') {
                     const templateModule = await import('../assets/js/utils/template-utils.js');
                     const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('header', headerContainer, '../');
+                    await TemplateUtils.loadComponent('header', headerContainer, '../', {
+                        basePath: '../'
+                    });
                 }
                 
                 // 푸터 컴포넌트 로드
@@ -291,7 +293,9 @@
                 if (footerContainer && footerContainer.innerHTML === '') {
                     const templateModule = await import('../assets/js/utils/template-utils.js');
                     const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('footer', footerContainer, '../');
+                    await TemplateUtils.loadComponent('footer', footerContainer, '../', {
+                        basePath: '../'
+                    });
                 }
             } catch (error) {
                 console.error('컴포넌트 로드 중 오류 발생:', error);
