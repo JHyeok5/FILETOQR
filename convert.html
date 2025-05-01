@@ -248,13 +248,16 @@
     <script src="assets/js/utils/progress-tracker.js"></script>
     
     <!-- 파일 변환 유틸리티 모듈 -->
-    <script src="assets/js/utils/file-utils.js" type="module"></script>
-    
-    <!-- 핵심 모듈 -->
-    <script src="assets/js/core/converter-core.js" type="module"></script>
-    
-    <!-- 파일 변환 모듈 -->
-    <script src="assets/js/converters/file-converter.js" type="module"></script>
+    <script src="assets/js/utils/file-utils.js"></script>
+    <script src="assets/js/core/converter-core.js"></script>
+    <script type="module">
+        import fileConverter from './assets/js/converters/file-converter.js';
+        
+        // DOM이 로드된 후 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            fileConverter.init();
+        });
+    </script>
     
     <!-- 사용자 경험 분석 -->
     <script src="assets/js/utils/usage-analytics.js"></script>
