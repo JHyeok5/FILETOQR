@@ -507,51 +507,13 @@ async function initPageSpecific(page) {
       break;
       
     case 'convert':
-      // 파일 변환기 초기화
-      try {
-        const fileConverter = await import('../converters/file-converter.js').then(module => module.default);
-        if (fileConverter && typeof fileConverter.init === 'function') {
-          fileConverter.init();
-        } else {
-          console.warn('파일 변환기 모듈을 찾을 수 없거나 초기화 메서드가 없습니다.');
-        }
-      } catch (error) {
-        console.error('파일 변환기 초기화 실패:', error);
-        // 첫 로드 실패 시 대체 경로 시도
-        try {
-          const fileConverter = await import('/assets/js/converters/file-converter.js').then(module => module.default);
-          if (fileConverter && typeof fileConverter.init === 'function') {
-            fileConverter.init();
-            console.log('파일 변환기 모듈을 대체 경로로 로드했습니다.');
-          }
-        } catch (altError) {
-          console.error('파일 변환기 모듈 대체 경로 로드도 실패:', altError);
-        }
-      }
+      // 파일 변환기 초기화 - 다양한 경로 시도
+      await initFileConverter();
       break;
       
     case 'qrcode':
-      // QR 코드 생성기 초기화
-      try {
-        const qrGenerator = await import('../qr-generator/qr-generator.js').then(module => module.default);
-        if (qrGenerator && typeof qrGenerator.init === 'function') {
-          qrGenerator.init();
-        } else {
-          console.warn('QR 코드 생성기 모듈을 찾을 수 없거나 초기화 메서드가 없습니다.');
-        }
-      } catch (error) {
-        console.error('QR 코드 생성기 초기화 실패:', error);
-        // 첫 로드 실패 시 대체 경로 시도
-        try {
-          const qrGenerator = await import('/assets/js/qr-generator/qr-generator.js').then(module => module.default);
-          if (qrGenerator && typeof qrGenerator.init === 'function') {
-            qrGenerator.init();
-            console.log('QR 코드 생성기 모듈을 대체 경로로 로드했습니다.');
-          }
-        } catch (altError) {
-          console.error('QR 코드 생성기 모듈 대체 경로 로드도 실패:', altError);
-        }
-      }
+      // QR 코드 생성기 초기화 - 다양한 경로 시도
+      await initQRGenerator();
       break;
       
     case 'privacy':
@@ -804,6 +766,110 @@ async function loadTemplateUtils() {
   } catch (error) {
     console.error('템플릿 유틸리티 로드 중 오류 발생:', error);
     throw error;
+  }
+}
+
+/**
+ * 파일 변환기 초기화 - 다양한 경로 시도
+ * @private
+ * @async
+ */
+async function initFileConverter() {
+  // 가능한 모듈 경로 목록
+  const modulePaths = [
+    '../converters/file-converter.js',
+    './assets/js/converters/file-converter.js',
+    '/assets/js/converters/file-converter.js',
+    'assets/js/converters/file-converter.js'
+  ];
+  
+  // 동적 임포트 시도
+  let fileConverter = null;
+  let lastError = null;
+  
+  for (const path of modulePaths) {
+    try {
+      console.log(`파일 변환기 모듈 로드 시도 (경로: ${path})`);
+      const module = await import(path).catch(e => {
+        console.warn(`경로 ${path}에서 파일 변환기 모듈을 로드할 수 없습니다:`, e);
+        return null;
+      });
+      
+      if (module && module.default) {
+        fileConverter = module.default;
+        console.log('파일 변환기 모듈을 찾았습니다!');
+        break;
+      }
+    } catch (error) {
+      console.warn(`경로 ${path}에서 파일 변환기 모듈을 로드할 수 없습니다:`, error);
+      lastError = error;
+    }
+  }
+  
+  if (!fileConverter) {
+    console.error('파일 변환기 모듈을 찾을 수 없습니다:', lastError);
+    return null;
+  }
+  
+  try {
+    await fileConverter.init();
+    console.log('파일 변환기가 성공적으로 초기화되었습니다.');
+    return fileConverter;
+  } catch (error) {
+    console.error('파일 변환기 초기화 실패:', error);
+    return null;
+  }
+}
+
+/**
+ * QR 코드 생성기 초기화 - 다양한 경로 시도
+ * @private
+ * @async
+ */
+async function initQRGenerator() {
+  // 가능한 모듈 경로 목록
+  const modulePaths = [
+    '../qr-generator/qr-generator.js',
+    './assets/js/qr-generator/qr-generator.js',
+    '/assets/js/qr-generator/qr-generator.js',
+    'assets/js/qr-generator/qr-generator.js'
+  ];
+  
+  // 동적 임포트 시도
+  let qrGenerator = null;
+  let lastError = null;
+  
+  for (const path of modulePaths) {
+    try {
+      console.log(`QR 생성기 모듈 로드 시도 (경로: ${path})`);
+      const module = await import(path).catch(e => {
+        console.warn(`경로 ${path}에서 QR 생성기 모듈을 로드할 수 없습니다:`, e);
+        return null;
+      });
+      
+      if (module && module.default) {
+        qrGenerator = module.default;
+        console.log('QR 생성기 모듈을 찾았습니다!');
+        break;
+      }
+    } catch (error) {
+      console.warn(`경로 ${path}에서 QR 생성기 모듈을 로드할 수 없습니다:`, error);
+      lastError = error;
+    }
+  }
+  
+  if (!qrGenerator) {
+    console.error('QR 생성기 모듈을 찾을 수 없습니다:', lastError);
+    return null;
+  }
+  
+  try {
+    await qrGenerator.init();
+    console.log('QR 생성기가 성공적으로 초기화되었습니다.');
+    return qrGenerator;
+  } catch (error) {
+    console.error('QR 생성기 초기화 실패:', error);
+    return null;
   }
 }
 
