@@ -3,251 +3,195 @@
  * 버전: 1.0.0
  * 최종 업데이트: 2025-06-15
  * 
- * 이 모듈은 FileToQR의 컴포넌트 시스템을 구현합니다:
- * - 컴포넌트 정의, 등록, 마운트, 업데이트, 언마운트 기능
- * - 이벤트 핸들링
- * - 상태 관리
- * - HTML 템플릿 렌더링
+ * 이 모듈은 FileToQR의 컴포넌트 시스템을 관리합니다:
+ * - 컴포넌트 등록, 로드 및 렌더링
+ * - 컴포넌트 간 통신
+ * - 컴포넌트 생명주기 관리
  */
 
-// 컴포넌트 시스템 네임스페이스
+// 다른 모듈 임포트
+import TemplateUtils from '../utils/template-utils.js';
+
+// 컴포넌트 레지스트리
+const componentRegistry = new Map();
+
+// 컴포넌트 시스템
 const ComponentSystem = {
-  // 등록된 컴포넌트 저장소
-  registry: new Map(),
-  
-  // 마운트된 컴포넌트 인스턴스
-  instances: new Map(),
-  
   /**
-   * 컴포넌트 정의
+   * 컴포넌트 등록
    * @param {string} name - 컴포넌트 이름
-   * @param {Object} definition - 컴포넌트 정의 객체
-   * @returns {Object} 등록된 컴포넌트 정의
+   * @param {Object} component - 컴포넌트 정의
+   * @returns {boolean} 등록 성공 여부
    */
-  defineComponent(name, definition) {
-    if (this.registry.has(name)) {
-      console.warn(`컴포넌트 "${name}"이(가) 이미 등록되어 있습니다.`);
+  register(name, component) {
+    if (!name || !component) {
+      console.warn('유효한 컴포넌트 이름과 정의가 필요합니다.');
+      return false;
     }
     
-    // 기본 라이프사이클 메서드 추가
-    const component = {
-      name,
-      version: definition.version || '1.0.0',
-      // 기본 라이프사이클 메서드
-      onCreate: definition.onCreate || function() {},
-      onMount: definition.onMount || function() {},
-      onUpdate: definition.onUpdate || function() {},
-      onDestroy: definition.onDestroy || function() {},
-      // 템플릿 렌더링 함수
-      render: definition.render || function() { return ''; },
-      // 상태 초기화
-      initialState: definition.initialState || {},
-      // 메서드 복사
-      ...definition.methods
-    };
+    if (componentRegistry.has(name)) {
+      console.warn(`컴포넌트 '${name}'가 이미 등록되어 있습니다.`);
+      return false;
+    }
     
-    this.registry.set(name, component);
-    console.log(`컴포넌트 "${name}" 버전 ${component.version} 등록됨`);
-    return component;
+    componentRegistry.set(name, component);
+    console.log(`컴포넌트 '${name}' 등록 완료`);
+    return true;
   },
   
   /**
-   * 컴포넌트 생성 및 마운트
+   * 컴포넌트 조회
    * @param {string} name - 컴포넌트 이름
-   * @param {HTMLElement} container - 마운트할 컨테이너 요소
-   * @param {Object} props - 컴포넌트에 전달할 속성
-   * @returns {string} 인스턴스 ID
+   * @returns {Object|null} 컴포넌트 정의 또는 없을 경우 null
    */
-  mountComponent(name, container, props = {}) {
-    if (!this.registry.has(name)) {
-      console.error(`컴포넌트 "${name}"이(가) 등록되지 않았습니다.`);
-      return null;
-    }
-    
-    const definition = this.registry.get(name);
-    const instanceId = `${name}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    
-    // 인스턴스 생성
-    const instance = {
-      id: instanceId,
-      definition,
-      container,
-      props,
-      state: { ...definition.initialState },
-      eventListeners: []
-    };
-    
-    // 인스턴스 저장
-    this.instances.set(instanceId, instance);
-    
-    // 생성 라이프사이클 호출
-    definition.onCreate.call(instance, props);
-    
-    // 렌더링
-    this._renderComponent(instance);
-    
-    // 마운트 라이프사이클 호출
-    definition.onMount.call(instance, container);
-    
-    return instanceId;
+  getComponent(name) {
+    return componentRegistry.get(name) || null;
   },
   
   /**
-   * 컴포넌트 업데이트
-   * @param {string} instanceId - 컴포넌트 인스턴스 ID
-   * @param {Object} newProps - 새 속성
-   * @param {boolean} forceUpdate - 강제 업데이트 여부
+   * 등록된 모든 컴포넌트 조회
+   * @returns {Array<string>} 컴포넌트 이름 목록
    */
-  updateComponent(instanceId, newProps = {}, forceUpdate = false) {
-    if (!this.instances.has(instanceId)) {
-      console.error(`인스턴스 ID "${instanceId}"를 찾을 수 없습니다.`);
-      return;
-    }
-    
-    const instance = this.instances.get(instanceId);
-    const oldProps = instance.props;
-    
-    // props 업데이트
-    instance.props = { ...instance.props, ...newProps };
-    
-    // 변경사항 확인
-    const hasChanged = forceUpdate || JSON.stringify(oldProps) !== JSON.stringify(instance.props);
-    
-    if (hasChanged) {
-      // 업데이트 라이프사이클 호출
-      instance.definition.onUpdate.call(instance, oldProps, instance.props);
+  getAllComponentNames() {
+    return Array.from(componentRegistry.keys());
+  },
+  
+  /**
+   * 컴포넌트 로드 및 렌더링
+   * @param {string} name - 컴포넌트 이름
+   * @param {HTMLElement|string} container - 컴포넌트를 렌더링할 컨테이너
+   * @param {Object} props - 컴포넌트 속성 (선택사항)
+   * @returns {Promise<Object|null>} 컴포넌트 인스턴스 또는 실패 시 null
+   */
+  async render(name, container, props = {}) {
+    try {
+      // 컴포넌트 정의 조회
+      const component = this.getComponent(name);
       
-      // 재렌더링
-      this._renderComponent(instance);
-    }
-  },
-  
-  /**
-   * 컴포넌트 언마운트
-   * @param {string} instanceId - 컴포넌트 인스턴스 ID
-   */
-  unmountComponent(instanceId) {
-    if (!this.instances.has(instanceId)) {
-      console.error(`인스턴스 ID "${instanceId}"를 찾을 수 없습니다.`);
-      return;
-    }
-    
-    const instance = this.instances.get(instanceId);
-    
-    // 이벤트 리스너 제거
-    this._removeAllEventListeners(instance);
-    
-    // 소멸 라이프사이클 호출
-    instance.definition.onDestroy.call(instance);
-    
-    // 컨테이너 비우기
-    instance.container.innerHTML = '';
-    
-    // 인스턴스 제거
-    this.instances.delete(instanceId);
-  },
-  
-  /**
-   * 컴포넌트 렌더링
-   * @private
-   * @param {Object} instance - 컴포넌트 인스턴스
-   */
-  _renderComponent(instance) {
-    // 이전 이벤트 리스너 정리
-    this._removeAllEventListeners(instance);
-    
-    // 템플릿 렌더링
-    const html = instance.definition.render.call(instance, instance.props, instance.state);
-    instance.container.innerHTML = html;
-    
-    // 이벤트 리스너 추가 (data-event 속성 처리)
-    this._registerEventListeners(instance);
-  },
-  
-  /**
-   * 컴포넌트 상태 설정
-   * @param {string} instanceId - 컴포넌트 인스턴스 ID
-   * @param {Function|Object} updater - 상태 업데이트 함수 또는 객체
-   */
-  setState(instanceId, updater) {
-    if (!this.instances.has(instanceId)) {
-      console.error(`인스턴스 ID "${instanceId}"를 찾을 수 없습니다.`);
-      return;
-    }
-    
-    const instance = this.instances.get(instanceId);
-    const oldState = { ...instance.state };
-    
-    // 상태 업데이트
-    if (typeof updater === 'function') {
-      instance.state = { ...instance.state, ...updater(oldState) };
-    } else {
-      instance.state = { ...instance.state, ...updater };
-    }
-    
-    // 변경사항 확인
-    const hasChanged = JSON.stringify(oldState) !== JSON.stringify(instance.state);
-    
-    if (hasChanged) {
-      // 재렌더링
-      this._renderComponent(instance);
-    }
-  },
-  
-  /**
-   * 이벤트 리스너 등록
-   * @private
-   * @param {Object} instance - 컴포넌트 인스턴스
-   */
-  _registerEventListeners(instance) {
-    const elements = instance.container.querySelectorAll('[data-event]');
-    
-    elements.forEach(element => {
-      const eventInfo = element.dataset.event.split(':');
-      if (eventInfo.length !== 2) return;
-      
-      const [eventName, methodName] = eventInfo;
-      
-      if (typeof instance.definition[methodName] !== 'function') {
-        console.warn(`컴포넌트 "${instance.definition.name}"에 메서드 "${methodName}"이(가) 없습니다.`);
-        return;
+      if (!component) {
+        console.warn(`컴포넌트 '${name}'를 찾을 수 없습니다.`);
+        return null;
       }
       
-      const handler = (event) => {
-        instance.definition[methodName].call(instance, event, instance.props, instance.state);
+      // 컨테이너 확인
+      const targetContainer = typeof container === 'string' ? 
+        document.querySelector(container) : container;
+      
+      if (!targetContainer) {
+        console.warn(`컴포넌트 '${name}'를 렌더링할 컨테이너를 찾을 수 없습니다.`);
+        return null;
+      }
+      
+      // 인스턴스 생성
+      const instance = {
+        name,
+        props: { ...props },
+        component,
+        container: targetContainer,
+        state: component.initialState ? { ...component.initialState } : {},
+        setState: function(newState) {
+          this.state = { ...this.state, ...newState };
+          this.render();
+          return this;
+        },
+        render: async function() {
+          try {
+            // 템플릿 로드
+            const template = await TemplateUtils.getTemplate(this.component.template || `components/${name}.html`);
+            
+            if (!template) {
+              throw new Error(`컴포넌트 '${name}' 템플릿을 로드할 수 없습니다.`);
+            }
+            
+            // 랜더링 데이터 준비
+            const renderData = {
+              props: this.props,
+              state: this.state
+            };
+            
+            // 템플릿 처리
+            const processedTemplate = TemplateUtils.processTemplate(template, renderData);
+            
+            // 컨테이너에 삽입
+            this.container.innerHTML = processedTemplate;
+            
+            // 이벤트 연결
+            if (this.component.attachEvents) {
+              this.component.attachEvents(this.container, this);
+            }
+            
+            return true;
+          } catch (error) {
+            console.error(`컴포넌트 '${name}' 렌더링 중 오류 발생:`, error);
+            return false;
+          }
+        }
       };
       
-      element.addEventListener(eventName, handler);
+      // 초기 렌더링
+      await instance.render();
       
-      // 이벤트 리스너 추적 (나중에 정리 위함)
-      instance.eventListeners.push({
-        element,
-        eventName,
-        handler
-      });
-    });
+      // 마운트 이벤트 호출 (있는 경우)
+      if (component.onMount) {
+        component.onMount(instance);
+      }
+      
+      return instance;
+    } catch (error) {
+      console.error(`컴포넌트 '${name}' 로드 중 오류 발생:`, error);
+      return null;
+    }
   },
   
   /**
-   * 모든 이벤트 리스너 제거
-   * @private
-   * @param {Object} instance - 컴포넌트 인스턴스
+   * 헤더 및 푸터와 같은 공통 컴포넌트 초기화
+   * @returns {Promise<boolean>} 초기화 성공 여부
    */
-  _removeAllEventListeners(instance) {
-    instance.eventListeners.forEach(({ element, eventName, handler }) => {
-      element.removeEventListener(eventName, handler);
-    });
-    
-    instance.eventListeners = [];
+  async initCommonComponents() {
+    try {
+      // 헤더 컴포넌트 로드
+      const headerContainer = document.querySelector('header');
+      if (headerContainer) {
+        await TemplateUtils.loadComponent('header', headerContainer);
+      }
+      
+      // 푸터 컴포넌트 로드
+      const footerContainer = document.querySelector('footer');
+      if (footerContainer) {
+        await TemplateUtils.loadComponent('footer', footerContainer);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('공통 컴포넌트 초기화 중 오류 발생:', error);
+      return false;
+    }
+  },
+  
+  /**
+   * 컴포넌트 시스템 초기화
+   * @returns {Promise<boolean>} 초기화 성공 여부
+   */
+  async init() {
+    try {
+      console.log('컴포넌트 시스템 초기화 중...');
+      
+      // 공통 컴포넌트 초기화
+      await this.initCommonComponents();
+      
+      console.log('컴포넌트 시스템 초기화 완료');
+      return true;
+    } catch (error) {
+      console.error('컴포넌트 시스템 초기화 실패:', error);
+      return false;
+    }
   }
 };
 
-// 레지스트리에 등록
-if (typeof window.FileToQR === 'undefined') {
-  window.FileToQR = {};
+// 글로벌 네임스페이스에 등록
+if (typeof window !== 'undefined') {
+  window.FileToQR = window.FileToQR || {};
+  window.FileToQR.ComponentSystem = ComponentSystem;
 }
 
-window.FileToQR.ComponentSystem = ComponentSystem;
-
-// 모듈 내보내기
 export default ComponentSystem; 
