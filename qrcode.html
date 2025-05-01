@@ -554,10 +554,24 @@
     <script src="assets/js/utils/file-utils.js" type="module"></script>
     <script src="assets/js/core/qr-core.js" type="module"></script>
     <script type="module">
-        import QRGenerator from './assets/js/qr-generator/qr-generator.js';
+        // 모듈을 여러 경로로 시도하여 임포트
+        async function loadModule(paths) {
+            for (const path of paths) {
+                try {
+                    console.log(`모듈 로드 시도: ${path}`);
+                    const module = await import(path);
+                    console.log(`모듈 로드 성공: ${path}`);
+                    return module.default;
+                } catch (error) {
+                    console.warn(`모듈 로드 실패 (${path}):`, error);
+                }
+            }
+            console.error('모든 모듈 로드 경로 시도 실패');
+            return null;
+        }
         
         // DOM이 로드된 후 초기화
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('DOMContentLoaded 이벤트 발생: QRGenerator 초기화 시도');
             
             // QR 라이브러리 및 모듈 확인
@@ -565,34 +579,57 @@
                 console.error('QRCode 라이브러리가 로드되지 않았습니다. QR 코드 생성이 작동하지 않을 수 있습니다.');
             }
             
+            // 다양한 경로 패턴으로 시도
+            const QRGenerator = await loadModule([
+                './assets/js/qr-generator/qr-generator.js',
+                '/assets/js/qr-generator/qr-generator.js',
+                'assets/js/qr-generator/qr-generator.js'
+            ]);
+            
             if (QRGenerator) {
                 console.log('QRGenerator 모듈 로드됨, 초기화 시작...');
                 QRGenerator.init();
+                
+                // QR 코드 생성 버튼 이벤트 처리
+                const generateQrButton = document.getElementById('generate-qr');
+                if (generateQrButton) {
+                    generateQrButton.addEventListener('click', function() {
+                        // QRGenerator 모듈 메소드 호출
+                        if (QRGenerator && QRGenerator.generateQRCode) {
+                            QRGenerator.generateQRCode();
+                        } else {
+                            console.error('QRGenerator.generateQRCode 메소드를 찾을 수 없습니다.');
+                        }
+                    });
+                }
+                
+                // 다운로드 버튼 이벤트 처리
+                document.getElementById('download-png')?.addEventListener('click', function() {
+                    if (QRGenerator && QRGenerator.downloadQRCode) {
+                        QRGenerator.downloadQRCode('png');
+                    } else {
+                        console.error('QRGenerator.downloadQRCode 메소드를 찾을 수 없습니다.');
+                    }
+                });
+                
+                document.getElementById('download-svg')?.addEventListener('click', function() {
+                    if (QRGenerator && QRGenerator.downloadQRCode) {
+                        QRGenerator.downloadQRCode('svg');
+                    } else {
+                        console.error('QRGenerator.downloadQRCode 메소드를 찾을 수 없습니다.');
+                    }
+                });
+                
+                document.getElementById('download-jpeg')?.addEventListener('click', function() {
+                    if (QRGenerator && QRGenerator.downloadQRCode) {
+                        QRGenerator.downloadQRCode('jpeg');
+                    } else {
+                        console.error('QRGenerator.downloadQRCode 메소드를 찾을 수 없습니다.');
+                    }
+                });
             } else {
                 console.error('QRGenerator 모듈을 찾을 수 없습니다.');
             }
-            
-            // QR 코드 생성 버튼 이벤트 처리
-            const generateQrButton = document.getElementById('generate-qr');
-            if (generateQrButton) {
-                generateQrButton.addEventListener('click', function() {
-                    // QRGenerator 모듈의 _handleFormSubmit 메소드 호출
-                    QRGenerator._handleFormSubmit();
-                });
-            }
-            
-            // 다운로드 버튼 이벤트 처리
-            document.getElementById('download-png')?.addEventListener('click', function() {
-                QRGenerator._downloadQRCode('png');
-            });
-            
-            document.getElementById('download-svg')?.addEventListener('click', function() {
-                QRGenerator._downloadQRCode('svg');
-            });
-            
-            document.getElementById('download-jpeg')?.addEventListener('click', function() {
-                QRGenerator._downloadQRCode('jpeg');
-            });
         });
     </script>
 
