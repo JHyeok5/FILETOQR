@@ -1,807 +1,517 @@
 /**
  * file-converter.js - FileToQR 파일 변환 모듈
  * 버전: 1.0.0
- * 최종 업데이트: 2025-04-28
- * 참조: ../.ai-guides/architecture/module-registry.md
+ * 최종 업데이트: 2025-06-15
  * 
- * 이 모듈은 파일 변환 기능의 프론트엔드 인터페이스를 처리합니다:
- * - 파일 업로드 및 드래그앤드롭 처리
- * - 변환 옵션 UI 관리
- * - 변환 프로세스 진행 및 결과 표시
- * - 파일 다운로드 기능
+ * 이 모듈은 다양한 파일 형식 변환 기능을 제공합니다:
+ * - 이미지 형식 변환 (PNG, JPG, WebP, GIF)
+ * - 문서 형식 변환 (PDF, TXT)
+ * - 데이터 형식 변환 (JSON, CSV, YAML, XML)
  */
 
-// 글로벌 컨텍스트에서 필요한 기능 가져오기
-const FileUtils = window.FileUtils || {};
-const ConverterCore = window.ConverterCore || {};
-
-// 전역 상태 변수
-let currentFile = null;
-let selectedOutputFormat = '';
-let convertedFile = null;
-let progressTracker = null;
-
-// 파일 변환기 모듈 API 정의
-const fileConverter = {
-  init: initFileConverter,
-  handleFile,
-  handleConvertClick,
-  resetConverter,
-  getSupportedFormats,
-  convertToQR: handleConvertToQRClick,
-  
-  // 파일 유틸리티 함수 (하위 호환성)
-  getFileExtension: (filename) => FileUtils.getFileExtension(filename),
-  formatFileSize: (bytes, decimals = 2) => FileUtils.formatFileSize(bytes, decimals),
-  fileToDataUri: (file) => FileUtils.fileToDataUri(file)
+// 헬퍼 모듈 임포트를 위한 준비
+const importHelpers = async () => {
+  try {
+    // 필요한 라이브러리 동적 로드
+    const imageConv = await import('./image-converter.js').catch(() => null);
+    const docConv = await import('./document-converter.js').catch(() => null);
+    const dataConv = await import('./data-converter.js').catch(() => null);
+    
+    return {
+      imageConverter: imageConv?.default || null,
+      documentConverter: docConv?.default || null,
+      dataConverter: dataConv?.default || null
+    };
+  } catch (error) {
+    console.error('변환 헬퍼 모듈 로드 실패:', error);
+    return {};
+  }
 };
 
-/**
- * 파일 변환기 초기화
- */
-function initFileConverter() {
-  console.log('파일 변환기 초기화 중...');
+// 파일 유형별 처리기 정의
+const FileConverter = {
+  // 컨버터 내부 상태
+  state: {
+    initialized: false,
+    supportedFormats: null,
+    activeConversion: null,
+    helpers: null
+  },
   
-  // UI 요소 참조
-  const dropzone = document.getElementById('dropzone');
-  const fileInput = document.getElementById('file-input');
-  const selectFileBtn = document.getElementById('select-file-btn');
-  const convertBtn = document.getElementById('convert-btn');
-  const outputFormatSelect = document.getElementById('output-format');
-  const downloadBtn = document.getElementById('download-btn');
-  const convertAnotherBtn = document.getElementById('convert-another-btn');
-  const convertToQrBtn = document.getElementById('convert-to-qr-btn');
-  
-  // 진행 상태 추적기 초기화 - 오류 방지
-  try {
-    if (typeof ProgressTracker !== 'undefined') {
-      progressTracker = new ProgressTracker();
-    } else {
-      console.warn('ProgressTracker 클래스를 찾을 수 없습니다.');
-      progressTracker = { 
-        start: () => {}, 
-        updateProgress: () => {},
-        complete: () => {} 
-      };
-    }
-  } catch (e) {
-    console.warn('ProgressTracker를 초기화할 수 없습니다:', e);
-    progressTracker = { 
-      start: () => {}, 
-      updateProgress: () => {},
-      complete: () => {} 
+  /**
+   * 지원되는 파일 형식 초기화
+   * @private
+   */
+  async _initSupportedFormats() {
+    this.state.supportedFormats = {
+      image: {
+        // 입력 포맷: 출력 포맷 배열
+        png: ['jpg', 'webp', 'gif'],
+        jpg: ['png', 'webp', 'gif'],
+        jpeg: ['png', 'webp', 'gif'],
+        webp: ['png', 'jpg', 'gif'],
+        gif: ['png', 'jpg', 'webp']
+      },
+      document: {
+        pdf: ['txt'],
+        txt: ['pdf']
+      },
+      data: {
+        json: ['csv', 'yaml', 'xml'],
+        csv: ['json', 'yaml', 'xml'],
+        yaml: ['json', 'csv', 'xml'],
+        xml: ['json', 'csv', 'yaml']
+      }
     };
-  }
+  },
   
-  // 이벤트 리스너 등록
-  if (dropzone) {
-    // 드래그 앤 드롭 이벤트 - 개선된 방식
-    ['dragover', 'dragenter'].forEach(eventName => {
-      dropzone.addEventListener(eventName, function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.classList.add('dragover');
-      });
-    });
-    
-    ['dragleave', 'dragend', 'drop'].forEach(eventName => {
-      dropzone.addEventListener(eventName, function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.classList.remove('dragover');
-      });
-    });
-    
-    dropzone.addEventListener('drop', handleFileDrop);
-    dropzone.addEventListener('click', function() {
-      if (fileInput) fileInput.click();
-    });
-  }
-  
-  if (fileInput) {
-    fileInput.addEventListener('change', handleFileSelect);
-  }
-  
-  if (selectFileBtn) {
-    selectFileBtn.addEventListener('click', function() {
-      if (fileInput) fileInput.click();
-    });
-  }
-  
-  if (convertBtn) {
-    convertBtn.addEventListener('click', handleConvertClick);
-  }
-  
-  if (outputFormatSelect) {
-    outputFormatSelect.addEventListener('change', handleFormatSelect);
-  }
-  
-  if (downloadBtn) {
-    downloadBtn.addEventListener('click', handleDownloadClick);
-  }
-  
-  if (convertToQrBtn) {
-    convertToQrBtn.addEventListener('click', handleConvertToQRClick);
-  }
-  
-  if (convertAnotherBtn) {
-    convertAnotherBtn.addEventListener('click', resetConverter);
-  }
-  
-  // 도움말 툴팁 추가
-  addHelpTooltips();
-  
-  // 사용자 경험 이벤트 추적 - 오류 방지
-  try {
-    if (typeof analytics !== 'undefined') {
-      analytics.trackPageView();
-      analytics.trackAction('page', 'load', 'file_converter');
+  /**
+   * 모듈 초기화
+   * @returns {Promise<boolean>} 초기화 성공 여부
+   */
+  async init() {
+    if (this.state.initialized) {
+      return true;
     }
-  } catch (e) {
-    console.warn('Analytics를 초기화할 수 없습니다:', e);
-  }
-}
-
-/**
- * 드래그 오버 이벤트 핸들러
- * @param {Event} event - 드래그 이벤트 객체
- */
-function handleDragOver(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  
-  const dropzone = document.getElementById('dropzone');
-  if (dropzone) {
-    dropzone.classList.add('dragover');
-  }
-  
-  // 사용자 행동 추적 - 오류 방지
-  try {
-    if (typeof analytics !== 'undefined') {
-      analytics.trackAction('upload', 'drag_over');
-    }
-  } catch (e) {
-    console.warn('Analytics를 호출할 수 없습니다:', e);
-  }
-}
-
-/**
- * 드래그 리브 이벤트 핸들러
- * @param {Event} event - 드래그 이벤트 객체
- */
-function handleDragLeave(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  
-  const dropzone = document.getElementById('dropzone');
-  if (dropzone) {
-    dropzone.classList.remove('dragover');
-  }
-}
-
-/**
- * 파일 드롭 이벤트 핸들러
- * @param {Event} event - 드롭 이벤트 객체
- */
-function handleFileDrop(event) {
-  event.preventDefault();
-  event.stopPropagation();
-  
-  const dropzone = document.getElementById('dropzone');
-  if (dropzone) {
-    dropzone.classList.remove('dragover');
-  }
-  
-  const dt = event.dataTransfer;
-  if (dt && dt.files && dt.files.length > 0) {
-    handleFile(dt.files[0]);
     
-    // 사용자 행동 추적 - 오류 방지
     try {
-      if (typeof analytics !== 'undefined') {
-        analytics.trackAction('upload', 'drop_file', dt.files[0].type, {
-          fileSize: dt.files[0].size,
-          fileName: dt.files[0].name
+      console.log('파일 변환기 초기화 중...');
+      
+      // 지원 포맷 초기화
+      await this._initSupportedFormats();
+      
+      // 헬퍼 모듈 로드
+      this.state.helpers = await importHelpers();
+      
+      // UI 요소 초기화
+      this._initUI();
+      
+      // 이벤트 리스너 등록
+      this._registerEventListeners();
+      
+      this.state.initialized = true;
+      console.log('파일 변환기 초기화 완료');
+      return true;
+    } catch (error) {
+      console.error('파일 변환기 초기화 실패:', error);
+      return false;
+    }
+  },
+  
+  /**
+   * UI 요소 초기화
+   * @private
+   */
+  _initUI() {
+    // UI 요소가 로드되기를 기다림
+    const checkElements = () => {
+      const uploadForm = document.getElementById('file-upload-form');
+      const formatSelector = document.getElementById('output-format');
+      const resultContainer = document.getElementById('conversion-result');
+      
+      if (!uploadForm || !formatSelector || !resultContainer) {
+        // DOM 요소가 아직 없으면 100ms 후 다시 시도
+        setTimeout(checkElements, 100);
+        return;
+      }
+      
+      // UI 초기 상태 설정
+      this._populateFormatSelector();
+      this._updateConversionUI(null);
+    };
+    
+    checkElements();
+  },
+  
+  /**
+   * 출력 형식 선택기 채우기
+   * @private
+   */
+  _populateFormatSelector() {
+    const formatSelector = document.getElementById('output-format');
+    if (!formatSelector) return;
+    
+    // 선택기 초기화
+    formatSelector.innerHTML = '<option value="">출력 형식 선택</option>';
+    
+    // 기본 형식 추가 (아직 파일이 선택되지 않음)
+    const defaultFormats = ['png', 'jpg', 'webp', 'pdf', 'json', 'csv'];
+    
+    defaultFormats.forEach(format => {
+      const option = document.createElement('option');
+      option.value = format;
+      option.textContent = format.toUpperCase();
+      formatSelector.appendChild(option);
+    });
+    
+    // 처음에는 비활성화
+    formatSelector.disabled = true;
+  },
+  
+  /**
+   * 파일 유형에 따른 출력 형식 업데이트
+   * @param {File} file - 선택된 파일
+   * @private
+   */
+  _updateOutputFormats(file) {
+    const formatSelector = document.getElementById('output-format');
+    if (!formatSelector) return;
+    
+    // 선택기 초기화
+    formatSelector.innerHTML = '<option value="">출력 형식 선택</option>';
+    
+    if (!file) {
+      formatSelector.disabled = true;
+      return;
+    }
+    
+    // 파일 확장자 가져오기
+    const extension = file.name.split('.').pop().toLowerCase();
+    
+    // 지원되는 출력 형식 찾기
+    let outputFormats = [];
+    
+    // 이미지 형식 확인
+    if (this.state.supportedFormats.image[extension]) {
+      outputFormats = this.state.supportedFormats.image[extension];
+    }
+    // 문서 형식 확인
+    else if (this.state.supportedFormats.document[extension]) {
+      outputFormats = this.state.supportedFormats.document[extension];
+    }
+    // 데이터 형식 확인
+    else if (this.state.supportedFormats.data[extension]) {
+      outputFormats = this.state.supportedFormats.data[extension];
+    }
+    
+    // 출력 형식이 있으면 선택기 활성화
+    if (outputFormats.length > 0) {
+      outputFormats.forEach(format => {
+        const option = document.createElement('option');
+        option.value = format;
+        option.textContent = format.toUpperCase();
+        formatSelector.appendChild(option);
+      });
+      
+      formatSelector.disabled = false;
+    } else {
+      // 지원되지 않는 형식이면 메시지 표시
+      const option = document.createElement('option');
+      option.value = "";
+      option.textContent = "지원되지 않는 파일 형식";
+      formatSelector.appendChild(option);
+      formatSelector.disabled = true;
+    }
+  },
+  
+  /**
+   * 이벤트 리스너 등록
+   * @private
+   */
+  _registerEventListeners() {
+    document.addEventListener('DOMContentLoaded', () => {
+      // 파일 업로드 폼
+      const uploadForm = document.getElementById('file-upload-form');
+      if (uploadForm) {
+        uploadForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this._handleFileConversion();
         });
       }
-    } catch (e) {
-      console.warn('Analytics를 호출할 수 없습니다:', e);
-    }
-  }
-}
-
-/**
- * 파일 선택 이벤트 핸들러
- * @param {Event} event - 파일 선택 이벤트 객체
- */
-function handleFileSelect(event) {
-  if (event.target.files && event.target.files.length > 0) {
-    handleFile(event.target.files[0]);
+      
+      // 파일 입력 변경
+      const fileInput = document.getElementById('file-input');
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            this._updateOutputFormats(file);
+            this._showFileInfo(file);
+          }
+        });
+      }
+      
+      // 드래그 앤 드롭 영역
+      const dropZone = document.getElementById('drop-zone');
+      if (dropZone) {
+        dropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+          dropZone.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('drag-over');
+          
+          const file = e.dataTransfer.files[0];
+          if (file) {
+            // 파일 입력에 파일 설정
+            const fileInput = document.getElementById('file-input');
+            if (fileInput) {
+              // DataTransfer 객체를 사용하여 FileList에 파일 추가
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(file);
+              fileInput.files = dataTransfer.files;
+              
+              this._updateOutputFormats(file);
+              this._showFileInfo(file);
+            }
+          }
+        });
+      }
+    });
+  },
+  
+  /**
+   * 파일 정보 표시
+   * @param {File} file - 선택된 파일
+   * @private
+   */
+  _showFileInfo(file) {
+    const fileInfo = document.getElementById('file-info');
+    if (!fileInfo) return;
     
-    // 사용자 행동 추적
+    // 파일 크기 포맷팅
+    const formatFileSize = (bytes) => {
+      if (bytes < 1024) return bytes + ' B';
+      else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
+      else return (bytes / 1048576).toFixed(2) + ' MB';
+    };
+    
+    // 파일 타입 가져오기
+    const fileType = file.type || '알 수 없는 형식';
+    
+    // 정보 표시
+    fileInfo.innerHTML = `
+      <div class="mt-4 p-4 bg-gray-100 rounded-lg">
+        <h3 class="font-medium">파일 정보</h3>
+        <p>이름: ${file.name}</p>
+        <p>크기: ${formatFileSize(file.size)}</p>
+        <p>형식: ${fileType}</p>
+      </div>
+    `;
+  },
+  
+  /**
+   * 변환 처리 UI 업데이트
+   * @param {Object} state - 변환 상태
+   * @private
+   */
+  _updateConversionUI(state) {
+    const resultContainer = document.getElementById('conversion-result');
+    if (!resultContainer) return;
+    
+    if (!state) {
+      // 초기 상태 - 결과 컨테이너 숨김
+      resultContainer.style.display = 'none';
+      return;
+    }
+    
+    // 결과 컨테이너 표시
+    resultContainer.style.display = 'block';
+    
+    switch(state.status) {
+      case 'processing':
+        resultContainer.innerHTML = `
+          <div class="my-4 p-4 bg-blue-100 rounded-lg text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mr-2"></div>
+            <span class="text-blue-800 font-medium">파일 변환 중...</span>
+          </div>
+        `;
+        break;
+        
+      case 'success':
+        resultContainer.innerHTML = `
+          <div class="my-4 p-4 bg-green-100 rounded-lg">
+            <h3 class="text-green-800 font-medium mb-2">변환 완료!</h3>
+            <p>파일이 성공적으로 변환되었습니다.</p>
+            <div class="mt-4">
+              <a href="${state.downloadUrl}" download="${state.fileName}" 
+                class="inline-block px-4 py-2 bg-green-600 text-white font-medium rounded hover:bg-green-700">
+                변환된 파일 다운로드
+              </a>
+            </div>
+          </div>
+        `;
+        break;
+        
+      case 'error':
+        resultContainer.innerHTML = `
+          <div class="my-4 p-4 bg-red-100 rounded-lg">
+            <h3 class="text-red-800 font-medium mb-2">변환 실패</h3>
+            <p>${state.error || '파일 변환 중 오류가 발생했습니다.'}</p>
+          </div>
+        `;
+        break;
+    }
+  },
+  
+  /**
+   * 파일 변환 처리
+   * @private
+   */
+  async _handleFileConversion() {
+    const fileInput = document.getElementById('file-input');
+    const formatSelector = document.getElementById('output-format');
+    
+    if (!fileInput || !formatSelector) return;
+    
+    const file = fileInput.files[0];
+    const outputFormat = formatSelector.value;
+    
+    if (!file) {
+      alert('변환할 파일을 선택해주세요.');
+      return;
+    }
+    
+    if (!outputFormat) {
+      alert('출력 형식을 선택해주세요.');
+      return;
+    }
+    
+    // 변환 상태 업데이트
+    this.state.activeConversion = {
+      file,
+      outputFormat,
+      status: 'processing'
+    };
+    
+    this._updateConversionUI(this.state.activeConversion);
+    
     try {
-      if (typeof analytics !== 'undefined') {
-        analytics.trackAction('upload', 'select_file', event.target.files[0].type, {
-          fileSize: event.target.files[0].size,
-          fileName: event.target.files[0].name
-        });
+      // 파일 확장자 가져오기
+      const extension = file.name.split('.').pop().toLowerCase();
+      
+      // 파일 유형 결정
+      let fileType = null;
+      let converterModule = null;
+      
+      if (this.state.supportedFormats.image[extension]) {
+        fileType = 'image';
+        converterModule = this.state.helpers?.imageConverter;
+      } else if (this.state.supportedFormats.document[extension]) {
+        fileType = 'document';
+        converterModule = this.state.helpers?.documentConverter;
+      } else if (this.state.supportedFormats.data[extension]) {
+        fileType = 'data';
+        converterModule = this.state.helpers?.dataConverter;
       }
-    } catch (e) {
-      console.warn('Analytics를 호출할 수 없습니다:', e);
-    }
-  }
-}
-
-/**
- * 파일 처리 함수
- * @param {File} file - 사용자가 선택한 파일
- */
-function handleFile(file) {
-  currentFile = file;
-  
-  // UI 상태 업데이트
-  const fileNameElement = document.getElementById('selected-file-name');
-  const fileSizeElement = document.getElementById('selected-file-size');
-  const fileTypeElement = document.getElementById('selected-file-type');
-  
-  if (fileNameElement) fileNameElement.textContent = file.name;
-  if (fileSizeElement) fileSizeElement.textContent = FileUtils.formatFileSize(file.size);
-  if (fileTypeElement) fileTypeElement.textContent = file.type || '알 수 없음';
-  
-  // 파일 선택 섹션 숨기고 변환 옵션 섹션 보이기
-  document.getElementById('file-select-section')?.classList.add('hidden');
-  document.getElementById('conversion-options-section')?.classList.remove('hidden');
-  
-  // 입력 형식에 따른 출력 형식 옵션 로드
-  const inputFormat = FileUtils.getFileExtension(file.name);
-  loadSupportedOutputFormats(inputFormat);
-}
-
-/**
- * 지원되는 출력 형식 로드
- * @param {string} inputFormat - 입력 파일 형식
- */
-function loadSupportedOutputFormats(inputFormat) {
-  const outputFormatSelect = document.getElementById('output-format');
-  if (!outputFormatSelect) return;
-  
-  // 기존 옵션 제거
-  outputFormatSelect.innerHTML = '';
-  
-  // 지원되는 형식 가져오기
-  const formats = getSupportedFormats(inputFormat);
-  
-  // 옵션 추가
-  formats.forEach(format => {
-    const option = document.createElement('option');
-    option.value = format;
-    option.textContent = format.toUpperCase();
-    outputFormatSelect.appendChild(option);
-  });
-  
-  // 첫 번째 옵션 선택
-  if (formats.length > 0) {
-    outputFormatSelect.value = formats[0];
-    selectedOutputFormat = formats[0];
-    
-    // 선택된 형식에 따른 추가 옵션 업데이트
-    updateFormatOptions(formats[0]);
-  }
-}
-
-/**
- * 입력 형식에 따른 지원 출력 형식 가져오기
- * @param {string} inputFormat - 입력 파일 형식
- * @returns {string[]} 지원되는 출력 형식 배열
- */
-function getSupportedFormats(inputFormat) {
-  // 입력 형식에 따른 출력 형식 매핑
-  const formatMap = {
-    // 이미지 형식
-    'jpg': ['png', 'webp', 'gif', 'bmp', 'tiff'],
-    'jpeg': ['png', 'webp', 'gif', 'bmp', 'tiff'],
-    'png': ['jpg', 'webp', 'gif', 'bmp', 'tiff'],
-    'webp': ['jpg', 'png', 'gif', 'bmp'],
-    'gif': ['jpg', 'png', 'webp'],
-    'bmp': ['jpg', 'png', 'webp'],
-    'tiff': ['jpg', 'png', 'webp'],
-    
-    // 문서 형식
-    'pdf': ['jpg', 'png', 'txt'],
-    'doc': ['pdf', 'txt'],
-    'docx': ['pdf', 'txt'],
-    'txt': ['pdf', 'docx'],
-    
-    // 기타 형식
-    'svg': ['png', 'jpg'],
-    'mp3': ['wav', 'ogg', 'flac'],
-    'wav': ['mp3', 'ogg'],
-    'mp4': ['gif', 'webm']
-  };
-  
-  return formatMap[inputFormat.toLowerCase()] || [];
-}
-
-/**
- * 형식 선택 이벤트 핸들러
- * @param {Event} event - 선택 이벤트 객체
- */
-function handleFormatSelect(event) {
-  selectedOutputFormat = event.target.value;
-  
-  // 선택된 형식에 따른 추가 옵션 업데이트
-  updateFormatOptions(selectedOutputFormat);
-  
-  // 사용자 행동 추적
-  try {
-    if (typeof analytics !== 'undefined') {
-      analytics.trackAction('convert', 'select_format', selectedOutputFormat);
-    }
-  } catch (e) {
-    console.warn('Analytics를 호출할 수 없습니다:', e);
-  }
-}
-
-/**
- * 선택된 출력 형식에 따른 추가 옵션 업데이트
- * @param {string} format - 선택된 출력 형식
- */
-function updateFormatOptions(format) {
-  const additionalOptionsContainer = document.getElementById('format-specific-options');
-  if (!additionalOptionsContainer) return;
-  
-  // 기존 내용 제거
-  additionalOptionsContainer.innerHTML = '';
-  
-  // 형식별 옵션
-  switch (format.toLowerCase()) {
-    case 'jpg':
-    case 'jpeg':
-      additionalOptionsContainer.innerHTML = `
-        <div class="option-group">
-          <label for="quality">품질 (1-100):</label>
-          <input type="range" id="quality" name="quality" min="1" max="100" value="90" />
-          <span id="quality-value">90</span>
-        </div>
-      `;
       
-      // 품질 표시 업데이트
-      const qualitySlider = document.getElementById('quality');
-      const qualityValue = document.getElementById('quality-value');
-      
-      if (qualitySlider && qualityValue) {
-        qualitySlider.addEventListener('input', function() {
-          qualityValue.textContent = this.value;
-        });
-      }
-      break;
-      
-    case 'png':
-      additionalOptionsContainer.innerHTML = `
-        <div class="option-group">
-          <label for="compression">압축 수준 (0-9):</label>
-          <input type="range" id="compression" name="compression" min="0" max="9" value="6" />
-          <span id="compression-value">6</span>
-        </div>
-      `;
-      
-      // 압축 수준 표시 업데이트
-      const compressionSlider = document.getElementById('compression');
-      const compressionValue = document.getElementById('compression-value');
-      
-      if (compressionSlider && compressionValue) {
-        compressionSlider.addEventListener('input', function() {
-          compressionValue.textContent = this.value;
-        });
-      }
-      break;
-      
-    case 'webp':
-      additionalOptionsContainer.innerHTML = `
-        <div class="option-group">
-          <label for="quality">품질 (1-100):</label>
-          <input type="range" id="quality" name="quality" min="1" max="100" value="80" />
-          <span id="quality-value">80</span>
-        </div>
-        <div class="option-group">
-          <label for="lossless">무손실:</label>
-          <input type="checkbox" id="lossless" name="lossless" />
-        </div>
-      `;
-      
-      // 품질 표시 업데이트
-      const webpQualitySlider = document.getElementById('quality');
-      const webpQualityValue = document.getElementById('quality-value');
-      
-      if (webpQualitySlider && webpQualityValue) {
-        webpQualitySlider.addEventListener('input', function() {
-          webpQualityValue.textContent = this.value;
-        });
-      }
-      break;
-      
-    case 'gif':
-      additionalOptionsContainer.innerHTML = `
-        <div class="option-group">
-          <label for="optimize">색상 최적화:</label>
-          <input type="checkbox" id="optimize" name="optimize" checked />
-        </div>
-        <div class="option-group">
-          <label for="colors">색상 수 (2-256):</label>
-          <input type="number" id="colors" name="colors" min="2" max="256" value="256" />
-        </div>
-      `;
-      break;
-      
-    // ... 다른 형식별 옵션
-      
-    default:
-      // 특별한 옵션 없음
-      break;
-  }
-}
-
-/**
- * 변환 버튼 클릭 이벤트 핸들러
- */
-function handleConvertClick() {
-  if (!currentFile || !selectedOutputFormat) {
-    alert('파일과 출력 형식을 선택해주세요.');
-    return;
-  }
-  
-  // 변환 옵션 섹션 숨기고 진행 상황 섹션 표시
-  document.getElementById('conversion-options-section')?.classList.add('hidden');
-  document.getElementById('conversion-progress-section')?.classList.remove('hidden');
-  
-  // 진행 상황 표시
-  showConversionProgress();
-  
-  // 변환 옵션 수집
-  const options = collectOptions();
-  
-  // 사용자 행동 추적
-  try {
-    if (typeof analytics !== 'undefined') {
-      analytics.trackAction('convert', 'start_conversion', `${FileUtils.getFileExtension(currentFile.name)}_to_${selectedOutputFormat}`);
-    }
-  } catch (e) {
-    console.warn('Analytics를 호출할 수 없습니다:', e);
-  }
-  
-  // 파일 변환 요청
-  ConverterCore.convertFile(currentFile, selectedOutputFormat, options)
-    .then(result => {
-      convertedFile = result;
-      showConversionResult(result);
-      
-      // 사용자 행동 추적
-      try {
-        if (typeof analytics !== 'undefined') {
-          analytics.trackAction('convert', 'conversion_success', selectedOutputFormat);
+      // 해당 유형의 변환기 모듈 없으면 내장 변환기 사용
+      if (!converterModule) {
+        console.log(`${fileType} 변환기 모듈 없음, 내장 변환기 사용`);
+        
+        // 내장 변환 기능 구현 - 이 예제에서는 이미지만 구현
+        if (fileType === 'image') {
+          const result = await this._convertImage(file, outputFormat);
+          
+          this.state.activeConversion.status = 'success';
+          this.state.activeConversion.downloadUrl = result.url;
+          this.state.activeConversion.fileName = result.fileName;
+        } else {
+          throw new Error('이 파일 유형에 대한 내장 변환기가 구현되지 않았습니다.');
         }
-      } catch (e) {
-        console.warn('Analytics를 호출할 수 없습니다:', e);
+      } else {
+        // 외부 변환기 모듈 사용
+        const result = await converterModule.convert(file, outputFormat);
+        
+        this.state.activeConversion.status = 'success';
+        this.state.activeConversion.downloadUrl = result.url;
+        this.state.activeConversion.fileName = result.fileName;
       }
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('파일 변환 중 오류 발생:', error);
       
-      // 오류 메시지 표시
-      document.getElementById('conversion-progress-section')?.classList.add('hidden');
-      document.getElementById('conversion-error-section')?.classList.remove('hidden');
-      
-      const errorMessage = document.getElementById('error-message');
-      if (errorMessage) {
-        errorMessage.textContent = error.message || '파일 변환 중 오류가 발생했습니다.';
-      }
-      
-      // 사용자 행동 추적
+      this.state.activeConversion.status = 'error';
+      this.state.activeConversion.error = error.message;
+    }
+    
+    // UI 업데이트
+    this._updateConversionUI(this.state.activeConversion);
+  },
+  
+  /**
+   * 이미지 변환 (내장 변환기)
+   * @param {File} file - 이미지 파일
+   * @param {string} outputFormat - 출력 형식
+   * @returns {Promise<Object>} 변환 결과
+   * @private
+   */
+  async _convertImage(file, outputFormat) {
+    return new Promise((resolve, reject) => {
       try {
-        if (typeof analytics !== 'undefined') {
-          analytics.trackAction('convert', 'conversion_error', error.message);
-        }
-      } catch (e) {
-        console.warn('Analytics를 호출할 수 없습니다:', e);
+        // 캔버스를 사용하여 이미지 변환
+        const img = new Image();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        img.onload = () => {
+          // 캔버스 크기 설정
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          // 캔버스에 이미지 그리기
+          ctx.drawImage(img, 0, 0);
+          
+          // MIME 타입 설정
+          let mimeType = 'image/png';
+          switch(outputFormat) {
+            case 'jpg':
+            case 'jpeg':
+              mimeType = 'image/jpeg';
+              break;
+            case 'webp':
+              mimeType = 'image/webp';
+              break;
+            case 'gif':
+              mimeType = 'image/gif';
+              break;
+          }
+          
+          // 캔버스에서 이미지 데이터 URL 생성
+          const dataUrl = canvas.toDataURL(mimeType, 0.92);
+          
+          // 원본 파일명에서 확장자만 변경
+          const fileName = file.name.replace(/\.[^/.]+$/, `.${outputFormat}`);
+          
+          resolve({
+            url: dataUrl,
+            fileName,
+            mimeType
+          });
+        };
+        
+        img.onerror = () => {
+          reject(new Error('이미지를 로드하는 중 오류가 발생했습니다.'));
+        };
+        
+        // 파일 읽기 및 이미지 로드
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          img.src = e.target.result;
+        };
+        
+        reader.onerror = () => {
+          reject(new Error('파일을 읽는 중 오류가 발생했습니다.'));
+        };
+        
+        reader.readAsDataURL(file);
+      } catch (error) {
+        reject(error);
       }
     });
-}
+  }
+};
 
-/**
- * 변환 옵션 수집
- * @returns {Object} 수집된 변환 옵션
- */
-function collectOptions() {
-  const options = {
-    format: selectedOutputFormat,
-    outputFileName: currentFile.name.split('.')[0] + '.' + selectedOutputFormat
-  };
-  
-  // 형식별 특정 옵션 수집
-  switch (selectedOutputFormat.toLowerCase()) {
-    case 'jpg':
-    case 'jpeg':
-      const jpegQuality = document.getElementById('quality');
-      if (jpegQuality) {
-        options.quality = parseInt(jpegQuality.value, 10);
-      }
-      break;
-      
-    case 'png':
-      const pngCompression = document.getElementById('compression');
-      if (pngCompression) {
-        options.compressionLevel = parseInt(pngCompression.value, 10);
-      }
-      break;
-      
-    case 'webp':
-      const webpQuality = document.getElementById('quality');
-      const lossless = document.getElementById('lossless');
-      
-      if (webpQuality) {
-        options.quality = parseInt(webpQuality.value, 10);
-      }
-      
-      if (lossless) {
-        options.lossless = lossless.checked;
-      }
-      break;
-      
-    case 'gif':
-      const optimize = document.getElementById('optimize');
-      const colors = document.getElementById('colors');
-      
-      if (optimize) {
-        options.optimize = optimize.checked;
-      }
-      
-      if (colors) {
-        options.colors = parseInt(colors.value, 10);
-      }
-      break;
-      
-    // ... 다른 형식별 옵션
-  }
-  
-  return options;
-}
-
-/**
- * 변환 진행 상황 업데이트
- * @param {Object} progressInfo - 진행 상황 정보
- */
-function updateProgress(progressInfo) {
-  const progressBar = document.getElementById('progress-bar');
-  const progressText = document.getElementById('progress-text');
-  
-  if (progressBar) {
-    progressBar.value = progressInfo.percent;
-  }
-  
-  if (progressText) {
-    progressText.textContent = `${progressInfo.percent}% - ${progressInfo.status || '처리 중...'}`;
-  }
-}
-
-/**
- * 변환 진행 상황 표시
- */
-function showConversionProgress() {
-  if (progressTracker) {
-    progressTracker.start({
-      onProgress: updateProgress,
-      onComplete: () => {}
-    });
-  }
-}
-
-/**
- * 변환 결과 표시
- * @param {Object} result - 변환 결과 객체
- */
-function showConversionResult(result) {
-  // 진행 상황 섹션 숨기고 결과 섹션 표시
-  document.getElementById('conversion-progress-section')?.classList.add('hidden');
-  document.getElementById('conversion-result-section')?.classList.remove('hidden');
-  
-  // 결과 정보 표시
-  const resultFileName = document.getElementById('result-file-name');
-  const resultFileSize = document.getElementById('result-file-size');
-  const resultPreview = document.getElementById('result-preview');
-  
-  if (resultFileName) {
-    resultFileName.textContent = result.name || `converted.${selectedOutputFormat}`;
-  }
-  
-  if (resultFileSize) {
-    resultFileSize.textContent = FileUtils.formatFileSize(result.size);
-  }
-  
-  // 미리보기 표시 (이미지인 경우)
-  if (resultPreview && result.dataUrl && ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(selectedOutputFormat.toLowerCase())) {
-    resultPreview.innerHTML = `<img src="${result.dataUrl}" alt="변환된 이미지" />`;
-  } else if (resultPreview) {
-    resultPreview.innerHTML = `
-      <div class="file-icon">
-        <i class="icon icon-${selectedOutputFormat.toLowerCase()}"></i>
-      </div>
-      <p>미리보기를 지원하지 않는 파일 형식입니다.</p>
-    `;
-  }
-}
-
-/**
- * 다운로드 버튼 클릭 이벤트 핸들러
- */
-function handleDownloadClick() {
-  if (!convertedFile || !convertedFile.dataUrl) {
-    alert('다운로드할 파일이 없습니다.');
-    return;
-  }
-  
-  // 데이터 URL에서 파일 다운로드
-  const link = document.createElement('a');
-  link.href = convertedFile.dataUrl;
-  link.download = convertedFile.name || `converted.${selectedOutputFormat}`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  // 사용자 행동 추적
-  try {
-    if (typeof analytics !== 'undefined') {
-      analytics.trackAction('convert', 'download_file', selectedOutputFormat, {
-        fileSize: convertedFile.size,
-        fileName: convertedFile.name
-      });
-    }
-  } catch (e) {
-    console.warn('Analytics를 호출할 수 없습니다:', e);
-  }
-}
-
-/**
- * 변환기 초기화 (다른 파일 변환)
- */
-function resetConverter() {
-  // 상태 초기화
-  currentFile = null;
-  selectedOutputFormat = '';
-  convertedFile = null;
-  
-  // UI 초기화
-  document.getElementById('file-select-section')?.classList.remove('hidden');
-  document.getElementById('conversion-options-section')?.classList.add('hidden');
-  document.getElementById('conversion-progress-section')?.classList.add('hidden');
-  document.getElementById('conversion-result-section')?.classList.add('hidden');
-  document.getElementById('conversion-error-section')?.classList.add('hidden');
-  
-  // 파일 입력 초기화
-  const fileInput = document.getElementById('file-input');
-  if (fileInput) {
-    fileInput.value = '';
-  }
-  
-  // 사용자 행동 추적
-  try {
-    if (typeof analytics !== 'undefined') {
-      analytics.trackAction('convert', 'reset_converter');
-    }
-  } catch (e) {
-    console.warn('Analytics를 호출할 수 없습니다:', e);
-  }
-}
-
-/**
- * 도움말 툴팁 추가
- */
-function addHelpTooltips() {
-  const helpLinks = document.querySelectorAll('.help-link');
-  
-  helpLinks.forEach(link => {
-    const tooltipId = link.getAttribute('data-tooltip');
-    const tooltipText = getTooltipText(tooltipId);
-    
-    if (!tooltipText) return;
-    
-    // 툴팁 요소 생성
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip';
-    tooltip.innerHTML = `
-      <div class="tooltip-content">
-        <p>${tooltipText}</p>
-        <span class="tooltip-close">&times;</span>
-      </div>
-    `;
-    
-    // 툴팁 위치 조정
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // 이미 표시된 툴팁 제거
-      document.querySelectorAll('.tooltip.visible').forEach(t => {
-        if (t !== tooltip) {
-          t.classList.remove('visible');
-        }
-      });
-      
-      // 툴팁 위치 조정 및 표시
-      document.body.appendChild(tooltip);
-      
-      const linkRect = link.getBoundingClientRect();
-      tooltip.style.top = (linkRect.bottom + window.scrollY + 10) + 'px';
-      tooltip.style.left = (linkRect.left + window.scrollX) + 'px';
-      
-      tooltip.classList.add('visible');
-      
-      // 닫기 버튼 이벤트
-      tooltip.querySelector('.tooltip-close').addEventListener('click', function() {
-        tooltip.classList.remove('visible');
-      });
-      
-      // 외부 클릭 시 툴팁 닫기
-      document.addEventListener('click', function closeTooltip(e) {
-        if (!tooltip.contains(e.target) && e.target !== link) {
-          tooltip.classList.remove('visible');
-          document.removeEventListener('click', closeTooltip);
-        }
-      });
-    });
-  });
-}
-
-/**
- * 툴팁 텍스트 가져오기
- * @param {string} tooltipId - 툴팁 ID
- * @returns {string} 툴팁 텍스트
- */
-function getTooltipText(tooltipId) {
-  const tooltips = {
-    'format-help': '출력 형식은 변환된 파일의 최종 형식을 결정합니다. 각 형식마다 고유한 특성과 장단점이 있습니다.',
-    'quality-help': '품질 설정은 이미지의 시각적 품질과 파일 크기 간의 균형을 조절합니다. 값이 높을수록 품질은 좋아지지만 파일 크기가 커집니다.',
-    'compression-help': '압축 수준은 파일 크기와 처리 시간에 영향을 줍니다. 값이 높을수록 파일 크기는 작아지지만 처리 시간이 길어집니다.',
-    'lossless-help': '무손실 변환은 이미지 품질을 그대로 유지하지만 파일 크기가 커집니다. 고품질 이미지가 필요한 경우 사용하세요.'
-  };
-  
-  return tooltips[tooltipId] || '정보가 없습니다.';
-}
-
-/**
- * QR 코드로 변환 버튼 클릭 이벤트 핸들러
- */
-function handleConvertToQRClick() {
-  if (!convertedFile) {
-    alert('QR 코드로 변환할 파일이 없습니다.');
-    return;
-  }
-  
-  // QR 코드 생성 페이지로 이동
-  const qrCodeUrl = new URL('/qrcode.html', window.location.origin);
-  qrCodeUrl.searchParams.append('data', convertedFile.dataUrl);
-  qrCodeUrl.searchParams.append('type', 'file');
-  qrCodeUrl.searchParams.append('filename', convertedFile.name);
-  
-  window.location.href = qrCodeUrl.toString();
-  
-  // 사용자 행동 추적
-  try {
-    if (typeof analytics !== 'undefined') {
-      analytics.trackAction('convert', 'navigate_to_qr', selectedOutputFormat);
-    }
-  } catch (e) {
-    console.warn('Analytics를 호출할 수 없습니다:', e);
-  }
-}
-
-// 하위 호환성을 위한 전역 참조
+// 글로벌 네임스페이스에 등록
 if (typeof window !== 'undefined') {
   window.FileToQR = window.FileToQR || {};
-  window.FileToQR.fileConverter = fileConverter;
+  window.FileToQR.FileConverter = FileConverter;
 }
 
-// 모듈 레지스트리에 등록 (하위 호환성)
-if (typeof window !== 'undefined' && window.FileToQR && window.FileToQR.registry) {
-  window.FileToQR.registry.register('converters', 'file-converter', fileConverter);
-}
-
-export default fileConverter; 
+export default FileConverter; 
