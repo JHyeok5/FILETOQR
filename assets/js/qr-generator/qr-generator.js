@@ -51,19 +51,19 @@ const importQRCodeLibrary = async () => {
             console.log(`로컬 QRCode 라이브러리 파일 발견 (${path}), 로드 중...`);
             localPathFound = true;
             
-            const script = document.createElement('script');
+    const script = document.createElement('script');
             script.src = path;
-            script.onload = () => {
+    script.onload = () => {
               console.log('로컬 QRCode 라이브러리 로드 성공');
               window.QRCode = QRCode;
               resolve(QRCode);
-            };
-            script.onerror = (error) => {
+    };
+    script.onerror = (error) => {
               console.warn(`로컬 QRCode 라이브러리 파일 로드 실패 (${path}):`, error);
               // 다음 경로 시도 대신 CDN으로 넘어감
               loadFromCDN();
-            };
-            document.head.appendChild(script);
+    };
+    document.head.appendChild(script);
             
             // 로컬 파일을 찾았으므로 루프 중단
             break;
@@ -184,8 +184,8 @@ const QRGenerator = {
       // UI 요소 초기화
       console.log('UI 요소 초기화 시작');
       this._initUI();
-      
-      // 이벤트 리스너 등록
+  
+  // 이벤트 리스너 등록
       console.log('이벤트 리스너 등록 시작');
       this._registerEventListeners();
       
@@ -379,7 +379,7 @@ const QRGenerator = {
         logoInput.addEventListener('change', (e) => {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
+        const reader = new FileReader();
             reader.onload = (e) => {
               this.state.currentOptions.logo = e.target.result;
               if (this.state.generatedQR) this._generateQRCode();
@@ -519,10 +519,10 @@ const QRGenerator = {
     
     if (!qrPreview) {
       console.error('QR 코드 프리뷰 컨테이너를 찾을 수 없습니다.');
-      return;
-    }
-    
-    try {
+    return;
+  }
+  
+  try {
       // 로딩 상태 표시
       console.log('QR 코드 생성 중... 로딩 상태 표시');
       qrPreview.innerHTML = `
@@ -572,7 +572,7 @@ const QRGenerator = {
       if (this.state.currentOptions.logo) {
         console.log('로고 추가 시작');
         this._addLogoToCanvas(canvas);
-      } else {
+        } else {
         // 결과 표시
         console.log('QR 코드 프리뷰 표시');
         qrPreview.innerHTML = '';
