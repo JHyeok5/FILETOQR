@@ -2,6 +2,7 @@
  * qr-core.js - FileToQR QR 코드 생성 핵심 모듈
  * 버전: 1.0.0
  * 최종 업데이트: 2025-06-15
+ * 참조: ../../docs/architecture/qr-system.md
  * 
  * 이 모듈은 QR 코드 생성 기능의 핵심 로직을 제공합니다:
  * - 다양한 콘텐츠 유형의 QR 코드 생성
@@ -10,7 +11,6 @@
  * - 다양한 형식으로 내보내기 (PNG, SVG, JPEG)
  */
 
-// 공통 유틸리티 모듈 임포트
 import FileUtils from '../utils/file-utils.js';
 
 // QR 코드 생성기 코어 모듈
