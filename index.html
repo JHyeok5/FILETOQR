@@ -6,17 +6,17 @@
     <meta name="description" content="파일 변환 및 QR 코드 생성 플랫폼. 이미지, 문서, 오디오 등 다양한 파일을 변환하고 맞춤형 QR 코드를 생성하세요.">
     <meta name="keywords" content="파일 변환, QR 코드, 이미지 변환, 문서 변환, 온라인 변환, 무료 변환, PNG, JPG, PDF">
     <title>FileToQR - 파일 변환 및 QR 코드 생성 플랫폼</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 디버깅 모드 활성화 -->
-    <script>
-        window.DEBUG_MODE = true;
-    </script>
+    
+    <!-- CSS 스타일시트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="assets/css/main.css">
+    
+    <!-- 파비콘 -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
     <!-- 헤더 컴포넌트 삽입 위치 -->
-    <header></header>
+    <header id="header-container"></header>
 
     <main class="flex-grow container mx-auto px-4 py-8">
         <section class="text-center py-12">
@@ -78,87 +78,12 @@
                 </div>
             </div>
         </section>
-
-        <!-- 디버그 도구 (개발 모드에서만 표시) -->
-        <section id="debug-tools" class="debug-tools" style="display: none;">
-            <div class="container">
-                <h2 class="section-title">개발자 도구</h2>
-                <div class="debug-buttons">
-                    <button id="run-diagnostics" class="btn btn-warning">모듈 시스템 진단</button>
-                    <button id="check-paths" class="btn btn-warning">경로 문제 검사</button>
-                    <button id="toggle-debug" class="btn btn-outline">디버그 메시지 토글</button>
-                </div>
-                <div id="diagnostics-result" class="diagnostics-result"></div>
-            </div>
-        </section>
     </main>
 
     <!-- 푸터 컴포넌트 삽입 위치 -->
-    <footer></footer>
+    <footer id="footer-container"></footer>
 
     <!-- 코어 모듈 및 유틸리티 로드 -->
-    <script src="assets/js/utils/module-loader.js" type="module"></script>
-    <script src="assets/js/utils/url-utils.js" type="module"></script>
-    <script src="assets/js/core/app-core.js" type="module"></script>
-    <script type="module">
-        // 디버그 모드 활성화 시 개발자 도구 표시
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.DEBUG_MODE) {
-                document.getElementById('debug-tools').style.display = 'block';
-                
-                // 진단 도구 로드 - 상대 경로 사용
-                import('./assets/js/utils/diagnostics.js').then(module => {
-                    const Diagnostics = module.default;
-                    
-                    // 진단 도구를 전역 변수로 할당 (레지스트리와의 순환 참조 방지)
-                    window.FileToQR = window.FileToQR || {};
-                    window.FileToQR.Diagnostics = Diagnostics;
-                    
-                    // 진단 버튼 이벤트 연결
-                    document.getElementById('run-diagnostics').addEventListener('click', function() {
-                        Diagnostics.showDiagnosticsUI();
-                    });
-                    
-                    // 경로 검사 버튼 이벤트 연결
-                    document.getElementById('check-paths').addEventListener('click', async function() {
-                        const container = document.getElementById('diagnostics-result');
-                        container.innerHTML = '<p>경로 검사 중...</p>';
-                        
-                        try {
-                            const pathProblems = await Diagnostics.checkModulePaths();
-                            if (pathProblems.length === 0) {
-                                container.innerHTML = '<p>발견된 경로 문제가 없습니다.</p>';
-                            } else {
-                                let html = '<h3>발견된 경로 문제:</h3><ul>';
-                                for (const problem of pathProblems) {
-                                    html += `<li><strong>${problem.moduleId || 'Unknown'}</strong>: ${problem.message}</li>`;
-                                }
-                                html += '</ul>';
-                                container.innerHTML = html;
-                            }
-                        } catch (error) {
-                            container.innerHTML = `<p>오류 발생: ${error.message}</p>`;
-                        }
-                    });
-                    
-                    // 디버그 토글 버튼 이벤트 연결
-                    document.getElementById('toggle-debug').addEventListener('click', function() {
-                        if (console.debugEnabled) {
-                            console.debug = console._originalDebug;
-                            console.debugEnabled = false;
-                            this.textContent = '디버그 메시지 활성화';
-                        } else {
-                            console._originalDebug = console.debug;
-                            console.debug = function() {};
-                            console.debugEnabled = true;
-                            this.textContent = '디버그 메시지 비활성화';
-                        }
-                    });
-                }).catch(error => {
-                    console.error('진단 도구 로드 실패:', error);
-                });
-            }
-        });
-    </script>
+    <script type="module" src="assets/js/core/main.js"></script>
 </body>
 </html> 
