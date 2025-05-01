@@ -686,14 +686,14 @@
                 });
             });
         }
-        
+            
         // 로고 옵션 토글
         function setupLogoOptions() {
             const addLogoCheckbox = document.getElementById('add-logo');
             const logoOptions = document.getElementById('logo-options');
             
             if (addLogoCheckbox && logoOptions) {
-                addLogoCheckbox.addEventListener('change', function() {
+            addLogoCheckbox.addEventListener('change', function() {
                     logoOptions.classList.toggle('hidden', !this.checked);
                 });
             }
@@ -721,8 +721,8 @@
             
             if (generateBtn) {
                 generateBtn.addEventListener('click', function() {
-                    generateQRCode();
-                });
+                generateQRCode();
+            });
             }
         }
         
@@ -1019,24 +1019,24 @@
             const downloadPngBtn = document.getElementById('download-png');
             if (downloadPngBtn) {
                 downloadPngBtn.addEventListener('click', function() {
-                    downloadQRCode('png');
-                });
+                downloadQRCode('png');
+            });
             }
             
             // SVG 다운로드
             const downloadSvgBtn = document.getElementById('download-svg');
             if (downloadSvgBtn) {
                 downloadSvgBtn.addEventListener('click', function() {
-                    downloadQRCode('svg');
-                });
+                downloadQRCode('svg');
+            });
             }
             
             // JPEG 다운로드
             const downloadJpegBtn = document.getElementById('download-jpeg');
             if (downloadJpegBtn) {
                 downloadJpegBtn.addEventListener('click', function() {
-                    downloadQRCode('jpeg');
-                });
+                downloadQRCode('jpeg');
+            });
             }
         }
         
