@@ -75,6 +75,24 @@ const QRGenerator = {
   },
   
   /**
+   * QR 코드 생성 (공개 메서드)
+   * 폼에서 데이터를 수집하여 QR 코드 생성
+   */
+  generateQRCode() {
+    console.log('QRGenerator.generateQRCode 호출됨');
+    this._handleFormSubmit();
+  },
+  
+  /**
+   * QR 코드 다운로드 (공개 메서드)
+   * @param {string} format - 다운로드 형식 (png, svg, jpeg)
+   */
+  downloadQRCode(format) {
+    console.log(`QRGenerator.downloadQRCode 호출됨: ${format}`);
+    this._downloadQRCode(format);
+  },
+  
+  /**
    * UI 요소 초기화
    * @private
    */
