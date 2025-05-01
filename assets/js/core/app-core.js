@@ -326,7 +326,7 @@ async function initCommonUI() {
   try {
     console.log('공통 UI 컴포넌트 초기화 중...');
     
-    // 헤더 푸터 로드
+    // 헤더와 푸터 로드
     await loadHeaderFooter();
     
     console.log('공통 UI 컴포넌트 초기화 완료');
@@ -339,21 +339,20 @@ async function initCommonUI() {
 
 /**
  * 헤더와 푸터 로드
- * @async
+ * @param {number} retryCount - 실패시 재시도 횟수
  * @private
- * @param {number} retryCount - 재시도 횟수 (기본값: 3)
- * @returns {Promise<boolean>} 로드 성공 여부
+ * @async
  */
 async function loadHeaderFooter(retryCount = 3) {
-  // DOM 요소 확인
   const headerContainer = document.getElementById('header-container');
   const footerContainer = document.getElementById('footer-container');
   
-  // 요소가 없으면 중단
   if (!headerContainer && !footerContainer) {
-    console.warn('헤더/푸터 컨테이너를 찾을 수 없습니다.');
-    return false;
+    console.warn('헤더/푸터 컨테이너가 DOM에 존재하지 않습니다.');
+    return;
   }
+  
+  console.log('헤더와 푸터 로딩 시작...');
   
   try {
     // 템플릿 유틸리티 로드
@@ -363,53 +362,109 @@ async function loadHeaderFooter(retryCount = 3) {
       throw new Error('템플릿 유틸리티를 로드할 수 없습니다.');
     }
     
-    let success = true;
-    
     // 헤더 로드
     if (headerContainer) {
-      console.log('헤더 컴포넌트 로드 중...');
-      const headerSuccess = await TemplateUtils.loadComponent('header', headerContainer);
-      
-      if (!headerSuccess) {
-        console.warn('헤더 컴포넌트 로드 실패');
-        success = false;
-      } else {
-        console.log('헤더 컴포넌트 로드 완료');
+      console.log('헤더 로드 시도...');
+      try {
+        const headerSuccess = await TemplateUtils.loadComponent('header', headerContainer);
+        console.log('헤더 로드 결과:', headerSuccess ? '성공' : '실패');
+        
+        if (!headerSuccess) {
+          // 직접 헤더 템플릿 가져오기 시도
+          console.log('직접 헤더 가져오기 시도...');
+          try {
+            const headerResponse = await fetch('components/header.html');
+            
+            if (!headerResponse.ok) {
+              console.error(`헤더 가져오기 실패: ${headerResponse.status} ${headerResponse.statusText}`);
+            } else {
+              const headerText = await headerResponse.text();
+              console.log('헤더 응답 내용:', headerText.substring(0, 100) + '...');
+              headerContainer.innerHTML = headerText;
+            }
+          } catch (headerFetchError) {
+            console.error('헤더 직접 가져오기 실패:', headerFetchError);
+          }
+        }
+      } catch (headerError) {
+        console.error('헤더 로드 중 오류 발생:', headerError);
       }
     }
     
     // 푸터 로드
     if (footerContainer) {
-      console.log('푸터 컴포넌트 로드 중...');
-      const footerSuccess = await TemplateUtils.loadComponent('footer', footerContainer);
-      
-      if (!footerSuccess) {
-        console.warn('푸터 컴포넌트 로드 실패');
-        success = false;
-      } else {
-        console.log('푸터 컴포넌트 로드 완료');
+      console.log('푸터 로드 시도...');
+      try {
+        const footerSuccess = await TemplateUtils.loadComponent('footer', footerContainer);
+        console.log('푸터 로드 결과:', footerSuccess ? '성공' : '실패');
+        
+        if (!footerSuccess) {
+          // 직접 푸터 템플릿 가져오기 시도
+          console.log('직접 푸터 가져오기 시도...');
+          try {
+            const footerResponse = await fetch('components/footer.html');
+            
+            if (!footerResponse.ok) {
+              console.error(`푸터 가져오기 실패: ${footerResponse.status} ${footerResponse.statusText}`);
+            } else {
+              const footerText = await footerResponse.text();
+              console.log('푸터 응답 내용:', footerText.substring(0, 100) + '...');
+              footerContainer.innerHTML = footerText;
+            }
+          } catch (footerFetchError) {
+            console.error('푸터 직접 가져오기 실패:', footerFetchError);
+          }
+        }
+      } catch (footerError) {
+        console.error('푸터 로드 중 오류 발생:', footerError);
       }
     }
-    
-    // 하나라도 실패했고 재시도 횟수가 남아있으면 재시도
-    if (!success && retryCount > 0) {
-      console.log(`헤더/푸터 로드 재시도 (남은 시도: ${retryCount})...`);
-      setTimeout(() => loadHeaderFooter(retryCount - 1), 300);
-      return false;
-    }
-    
-    return success;
   } catch (error) {
     console.error('헤더/푸터 로드 중 오류 발생:', error);
     
-    // 재시도 횟수가 남아있으면 재시도
+    // 재시도 로직
     if (retryCount > 0) {
-      console.log(`헤더/푸터 로드 재시도 (남은 시도: ${retryCount})...`);
-      setTimeout(() => loadHeaderFooter(retryCount - 1), 300);
-      return false;
+      console.log(`헤더/푸터 로드 재시도... (남은 시도: ${retryCount})`);
+      setTimeout(() => loadHeaderFooter(retryCount - 1), 1000);
+    } else {
+      console.error('헤더/푸터 로드 최대 재시도 횟수 초과');
+      
+      // 대체 헤더/푸터 사용
+      if (headerContainer) {
+        headerContainer.innerHTML = `
+          <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-4">
+              <div class="flex justify-between items-center">
+                <a href="index.html" class="flex items-center">
+                  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4=" alt="FileToQR Logo" class="h-8 mr-2">
+                  <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                </a>
+                <nav>
+                  <ul class="flex space-x-6">
+                    <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                    <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                    <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                    <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </header>
+        `;
+      }
+      
+      if (footerContainer) {
+        footerContainer.innerHTML = `
+          <footer class="bg-gray-100 mt-12">
+            <div class="container mx-auto px-4 py-8">
+              <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                <p>&copy; 2025 FileToQR. All rights reserved.</p>
+              </div>
+            </div>
+          </footer>
+        `;
+      }
     }
-    
-    return false;
   }
 }
 
