@@ -51,18 +51,8 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-    <header class="bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-blue-600">FileToQR</a>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li><a href="/" class="font-medium hover:text-blue-600">홈</a></li>
-                    <li><a href="/convert.html" class="font-medium text-blue-600">파일 변환</a></li>
-                    <li><a href="/qrcode.html" class="font-medium hover:text-blue-600">QR 생성</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <!-- 헤더 컴포넌트 -->
+    <div id="header-container"></div>
 
     <main class="flex-grow container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold mb-6">파일 변환</h1>
@@ -206,43 +196,11 @@
         </section>
     </main>
 
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="mb-6 md:mb-0">
-                    <h3 class="text-xl font-bold mb-2">FileToQR</h3>
-                    <p class="text-gray-400">파일 변환 및 QR 코드 생성 플랫폼</p>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
-                    <div>
-                        <h4 class="text-lg font-semibold mb-3">제품</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/convert.html" class="text-gray-400 hover:text-white">파일 변환</a></li>
-                            <li><a href="/qrcode.html" class="text-gray-400 hover:text-white">QR 코드 생성</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-3">리소스</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/blog" class="text-gray-400 hover:text-white">블로그</a></li>
-                            <li><a href="/help" class="text-gray-400 hover:text-white">도움말</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-3">법적 정보</h4>
-                        <ul class="space-y-2">
-                            <li><a href="/privacy.html" class="text-gray-400 hover:text-white">개인정보처리방침</a></li>
-                            <li><a href="/terms.html" class="text-gray-400 hover:text-white">이용약관</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-6 text-gray-400 text-sm text-center">
-                <p>&copy; 2025 FileToQR. All rights reserved.</p>
-                <p class="mt-1">버전: 1.0.0 (최종 업데이트: 2025-04-28)</p>
-            </div>
-        </div>
-    </footer>
+    <!-- 푸터 컴포넌트 -->
+    <div id="footer-container"></div>
+
+    <!-- Core Scripts -->
+    <script src="assets/js/core/app-core.js" type="module"></script>
 
     <!-- 진행 상태 추적 라이브러리 -->
     <script src="assets/js/utils/progress-tracker.js"></script>
