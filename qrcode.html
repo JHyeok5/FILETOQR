@@ -551,15 +551,21 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     
     <!-- QR 생성기 모듈 직접 로드 -->
-    <script src="assets/js/qr-generator/qr-generator.js" type="module"></script>
+    <!-- 충돌 방지를 위해 모듈 로드를 비활성화 -->
+    <!-- <script src="assets/js/qr-generator/qr-generator.js" type="module"></script> -->
     
     <!-- 파일 유틸리티 모듈 -->
     <script src="assets/js/utils/file-utils.js" type="module"></script>
     <script src="assets/js/core/qr-core.js" type="module"></script>
     <script src="assets/js/utils/debug-helper.js" type="module"></script>
     
-    <!-- QR 코드 생성기 초기화 스크립트 -->
+    <!-- QR 코드 생성기 초기화 스크립트 - 충돌 방지를 위해 비활성화 -->
     <script type="module">
+        // 이전 초기화 코드를 재정의하여 실행되지 않도록 조정
+        window.FileToQR = window.FileToQR || {};
+        window.FileToQR.qrInitOverridden = true;
+        
+        /*
         // 디버그 모드 활성화
         const activateDebugMode = async () => {
             try {
@@ -573,7 +579,8 @@
                 return null;
             }
         };
-
+        */
+        
         // QR 코드 생성기 초기화 - 여러 경로 시도
         const initQRGenerator = async () => {
             // 모듈을 로드할 여러 경로 시도
@@ -752,7 +759,7 @@
             console.log('QR 코드 생성 페이지 초기화 시작');
             
             // 디버그 모드 활성화
-            await activateDebugMode();
+            // await activateDebugMode();
             
             // URL에서 파라미터 가져오기
             const urlParams = new URLSearchParams(window.location.search);
@@ -783,43 +790,18 @@
         });
     </script>
 
-    <!-- 이벤트 추적 스크립트 -->
+    <!-- 이벤트 추적 스크립트 - 충돌 방지를 위해 비활성화 -->
     <script type="module">
+        // 중복 이벤트 충돌 방지를 위해 기존 코드 비활성화
+        window.FileToQR = window.FileToQR || {};
+        window.FileToQR.eventsOverridden = true;
+        
+        /*
         // 콘텐츠 유형 탭 전환 처리
         document.addEventListener('DOMContentLoaded', function() {
-            const contentTypeTabs = document.querySelectorAll('#content-type-tabs button');
-            const contentForms = document.querySelectorAll('.content-form');
-            
-            contentTypeTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // 모든 탭에서 active 클래스 제거
-                    contentTypeTabs.forEach(t => t.classList.remove('active'));
-                    // 클릭한 탭에 active 클래스 추가
-                    this.classList.add('active');
-                    
-                    // 모든 폼 숨기기
-                    contentForms.forEach(form => form.classList.add('hidden'));
-                    contentForms.forEach(form => form.classList.remove('active'));
-                    
-                    // 선택한 폼 표시
-                    const selectedForm = document.getElementById(`${this.dataset.type}-form`);
-                    selectedForm.classList.remove('hidden');
-                    selectedForm.classList.add('active');
-                });
-            });
-            
-            // 로고 옵션 표시/숨김 처리
-            const addLogoCheckbox = document.getElementById('add-logo');
-            const logoOptions = document.getElementById('logo-options');
-            
-            addLogoCheckbox?.addEventListener('change', function() {
-                if (this.checked) {
-                    logoOptions.classList.remove('hidden');
-                } else {
-                    logoOptions.classList.add('hidden');
-                }
-            });
+// ... existing code ...
         });
+        */
     </script>
 
     <!-- 필요한 폴리필 및 글로벌 객체 정의 -->
@@ -973,7 +955,14 @@
                 // QR 코드 생성 버튼 처리
                 const generateQRBtn = document.getElementById('generate-qr');
                 if (generateQRBtn) {
-                    generateQRBtn.addEventListener('click', function() {
+                    // 기존 이벤트 리스너 제거
+                    const oldGenerateQRBtn = generateQRBtn.cloneNode(true);
+                    generateQRBtn.parentNode.replaceChild(oldGenerateQRBtn, generateQRBtn);
+                    
+                    // 새 이벤트 리스너 등록
+                    oldGenerateQRBtn.addEventListener('click', function() {
+                        console.log('[수정] QR 코드 생성 버튼 클릭됨');
+                        
                         // 활성화된 폼 가져오기
                         const activeForm = document.querySelector('.content-form:not(.hidden)');
                         if (!activeForm) {
@@ -983,7 +972,7 @@
                         
                         // 폼 유형 결정
                         const formType = activeForm.id.split('-')[0]; // 'url-form' -> 'url'
-                        console.log('선택된 폼 유형:', formType);
+                        console.log('[수정] 선택된 폼 유형:', formType);
                         
                         // 콘텐츠 준비
                         let content = '';
@@ -1118,31 +1107,25 @@
                         const qrPreview = document.getElementById('qr-preview');
                         const downloadBtns = document.getElementById('download-options');
                         
-                        // 원래 QR 생성 함수 호출
-                        if (window.FileToQR && window.FileToQR.QRGenerator) {
-                            // 기존 QRGenerator 사용
-                            window.FileToQR.QRGenerator.state.currentOptions.content = content;
-                            window.FileToQR.QRGenerator.state.currentOptions.type = formType;
-                            window.FileToQR.QRGenerator._generateQRCode();
-                        } else {
-                            // 대체 QR 코드 생성
-                            if (!window.QRCode) {
-                                // QR 코드 라이브러리 로드
-                                const script = document.createElement('script');
-                                script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-                                script.onload = () => {
-                                    generateQRCodeWithLibrary(content, qrPreview, downloadBtns);
-                                };
-                                document.head.appendChild(script);
-                            } else {
-                                generateQRCodeWithLibrary(content, qrPreview, downloadBtns);
-                            }
-                        }
+                        // QR 코드 생성 시작 로깅
+                        console.log('[수정] QR 코드 생성 시작, 콘텐츠:', content.substring(0, 50) + (content.length > 50 ? '...' : ''));
+                        
+                        // 원래 QR 생성 함수 호출 대신 직접 생성
+                        generateQRCodeDirectly(content, qrPreview, downloadBtns);
                     });
                 }
                 
-                // 백업 QR 코드 생성 함수
-                function generateQRCodeWithLibrary(content, qrPreview, downloadBtns) {
+                // QR 코드 직접 생성 함수
+                function generateQRCodeDirectly(content, qrPreview, downloadBtns) {
+                    console.log('[수정] 직접 QR 코드 생성 함수 호출됨');
+                    
+                    // 설정 가져오기
+                    const foregroundColor = document.getElementById('foreground-color')?.value || '#000000';
+                    const backgroundColor = document.getElementById('background-color')?.value || '#FFFFFF';
+                    const errorCorrectionLevel = document.getElementById('error-correction')?.value || 'M';
+                    const qrSize = parseInt(document.getElementById('qr-size')?.value || '256');
+                    const margin = parseInt(document.getElementById('margin')?.value || '4');
+                    
                     // 로딩 표시
                     qrPreview.innerHTML = `
                         <div class="flex justify-center items-center h-64">
@@ -1150,42 +1133,142 @@
                         </div>
                     `;
                     
+                    // 에러 수정 레벨 매핑
+                    let errorLevel = QRCode.CorrectLevel.M;
+                    switch (errorCorrectionLevel) {
+                        case 'L': errorLevel = QRCode.CorrectLevel.L; break;
+                        case 'M': errorLevel = QRCode.CorrectLevel.M; break;
+                        case 'Q': errorLevel = QRCode.CorrectLevel.Q; break;
+                        case 'H': errorLevel = QRCode.CorrectLevel.H; break;
+                    }
+                    
                     // QR 코드 옵션
                     const options = {
-                        width: 256,
-                        height: 256,
-                        colorDark: '#000000',
-                        colorLight: '#FFFFFF',
-                        margin: 4,
-                        correctLevel: QRCode.CorrectLevel.M
+                        width: qrSize,
+                        height: qrSize,
+                        colorDark: foregroundColor,
+                        colorLight: backgroundColor,
+                        margin: margin,
+                        correctLevel: errorLevel
                     };
                     
-                    // QR 코드 생성
+                    console.log('[수정] QR 코드 생성 옵션:', options);
+                    
+                    // Canvas 생성
                     const canvas = document.createElement('canvas');
-                    QRCode.toCanvas(canvas, content, options, (error) => {
-                        if (error) {
-                            console.error('QR 코드 생성 실패:', error);
-                            qrPreview.innerHTML = `
-                                <div class="p-4 bg-red-100 rounded-lg text-red-800">
-                                    <h3 class="font-medium">QR 코드 생성 실패</h3>
-                                    <p>${error.message || '알 수 없는 오류가 발생했습니다.'}</p>
-                                </div>
-                            `;
-                            return;
-                        }
-                        
-                        // 결과 표시
-                        qrPreview.innerHTML = '';
-                        qrPreview.appendChild(canvas);
-                        
-                        // 다운로드 버튼 표시
-                        if (downloadBtns) {
-                            downloadBtns.style.display = 'block';
-                        }
-                    });
+                    
+                    try {
+                        // QR 코드 생성
+                        QRCode.toCanvas(canvas, content, options, (error) => {
+                            if (error) {
+                                console.error('[수정] QR 코드 생성 실패:', error);
+                                qrPreview.innerHTML = `
+                                    <div class="p-4 bg-red-100 rounded-lg text-red-800">
+                                        <h3 class="font-medium">QR 코드 생성 실패</h3>
+                                        <p>${error.message || '알 수 없는 오류가 발생했습니다.'}</p>
+                                    </div>
+                                `;
+                                return;
+                            }
+                            
+                            console.log('[수정] QR 코드 생성 성공');
+                            
+                            // 결과 표시
+                            qrPreview.innerHTML = '';
+                            qrPreview.appendChild(canvas);
+                            
+                            // 다운로드 버튼 표시
+                            if (downloadBtns) {
+                                downloadBtns.style.display = 'block';
+                                
+                                // 다운로드 버튼에 이벤트 리스너 추가
+                                setupDownloadButtons(canvas);
+                            }
+                        });
+                    } catch (error) {
+                        console.error('[수정] QR 코드 생성 중 예외 발생:', error);
+                        qrPreview.innerHTML = `
+                            <div class="p-4 bg-red-100 rounded-lg text-red-800">
+                                <h3 class="font-medium">QR 코드 생성 실패</h3>
+                                <p>${error.message || '알 수 없는 오류가 발생했습니다.'}</p>
+                            </div>
+                        `;
+                    }
                 }
-            }, 1000); // 1초 지연 시작
-    });
+                
+                // 다운로드 버튼 이벤트 설정
+                function setupDownloadButtons(canvas) {
+                    const downloadPngBtn = document.getElementById('download-png');
+                    const downloadSvgBtn = document.getElementById('download-svg');
+                    const downloadJpegBtn = document.getElementById('download-jpeg');
+                    
+                    if (downloadPngBtn) {
+                        downloadPngBtn.onclick = function() {
+                            const dataUrl = canvas.toDataURL('image/png');
+                            const link = document.createElement('a');
+                            link.download = `qrcode_${new Date().getTime()}.png`;
+                            link.href = dataUrl;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+                    }
+                    
+                    if (downloadJpegBtn) {
+                        downloadJpegBtn.onclick = function() {
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                            const link = document.createElement('a');
+                            link.download = `qrcode_${new Date().getTime()}.jpg`;
+                            link.href = dataUrl;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+                    }
+                    
+                    if (downloadSvgBtn) {
+                        downloadSvgBtn.onclick = function() {
+                            // QR 코드에서 픽셀 데이터 가져오기
+                            const ctx = canvas.getContext('2d');
+                            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            const size = Math.sqrt(canvas.width * canvas.height);
+                            
+                            // SVG 생성
+                            let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}" viewBox="0 0 ${canvas.width} ${canvas.height}">`;
+                            svgContent += `<rect width="100%" height="100%" fill="${document.getElementById('background-color').value || '#FFFFFF'}"/>`;
+                            
+                            for (let y = 0; y < canvas.height; y++) {
+                                for (let x = 0; x < canvas.width; x++) {
+                                    const idx = (y * canvas.width + x) * 4;
+                                    const r = imageData.data[idx];
+                                    const g = imageData.data[idx + 1];
+                                    const b = imageData.data[idx + 2];
+                                    
+                                    // 검은색 픽셀만 SVG에 추가
+                                    if (r < 50 && g < 50 && b < 50) {
+                                        svgContent += `<rect x="${x}" y="${y}" width="1" height="1" fill="${document.getElementById('foreground-color').value || '#000000'}"/>`;
+                                    }
+                                }
+                            }
+                            
+                            svgContent += '</svg>';
+                            
+                            // SVG 다운로드
+                            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                            const url = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.download = `qrcode_${new Date().getTime()}.svg`;
+                            link.href = url;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(url);
+                        };
+                    }
+                }
+                
+            }, 500); // 0.5초 지연 시작 (기존 1초에서 단축)
+        });
     </script>
 </body>
 </html> 
