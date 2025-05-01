@@ -864,5 +864,328 @@
         }
     });
     </script>
+
+    <!-- 푸터 컴포넌트 -->
+    <div id="footer-container"></div>
+    
+    <!-- 코어 스크립트 -->
+    <script src="assets/js/core/app-core.js" type="module"></script>
+    
+    <!-- QR 코드 생성기 스크립트 수정 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 헤더와 푸터 직접 로드 시도
+            const headerContainer = document.getElementById('header-container');
+            if (headerContainer) {
+                fetch('components/header.html')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`헤더 로드 실패: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        headerContainer.innerHTML = html;
+                        console.log('[헤더] 헤더가 성공적으로 로드되었습니다.');
+                    })
+                    .catch(error => {
+                        console.error('[헤더] 헤더 로드 실패:', error);
+                        // 대체 헤더 제공
+                        headerContainer.innerHTML = `
+                            <header class="bg-white shadow-sm sticky top-0 z-50">
+                                <div class="container mx-auto px-4 py-4">
+                                    <div class="flex justify-between items-center">
+                                        <a href="index.html" class="flex items-center">
+                                            <img src="assets/images/logo.png" alt="FileToQR Logo" class="h-8 mr-2" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='">
+                                            <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                                        </a>
+                                        <nav>
+                                            <ul class="flex space-x-6">
+                                                <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                                                <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                                                <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                                                <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </header>
+                        `;
+                    });
+            }
+            
+            // 푸터 로드
+            const footerContainer = document.getElementById('footer-container');
+            if (footerContainer) {
+                fetch('components/footer.html')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`푸터 로드 실패: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        footerContainer.innerHTML = html;
+                        console.log('[푸터] 푸터가 성공적으로 로드되었습니다.');
+                    })
+                    .catch(error => {
+                        console.error('[푸터] 푸터 로드 실패:', error);
+                        // 대체 푸터 제공
+                        footerContainer.innerHTML = `
+                            <footer class="bg-gray-100 mt-12">
+                                <div class="container mx-auto px-4 py-8">
+                                    <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                                        <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                                    </div>
+                                </div>
+                            </footer>
+                        `;
+                    });
+            }
+            
+            // QR 코드 생성 기능 수정 및 개선
+            setTimeout(function() {
+                // 콘텐츠 유형 탭 처리
+                const contentTypeTabs = document.querySelectorAll('#content-type-tabs button');
+                const contentForms = document.querySelectorAll('.content-form');
+                let activeType = 'url'; // 기본 유형
+                
+                // 탭 클릭 이벤트 처리
+                contentTypeTabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        // 모든 탭 비활성화
+                        contentTypeTabs.forEach(t => t.classList.remove('active'));
+                        // 현재 탭 활성화
+                        this.classList.add('active');
+                        // 모든 폼 숨기기
+                        contentForms.forEach(form => form.classList.add('hidden'));
+                        
+                        // 선택된 유형의 폼 표시
+                        activeType = this.getAttribute('data-type');
+                        const activeForm = document.getElementById(`${activeType}-form`);
+                        if (activeForm) {
+                            activeForm.classList.remove('hidden');
+                            activeForm.classList.add('active');
+                        }
+                    });
+                });
+                
+                // QR 코드 생성 버튼 처리
+                const generateQRBtn = document.getElementById('generate-qr');
+                if (generateQRBtn) {
+                    generateQRBtn.addEventListener('click', function() {
+                        // 활성화된 폼 가져오기
+                        const activeForm = document.querySelector('.content-form:not(.hidden)');
+                        if (!activeForm) {
+                            alert('입력 폼을 찾을 수 없습니다.');
+                            return;
+                        }
+                        
+                        // 폼 유형 결정
+                        const formType = activeForm.id.split('-')[0]; // 'url-form' -> 'url'
+                        console.log('선택된 폼 유형:', formType);
+                        
+                        // 콘텐츠 준비
+                        let content = '';
+                        
+                        // 폼 유형에 따른 콘텐츠 처리
+                        switch (formType) {
+                            case 'url':
+                                content = document.getElementById('url-input').value.trim();
+                                if (!content) {
+                                    alert('URL을 입력해주세요.');
+                                    return;
+                                }
+                                // URL 형식 확인 및 수정
+                                if (!content.startsWith('http://') && !content.startsWith('https://')) {
+                                    content = `https://${content}`;
+                                }
+                                break;
+                                
+                            case 'text':
+                                content = document.getElementById('text-input').value.trim();
+                                if (!content) {
+                                    alert('텍스트를 입력해주세요.');
+                                    return;
+                                }
+                                break;
+                                
+                            case 'email':
+                                const email = document.getElementById('email-address').value.trim();
+                                const subject = document.getElementById('email-subject').value.trim();
+                                const body = document.getElementById('email-body').value.trim();
+                                
+                                if (!email) {
+                                    alert('이메일 주소를 입력해주세요.');
+                                    return;
+                                }
+                                
+                                // 이메일 QR 코드 형식
+                                content = `mailto:${email}`;
+                                if (subject || body) {
+                                    content += `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                                }
+                                break;
+                                
+                            case 'phone':
+                                content = document.getElementById('phone-input').value.trim();
+                                if (!content) {
+                                    alert('전화번호를 입력해주세요.');
+                                    return;
+                                }
+                                content = `tel:${content}`;
+                                break;
+                                
+                            case 'vcard':
+                                const name = document.getElementById('vcard-name').value.trim();
+                                const org = document.getElementById('vcard-org').value.trim();
+                                const title = document.getElementById('vcard-title').value.trim();
+                                const phone = document.getElementById('vcard-phone').value.trim();
+                                const vcardEmail = document.getElementById('vcard-email').value.trim();
+                                const website = document.getElementById('vcard-website').value.trim();
+                                const address = document.getElementById('vcard-address').value.trim();
+                                
+                                if (!name) {
+                                    alert('이름을 입력해주세요.');
+                                    return;
+                                }
+                                
+                                // vCard 형식 생성
+                                content = 'BEGIN:VCARD\nVERSION:3.0\n';
+                                content += `N:${name};;;\n`;
+                                content += `FN:${name}\n`;
+                                if (org) content += `ORG:${org}\n`;
+                                if (title) content += `TITLE:${title}\n`;
+                                if (phone) content += `TEL:${phone}\n`;
+                                if (vcardEmail) content += `EMAIL:${vcardEmail}\n`;
+                                if (website) content += `URL:${website}\n`;
+                                if (address) content += `ADR:;;${address};;;\n`;
+                                content += 'END:VCARD';
+                                break;
+                                
+                            case 'wifi':
+                                const ssid = document.getElementById('wifi-ssid').value.trim();
+                                const encryption = document.getElementById('wifi-encryption').value;
+                                const password = document.getElementById('wifi-password').value;
+                                const hidden = document.getElementById('wifi-hidden').checked;
+                                
+                                if (!ssid) {
+                                    alert('WiFi 이름(SSID)을 입력해주세요.');
+                                    return;
+                                }
+                                
+                                // WiFi QR 코드 형식
+                                content = `WIFI:S:${ssid};T:${encryption};`;
+                                if (encryption !== 'nopass') {
+                                    content += `P:${password};`;
+                                }
+                                if (hidden) {
+                                    content += 'H:true;';
+                                }
+                                content += ';';
+                                break;
+                                
+                            case 'file':
+                                const fileInput = document.getElementById('file-input');
+                                if (!fileInput.files || fileInput.files.length === 0) {
+                                    alert('파일을 선택해주세요.');
+                                    return;
+                                }
+                                
+                                const file = fileInput.files[0];
+                                if (file.size > 5 * 1024 * 1024) { // 5MB 제한
+                                    alert('파일 크기는 5MB 이하여야 합니다.');
+                                    return;
+                                }
+                                
+                                // 파일 처리는 별도 함수로 처리하는 것이 좋지만 여기서는 간단히 구현
+                                alert('파일 QR 코드 기능은 현재 개발 중입니다. 다른 유형을 선택해주세요.');
+                                return;
+                                break;
+                                
+                            default:
+                                alert('지원되지 않는 QR 코드 유형입니다.');
+                                return;
+                        }
+                        
+                        // 최종 콘텐츠 검증
+                        if (!content) {
+                            alert('QR 코드에 포함할 내용을 입력해주세요.');
+                            return;
+                        }
+                        
+                        // QR 코드 생성
+                        const qrPreview = document.getElementById('qr-preview');
+                        const downloadBtns = document.getElementById('download-options');
+                        
+                        // 원래 QR 생성 함수 호출
+                        if (window.FileToQR && window.FileToQR.QRGenerator) {
+                            // 기존 QRGenerator 사용
+                            window.FileToQR.QRGenerator.state.currentOptions.content = content;
+                            window.FileToQR.QRGenerator.state.currentOptions.type = formType;
+                            window.FileToQR.QRGenerator._generateQRCode();
+                        } else {
+                            // 대체 QR 코드 생성
+                            if (!window.QRCode) {
+                                // QR 코드 라이브러리 로드
+                                const script = document.createElement('script');
+                                script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+                                script.onload = () => {
+                                    generateQRCodeWithLibrary(content, qrPreview, downloadBtns);
+                                };
+                                document.head.appendChild(script);
+                            } else {
+                                generateQRCodeWithLibrary(content, qrPreview, downloadBtns);
+                            }
+                        }
+                    });
+                }
+                
+                // 백업 QR 코드 생성 함수
+                function generateQRCodeWithLibrary(content, qrPreview, downloadBtns) {
+                    // 로딩 표시
+                    qrPreview.innerHTML = `
+                        <div class="flex justify-center items-center h-64">
+                            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+                        </div>
+                    `;
+                    
+                    // QR 코드 옵션
+                    const options = {
+                        width: 256,
+                        height: 256,
+                        colorDark: '#000000',
+                        colorLight: '#FFFFFF',
+                        margin: 4,
+                        correctLevel: QRCode.CorrectLevel.M
+                    };
+                    
+                    // QR 코드 생성
+                    const canvas = document.createElement('canvas');
+                    QRCode.toCanvas(canvas, content, options, (error) => {
+                        if (error) {
+                            console.error('QR 코드 생성 실패:', error);
+                            qrPreview.innerHTML = `
+                                <div class="p-4 bg-red-100 rounded-lg text-red-800">
+                                    <h3 class="font-medium">QR 코드 생성 실패</h3>
+                                    <p>${error.message || '알 수 없는 오류가 발생했습니다.'}</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        // 결과 표시
+                        qrPreview.innerHTML = '';
+                        qrPreview.appendChild(canvas);
+                        
+                        // 다운로드 버튼 표시
+                        if (downloadBtns) {
+                            downloadBtns.style.display = 'block';
+                        }
+                    });
+                }
+            }, 1000); // 1초 지연 시작
+        });
+    </script>
 </body>
 </html> 
