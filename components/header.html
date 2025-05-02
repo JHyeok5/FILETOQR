@@ -40,6 +40,22 @@
                     console.log(`링크 수정: ${originalHref} → ${fixedHref}`);
                 });
             }
+            
+            // 블로그 링크가 있는지 확인하고 누락된 경우 추가
+            const blogLink = document.querySelector('a[href$="blog.html"]');
+            if (!blogLink) {
+                console.warn('블로그 링크가 누락되었습니다. 추가합니다.');
+                const nav = document.querySelector('nav ul');
+                if (nav) {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = './blog.html';
+                    a.className = 'text-gray-700 hover:text-blue-600 font-medium';
+                    a.textContent = '블로그';
+                    li.appendChild(a);
+                    nav.appendChild(li);
+                }
+            }
         });
     </script>
 </header> 

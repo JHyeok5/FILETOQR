@@ -12,7 +12,7 @@
             </div>
             <div>
                 <h3 class="text-lg font-bold mb-4">바로가기</h3>
-                <ul class="space-y-2">
+                <ul class="space-y-2" id="footer-links">
                     <li><a href="{{basePath}}index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
                     <li><a href="{{basePath}}convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
                     <li><a href="{{basePath}}qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
@@ -52,6 +52,28 @@
                     link.setAttribute('href', fixedHref);
                     console.log(`푸터 링크 수정: ${originalHref} → ${fixedHref}`);
                 });
+            }
+            
+            // 블로그 링크가 있는지 확인하고 누락된 경우 추가
+            const footerLinks = document.getElementById('footer-links');
+            const blogLink = footerLinks ? footerLinks.querySelector('a[href$="blog.html"]') : null;
+            
+            if (footerLinks && !blogLink) {
+                console.warn('푸터: 블로그 링크가 누락되었습니다. 추가합니다.');
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = './blog.html';
+                a.className = 'text-gray-600 hover:text-blue-600';
+                a.textContent = '블로그';
+                li.appendChild(a);
+                
+                // QR 코드 생성 링크 뒤에 삽입
+                const qrLink = footerLinks.querySelector('a[href$="qrcode.html"]');
+                if (qrLink && qrLink.parentElement) {
+                    footerLinks.insertBefore(li, qrLink.parentElement.nextSibling);
+                } else {
+                    footerLinks.appendChild(li);
+                }
             }
         });
     </script>
