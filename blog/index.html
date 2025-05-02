@@ -270,37 +270,32 @@
     <div id="footer-container"></div>
 
     <!-- 코어 스크립트 -->
-    <script src="../assets/js/core/app-core.js" type="module"></script>
-    <script src="../assets/js/utils/template-utils.js" type="module"></script>
-    <script type="module">
-        import TemplateUtils from '../assets/js/utils/template-utils.js';
-        
-        document.addEventListener('DOMContentLoaded', async function() {
+    <script src="../assets/js/core/app-core.js"></script>
+    <script>
+        // 페이지 로드 시 헤더와 푸터 컴포넌트 로드
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('블로그 페이지 초기화 중...');
             
-            try {
-                // 헤더 컴포넌트 로드
-                const headerContainer = document.getElementById('header-container');
-                if (headerContainer && headerContainer.innerHTML === '') {
-                    const result = await TemplateUtils.loadComponent('header', headerContainer, '../', {
+            // 템플릿 변수 처리 함수
+            function processTemplate(template, data) {
+                return template.replace(/\{\{([^}]+)\}\}/g, function(match, key) {
+                    return data[key] || '';
+                });
+            }
+            
+            // 헤더 직접 로드 
+            fetch('../components/header.html')
+                .then(response => response.text())
+                .then(html => {
+                    // 템플릿 변수 처리
+                    const processedHtml = processTemplate(html, {
                         basePath: '../'
                     });
-                    console.log('헤더 로드 결과:', result ? '성공' : '실패');
-                }
-                
-                // 푸터 컴포넌트 로드
-                const footerContainer = document.getElementById('footer-container');
-                if (footerContainer && footerContainer.innerHTML === '') {
-                    const result = await TemplateUtils.loadComponent('footer', footerContainer, '../', {
-                        basePath: '../'
-                    });
-                    console.log('푸터 로드 결과:', result ? '성공' : '실패');
-                }
-            } catch (error) {
-                console.error('컴포넌트 로드 중 오류 발생:', error);
-                
-                // 오류 발생 시 폴백 처리
-                if (document.getElementById('header-container').innerHTML === '') {
+                    document.getElementById('header-container').innerHTML = processedHtml;
+                })
+                .catch(error => {
+                    console.error('헤더 로드 실패:', error);
+                    // 헤더 로드 실패 시 대체 헤더 사용
                     document.getElementById('header-container').innerHTML = `
                     <header class="bg-white shadow-sm sticky top-0 z-50">
                         <div class="container mx-auto px-4 py-4">
@@ -320,9 +315,21 @@
                             </div>
                         </div>
                     </header>`;
-                }
-                
-                if (document.getElementById('footer-container').innerHTML === '') {
+                });
+            
+            // 푸터 직접 로드
+            fetch('../components/footer.html')
+                .then(response => response.text())
+                .then(html => {
+                    // 템플릿 변수 처리
+                    const processedHtml = processTemplate(html, {
+                        basePath: '../'
+                    });
+                    document.getElementById('footer-container').innerHTML = processedHtml;
+                })
+                .catch(error => {
+                    console.error('푸터 로드 실패:', error);
+                    // 푸터 로드 실패 시 대체 푸터 사용
                     document.getElementById('footer-container').innerHTML = `
                     <footer class="bg-gray-100 mt-12">
                         <div class="container mx-auto px-4 py-8">
@@ -331,8 +338,7 @@
                             </div>
                         </div>
                     </footer>`;
-                }
-            }
+                });
         });
     </script>
 </body>
