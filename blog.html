@@ -272,33 +272,46 @@
     <!-- 푸터 컴포넌트 -->
     <div id="footer-container"></div>
 
-    <!-- 코어 모듈 및 유틸리티 로드 -->
-    <script src="assets/js/core/app-core.js" type="module"></script>
-    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
-    <script type="module">
-        document.addEventListener('DOMContentLoaded', async function() {
+    <!-- 스크립트 -->
+    <script>
+        // 템플릿 변수 처리 함수
+        function processTemplate(template, data) {
+            return template.replace(/\{\{([^}]+)\}\}/g, function(match, key) {
+                return data[key] || '';
+            });
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('블로그 페이지 초기화 중...');
             
-            // 헤더 및 푸터 포함
-            try {
-                // 헤더 컴포넌트 로드
-                const headerContainer = document.getElementById('header-container');
-                if (headerContainer && headerContainer.innerHTML === '') {
-                    const templateModule = await import('./assets/js/utils/template-utils.js');
-                    const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('header', headerContainer);
-                }
-                
-                // 푸터 컴포넌트 로드
-                const footerContainer = document.getElementById('footer-container');
-                if (footerContainer && footerContainer.innerHTML === '') {
-                    const templateModule = await import('./assets/js/utils/template-utils.js');
-                    const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('footer', footerContainer);
-                }
-            } catch (error) {
-                console.error('컴포넌트 로드 중 오류 발생:', error);
-            }
+            // 헤더 직접 로드 
+            fetch('components/header.html')
+                .then(response => response.text())
+                .then(html => {
+                    // basePath 변수 처리
+                    const processedHtml = processTemplate(html, {
+                        basePath: ''
+                    });
+                    document.getElementById('header-container').innerHTML = processedHtml;
+                })
+                .catch(error => {
+                    console.error('헤더 로드 실패:', error);
+                });
+            
+            // 푸터 직접 로드
+            fetch('components/footer.html')
+                .then(response => response.text())
+                .then(html => {
+                    // basePath 변수 처리
+                    const processedHtml = processTemplate(html, {
+                        basePath: ''
+                    });
+                    document.getElementById('footer-container').innerHTML = processedHtml;
+                })
+                .catch(error => {
+                    console.error('푸터 로드 실패:', error);
+                });
         });
     </script>
 </body>
