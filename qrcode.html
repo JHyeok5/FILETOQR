@@ -710,11 +710,11 @@
                             logoPreview.src = e.target.result;
                         };
                         reader.readAsDataURL(this.files[0]);
-                    }
-                });
+                }
+            });
             }
         }
-        
+            
         // QR 코드 생성 버튼 이벤트
         function setupGenerateButton() {
             const generateBtn = document.getElementById('generate-qr');
@@ -1085,7 +1085,7 @@
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
-            
+                    
             // SVG Blob URL 해제
             if (format === 'svg') {
                 URL.revokeObjectURL(dataUrl);
