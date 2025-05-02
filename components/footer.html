@@ -34,4 +34,25 @@
             <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
         </div>
     </div>
+    
+    <script>
+        // basePath 변수가 없는 경우를 위한 폴백 스크립트
+        document.addEventListener('DOMContentLoaded', function() {
+            // basePath가 처리되지 않은 링크 확인
+            const links = document.querySelectorAll('a[href*="{{basePath}}"]');
+            
+            if (links.length > 0) {
+                console.warn('푸터: basePath 변수가 처리되지 않았습니다. 폴백 방식으로 수정합니다.');
+                
+                // 각 링크 수정
+                links.forEach(link => {
+                    const originalHref = link.getAttribute('href');
+                    // {{basePath}} 부분을 기본값(상대 경로)으로 대체
+                    const fixedHref = originalHref.replace('{{basePath}}', './');
+                    link.setAttribute('href', fixedHref);
+                    console.log(`푸터 링크 수정: ${originalHref} → ${fixedHref}`);
+                });
+            }
+        });
+    </script>
 </footer> 
