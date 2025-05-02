@@ -272,68 +272,104 @@
     <!-- 푸터 컴포넌트 -->
     <div id="footer-container"></div>
 
-    <!-- 스크립트 -->
-    <script>
-        // 페이지 로드 시 실행
-        document.addEventListener('DOMContentLoaded', function() {
+    <!-- 코어 모듈 및 유틸리티 로드 -->
+    <script src="assets/js/core/app-core.js" type="module"></script>
+    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('블로그 페이지 초기화 중...');
             
-            // 헤더 직접 삽입
-            document.getElementById('header-container').innerHTML = `
-            <header class="bg-white shadow-sm sticky top-0 z-50">
-                <div class="container mx-auto px-4 py-4">
-                    <div class="flex justify-between items-center">
-                        <a href="index.html" class="flex items-center">
-                            <img src="assets/images/logo.svg" alt="FileToQR Logo" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
-                            <span class="text-2xl font-bold text-blue-600">FileToQR</span>
-                        </a>
-                        <nav>
-                            <ul class="flex space-x-6">
-                                <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
-                                <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
-                                <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
-                                <li><a href="blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
-                                <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </header>`;
+            // 헤더 및 푸터 포함
+            try {
+                // 헤더 컴포넌트 로드
+                const headerContainer = document.getElementById('header-container');
+                if (headerContainer && headerContainer.innerHTML === '') {
+                    const templateModule = await import('./assets/js/utils/template-utils.js');
+                    const TemplateUtils = templateModule.default;
+                    await TemplateUtils.loadComponent('header', headerContainer, '');
+                }
+                
+                // 푸터 컴포넌트 로드
+                const footerContainer = document.getElementById('footer-container');
+                if (footerContainer && footerContainer.innerHTML === '') {
+                    const templateModule = await import('./assets/js/utils/template-utils.js');
+                    const TemplateUtils = templateModule.default;
+                    await TemplateUtils.loadComponent('footer', footerContainer, '');
+                }
+            } catch (error) {
+                console.error('컴포넌트 로드 중 오류 발생:', error);
+                
+                // 폴백: 컴포넌트 로드 실패 시 직접 삽입 (일관성 유지를 위한 대체 방안)
+                fallbackLoadComponents();
+            }
             
-            // 푸터 직접 삽입
-            document.getElementById('footer-container').innerHTML = `
-            <footer class="bg-gray-100 mt-12">
-                <div class="container mx-auto px-4 py-8">
-                    <div class="grid md:grid-cols-3 gap-8">
-                        <div>
-                            <h3 class="text-lg font-bold mb-4">FileToQR</h3>
-                            <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+            // 폴백 함수: 컴포넌트 로드 실패 시 직접 삽입
+            function fallbackLoadComponents() {
+                console.warn('컴포넌트 모듈 로드 실패, 폴백 방식으로 전환');
+                
+                // 헤더 직접 삽입
+                const headerContainer = document.getElementById('header-container');
+                if (headerContainer && headerContainer.innerHTML === '') {
+                    headerContainer.innerHTML = `
+                    <header class="bg-white shadow-sm sticky top-0 z-50">
+                        <div class="container mx-auto px-4 py-4">
+                            <div class="flex justify-between items-center">
+                                <a href="index.html" class="flex items-center">
+                                    <img src="assets/images/logo.svg" alt="FileToQR Logo" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
+                                    <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                                </a>
+                                <nav>
+                                    <ul class="flex space-x-6">
+                                        <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                                        <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                                        <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                                        <li><a href="blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
+                                        <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-lg font-bold mb-4">바로가기</h3>
-                            <ul class="space-y-2">
-                                <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
-                                <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
-                                <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
-                                <li><a href="blog.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
-                                <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
-                            </ul>
+                    </header>`;
+                }
+                
+                // 푸터 직접 삽입
+                const footerContainer = document.getElementById('footer-container');
+                if (footerContainer && footerContainer.innerHTML === '') {
+                    footerContainer.innerHTML = `
+                    <footer class="bg-gray-100 mt-12">
+                        <div class="container mx-auto px-4 py-8">
+                            <div class="grid md:grid-cols-3 gap-8">
+                                <div>
+                                    <h3 class="text-lg font-bold mb-4">FileToQR</h3>
+                                    <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
+                                        <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
+                                        <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
+                                        <li><a href="blog.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
+                                        <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold mb-4">법적 정보</h3>
+                                    <ul class="space-y-2">
+                                        <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
+                                        <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                                <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                                <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-lg font-bold mb-4">법적 정보</h3>
-                            <ul class="space-y-2">
-                                <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
-                                <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
-                        <p>&copy; 2025 FileToQR. All rights reserved.</p>
-                        <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
-                    </div>
-                </div>
-            </footer>`;
+                    </footer>`;
+                }
+            }
         });
     </script>
 </body>
