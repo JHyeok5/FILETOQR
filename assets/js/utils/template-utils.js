@@ -24,6 +24,8 @@ const TemplateUtils = {
    */
   async loadComponent(componentName, container, basePath = '', data = {}) {
     try {
+      console.log(`컴포넌트 로드 요청: '${componentName}', basePath: '${basePath}'`);
+      
       // 컨테이너 확인
       const targetContainer = typeof container === 'string' ? 
         document.querySelector(container) : container;
@@ -32,6 +34,10 @@ const TemplateUtils = {
         console.warn(`컴포넌트 '${componentName}'를 삽입할 컨테이너를 찾을 수 없습니다.`);
         return false;
       }
+      
+      // 데이터에 basePath 추가
+      data.basePath = basePath || '';
+      console.log(`컴포넌트 데이터 basePath: '${data.basePath}'`);
       
       // 템플릿 가져오기 - 여러 경로 패턴 시도
       let template = null;
@@ -42,9 +48,12 @@ const TemplateUtils = {
         componentName.includes('/') ? `${basePath}${componentName}` : `${basePath}components/${componentName}`
       ];
       
+      console.log('시도할 경로 목록:', possiblePaths);
+      
       // 가능한 모든 경로를 순차적으로 시도
       for (const path of possiblePaths) {
         try {
+          console.log(`경로 '${path}' 시도 중...`);
           template = await this.getTemplate(path);
           if (template) {
             console.log(`컴포넌트 '${componentName}' 템플릿을 '${path}'에서 로드했습니다.`);
@@ -52,7 +61,7 @@ const TemplateUtils = {
           }
         } catch (err) {
           // 개별 시도 실패는 무시하고 다음 경로 패턴으로 넘어갑니다
-          console.debug(`경로 '${path}'에서 로드 실패, 다른 경로 시도 중...`);
+          console.debug(`경로 '${path}'에서 로드 실패, 다른 경로 시도 중...`, err);
         }
       }
       
@@ -66,6 +75,7 @@ const TemplateUtils = {
       
       // 컨테이너에 삽입
       targetContainer.innerHTML = processedTemplate;
+      console.log(`컴포넌트 '${componentName}' 삽입 완료`);
       
       // 스크립트 실행 (있는 경우)
       this.executeScripts(targetContainer);
@@ -112,10 +122,12 @@ const TemplateUtils = {
       });
       
       if (!response.ok) {
+        console.error(`템플릿 로드 실패: ${response.status} ${response.statusText}, URL: ${fullPath}`);
         throw new Error(`템플릿 로드 실패: ${response.status} ${response.statusText}`);
       }
       
       const template = await response.text();
+      console.log(`템플릿 로드 성공: ${fullPath}, 길이: ${template.length}자`);
       return template;
     } catch (error) {
       console.error(`템플릿 '${componentName}' 로드 중 오류 발생:`, error);
@@ -133,6 +145,8 @@ const TemplateUtils = {
     if (!template) return '';
     
     try {
+      console.log('템플릿 처리 시작, 전달된 데이터:', data);
+      
       // 기본 데이터 추가
       const processData = {
         timestamp: new Date().toISOString(),
@@ -152,6 +166,8 @@ const TemplateUtils = {
         const fullMatch = match[0]; // {{변수명}}
         const variableName = match[1].trim(); // 변수명
         
+        console.log(`템플릿 변수 발견: ${fullMatch}, 변수명: ${variableName}`);
+        
         // 변수 값 가져오기 (점 표기법 지원)
         let value = processData;
         const parts = variableName.split('.');
@@ -164,6 +180,7 @@ const TemplateUtils = {
           
           // undefined나 null이면 빈 문자열로
           if (value === undefined || value === null) {
+            console.log(`변수 '${variableName}'의 값이 없음, 빈 문자열로 대체`);
             value = '';
           }
           
@@ -171,6 +188,8 @@ const TemplateUtils = {
           if (typeof value === 'object') {
             value = JSON.stringify(value);
           }
+          
+          console.log(`변수 '${variableName}' 값: ${value}`);
           
           // 변수 교체
           processed = processed.replace(fullMatch, value);
@@ -194,6 +213,7 @@ const TemplateUtils = {
    */
   executeScripts(container) {
     const scripts = container.querySelectorAll('script');
+    console.log(`${scripts.length}개의 스크립트 실행 시작`);
     
     scripts.forEach(oldScript => {
       const newScript = document.createElement('script');
@@ -221,6 +241,7 @@ const TemplateUtils = {
     } else {
       templateCache.clear();
     }
+    console.log(`템플릿 캐시 비움${path ? ': ' + path : ' (전체)'}`);
   }
 };
 
