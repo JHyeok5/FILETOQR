@@ -269,76 +269,68 @@
     <!-- 푸터 컴포넌트 -->
     <div id="footer-container"></div>
 
-    <!-- 코어 스크립트 -->
-    <script src="../assets/js/core/app-core.js"></script>
+    <!-- 스크립트 -->
     <script>
-        // 페이지 로드 시 헤더와 푸터 컴포넌트 로드
-        document.addEventListener('DOMContentLoaded', function() {
+        // 페이지 로드 시 실행
+        window.addEventListener('DOMContentLoaded', function() {
             console.log('블로그 페이지 초기화 중...');
             
-            // 템플릿 변수 처리 함수
-            function processTemplate(template, data) {
-                return template.replace(/\{\{([^}]+)\}\}/g, function(match, key) {
-                    return data[key] || '';
-                });
-            }
+            // 헤더 직접 삽입
+            const headerContainer = document.getElementById('header-container');
+            headerContainer.innerHTML = `
+            <header class="bg-white shadow-sm sticky top-0 z-50">
+                <div class="container mx-auto px-4 py-4">
+                    <div class="flex justify-between items-center">
+                        <a href="../index.html" class="flex items-center">
+                            <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                        </a>
+                        <nav>
+                            <ul class="flex space-x-6">
+                                <li><a href="../index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                                <li><a href="../convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                                <li><a href="../qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                                <li><a href="../blog/index.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
+                                <li><a href="../help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>`;
             
-            // 헤더 직접 로드 
-            fetch('../components/header.html')
-                .then(response => response.text())
-                .then(html => {
-                    // 템플릿 변수 처리
-                    const processedHtml = processTemplate(html, {
-                        basePath: '../'
-                    });
-                    document.getElementById('header-container').innerHTML = processedHtml;
-                })
-                .catch(error => {
-                    console.error('헤더 로드 실패:', error);
-                    // 헤더 로드 실패 시 대체 헤더 사용
-                    document.getElementById('header-container').innerHTML = `
-                    <header class="bg-white shadow-sm sticky top-0 z-50">
-                        <div class="container mx-auto px-4 py-4">
-                            <div class="flex justify-between items-center">
-                                <a href="../index.html" class="flex items-center">
-                                    <span class="text-2xl font-bold text-blue-600">FileToQR</span>
-                                </a>
-                                <nav>
-                                    <ul class="flex space-x-6">
-                                        <li><a href="../index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
-                                        <li><a href="../convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
-                                        <li><a href="../qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
-                                        <li><a href="../blog/index.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
-                                        <li><a href="../help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
-                                    </ul>
-                                </nav>
-                            </div>
+            // 푸터 직접 삽입
+            const footerContainer = document.getElementById('footer-container');
+            footerContainer.innerHTML = `
+            <footer class="bg-gray-100 mt-12">
+                <div class="container mx-auto px-4 py-8">
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">FileToQR</h3>
+                            <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
                         </div>
-                    </header>`;
-                });
-            
-            // 푸터 직접 로드
-            fetch('../components/footer.html')
-                .then(response => response.text())
-                .then(html => {
-                    // 템플릿 변수 처리
-                    const processedHtml = processTemplate(html, {
-                        basePath: '../'
-                    });
-                    document.getElementById('footer-container').innerHTML = processedHtml;
-                })
-                .catch(error => {
-                    console.error('푸터 로드 실패:', error);
-                    // 푸터 로드 실패 시 대체 푸터 사용
-                    document.getElementById('footer-container').innerHTML = `
-                    <footer class="bg-gray-100 mt-12">
-                        <div class="container mx-auto px-4 py-8">
-                            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
-                                <p>&copy; 2025 FileToQR. All rights reserved.</p>
-                            </div>
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                            <ul class="space-y-2">
+                                <li><a href="../index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
+                                <li><a href="../convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
+                                <li><a href="../qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
+                                <li><a href="../blog/index.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
+                                <li><a href="../help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                            </ul>
                         </div>
-                    </footer>`;
-                });
+                        <div>
+                            <h3 class="text-lg font-bold mb-4">법적 정보</h3>
+                            <ul class="space-y-2">
+                                <li><a href="../privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
+                                <li><a href="../terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                        <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>`;
         });
     </script>
 </body>
