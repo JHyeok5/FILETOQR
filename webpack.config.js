@@ -6,7 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 // HTML 페이지 목록
-const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms'];
+const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms', 'blog'];
 
 module.exports = {
   mode: 'production',
