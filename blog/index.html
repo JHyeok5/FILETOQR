@@ -271,34 +271,67 @@
 
     <!-- 코어 스크립트 -->
     <script src="../assets/js/core/app-core.js" type="module"></script>
-    <script src="../assets/js/utils/adsense-manager.js" type="module"></script>
+    <script src="../assets/js/utils/template-utils.js" type="module"></script>
     <script type="module">
+        import TemplateUtils from '../assets/js/utils/template-utils.js';
+        
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('블로그 페이지 초기화 중...');
             
-            // 헤더 및 푸터 포함
             try {
                 // 헤더 컴포넌트 로드
                 const headerContainer = document.getElementById('header-container');
                 if (headerContainer && headerContainer.innerHTML === '') {
-                    const templateModule = await import('../assets/js/utils/template-utils.js');
-                    const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('header', headerContainer, '../', {
+                    const result = await TemplateUtils.loadComponent('header', headerContainer, '../', {
                         basePath: '../'
                     });
+                    console.log('헤더 로드 결과:', result ? '성공' : '실패');
                 }
                 
                 // 푸터 컴포넌트 로드
                 const footerContainer = document.getElementById('footer-container');
                 if (footerContainer && footerContainer.innerHTML === '') {
-                    const templateModule = await import('../assets/js/utils/template-utils.js');
-                    const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('footer', footerContainer, '../', {
+                    const result = await TemplateUtils.loadComponent('footer', footerContainer, '../', {
                         basePath: '../'
                     });
+                    console.log('푸터 로드 결과:', result ? '성공' : '실패');
                 }
             } catch (error) {
                 console.error('컴포넌트 로드 중 오류 발생:', error);
+                
+                // 오류 발생 시 폴백 처리
+                if (document.getElementById('header-container').innerHTML === '') {
+                    document.getElementById('header-container').innerHTML = `
+                    <header class="bg-white shadow-sm sticky top-0 z-50">
+                        <div class="container mx-auto px-4 py-4">
+                            <div class="flex justify-between items-center">
+                                <a href="../index.html" class="flex items-center">
+                                    <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                                </a>
+                                <nav>
+                                    <ul class="flex space-x-6">
+                                        <li><a href="../index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                                        <li><a href="../convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                                        <li><a href="../qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                                        <li><a href="../blog/index.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
+                                        <li><a href="../help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </header>`;
+                }
+                
+                if (document.getElementById('footer-container').innerHTML === '') {
+                    document.getElementById('footer-container').innerHTML = `
+                    <footer class="bg-gray-100 mt-12">
+                        <div class="container mx-auto px-4 py-8">
+                            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                                <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                            </div>
+                        </div>
+                    </footer>`;
+                }
             }
         });
     </script>
