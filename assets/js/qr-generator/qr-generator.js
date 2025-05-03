@@ -388,10 +388,10 @@ const QRGenerator = {
           } else {
             this.state.currentOptions.logo = null;
             if (this.state.generatedQR) this._generateQRCode();
-          }
-        });
-}
-
+      }
+    });
+  }
+  
       // 다운로드 버튼
       const pngDownloadBtn = document.getElementById('download-png');
       const svgDownloadBtn = document.getElementById('download-svg');
