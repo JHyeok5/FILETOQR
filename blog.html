@@ -279,257 +279,122 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('블로그 페이지 초기화 중...');
             
-            // 헤더/푸터 컴포넌트가 로드되었는지 확인하는 함수
-            function checkComponentsLoaded() {
+            // 직접 헤더와 푸터를 로드하는 함수
+            async function loadComponents() {
                 const headerContainer = document.getElementById('header-container');
                 const footerContainer = document.getElementById('footer-container');
-                
-                // 헤더나 푸터가 비어있는지 확인
-                const headerEmpty = headerContainer && headerContainer.innerHTML.trim() === '';
-                const footerEmpty = footerContainer && footerContainer.innerHTML.trim() === '';
-                
-                if (headerEmpty || footerEmpty) {
-                    console.warn('헤더/푸터 컴포넌트가 로드되지 않았습니다. 잠시 후 재시도합니다.');
-                    return false;
-                }
-                
-                return true;
-            }
-            
-            // 블로그 페이지 초기화 시도
-            let initAttempts = 0;
-            const maxAttempts = 3;
-            
-            async function attemptInitialization() {
-                try {
-                    initAttempts++;
-                    console.log(`블로그 페이지 초기화 시도 ${initAttempts}/${maxAttempts}`);
-                    
-                    // 먼저 app-core가 글로벌 객체를 초기화했는지 확인
-                    if (!window.FileToQR) {
-                        console.warn('FileToQR 전역 객체가 없습니다. 잠시 후 재시도합니다.');
-                        if (initAttempts < maxAttempts) {
-                            setTimeout(attemptInitialization, 500);
-                            return;
-                        }
-                    }
-                    
-                    // 블로그 페이지 모듈 로드 (기본 방식)
-                    const BlogPage = await import('./assets/js/pages/blog.js')
-                        .then(module => module.default)
-                        .catch(error => {
-                            console.warn('블로그 페이지 모듈을 로드할 수 없습니다:', error);
-                            return null;
-                        });
-                    
-                    // 블로그 모듈이 존재하면 초기화
-                    if (BlogPage && typeof BlogPage.init === 'function') {
-                        await BlogPage.init();
-                        console.log('블로그 페이지 모듈 초기화 완료');
-                        
-                        // 컴포넌트 로드 확인
-                        if (!checkComponentsLoaded() && initAttempts < maxAttempts) {
-                            console.warn('초기화 후에도 컴포넌트가 로드되지 않았습니다. 수동 로드 시도...');
-                            await loadComponentsManually();
-                        }
-                        
-                        return;
-                    }
-                    
-                    // 블로그 모듈이 없거나 초기화 메서드가 없는 경우 수동 로드
-                    console.log('블로그 모듈 로드 실패, 수동 초기화 진행...');
-                    await loadComponentsManually();
-                } catch (error) {
-                    console.error('블로그 페이지 초기화 중 오류 발생:', error);
-                    
-                    if (initAttempts < maxAttempts) {
-                        console.log(`초기화 재시도 중... (${initAttempts}/${maxAttempts})`);
-                        setTimeout(attemptInitialization, 500);
-                    } else {
-                        console.error('최대 시도 횟수 초과. 폴백 방식으로 전환');
-                        fallbackLoadComponents();
-                    }
-                }
-            }
-            
-            // 컴포넌트 수동 로드 시도
-            async function loadComponentsManually() {
-                console.log('컴포넌트 수동 로드 시도...');
-                
-                // 헤더 및 푸터 컨테이너 상태 확인
-                const headerContainer = document.getElementById('header-container');
-                const footerContainer = document.getElementById('footer-container');
-                
-                try {
-                    // 템플릿 유틸리티 로드 시도
-                    let TemplateUtils = null;
-                    
-                    // 전역 객체에서 템플릿 유틸리티 확인
-                    if (window.FileToQR && window.FileToQR.TemplateUtils) {
-                        TemplateUtils = window.FileToQR.TemplateUtils;
-                        console.log('전역 객체에서 템플릿 유틸리티 찾음');
-                    } else {
-                        // 직접 템플릿 유틸리티 모듈 로드 시도
-                        try {
-                            const templateModule = await import('./assets/js/utils/template-utils.js');
-                            TemplateUtils = templateModule.default;
-                            console.log('템플릿 유틸리티 모듈 직접 로드 성공');
-                        } catch (error) {
-                            console.error('템플릿 유틸리티 모듈 로드 실패:', error);
-                        }
-                    }
-                    
-                    // 템플릿 유틸리티를 찾았고, 헤더가 비어있으면 로드 시도
-                    if (TemplateUtils && headerContainer && headerContainer.innerHTML.trim() === '') {
-                        console.log('헤더 수동 로드 시도...');
-                        try {
-                            const result = await TemplateUtils.loadComponent('header', headerContainer, './');
-                            console.log('헤더 로드 결과:', result ? '성공' : '실패');
-                        } catch (error) {
-                            console.error('헤더 로드 중 오류 발생:', error);
-                        }
-                    }
-                    
-                    // 템플릿 유틸리티를 찾았고, 푸터가 비어있으면 로드 시도
-                    if (TemplateUtils && footerContainer && footerContainer.innerHTML.trim() === '') {
-                        console.log('푸터 수동 로드 시도...');
-                        try {
-                            const result = await TemplateUtils.loadComponent('footer', footerContainer, './');
-                            console.log('푸터 로드 결과:', result ? '성공' : '실패');
-                        } catch (error) {
-                            console.error('푸터 로드 중 오류 발생:', error);
-                        }
-                    }
-                    
-                    // 최종 확인 - 여전히 컴포넌트가 비어있으면 직접 fetch로 시도
-                    if (headerContainer && headerContainer.innerHTML.trim() === '') {
-                        console.log('최후의 방법: fetch로 헤더 직접 로드 시도...');
-                        try {
-                            const paths = ['./components/header.html', 'components/header.html', '../components/header.html'];
-                            
-                            for (const path of paths) {
-                                try {
-                                    console.log(`경로 시도: ${path}`);
-                                    const response = await fetch(path);
-                                    if (response.ok) {
-                                        headerContainer.innerHTML = await response.text();
-                                        console.log('헤더 컴포넌트 직접 로드 성공');
-                                        break;
-                                    }
-                                } catch (error) {
-                                    console.warn(`경로 ${path}에서 헤더 로드 실패:`, error);
-                                }
-                            }
-                        } catch (error) {
-                            console.error('헤더 직접 로드 중 오류 발생:', error);
-                        }
-                    }
-                    
-                    if (footerContainer && footerContainer.innerHTML.trim() === '') {
-                        console.log('최후의 방법: fetch로 푸터 직접 로드 시도...');
-                        try {
-                            const paths = ['./components/footer.html', 'components/footer.html', '../components/footer.html'];
-                            
-                            for (const path of paths) {
-                                try {
-                                    console.log(`경로 시도: ${path}`);
-                                    const response = await fetch(path);
-                                    if (response.ok) {
-                                        footerContainer.innerHTML = await response.text();
-                                        console.log('푸터 컴포넌트 직접 로드 성공');
-                                        break;
-                                    }
-                                } catch (error) {
-                                    console.warn(`경로 ${path}에서 푸터 로드 실패:`, error);
-                                }
-                            }
-                        } catch (error) {
-                            console.error('푸터 직접 로드 중 오류 발생:', error);
-                        }
-                    }
-                    
-                    // 최종 확인 - 여전히 비어있으면 하드코딩된 컴포넌트 사용
-                    if (headerContainer && headerContainer.innerHTML.trim() === '') {
-                        console.warn('모든 시도 실패, 하드코딩된 헤더 사용');
-                        fallbackLoadComponents();
-                    }
-                } catch (error) {
-                    console.error('컴포넌트 수동 로드 중 오류 발생:', error);
-                    fallbackLoadComponents();
-                }
-            }
-            
-            // 초기화 시작
-            attemptInitialization();
-            
-            // 폴백 함수: 컴포넌트 로드 실패 시 직접 삽입
-            function fallbackLoadComponents() {
-                console.warn('컴포넌트 모듈 로드 실패, 폴백 방식으로 전환');
                 
                 // 헤더 직접 삽입
-                const headerContainer = document.getElementById('header-container');
                 if (headerContainer && headerContainer.innerHTML.trim() === '') {
-                    headerContainer.innerHTML = `
-                    <header class="bg-white shadow-sm sticky top-0 z-50">
-                        <div class="container mx-auto px-4 py-4">
-                            <div class="flex justify-between items-center">
-                                <a href="index.html" class="flex items-center">
-                                    <img src="assets/images/logo.svg" alt="FileToQR Logo" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
-                                    <span class="text-2xl font-bold text-blue-600">FileToQR</span>
-                                </a>
-                                <nav>
-                                    <ul class="flex space-x-6">
-                                        <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
-                                        <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
-                                        <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
-                                        <li><a href="blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
-                                        <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
-                                    </ul>
-                                </nav>
+                    try {
+                        // 헤더 컴포넌트 로드 시도
+                        const headerResponse = await fetch('components/header.html');
+                        if (headerResponse.ok) {
+                            let headerContent = await headerResponse.text();
+                            headerContent = headerContent.replace(/\{\{basePath\}\}/g, './');
+                            headerContainer.innerHTML = headerContent;
+                            console.log('헤더 컴포넌트 로드 성공');
+                        } else {
+                            throw new Error('헤더 컴포넌트를 찾을 수 없습니다');
+                        }
+                    } catch (error) {
+                        console.error('헤더 로드 실패:', error);
+                        // 하드코딩된 헤더 폴백
+                        headerContainer.innerHTML = `
+                        <header class="bg-white shadow-sm sticky top-0 z-50">
+                            <div class="container mx-auto px-4 py-4">
+                                <div class="flex justify-between items-center">
+                                    <a href="index.html" class="flex items-center">
+                                        <img src="assets/images/logo.svg" alt="FileToQR Logo" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
+                                        <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                                    </a>
+                                    <nav>
+                                        <ul class="flex space-x-6">
+                                            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                                            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                                            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                                            <li><a href="blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
+                                            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
-                        </div>
-                    </header>`;
-                    console.log('폴백 헤더 삽입 완료');
+                        </header>`;
+                    }
                 }
                 
                 // 푸터 직접 삽입
-                const footerContainer = document.getElementById('footer-container');
                 if (footerContainer && footerContainer.innerHTML.trim() === '') {
-                    footerContainer.innerHTML = `
-                    <footer class="bg-gray-100 mt-12">
-                        <div class="container mx-auto px-4 py-8">
-                            <div class="grid md:grid-cols-3 gap-8">
-                                <div>
-                                    <h3 class="text-lg font-bold mb-4">FileToQR</h3>
-                                    <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+                    try {
+                        // 푸터 컴포넌트 로드 시도
+                        const footerResponse = await fetch('components/footer.html');
+                        if (footerResponse.ok) {
+                            let footerContent = await footerResponse.text();
+                            footerContent = footerContent.replace(/\{\{basePath\}\}/g, './');
+                            footerContainer.innerHTML = footerContent;
+                            console.log('푸터 컴포넌트 로드 성공');
+                        } else {
+                            throw new Error('푸터 컴포넌트를 찾을 수 없습니다');
+                        }
+                    } catch (error) {
+                        console.error('푸터 로드 실패:', error);
+                        // 하드코딩된 푸터 폴백
+                        footerContainer.innerHTML = `
+                        <footer class="bg-gray-100 mt-12">
+                            <div class="container mx-auto px-4 py-8">
+                                <div class="grid md:grid-cols-3 gap-8">
+                                    <div>
+                                        <h3 class="text-lg font-bold mb-4">FileToQR</h3>
+                                        <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                                        <ul class="space-y-2">
+                                            <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
+                                            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
+                                            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
+                                            <li><a href="blog.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
+                                            <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold mb-4">법적 정보</h3>
+                                        <ul class="space-y-2">
+                                            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
+                                            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
-                                    <ul class="space-y-2">
-                                        <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
-                                        <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
-                                        <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
-                                        <li><a href="blog.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
-                                        <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-bold mb-4">법적 정보</h3>
-                                    <ul class="space-y-2">
-                                        <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
-                                        <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
-                                    </ul>
+                                
+                                <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                                    <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                                    <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
                                 </div>
                             </div>
-                            
-                            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
-                                <p>&copy; 2025 FileToQR. All rights reserved.</p>
-                                <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
-                            </div>
-                        </div>
-                    </footer>`;
-                    console.log('폴백 푸터 삽입 완료');
+                        </footer>`;
+                    }
                 }
+            }
+            
+            // 즉시 컴포넌트 로드 시도
+            await loadComponents();
+            
+            // 블로그 페이지 모듈 로드 시도
+            try {
+                const BlogPage = await import('./assets/js/pages/blog.js')
+                    .then(module => module.default)
+                    .catch(error => {
+                        console.warn('블로그 페이지 모듈을 로드할 수 없습니다:', error);
+                        return null;
+                    });
+                
+                // 블로그 모듈이 존재하면 초기화
+                if (BlogPage && typeof BlogPage.init === 'function') {
+                    await BlogPage.init();
+                    console.log('블로그 페이지 모듈 초기화 완료');
+                }
+            } catch (error) {
+                console.error('블로그 페이지 초기화 중 오류 발생:', error);
             }
         });
     </script>
