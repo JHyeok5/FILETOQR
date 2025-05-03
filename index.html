@@ -105,9 +105,11 @@
     <!-- 코어 모듈 및 유틸리티 로드 -->
     <script src="assets/js/core/app-core.js" type="module"></script>
     <script src="assets/js/utils/adsense-manager.js" type="module"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        FileToQR.appCore.init();
+    <script type="module">
+      import appCore from './assets/js/core/app-core.js';
+      document.addEventListener('DOMContentLoaded', async () => {
+        console.log('홈페이지 초기화: appCore.init 호출');
+        await appCore.init();
       });
     </script>
 </body>
