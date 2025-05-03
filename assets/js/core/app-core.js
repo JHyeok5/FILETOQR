@@ -363,38 +363,100 @@ async function loadHeaderFooter(retryCount = 3) {
       throw new Error('템플릿 유틸리티를 로드할 수 없습니다.');
     }
     
-    // 현재 경로에 따라 basePath 설정
-    const path = window.location.pathname;
-    const isSubdirectory = path.split('/').filter(Boolean).length > 1;
-    const basePath = isSubdirectory ? '../' : '';
-    
-    console.log(`현재 경로: ${path}, basePath: ${basePath}`);
+    // 현재 경로에 따라 basePath 설정 - 개선된 방식
+    let basePath = '';
+    try {
+      const path = window.location.pathname;
+      console.log(`현재 URL 경로: ${path}`);
+      
+      // 루트 패턴 일치 체크 (/, /index.html)
+      if (path === '/' || path === '/index.html' || path.endsWith('/index.html')) {
+        basePath = './';
+      } 
+      // 첫 번째 계층 HTML 파일 체크 (/*.html)
+      else if (/^\/[^\/]+\.html$/.test(path) || path.match(/[^\/]+\.html$/)) {
+        basePath = './';
+      }
+      // 그 외의 경우 (하위 디렉토리)
+      else {
+        const pathSegments = path.split('/').filter(Boolean);
+        basePath = '../'.repeat(pathSegments.length > 0 ? pathSegments.length : 0);
+      }
+      
+      // 경로가 비어있는 경우 기본값 설정
+      if (basePath === '') {
+        basePath = './';
+      }
+      
+      console.log(`계산된 basePath: ${basePath}`);
+    } catch (pathError) {
+      console.warn('경로 계산 중 오류 발생, 기본 경로 사용:', pathError);
+      basePath = './'; // 오류 시 기본값
+    }
     
     // 헤더 로드
     if (headerContainer) {
       console.log('헤더 로드 시도...');
       try {
-        const headerSuccess = await TemplateUtils.loadComponent('header', headerContainer, basePath, {
+        // 헤더 로드 시도 - 주 경로
+        let headerSuccess = await TemplateUtils.loadComponent('header', headerContainer, basePath, {
           basePath: basePath
         });
-        console.log('헤더 로드 결과:', headerSuccess ? '성공' : '실패');
         
+        // 첫 번째 시도 실패 시 다른 경로 시도
         if (!headerSuccess) {
-          // 직접 헤더 템플릿 가져오기 시도
-          console.log('직접 헤더 가져오기 시도...');
-          try {
-            const headerResponse = await fetch(basePath + 'components/header.html');
-            
-            if (!headerResponse.ok) {
-              console.error(`헤더 가져오기 실패: ${headerResponse.status} ${headerResponse.statusText}`);
-            } else {
-              const headerText = await headerResponse.text();
-              console.log('헤더 응답 내용:', headerText.substring(0, 100) + '...');
-              headerContainer.innerHTML = headerText;
+          console.log('첫 번째 경로로 헤더 로드 실패, 대체 경로 시도...');
+          
+          // 대체 경로 목록
+          const alternativePaths = ['./components/header.html', './header.html', '../components/header.html'];
+          
+          for (const altPath of alternativePaths) {
+            try {
+              console.log(`대체 경로 시도: ${altPath}`);
+              const template = await fetch(altPath)
+                .then(response => response.ok ? response.text() : null)
+                .catch(() => null);
+              
+              if (template) {
+                console.log(`대체 경로에서 헤더 템플릿 로드 성공: ${altPath}`);
+                
+                // 템플릿에서 {{basePath}} 치환
+                const processedTemplate = template.replace(/\{\{basePath\}\}/g, basePath);
+                headerContainer.innerHTML = processedTemplate;
+                headerSuccess = true;
+                break;
+              }
+            } catch (altError) {
+              console.warn(`대체 경로 ${altPath}에서 헤더 로드 실패:`, altError);
             }
-          } catch (headerFetchError) {
-            console.error('헤더 직접 가져오기 실패:', headerFetchError);
           }
+        }
+        
+        // 최종 실패 처리
+        if (!headerSuccess) {
+          console.warn('모든 경로에서 헤더 로드 실패, 하드코딩된 헤더 사용');
+          // 대체 헤더 직접 삽입 (blog.html용 링크 포함)
+          headerContainer.innerHTML = `
+            <header class="bg-white shadow-sm sticky top-0 z-50">
+              <div class="container mx-auto px-4 py-4">
+                <div class="flex justify-between items-center">
+                  <a href="index.html" class="flex items-center">
+                    <img src="assets/images/logo.svg" alt="FileToQR Logo" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
+                    <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                  </a>
+                  <nav>
+                    <ul class="flex space-x-6">
+                      <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                      <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                      <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                      <li><a href="blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
+                      <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          `;
         }
       } catch (headerError) {
         console.error('헤더 로드 중 오류 발생:', headerError);
@@ -405,27 +467,77 @@ async function loadHeaderFooter(retryCount = 3) {
     if (footerContainer) {
       console.log('푸터 로드 시도...');
       try {
-        const footerSuccess = await TemplateUtils.loadComponent('footer', footerContainer, basePath, {
+        // 푸터 로드 시도 - 주 경로
+        let footerSuccess = await TemplateUtils.loadComponent('footer', footerContainer, basePath, {
           basePath: basePath
         });
-        console.log('푸터 로드 결과:', footerSuccess ? '성공' : '실패');
         
+        // 첫 번째 시도 실패 시 다른 경로 시도
         if (!footerSuccess) {
-          // 직접 푸터 템플릿 가져오기 시도
-          console.log('직접 푸터 가져오기 시도...');
-          try {
-            const footerResponse = await fetch(basePath + 'components/footer.html');
-            
-            if (!footerResponse.ok) {
-              console.error(`푸터 가져오기 실패: ${footerResponse.status} ${footerResponse.statusText}`);
-            } else {
-              const footerText = await footerResponse.text();
-              console.log('푸터 응답 내용:', footerText.substring(0, 100) + '...');
-              footerContainer.innerHTML = footerText;
+          console.log('첫 번째 경로로 푸터 로드 실패, 대체 경로 시도...');
+          
+          // 대체 경로 목록
+          const alternativePaths = ['./components/footer.html', './footer.html', '../components/footer.html'];
+          
+          for (const altPath of alternativePaths) {
+            try {
+              console.log(`대체 경로 시도: ${altPath}`);
+              const template = await fetch(altPath)
+                .then(response => response.ok ? response.text() : null)
+                .catch(() => null);
+              
+              if (template) {
+                console.log(`대체 경로에서 푸터 템플릿 로드 성공: ${altPath}`);
+                
+                // 템플릿에서 {{basePath}} 치환
+                const processedTemplate = template.replace(/\{\{basePath\}\}/g, basePath);
+                footerContainer.innerHTML = processedTemplate;
+                footerSuccess = true;
+                break;
+              }
+            } catch (altError) {
+              console.warn(`대체 경로 ${altPath}에서 푸터 로드 실패:`, altError);
             }
-          } catch (footerFetchError) {
-            console.error('푸터 직접 가져오기 실패:', footerFetchError);
           }
+        }
+        
+        // 최종 실패 처리
+        if (!footerSuccess) {
+          console.warn('모든 경로에서 푸터 로드 실패, 하드코딩된 푸터 사용');
+          // 대체 푸터 직접 삽입
+          footerContainer.innerHTML = `
+            <footer class="bg-gray-100 mt-12">
+              <div class="container mx-auto px-4 py-8">
+                <div class="grid md:grid-cols-3 gap-8">
+                  <div>
+                    <h3 class="text-lg font-bold mb-4">FileToQR</h3>
+                    <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <ul class="space-y-2">
+                      <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
+                      <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
+                      <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
+                      <li><a href="blog.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
+                      <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold mb-4">법적 정보</h3>
+                    <ul class="space-y-2">
+                      <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
+                      <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                  <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                  <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
+                </div>
+              </div>
+            </footer>
+          `;
         }
       } catch (footerError) {
         console.error('푸터 로드 중 오류 발생:', footerError);
@@ -442,7 +554,7 @@ async function loadHeaderFooter(retryCount = 3) {
       console.error('헤더/푸터 로드 최대 재시도 횟수 초과');
       
       // 대체 헤더/푸터 사용
-      if (headerContainer) {
+      if (headerContainer && headerContainer.innerHTML === '') {
         headerContainer.innerHTML = `
           <header class="bg-white shadow-sm sticky top-0 z-50">
             <div class="container mx-auto px-4 py-4">
@@ -456,6 +568,7 @@ async function loadHeaderFooter(retryCount = 3) {
                     <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
                     <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
                     <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                    <li><a href="blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
                     <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
                   </ul>
                 </nav>
@@ -465,7 +578,7 @@ async function loadHeaderFooter(retryCount = 3) {
         `;
       }
       
-      if (footerContainer) {
+      if (footerContainer && footerContainer.innerHTML === '') {
         footerContainer.innerHTML = `
           <footer class="bg-gray-100 mt-12">
             <div class="container mx-auto px-4 py-8">
@@ -767,32 +880,150 @@ async function safeImport(modulePath) {
  */
 async function loadTemplateUtils() {
   try {
+    console.log('템플릿 유틸리티 로드 시도 중...');
+    
     // 모듈 경로 목록 (시도할 순서대로)
     const paths = [
       './assets/js/utils/template-utils.js',
       '../utils/template-utils.js',
-      '/assets/js/utils/template-utils.js'
+      '/assets/js/utils/template-utils.js',
+      'assets/js/utils/template-utils.js',
+      '../assets/js/utils/template-utils.js',
+      '../../assets/js/utils/template-utils.js'
     ];
     
     let lastError = null;
+    let module = null;
     
     // 각 경로 시도
     for (const path of paths) {
       try {
         console.log(`템플릿 유틸리티 로드 시도: ${path}`);
-        const module = await import(path);
-        console.log('템플릿 유틸리티 로드 성공');
-        return module.default;
+        
+        module = await import(path).catch(importError => {
+          console.warn(`경로 ${path}에서 로드 실패:`, importError);
+          return null;
+        });
+        
+        if (module && module.default) {
+          console.log(`템플릿 유틸리티 모듈 로드 성공: ${path}`);
+          
+          // 템플릿 유틸리티 유효성 확인 (주요 메서드 존재 여부)
+          if (typeof module.default.loadComponent === 'function') {
+            console.log('유효한 템플릿 유틸리티 모듈 확인됨');
+            
+            // 모듈을 글로벌 네임스페이스에 등록 (필요시)
+            if (typeof window !== 'undefined') {
+              window.FileToQR = window.FileToQR || {};
+              window.FileToQR.TemplateUtils = module.default;
+            }
+            
+            return module.default;
+          } else {
+            console.warn('로드된 모듈이 예상된 템플릿 유틸리티 인터페이스를 구현하지 않음');
+          }
+        }
       } catch (error) {
-        console.warn(`경로 ${path}에서 로드 실패:`, error);
+        console.warn(`경로 ${path}에서 템플릿 유틸리티 로드 시도 중 오류:`, error);
         lastError = error;
       }
     }
     
-    // 모든 시도 실패
-    throw lastError || new Error('템플릿 유틸리티 로드 실패');
+    // 직접 구현된 간단한 템플릿 유틸리티 폴백 생성
+    console.warn('모든 템플릿 유틸리티 로드 시도 실패, 간단한 대체 구현을 사용합니다');
+    
+    const fallbackTemplateUtils = {
+      loadComponent: async function(componentName, container, basePath = './', data = {}) {
+        try {
+          console.log(`[폴백] 컴포넌트 로드 시도: ${componentName}, 경로: ${basePath}`);
+          
+          // 컴포넌트 경로 목록 시도
+          const possiblePaths = [
+            `${basePath}components/${componentName}.html`,
+            `${basePath}${componentName}.html`,
+            `components/${componentName}.html`,
+            `${componentName}.html`
+          ];
+          
+          let template = null;
+          
+          // 각 경로 시도
+          for (const path of possiblePaths) {
+            try {
+              console.log(`[폴백] 경로 시도: ${path}`);
+              const response = await fetch(path);
+              
+              if (response.ok) {
+                template = await response.text();
+                console.log(`[폴백] 컴포넌트 템플릿 로드 성공: ${path}`);
+                break;
+              }
+            } catch (pathError) {
+              console.warn(`[폴백] 경로 ${path} 시도 실패:`, pathError);
+            }
+          }
+          
+          if (!template) {
+            console.error(`[폴백] 컴포넌트 ${componentName} 로드 실패`);
+            return false;
+          }
+          
+          // basePath 변수 처리
+          template = template.replace(/\{\{basePath\}\}/g, basePath || './');
+          
+          // 데이터 변수 처리 (기본)
+          if (data && typeof data === 'object') {
+            for (const [key, value] of Object.entries(data)) {
+              const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+              template = template.replace(regex, value);
+            }
+          }
+          
+          // 컨테이너에 삽입
+          if (typeof container === 'string') {
+            container = document.querySelector(container);
+          }
+          
+          if (container) {
+            container.innerHTML = template;
+            return true;
+          }
+          
+          return false;
+        } catch (error) {
+          console.error('[폴백] 컴포넌트 로드 중 오류:', error);
+          return false;
+        }
+      },
+      
+      processTemplate: function(template, data = {}) {
+        if (!template) return '';
+        
+        // basePath 처리
+        template = template.replace(/\{\{basePath\}\}/g, data.basePath || './');
+        
+        // 데이터 변수 처리
+        if (data && typeof data === 'object') {
+          for (const [key, value] of Object.entries(data)) {
+            const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+            template = template.replace(regex, value || '');
+          }
+        }
+        
+        return template;
+      }
+    };
+    
+    // 폴백 유틸리티를 글로벌 네임스페이스에 등록
+    if (typeof window !== 'undefined') {
+      window.FileToQR = window.FileToQR || {};
+      window.FileToQR.TemplateUtils = fallbackTemplateUtils;
+    }
+    
+    console.log('폴백 템플릿 유틸리티 생성 완료');
+    return fallbackTemplateUtils;
   } catch (error) {
-    console.error('템플릿 유틸리티 로드 중 오류 발생:', error);
+    console.error('템플릿 유틸리티 로드 중 치명적 오류 발생:', error);
     throw error;
   }
 }
