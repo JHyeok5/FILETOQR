@@ -279,9 +279,26 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('블로그 페이지 초기화 중...');
             
-            // 헤더 및 푸터 포함
             try {
-                // 헤더 컴포넌트 로드
+                // 블로그 페이지 모듈 로드 (기본 방식)
+                const BlogPage = await import('./assets/js/pages/blog.js')
+                    .then(module => module.default)
+                    .catch(error => {
+                        console.warn('블로그 페이지 모듈을 로드할 수 없습니다:', error);
+                        return null;
+                    });
+                
+                // 블로그 모듈이 존재하면 초기화
+                if (BlogPage && typeof BlogPage.init === 'function') {
+                    await BlogPage.init();
+                    console.log('블로그 페이지 모듈 초기화 완료');
+                    return; // 성공적으로 초기화되었으므로 여기서 종료
+                }
+                
+                // 블로그 모듈이 없거나 초기화 메서드가 없는 경우 대체 방식으로 진행
+                console.log('블로그 모듈 로드 실패, 대체 초기화 방식으로 진행합니다.');
+                
+                // 헤더 및 푸터 포함
                 const headerContainer = document.getElementById('header-container');
                 if (headerContainer && headerContainer.innerHTML === '') {
                     const templateModule = await import('./assets/js/utils/template-utils.js');
@@ -297,7 +314,7 @@
                     await TemplateUtils.loadComponent('footer', footerContainer, './');
                 }
             } catch (error) {
-                console.error('컴포넌트 로드 중 오류 발생:', error);
+                console.error('블로그 페이지 초기화 중 오류 발생:', error);
                 
                 // 폴백: 컴포넌트 로드 실패 시 직접 삽입 (일관성 유지를 위한 대체 방안)
                 fallbackLoadComponents();
