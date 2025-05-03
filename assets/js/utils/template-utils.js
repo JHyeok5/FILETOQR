@@ -42,8 +42,7 @@ const TemplateUtils = {
       // 템플릿 가져오기 - 여러 경로 패턴 시도
       let template = null;
       const possiblePaths = [
-        // 확장자가 없는 경우 다양한 경로 패턴 시도
-        componentName.endsWith('.html') ? `${basePath}${componentName}` : `${basePath}${componentName}.html`,
+        // components 폴더에서 HTML 파일을 직접 로드
         componentName.endsWith('.html') ? `${basePath}${componentName}` : `${basePath}components/${componentName}.html`,
         componentName.includes('/') ? `${basePath}${componentName}` : `${basePath}components/${componentName}`
       ];
