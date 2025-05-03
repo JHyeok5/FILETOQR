@@ -105,31 +105,15 @@
     <!-- 코어 모듈 및 유틸리티 로드 -->
     <script src="assets/js/core/app-core.js" type="module"></script>
     <script src="assets/js/utils/adsense-manager.js" type="module"></script>
-    <script type="module">
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('홈페이지 초기화 중...');
-            
-            // 헤더 및 푸터 포함
-            try {
-                // 헤더 컴포넌트 로드
-                const headerContainer = document.getElementById('header-container');
-                if (headerContainer && headerContainer.innerHTML === '') {
-                    const templateModule = await import('./assets/js/utils/template-utils.js');
-                    const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('header', headerContainer, './');
-                }
-                
-                // 푸터 컴포넌트 로드
-                const footerContainer = document.getElementById('footer-container');
-                if (footerContainer && footerContainer.innerHTML === '') {
-                    const templateModule = await import('./assets/js/utils/template-utils.js');
-                    const TemplateUtils = templateModule.default;
-                    await TemplateUtils.loadComponent('footer', footerContainer, './');
-                }
-            } catch (error) {
-                console.error('컴포넌트 로드 중 오류 발생:', error);
-            }
-        });
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('홈페이지 초기화: appCore init 호출');
+        if (window.FileToQR && window.FileToQR.appCore && typeof window.FileToQR.appCore.init === 'function') {
+          window.FileToQR.appCore.init();
+        } else {
+          console.error('appCore 모듈을 찾을 수 없습니다.');
+        }
+      });
     </script>
 </body>
 </html> 
