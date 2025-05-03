@@ -272,63 +272,12 @@
     <!-- 푸터 컴포넌트 -->
     <div id="footer-container"></div>
 
-    <!-- 코어 모듈 및 유틸리티 로드 -->
-    <script src="assets/js/core/app-core.js" type="module"></script>
-    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
+    <!-- 앱 코어 초기화 -->
     <script type="module">
+        import appCore from './assets/js/core/app-core.js';
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('블로그 페이지 초기화 중...');
-
-            // 헤더 및 푸터 로드
-            try {
-                const templateModule = await import('./assets/js/utils/template-utils.js');
-                const TemplateUtils = templateModule.default;
-                const headerContainer = document.getElementById('header-container');
-                if (headerContainer && headerContainer.innerHTML.trim() === '') {
-                    await TemplateUtils.loadComponent('header', headerContainer, './');
-                }
-                const footerContainer = document.getElementById('footer-container');
-                if (footerContainer && footerContainer.innerHTML.trim() === '') {
-                    await TemplateUtils.loadComponent('footer', footerContainer, './');
-                }
-            } catch (error) {
-                console.error('컴포넌트 로드 중 오류 발생:', error);
-            }
-
-            // 헤더 및 푸터에 블로그 메뉴 링크가 없으면 추가
-            (function() {
-                const headerNav = document.querySelector('#header-container nav ul');
-                if (headerNav && !headerNav.querySelector('a[href$="blog.html"]')) {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.href = './blog.html';
-                    a.className = 'text-gray-700 hover:text-blue-600 font-medium';
-                    a.textContent = '블로그';
-                    li.appendChild(a);
-                    headerNav.appendChild(li);
-                }
-                const footerNav = document.querySelector('#footer-container ul');
-                if (footerNav && !footerNav.querySelector('a[href$="blog.html"]')) {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.href = './blog.html';
-                    a.className = 'text-gray-600 hover:text-blue-600';
-                    a.textContent = '블로그';
-                    li.appendChild(a);
-                    footerNav.appendChild(li);
-                }
-            })();
-
-            // 블로그 페이지 초기화
-            try {
-                const BlogPage = await import('./assets/js/pages/blog.js').then(m => m.default);
-                if (BlogPage && typeof BlogPage.init === 'function') {
-                    await BlogPage.init();
-                    console.log('블로그 페이지 모듈 초기화 완료');
-                }
-            } catch (error) {
-                console.error('블로그 페이지 초기화 중 오류 발생:', error);
-            }
+            console.log('블로그 페이지 초기화: core app init 호출');
+            await appCore.init();
         });
     </script>
 </body>
