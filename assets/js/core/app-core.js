@@ -137,13 +137,14 @@ function getCurrentPage() {
   if (path.endsWith('privacy.html')) return 'privacy';
   if (path.endsWith('terms.html')) return 'terms';
   if (path.endsWith('help.html')) return 'help';
+  if (path.endsWith('blog.html')) return 'blog';
   
   // 확장자 없는 URL 처리
   const pathWithoutExtension = path.split('.')[0];
   const segments = pathWithoutExtension.split('/').filter(Boolean);
   if (segments.length > 0) {
     const lastSegment = segments[segments.length - 1];
-    if (['convert', 'qrcode', 'privacy', 'terms', 'help'].includes(lastSegment)) {
+    if (['convert', 'qrcode', 'privacy', 'terms', 'help', 'blog'].includes(lastSegment)) {
       return lastSegment;
     }
   }
@@ -527,6 +528,22 @@ async function initPageSpecific(page) {
       await initQRGenerator();
       break;
       
+    case 'blog':
+      try {
+        // 블로그 페이지 초기화 시도
+        const blogPage = await import('../pages/blog.js').catch(() => null);
+        if (blogPage && blogPage.default && typeof blogPage.default.init === 'function') {
+          blogPage.default.init();
+        } else {
+          console.log('블로그 페이지 모듈이 없거나 초기화 메서드가 없습니다. 기본 초기화를 사용합니다.');
+          // 블로그 페이지 기본 초기화 (컴포넌트 로드 확인)
+          ensureBlogPageComponents();
+        }
+      } catch (error) {
+        console.error('블로그 페이지 초기화 중 오류 발생:', error);
+      }
+      break;
+      
     case 'privacy':
     case 'terms':
     case 'help':
@@ -882,6 +899,36 @@ async function initQRGenerator() {
     console.error('QR 생성기 초기화 실패:', error);
     return null;
   }
+}
+
+/**
+ * 블로그 페이지 컴포넌트 로드 확인
+ * @private
+ */
+function ensureBlogPageComponents() {
+  console.log('블로그 페이지 컴포넌트 확인 중...');
+  
+  // 헤더와 푸터 컨테이너 확인
+  const headerContainer = document.getElementById('header-container');
+  const footerContainer = document.getElementById('footer-container');
+  
+  // 컨테이너가 비어있는지 확인하고 템플릿 로드 재시도
+  if (headerContainer && headerContainer.innerHTML === '') {
+    console.log('헤더 컨테이너가 비어 있습니다. 재로드 시도...');
+    loadHeaderFooter(2); // 2회 재시도
+  }
+  
+  // 이미지 로드 확인
+  document.querySelectorAll('img').forEach(img => {
+    if (!img.complete) {
+      img.onerror = function() {
+        console.error(`이미지 로드 실패: ${img.src}`);
+        // 대체 이미지 로드
+        this.onerror = null;
+        this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjOTk5IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSI+PC9wb2x5bGluZT48L3N2Zz4=';
+      };
+    }
+  });
 }
 
 // 하위 호환성을 위한 전역 참조
