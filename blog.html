@@ -272,13 +272,33 @@
     <!-- 푸터 컴포넌트 -->
     <div id="footer-container"></div>
 
-    <!-- 앱 코어 초기화 -->
+    <!-- 코어 모듈 및 유틸리티 로드 -->
+    <script src="assets/js/core/app-core.js" type="module"></script>
+    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
     <script type="module">
-        import appCore from './assets/js/core/app-core.js';
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('블로그 페이지 초기화: core app init 호출');
-            await appCore.init();
-        });
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('블로그 페이지 초기화: appCore.init 호출');
+        if (window.FileToQR && window.FileToQR.appCore && typeof window.FileToQR.appCore.init === 'function') {
+          window.FileToQR.appCore.init().then(() => {
+            // 헤더 네비게이션에 블로그 링크가 없으면 추가
+            const headerNav = document.querySelector('#header-container nav ul');
+            if (headerNav && !headerNav.querySelector('a[href$="blog.html"]')) {
+              const li = document.createElement('li');
+              const a = document.createElement('a');
+              a.href = './blog.html';
+              a.className = 'text-gray-700 hover:text-blue-600 font-medium';
+              a.textContent = '블로그';
+              li.appendChild(a);
+              headerNav.appendChild(li);
+              console.log('헤더에 블로그 메뉴 링크 추가 완료');
+            }
+          }).catch(error => {
+            console.error('appCore.init 실행 중 오류 발생:', error);
+          });
+        } else {
+          console.error('appCore 모듈을 찾을 수 없습니다.');
+        }
+      });
     </script>
 </body>
 </html> 
