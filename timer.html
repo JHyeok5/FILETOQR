@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타이머 & 스톱워치 | 포모도로</title>
+    <link rel="stylesheet" href="assets/css/timer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">FileToQR</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">홈</a></li>
+                <li><a href="convert.html">파일 변환</a></li>
+                <li><a href="qrcode.html">QR 코드</a></li>
+                <li><a href="timer.html" class="active">타이머</a></li>
+                <li><a href="help.html">도움말</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="timer">타이머</button>
+            <button class="tab-btn" data-tab="stopwatch">스톱워치</button>
+            <button class="tab-btn" data-tab="pomodoro">포모도로</button>
+        </div>
+
+        <div class="tab-content active" id="timer-tab">
+            <div class="timer-container">
+                <div class="timer-display">
+                    <span id="timer-hours">00</span>:<span id="timer-minutes">00</span>:<span id="timer-seconds">00</span>
+                </div>
+                <div class="timer-controls">
+                    <button id="timer-start" class="control-btn"><i class="fas fa-play"></i></button>
+                    <button id="timer-pause" class="control-btn" disabled><i class="fas fa-pause"></i></button>
+                    <button id="timer-reset" class="control-btn"><i class="fas fa-redo"></i></button>
+                </div>
+                <div class="timer-settings">
+                    <div class="time-input">
+                        <label for="hours-input">시간:</label>
+                        <input type="number" id="hours-input" min="0" max="23" value="0">
+                    </div>
+                    <div class="time-input">
+                        <label for="minutes-input">분:</label>
+                        <input type="number" id="minutes-input" min="0" max="59" value="0">
+                    </div>
+                    <div class="time-input">
+                        <label for="seconds-input">초:</label>
+                        <input type="number" id="seconds-input" min="0" max="59" value="0">
+                    </div>
+                </div>
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-minutes="5">5분</button>
+                    <button class="preset-btn" data-minutes="10">10분</button>
+                    <button class="preset-btn" data-minutes="15">15분</button>
+                    <button class="preset-btn" data-minutes="30">30분</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="stopwatch-tab">
+            <div class="stopwatch-container">
+                <div class="timer-display">
+                    <span id="stopwatch-hours">00</span>:<span id="stopwatch-minutes">00</span>:<span id="stopwatch-seconds">00</span>.<span id="stopwatch-milliseconds">00</span>
+                </div>
+                <div class="timer-controls">
+                    <button id="stopwatch-start" class="control-btn"><i class="fas fa-play"></i></button>
+                    <button id="stopwatch-pause" class="control-btn" disabled><i class="fas fa-pause"></i></button>
+                    <button id="stopwatch-reset" class="control-btn"><i class="fas fa-redo"></i></button>
+                    <button id="stopwatch-lap" class="control-btn" disabled><i class="fas fa-flag"></i></button>
+                </div>
+                <div class="laps-container">
+                    <h3>기록</h3>
+                    <ul id="laps-list"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="pomodoro-tab">
+            <div class="pomodoro-container">
+                <div class="timer-display">
+                    <span id="pomodoro-minutes">25</span>:<span id="pomodoro-seconds">00</span>
+                </div>
+                <div class="pomodoro-status">
+                    <span id="status-text">작업 시간</span>
+                    <span id="cycle-count">세션: 0/4</span>
+                </div>
+                <div class="timer-controls">
+                    <button id="pomodoro-start" class="control-btn"><i class="fas fa-play"></i></button>
+                    <button id="pomodoro-pause" class="control-btn" disabled><i class="fas fa-pause"></i></button>
+                    <button id="pomodoro-reset" class="control-btn"><i class="fas fa-redo"></i></button>
+                </div>
+                <div class="pomodoro-settings">
+                    <div class="time-input">
+                        <label for="work-minutes">작업 시간(분):</label>
+                        <input type="number" id="work-minutes" min="1" max="60" value="25">
+                    </div>
+                    <div class="time-input">
+                        <label for="short-break-minutes">짧은 휴식(분):</label>
+                        <input type="number" id="short-break-minutes" min="1" max="30" value="5">
+                    </div>
+                    <div class="time-input">
+                        <label for="long-break-minutes">긴 휴식(분):</label>
+                        <input type="number" id="long-break-minutes" min="1" max="60" value="15">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="plant-container">
+            <div class="plant-display">
+                <div id="plant-image" class="plant-pot">
+                    <div class="plant-growth plant-stage-0">
+                        <div class="soil"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="plant-info">
+                <h3 id="plant-name">새싹</h3>
+                <p id="plant-level">레벨: 0</p>
+                <p id="plant-exp">경험치: 0 / 100</p>
+                <div class="plant-exp-bar">
+                    <div id="plant-exp-progress" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="plant-collection">
+                <h3>식물 컬렉션</h3>
+                <div class="collection-grid" id="plant-collection-grid">
+                    <!-- 식물 컬렉션은 자바스크립트로 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-panel">
+            <h3>설정</h3>
+            <div class="setting">
+                <label for="notification-sound">알림 소리:</label>
+                <select id="notification-sound">
+                    <option value="bell">벨</option>
+                    <option value="digital">디지털</option>
+                    <option value="nature">자연</option>
+                    <option value="none">없음</option>
+                </select>
+            </div>
+            <div class="setting">
+                <label for="notification-volume">볼륨:</label>
+                <input type="range" id="notification-volume" min="0" max="100" value="80">
+            </div>
+            <div class="setting">
+                <label for="background-notification">백그라운드 알림:</label>
+                <input type="checkbox" id="background-notification" checked>
+            </div>
+            <div class="setting">
+                <label for="plant-theme">식물 테마:</label>
+                <select id="plant-theme">
+                    <option value="indoor">실내 식물</option>
+                    <option value="garden">정원 식물</option>
+                    <option value="tropical">열대 식물</option>
+                    <option value="succulent">다육 식물</option>
+                </select>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="about.html">소개</a>
+                <a href="privacy.html">개인정보 처리방침</a>
+                <a href="terms.html">이용약관</a>
+                <a href="contact.html">문의하기</a>
+            </div>
+            <p>&copy; 2023 FileToQR. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 오디오 요소 -->
+    <audio id="bell-sound" src="assets/sounds/bell.mp3" preload="auto"></audio>
+    <audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio>
+    <audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio>
+
+    <script src="assets/js/pages/timer.js" type="module"></script>
+</body>
+</html> 
