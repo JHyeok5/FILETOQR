@@ -32,11 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
             tabContents.forEach(content => content.classList.remove('active'));
             // 선택한 탭 콘텐츠만 표시
             document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // 포모도로 탭인 경우에만 식물 시스템 표시
+            const plantContainer = document.querySelector('.plant-container');
+            if (tabName === 'pomodoro') {
+                if (plantContainer) plantContainer.style.display = 'block';
+            } else {
+                if (plantContainer) plantContainer.style.display = 'none';
+            }
         });
     });
     
     // 타이머 초기화 및 이벤트 설정
-    initializeTimer(timer, notificationManager, plantSystem);
+    initializeTimer(timer, notificationManager);
     
     // 스톱워치 초기화 및 이벤트 설정
     initializeStopwatch(stopwatch);
@@ -49,10 +57,17 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 식물 시스템 초기화
     plantSystem.initialize();
+    
+    // 초기에 포모도로 탭이 아닌 경우 식물 컨테이너 숨기기
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab && activeTab.dataset.tab !== 'pomodoro') {
+        const plantContainer = document.querySelector('.plant-container');
+        if (plantContainer) plantContainer.style.display = 'none';
+    }
 });
 
 // 타이머 초기화 및 이벤트 설정 함수
-function initializeTimer(timer, notificationManager, plantSystem) {
+function initializeTimer(timer, notificationManager) {
     const hoursInput = document.getElementById('hours-input');
     const minutesInput = document.getElementById('minutes-input');
     const secondsInput = document.getElementById('seconds-input');
@@ -76,9 +91,6 @@ function initializeTimer(timer, notificationManager, plantSystem) {
     timer.onComplete = () => {
         notificationManager.playNotification('타이머 완료!', '설정한 시간이 완료되었습니다.');
         resetTimerControls();
-        
-        // 타이머 완료 시 경험치 제공
-        plantSystem.addExperience(5);
     };
     
     // 시작 버튼 클릭 이벤트
@@ -240,91 +252,72 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     const pomodoroSeconds = document.getElementById('pomodoro-seconds');
     const statusText = document.getElementById('status-text');
     const cycleCount = document.getElementById('cycle-count');
+    const currentModeTime = document.getElementById('current-mode-time');
     
     const workMinutesInput = document.getElementById('work-minutes');
     const shortBreakMinutesInput = document.getElementById('short-break-minutes');
     const longBreakMinutesInput = document.getElementById('long-break-minutes');
+    const pomodoroCyclesInput = document.getElementById('pomodoro-cycles');
     
     // 포모도로 설정 변경 시 이벤트
     workMinutesInput.addEventListener('change', updatePomodoroSettings);
     shortBreakMinutesInput.addEventListener('change', updatePomodoroSettings);
     longBreakMinutesInput.addEventListener('change', updatePomodoroSettings);
+    pomodoroCyclesInput.addEventListener('change', updatePomodoroSettings);
     
-    // 포모도로 설정 업데이트 함수
+    // 설정 업데이트 함수
     function updatePomodoroSettings() {
         const workMinutes = parseInt(workMinutesInput.value) || 25;
         const shortBreakMinutes = parseInt(shortBreakMinutesInput.value) || 5;
         const longBreakMinutes = parseInt(longBreakMinutesInput.value) || 15;
+        const totalCycles = parseInt(pomodoroCyclesInput.value) || 4;
         
-        pomodoro.updateSettings({
-            workTime: workMinutes * 60,
-            shortBreakTime: shortBreakMinutes * 60,
-            longBreakTime: longBreakMinutes * 60
+        // 유효성 검사 및 범위 조정
+        workMinutesInput.value = Math.max(1, Math.min(60, workMinutes));
+        shortBreakMinutesInput.value = Math.max(1, Math.min(30, shortBreakMinutes));
+        longBreakMinutesInput.value = Math.max(1, Math.min(60, longBreakMinutes));
+        pomodoroCyclesInput.value = Math.max(1, Math.min(10, totalCycles));
+        
+        // 포모도로 설정 업데이트
+        pomodoro.setSettings({
+            workMinutes: workMinutesInput.value,
+            shortBreakMinutes: shortBreakMinutesInput.value,
+            longBreakMinutes: longBreakMinutesInput.value,
+            totalCycles: pomodoroCyclesInput.value
         });
         
-        // 포모도로 타이머 디스플레이 업데이트
-        if (!pomodoro.isActive) {
-            pomodoroMinutes.textContent = workMinutes.toString().padStart(2, '0');
-            pomodoroSeconds.textContent = '00';
-        }
+        // 초기 상태 업데이트 (작업 시간 표시)
+        pomodoroMinutes.textContent = workMinutesInput.value.toString().padStart(2, '0');
+        pomodoroSeconds.textContent = '00';
+        
+        // 현재 모드 시간 표시 업데이트
+        updateCurrentModeTime('work');
+        
+        // 사이클 카운트 업데이트
+        cycleCount.textContent = `세션: 0/${pomodoroCyclesInput.value}`;
     }
     
-    // 초기 설정 적용
-    updatePomodoroSettings();
-    
-    // 포모도로 업데이트 함수
-    pomodoro.onUpdate = (minutes, seconds, phase, completedSessions) => {
-        pomodoroMinutes.textContent = minutes.toString().padStart(2, '0');
-        pomodoroSeconds.textContent = seconds.toString().padStart(2, '0');
-        
-        // 상태 텍스트 업데이트
-        switch (phase) {
+    // 현재 모드 시간 표시 업데이트 함수
+    function updateCurrentModeTime(mode) {
+        let minutes = 0;
+        switch(mode) {
             case 'work':
-                statusText.textContent = '작업 시간';
+                minutes = parseInt(workMinutesInput.value) || 25;
                 break;
             case 'shortBreak':
-                statusText.textContent = '짧은 휴식';
+                minutes = parseInt(shortBreakMinutesInput.value) || 5;
                 break;
             case 'longBreak':
-                statusText.textContent = '긴 휴식';
+                minutes = parseInt(longBreakMinutesInput.value) || 15;
                 break;
         }
         
-        // 세션 카운트 업데이트
-        cycleCount.textContent = `세션: ${completedSessions}/4`;
-    };
-    
-    // 포모도로 단계 전환 시 실행 함수
-    pomodoro.onPhaseComplete = (completedPhase, nextPhase) => {
-        let title, message;
-        
-        if (completedPhase === 'work') {
-            title = '작업 시간 완료!';
-            message = nextPhase === 'shortBreak' 
-                ? '짧은 휴식 시간입니다.' 
-                : '긴 휴식 시간입니다.';
-                
-            // 작업 세션 완료 시 경험치 제공
-            plantSystem.addExperience(20);
-        } else {
-            title = '휴식 시간 완료!';
-            message = '다시 작업할 시간입니다.';
-        }
-        
-        notificationManager.playNotification(title, message);
-    };
-    
-    // 포모도로 사이클 완료 시 실행 함수
-    pomodoro.onComplete = () => {
-        notificationManager.playNotification('포모도로 사이클 완료!', '모든 세션이 완료되었습니다.');
-        resetPomodoroControls();
-        
-        // 포모도로 전체 사이클 완료 시 추가 경험치 제공
-        plantSystem.addExperience(50);
-    };
+        currentModeTime.textContent = `${minutes.toString().padStart(2, '0')}:00`;
+    }
     
     // 시작 버튼 클릭 이벤트
     startBtn.addEventListener('click', () => {
+        // 포모도로 시작
         pomodoro.start();
         
         // 버튼 상태 업데이트
@@ -335,6 +328,7 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         workMinutesInput.disabled = true;
         shortBreakMinutesInput.disabled = true;
         longBreakMinutesInput.disabled = true;
+        pomodoroCyclesInput.disabled = true;
     });
     
     // 일시 정지 버튼 클릭 이벤트
@@ -354,6 +348,64 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         resetPomodoroControls();
     });
     
+    // 포모도로 업데이트 함수
+    pomodoro.onUpdate = (minutes, seconds, currentCycle, totalCycles, mode) => {
+        pomodoroMinutes.textContent = minutes.toString().padStart(2, '0');
+        pomodoroSeconds.textContent = seconds.toString().padStart(2, '0');
+        
+        // 사이클 정보 업데이트
+        cycleCount.textContent = `세션: ${currentCycle}/${totalCycles}`;
+        
+        // 모드에 따른 상태 텍스트 업데이트
+        if (mode === 'work') {
+            statusText.textContent = '작업 시간';
+        } else if (mode === 'shortBreak') {
+            statusText.textContent = '짧은 휴식';
+        } else if (mode === 'longBreak') {
+            statusText.textContent = '긴 휴식';
+        }
+    };
+    
+    // 포모도로 모드 변경 시 실행 함수
+    pomodoro.onModeChange = (mode) => {
+        // 모드에 따른 알림
+        let title = '';
+        let message = '';
+        
+        if (mode === 'work') {
+            title = '작업 시간!';
+            message = '지금부터 집중해서 작업하세요.';
+            updateCurrentModeTime('work');
+        } else if (mode === 'shortBreak') {
+            title = '짧은 휴식 시간!';
+            message = '잠시 휴식을 취하세요.';
+            updateCurrentModeTime('shortBreak');
+        } else if (mode === 'longBreak') {
+            title = '긴 휴식 시간!';
+            message = '충분히 휴식을 취하세요.';
+            updateCurrentModeTime('longBreak');
+        }
+        
+        notificationManager.playNotification(title, message);
+    };
+    
+    // 포모도로 완료 시 실행 함수
+    pomodoro.onComplete = (completedCycles) => {
+        notificationManager.playNotification('포모도로 완료!', `${completedCycles}번의 포모도로 세션을 완료했습니다.`);
+        resetPomodoroControls();
+        
+        // 포모도로 완료 시 경험치 제공
+        // 완료한 사이클 수에 따라 경험치 차등 지급
+        const exp = completedCycles * 15;
+        plantSystem.addExperience(exp);
+    };
+    
+    // 작업 세션 완료 시 실행 함수
+    pomodoro.onWorkSessionComplete = () => {
+        // 작업 세션 완료 시 경험치 제공
+        plantSystem.addExperience(10);
+    };
+    
     // 포모도로 컨트롤 리셋 함수
     function resetPomodoroControls() {
         startBtn.disabled = false;
@@ -363,85 +415,70 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         workMinutesInput.disabled = false;
         shortBreakMinutesInput.disabled = false;
         longBreakMinutesInput.disabled = false;
+        pomodoroCyclesInput.disabled = false;
         
-        // 기본 표시로 초기화
         updatePomodoroSettings();
-        statusText.textContent = '작업 시간';
-        cycleCount.textContent = '세션: 0/4';
     }
-}
-
-// 설정 초기화 함수
-function initializeSettings(notificationManager, plantSystem) {
-    const notificationSound = document.getElementById('notification-sound');
-    const notificationVolume = document.getElementById('notification-volume');
-    const backgroundNotification = document.getElementById('background-notification');
-    const plantTheme = document.getElementById('plant-theme');
-    
-    // 소리 선택 변경 이벤트
-    notificationSound.addEventListener('change', () => {
-        notificationManager.setSound(notificationSound.value);
-    });
-    
-    // 볼륨 변경 이벤트
-    notificationVolume.addEventListener('input', () => {
-        notificationManager.setVolume(notificationVolume.value / 100);
-    });
-    
-    // 백그라운드 알림 설정 변경 이벤트
-    backgroundNotification.addEventListener('change', () => {
-        notificationManager.setBackgroundNotification(backgroundNotification.checked);
-    });
-    
-    // 식물 테마 변경 이벤트
-    plantTheme.addEventListener('change', () => {
-        plantSystem.setTheme(plantTheme.value);
-    });
     
     // 초기 설정 적용
-    notificationManager.setSound(notificationSound.value);
-    notificationManager.setVolume(notificationVolume.value / 100);
-    notificationManager.setBackgroundNotification(backgroundNotification.checked);
-    plantSystem.setTheme(plantTheme.value);
+    updatePomodoroSettings();
+}
+
+// 설정 초기화 및 이벤트 설정 함수
+function initializeSettings(notificationManager, plantSystem) {
+    const notificationSoundSelect = document.getElementById('notification-sound');
+    const notificationVolumeInput = document.getElementById('notification-volume');
+    const backgroundNotificationCheckbox = document.getElementById('background-notification');
+    const plantThemeSelect = document.getElementById('plant-theme');
     
-    // 설정값 로컬 스토리지에서 로드
-    loadSettings();
+    // 설정 변경 시 이벤트
+    notificationSoundSelect.addEventListener('change', saveSettings);
+    notificationVolumeInput.addEventListener('input', saveSettings);
+    backgroundNotificationCheckbox.addEventListener('change', saveSettings);
+    plantThemeSelect.addEventListener('change', () => {
+        saveSettings();
+        plantSystem.changeTheme(plantThemeSelect.value);
+    });
     
     // 설정 저장 함수
     function saveSettings() {
         const settings = {
-            notificationSound: notificationSound.value,
-            notificationVolume: notificationVolume.value,
-            backgroundNotification: backgroundNotification.checked,
-            plantTheme: plantTheme.value
+            notificationSound: notificationSoundSelect.value,
+            notificationVolume: notificationVolumeInput.value,
+            backgroundNotification: backgroundNotificationCheckbox.checked,
+            plantTheme: plantThemeSelect.value
         };
         
         localStorage.setItem('timerSettings', JSON.stringify(settings));
+        
+        // 알림 설정 업데이트
+        notificationManager.setSound(settings.notificationSound);
+        notificationManager.setVolume(settings.notificationVolume / 100);
+        notificationManager.setBackgroundNotification(settings.backgroundNotification);
     }
     
-    // 설정 로드 함수
+    // 설정 불러오기 함수
     function loadSettings() {
         const savedSettings = localStorage.getItem('timerSettings');
         
         if (savedSettings) {
             const settings = JSON.parse(savedSettings);
             
-            notificationSound.value = settings.notificationSound || 'bell';
-            notificationVolume.value = settings.notificationVolume || 80;
-            backgroundNotification.checked = settings.backgroundNotification !== false;
-            plantTheme.value = settings.plantTheme || 'indoor';
+            notificationSoundSelect.value = settings.notificationSound || 'bell';
+            notificationVolumeInput.value = settings.notificationVolume || 80;
+            backgroundNotificationCheckbox.checked = settings.backgroundNotification !== undefined ? settings.backgroundNotification : true;
+            plantThemeSelect.value = settings.plantTheme || 'indoor';
             
-            // 설정 적용
-            notificationManager.setSound(notificationSound.value);
-            notificationManager.setVolume(notificationVolume.value / 100);
-            notificationManager.setBackgroundNotification(backgroundNotification.checked);
-            plantSystem.setTheme(plantTheme.value);
+            // 알림 설정 업데이트
+            notificationManager.setSound(settings.notificationSound);
+            notificationManager.setVolume(settings.notificationVolume / 100);
+            notificationManager.setBackgroundNotification(settings.backgroundNotification);
+            
+            // 식물 테마 업데이트
+            plantSystem.changeTheme(settings.plantTheme);
         }
     }
     
-    // 설정 변경 시 저장
-    notificationSound.addEventListener('change', saveSettings);
-    notificationVolume.addEventListener('change', saveSettings);
-    backgroundNotification.addEventListener('change', saveSettings);
-    plantTheme.addEventListener('change', saveSettings);
+    // 초기 설정 불러오기
+    loadSettings();
 } 
