@@ -11,28 +11,79 @@
         #timers-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
             justify-content: flex-start;
+            width: 100%;
         }
         
         .timer-item {
-            width: calc(33.333% - 15px);
-            min-width: 250px;
-            max-width: 100%;
-            margin-bottom: 15px;
+            flex: 0 0 calc(33.333% - 14px);
             box-sizing: border-box;
+            margin: 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 220px;
+        }
+        
+        /* 타이머 디스플레이 수정 */
+        .timer-display {
+            font-size: 2rem;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+            font-family: monospace;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        /* 타이머 입력 필드 수정 */
+        .timer-settings {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+        
+        .time-input {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .time-input label {
+            font-size: 0.8rem;
+        }
+        
+        .time-input input {
+            width: 100%;
+            padding: 5px;
+        }
+        
+        /* 프리셋 버튼 조정 */
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .preset-btn {
+            flex: 1 0 calc(50% - 5px);
+            font-size: 0.9rem;
+            padding: 5px;
         }
         
         /* 모바일 화면 대응 */
         @media (max-width: 992px) {
             .timer-item {
-                width: calc(50% - 15px);
+                flex: 0 0 calc(50% - 10px);
             }
         }
         
         @media (max-width: 576px) {
             .timer-item {
-                width: 100%;
+                flex: 0 0 100%;
             }
         }
     </style>
