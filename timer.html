@@ -6,6 +6,36 @@
     <title>타이머 & 스톱워치 | 포모도로</title>
     <link rel="stylesheet" href="assets/css/timer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 타이머 그리드 레이아웃 */
+        #timers-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: flex-start;
+        }
+        
+        .timer-item {
+            width: calc(33.333% - 15px);
+            min-width: 250px;
+            max-width: 100%;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        
+        /* 모바일 화면 대응 */
+        @media (max-width: 992px) {
+            .timer-item {
+                width: calc(50% - 15px);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .timer-item {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
