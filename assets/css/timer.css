@@ -223,6 +223,19 @@ nav {
     justify-content: space-around;
 }
 
+.status-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#current-mode-time {
+    font-size: 1rem;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
 /* 랩 컨테이너 */
 .laps-container {
     margin-top: 1.5rem;
@@ -253,17 +266,32 @@ nav {
     border-bottom: none;
 }
 
-/* 식물 컨테이너 */
+/* 식물 컨테이너 - 포모도로에서만 사용 */
 .plant-container {
+    margin-top: 2rem;
     background-color: var(--bg-light);
     border-radius: 8px;
     box-shadow: var(--shadow);
     padding: 1.5rem;
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 1.5rem;
+    text-align: center;
 }
 
+/* 식물 컨테이너 내의 설정 */
+.plant-container .setting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.plant-container .setting label {
+    min-width: 100px;
+}
+
+/* 식물 표시 */
 .plant-display {
     display: flex;
     justify-content: center;

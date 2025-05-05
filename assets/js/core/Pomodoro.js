@@ -6,31 +6,31 @@ export class Pomodoro {
     constructor() {
         // 기본 포모도로 설정
         this.settings = {
-            workTime: 25 * 60, // 25분 (초 단위)
-            shortBreakTime: 5 * 60, // 5분 (초 단위)
-            longBreakTime: 15 * 60, // 15분 (초 단위)
-            longBreakInterval: 4 // 긴 휴식 간격 (4회 작업 후)
+            workMinutes: 25,
+            shortBreakMinutes: 5,
+            longBreakMinutes: 15,
+            totalCycles: 4
         };
         
-        this.totalSeconds = 0;
+        this.totalSeconds = this.settings.workMinutes * 60;
         this.timer = null;
         this.isPaused = false;
         this.isActive = false;
-        this.currentPhase = 'work'; // 'work', 'shortBreak', 'longBreak'
-        this.completedSessions = 0;
-        this.targetSessions = this.settings.longBreakInterval;
+        this.currentMode = 'work'; // 'work', 'shortBreak', 'longBreak'
+        this.currentCycle = 0;
         
         // 콜백 함수
         this.onUpdate = null;
-        this.onPhaseComplete = null;
+        this.onModeChange = null;
         this.onComplete = null;
+        this.onWorkSessionComplete = null;
     }
     
     /**
      * 포모도로 설정 업데이트
      * @param {Object} newSettings - 새 설정
      */
-    updateSettings(newSettings) {
+    setSettings(newSettings) {
         // 기존 설정에 새 설정 병합
         this.settings = {
             ...this.settings,
@@ -39,7 +39,7 @@ export class Pomodoro {
         
         // 활성 상태가 아닐 때 최초 타이머 시간 설정
         if (!this.isActive) {
-            this.totalSeconds = this.settings.workTime;
+            this.totalSeconds = this.settings.workMinutes * 60;
         }
     }
     
@@ -51,9 +51,9 @@ export class Pomodoro {
         
         if (!this.isActive) {
             // 새로 시작하는 경우 작업 단계로 시작
-            this.currentPhase = 'work';
-            this.totalSeconds = this.settings.workTime;
-            this.completedSessions = 0;
+            this.currentMode = 'work';
+            this.totalSeconds = this.settings.workMinutes * 60;
+            this.currentCycle = 0;
         }
         
         this.isActive = true;
@@ -92,9 +92,9 @@ export class Pomodoro {
         this.timer = null;
         this.isActive = false;
         this.isPaused = false;
-        this.currentPhase = 'work';
-        this.completedSessions = 0;
-        this.totalSeconds = this.settings.workTime;
+        this.currentMode = 'work';
+        this.currentCycle = 0;
+        this.totalSeconds = this.settings.workMinutes * 60;
         
         // 포모도로 표시 업데이트
         this._updateTimerDisplay();
@@ -121,7 +121,7 @@ export class Pomodoro {
                 // 현재 단계 완료
                 clearInterval(this.timer);
                 this.timer = null;
-                this._handlePhaseComplete();
+                this._handleModeComplete();
                 return;
             }
             
@@ -130,37 +130,46 @@ export class Pomodoro {
     }
     
     /**
-     * 단계 완료 처리
+     * 모드 완료 처리
      * @private
      */
-    _handlePhaseComplete() {
-        let nextPhase;
+    _handleModeComplete() {
+        let nextMode;
         
-        if (this.currentPhase === 'work') {
-            // 작업 단계 완료 시
-            this.completedSessions++;
+        if (this.currentMode === 'work') {
+            // 작업 세션 완료 콜백 호출
+            if (typeof this.onWorkSessionComplete === 'function') {
+                this.onWorkSessionComplete();
+            }
             
-            // 세션 완료 여부 확인
-            if (this.completedSessions % this.settings.longBreakInterval === 0) {
+            // 한 사이클은 (작업 + 휴식)을 의미
+            // 작업을 완료하면 휴식으로 전환하기 전에 사이클 카운트를 증가시키지 않음
+            
+            // 다음 세션이 짧은 휴식인지 긴 휴식인지 결정
+            if ((this.currentCycle + 1) % this.settings.totalCycles === 0 && this.currentCycle > 0) {
                 // 긴 휴식 시간
-                nextPhase = 'longBreak';
-                this.totalSeconds = this.settings.longBreakTime;
+                nextMode = 'longBreak';
+                this.totalSeconds = this.settings.longBreakMinutes * 60;
             } else {
                 // 짧은 휴식 시간
-                nextPhase = 'shortBreak';
-                this.totalSeconds = this.settings.shortBreakTime;
+                nextMode = 'shortBreak';
+                this.totalSeconds = this.settings.shortBreakMinutes * 60;
             }
         } else {
             // 휴식 단계 완료 시
-            if (this.completedSessions >= this.targetSessions) {
-                // 모든 세션 완료
+            // 휴식 완료 후 사이클 카운트 증가 (한 사이클 완료)
+            this.currentCycle++;
+            
+            // 모든 사이클 완료 확인
+            if (this.currentCycle >= this.settings.totalCycles) {
+                // 모든 사이클 완료
                 this.isActive = false;
-                this.currentPhase = 'work';
-                this.totalSeconds = this.settings.workTime;
+                this.currentMode = 'work';
+                this.totalSeconds = this.settings.workMinutes * 60;
                 
                 // 완료 콜백 호출
                 if (typeof this.onComplete === 'function') {
-                    this.onComplete();
+                    this.onComplete(this.currentCycle);
                 }
                 
                 // 표시 업데이트 및 종료
@@ -169,17 +178,17 @@ export class Pomodoro {
             }
             
             // 다음 작업 단계로
-            nextPhase = 'work';
-            this.totalSeconds = this.settings.workTime;
+            nextMode = 'work';
+            this.totalSeconds = this.settings.workMinutes * 60;
         }
         
-        // 단계 전환 콜백 호출
-        if (typeof this.onPhaseComplete === 'function') {
-            this.onPhaseComplete(this.currentPhase, nextPhase);
+        // 모드 전환 콜백 호출
+        if (typeof this.onModeChange === 'function') {
+            this.onModeChange(nextMode);
         }
         
-        // 다음 단계로 전환
-        this.currentPhase = nextPhase;
+        // 다음 모드로 전환
+        this.currentMode = nextMode;
         
         // 타이머 표시 업데이트
         this._updateTimerDisplay();
@@ -199,7 +208,7 @@ export class Pomodoro {
         
         // 업데이트 콜백 호출
         if (typeof this.onUpdate === 'function') {
-            this.onUpdate(minutes, seconds, this.currentPhase, this.completedSessions);
+            this.onUpdate(minutes, seconds, this.currentCycle, this.settings.totalCycles, this.currentMode);
         }
     }
 } 
