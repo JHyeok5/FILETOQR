@@ -33,7 +33,7 @@
         <div class="tab-content active" id="timer-tab">
             <div class="timer-container">
                 <div class="timer-controls timer-global-controls">
-                    <button id="add-timer" class="action-btn" onclick="if(window.addNewTimerGlobal) window.addNewTimerGlobal();">
+                    <button id="add-timer" class="action-btn" onclick="addNewTimerDirectly()">
                         <i class="fas fa-plus"></i> 타이머 추가
                     </button>
                 </div>
@@ -223,6 +223,414 @@
     <!-- 디버깅용 콘솔 메시지 -->
     <script>
         console.log('타이머 페이지 로딩 시작');
+        
+        // 페이지 로드 완료 후 추가 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('타이머 페이지 DOM 로딩 완료');
+            
+            // 타이머 관련 변수
+            var activeTimers = {};
+            
+            // 타이머 추가 버튼에 직접 이벤트 핸들러 추가
+            var addTimerBtn = document.getElementById('add-timer');
+            if (addTimerBtn) {
+                console.log('타이머 추가 버튼 발견');
+                addTimerBtn.addEventListener('click', function() {
+                    console.log('타이머 추가 버튼 클릭 - 인라인 스크립트');
+                    addNewTimer();
+                });
+            } else {
+                console.error('타이머 추가 버튼을 찾을 수 없음');
+            }
+            
+            // 기존 타이머 제어 설정
+            setupExistingTimers();
+            
+            // 전역 함수로 타이머 추가 기능 구현
+            window.addNewTimer = function() {
+                try {
+                    console.log('타이머 추가 함수 호출됨');
+                    
+                    // 타이머 ID 생성
+                    var timerId = new Date().getTime();
+                    console.log('새 타이머 ID:', timerId);
+                    
+                    // 타이머 목록 요소 찾기
+                    var timersList = document.getElementById('timers-list');
+                    if (!timersList) {
+                        console.error('타이머 목록 요소를 찾을 수 없음');
+                        return;
+                    }
+                    
+                    // 새 타이머 요소 생성
+                    var newTimerElem = document.createElement('div');
+                    newTimerElem.className = 'timer-item';
+                    newTimerElem.dataset.timerId = timerId;
+                    
+                    // 타이머 HTML 설정
+                    newTimerElem.innerHTML = `
+                        <div class="timer-header">
+                            <input type="text" class="timer-label" placeholder="타이머 이름">
+                            <button class="close-timer"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="timer-display">
+                            <span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span>
+                        </div>
+                        <div class="timer-controls">
+                            <button class="timer-start control-btn"><i class="fas fa-play"></i></button>
+                            <button class="timer-pause control-btn" disabled><i class="fas fa-pause"></i></button>
+                            <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button>
+                        </div>
+                        <div class="timer-settings">
+                            <div class="time-input">
+                                <label>시간:</label>
+                                <input type="number" class="hours-input" min="0" max="23" value="0">
+                            </div>
+                            <div class="time-input">
+                                <label>분:</label>
+                                <input type="number" class="minutes-input" min="0" max="59" value="0">
+                            </div>
+                            <div class="time-input">
+                                <label>초:</label>
+                                <input type="number" class="seconds-input" min="0" max="59" value="0">
+                            </div>
+                        </div>
+                        <div class="preset-buttons">
+                            <button class="preset-btn" data-minutes="5">5분</button>
+                            <button class="preset-btn" data-minutes="10">10분</button>
+                            <button class="preset-btn" data-minutes="15">15분</button>
+                            <button class="preset-btn" data-minutes="30">30분</button>
+                        </div>
+                    `;
+                    
+                    // 타이머 요소 추가
+                    timersList.appendChild(newTimerElem);
+                    console.log('새 타이머 요소가 DOM에 추가됨');
+                    
+                    // 타이머 컨트롤 설정
+                    setupTimerControls(newTimerElem, timerId);
+                    
+                    // 포커스 설정 및 스크롤
+                    var labelInput = newTimerElem.querySelector('.timer-label');
+                    if (labelInput) labelInput.focus();
+                    newTimerElem.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // 결과 알림
+                    console.log('새 타이머 추가 완료');
+                    return newTimerElem;
+                } catch (error) {
+                    console.error('타이머 추가 오류:', error);
+                    alert('타이머 추가 중 오류가 발생했습니다: ' + error.message);
+                }
+            };
+            
+            // 타이머 제거 함수
+            window.removeTimer = function(timerElem) {
+                try {
+                    console.log('타이머 제거 시작');
+                    var timerId = timerElem.dataset.timerId;
+                    
+                    // 타이머 중지
+                    if (activeTimers[timerId]) {
+                        clearInterval(activeTimers[timerId].interval);
+                        delete activeTimers[timerId];
+                    }
+                    
+                    // 애니메이션 효과와 함께 요소 제거
+                    timerElem.style.opacity = '0';
+                    timerElem.style.transform = 'scale(0.8)';
+                    timerElem.style.transition = 'all 0.3s ease-out';
+                    
+                    setTimeout(function() {
+                        timerElem.remove();
+                        console.log('타이머 요소 제거됨');
+                    }, 300);
+                } catch (error) {
+                    console.error('타이머 제거 오류:', error);
+                }
+            };
+            
+            // 기존 타이머 설정
+            function setupExistingTimers() {
+                var timerItems = document.querySelectorAll('.timer-item');
+                timerItems.forEach(function(timerItem) {
+                    var timerId = timerItem.dataset.timerId;
+                    setupTimerControls(timerItem, timerId);
+                });
+            }
+            
+            // 타이머 컨트롤 설정
+            function setupTimerControls(timerElem, timerId) {
+                // 타이머 요소들
+                var hoursInput = timerElem.querySelector('.hours-input');
+                var minutesInput = timerElem.querySelector('.minutes-input');
+                var secondsInput = timerElem.querySelector('.seconds-input');
+                var timerLabel = timerElem.querySelector('.timer-label');
+                
+                var timerHours = timerElem.querySelector('.timer-hours');
+                var timerMinutes = timerElem.querySelector('.timer-minutes');
+                var timerSeconds = timerElem.querySelector('.timer-seconds');
+                
+                var startBtn = timerElem.querySelector('.timer-start');
+                var pauseBtn = timerElem.querySelector('.timer-pause');
+                var resetBtn = timerElem.querySelector('.timer-reset');
+                var closeBtn = timerElem.querySelector('.close-timer');
+                var presetBtns = timerElem.querySelectorAll('.preset-btn');
+                
+                // 닫기 버튼 이벤트
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        console.log('타이머 닫기 버튼 클릭');
+                        removeTimer(timerElem);
+                    });
+                }
+                
+                // 시작 버튼 이벤트
+                if (startBtn) {
+                    startBtn.addEventListener('click', function() {
+                        var hours = parseInt(hoursInput.value) || 0;
+                        var minutes = parseInt(minutesInput.value) || 0;
+                        var seconds = parseInt(secondsInput.value) || 0;
+                        
+                        // 시간 확인
+                        if (hours === 0 && minutes === 0 && seconds === 0) {
+                            alert('타이머 시간을 설정해주세요.');
+                            return;
+                        }
+                        
+                        // 완료 스타일 제거
+                        timerElem.classList.remove('timer-complete');
+                        
+                        // 타이머 시작
+                        startTimer(timerId, hours, minutes, seconds, timerElem);
+                        
+                        // UI 업데이트
+                        startBtn.disabled = true;
+                        pauseBtn.disabled = false;
+                        
+                        hoursInput.disabled = true;
+                        minutesInput.disabled = true;
+                        secondsInput.disabled = true;
+                        presetBtns.forEach(function(btn) {
+                            btn.disabled = true;
+                        });
+                    });
+                }
+                
+                // 일시정지 버튼 이벤트
+                if (pauseBtn) {
+                    pauseBtn.addEventListener('click', function() {
+                        var timerData = activeTimers[timerId];
+                        if (!timerData) return;
+                        
+                        if (timerData.isPaused) {
+                            // 타이머 재개
+                            resumeTimer(timerId, timerElem);
+                            pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        } else {
+                            // 타이머 일시정지
+                            pauseTimer(timerId);
+                            pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        }
+                    });
+                }
+                
+                // 리셋 버튼 이벤트
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', function() {
+                        resetTimer(timerId, timerElem);
+                        timerElem.classList.remove('timer-complete');
+                        
+                        startBtn.disabled = false;
+                        pauseBtn.disabled = true;
+                        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        
+                        hoursInput.disabled = false;
+                        minutesInput.disabled = false;
+                        secondsInput.disabled = false;
+                        presetBtns.forEach(function(btn) {
+                            btn.disabled = false;
+                        });
+                    });
+                }
+                
+                // 프리셋 버튼 이벤트
+                presetBtns.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var minutes = parseInt(btn.dataset.minutes) || 0;
+                        
+                        if (hoursInput) hoursInput.value = 0;
+                        if (minutesInput) minutesInput.value = minutes;
+                        if (secondsInput) secondsInput.value = 0;
+                        
+                        if (timerHours) timerHours.textContent = '00';
+                        if (timerMinutes) timerMinutes.textContent = minutes.toString().padStart(2, '0');
+                        if (timerSeconds) timerSeconds.textContent = '00';
+                    });
+                });
+            }
+            
+            // 타이머 시작 함수
+            function startTimer(timerId, hours, minutes, seconds, timerElem) {
+                // 기존 타이머 정리
+                if (activeTimers[timerId]) {
+                    clearInterval(activeTimers[timerId].interval);
+                }
+                
+                // 총 시간(초) 계산
+                var totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                var initialTotalSeconds = totalSeconds;
+                var startTime = Date.now();
+                var isPaused = false;
+                var pausedTime = 0;
+                
+                // 타이머 표시 업데이트
+                updateTimerDisplay(timerElem, totalSeconds);
+                
+                // 인터벌 설정
+                var interval = setInterval(function() {
+                    if (isPaused) return;
+                    
+                    // 경과 시간 계산
+                    var elapsedSeconds = Math.floor((Date.now() - startTime - pausedTime) / 1000);
+                    totalSeconds = initialTotalSeconds - elapsedSeconds;
+                    
+                    if (totalSeconds <= 0) {
+                        // 타이머 완료
+                        clearInterval(interval);
+                        totalSeconds = 0;
+                        
+                        // 완료 처리
+                        timerComplete(timerId, timerElem);
+                        return;
+                    }
+                    
+                    // 타이머 표시 업데이트
+                    updateTimerDisplay(timerElem, totalSeconds);
+                }, 100);
+                
+                // 타이머 상태 저장
+                activeTimers[timerId] = {
+                    interval: interval,
+                    totalSeconds: totalSeconds,
+                    initialTotalSeconds: initialTotalSeconds,
+                    startTime: startTime,
+                    isPaused: isPaused,
+                    pausedTime: pausedTime,
+                    pauseStartTime: 0
+                };
+            }
+            
+            // 타이머 일시정지 함수
+            function pauseTimer(timerId) {
+                var timerData = activeTimers[timerId];
+                if (!timerData || timerData.isPaused) return;
+                
+                timerData.isPaused = true;
+                timerData.pauseStartTime = Date.now();
+            }
+            
+            // 타이머 재개 함수
+            function resumeTimer(timerId, timerElem) {
+                var timerData = activeTimers[timerId];
+                if (!timerData || !timerData.isPaused) return;
+                
+                // 일시정지 시간 누적
+                timerData.pausedTime += (Date.now() - timerData.pauseStartTime);
+                timerData.isPaused = false;
+            }
+            
+            // 타이머 리셋 함수
+            function resetTimer(timerId, timerElem) {
+                // 타이머 정리
+                if (activeTimers[timerId]) {
+                    clearInterval(activeTimers[timerId].interval);
+                    delete activeTimers[timerId];
+                }
+                
+                // 표시 초기화
+                var timerHours = timerElem.querySelector('.timer-hours');
+                var timerMinutes = timerElem.querySelector('.timer-minutes');
+                var timerSeconds = timerElem.querySelector('.timer-seconds');
+                
+                if (timerHours) timerHours.textContent = '00';
+                if (timerMinutes) timerMinutes.textContent = '00';
+                if (timerSeconds) timerSeconds.textContent = '00';
+            }
+            
+            // 타이머 완료 함수
+            function timerComplete(timerId, timerElem) {
+                var timerLabel = timerElem.querySelector('.timer-label');
+                var name = timerLabel && timerLabel.value.trim() ? timerLabel.value.trim() : '타이머';
+                
+                // 완료 표시
+                timerElem.classList.add('timer-complete');
+                
+                // 버튼 상태 업데이트
+                var startBtn = timerElem.querySelector('.timer-start');
+                var pauseBtn = timerElem.querySelector('.timer-pause');
+                var hoursInput = timerElem.querySelector('.hours-input');
+                var minutesInput = timerElem.querySelector('.minutes-input');
+                var secondsInput = timerElem.querySelector('.seconds-input');
+                var presetBtns = timerElem.querySelectorAll('.preset-btn');
+                
+                if (startBtn) startBtn.disabled = false;
+                if (pauseBtn) {
+                    pauseBtn.disabled = true;
+                    pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                }
+                
+                if (hoursInput) hoursInput.disabled = false;
+                if (minutesInput) minutesInput.disabled = false;
+                if (secondsInput) secondsInput.disabled = false;
+                presetBtns.forEach(function(btn) {
+                    btn.disabled = false;
+                });
+                
+                // 알림
+                alert(`${name} 타이머가 완료되었습니다!`);
+                
+                // 알림음 재생
+                try {
+                    var audio = new Audio('assets/sounds/bell.mp3');
+                    audio.volume = 0.5;
+                    audio.play();
+                } catch (e) {
+                    console.warn('알림음 재생 실패:', e);
+                }
+                
+                // 타이머 정리
+                delete activeTimers[timerId];
+            }
+            
+            // 타이머 표시 업데이트 함수
+            function updateTimerDisplay(timerElem, totalSeconds) {
+                var hours = Math.floor(totalSeconds / 3600);
+                var minutes = Math.floor((totalSeconds % 3600) / 60);
+                var seconds = totalSeconds % 60;
+                
+                var timerHours = timerElem.querySelector('.timer-hours');
+                var timerMinutes = timerElem.querySelector('.timer-minutes');
+                var timerSeconds = timerElem.querySelector('.timer-seconds');
+                
+                if (timerHours) timerHours.textContent = hours.toString().padStart(2, '0');
+                if (timerMinutes) timerMinutes.textContent = minutes.toString().padStart(2, '0');
+                if (timerSeconds) timerSeconds.textContent = seconds.toString().padStart(2, '0');
+            }
+        });
+    </script>
+    
+    <!-- 타이머 추가 버튼에 직접 onclick 이벤트 추가 -->
+    <script>
+        function addNewTimerDirectly() {
+            console.log('직접 호출된 타이머 추가 함수');
+            if (window.addNewTimer) {
+                window.addNewTimer();
+            } else {
+                console.error('addNewTimer 함수를 찾을 수 없음');
+                alert('타이머 추가 기능을 초기화할 수 없습니다. 페이지를 새로고침 해주세요.');
+            }
+        }
     </script>
     
     <!-- 타이머 스크립트 -->
