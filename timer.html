@@ -26,8 +26,16 @@
             box-sizing: border-box;
             margin: 0;
             transition: all 0.3s ease;
+            opacity: 1;
+            transform: translateY(0) scale(1);
         }
-
+        
+        /* 새 타이머 애니메이션 */
+        .timer-item.new-timer {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        
         /* 타이머가 1개일 때 */
         #timers-list .timer-item:first-child:nth-last-child(1) {
             flex: 0 0 100%;
@@ -370,7 +378,7 @@
                     
                     // 새 타이머 요소 생성
                     var newTimerElem = document.createElement('div');
-                    newTimerElem.className = 'timer-item';
+                    newTimerElem.className = 'timer-item new-timer';
                     newTimerElem.dataset.timerId = timerId;
                     
                     // 타이머 HTML 설정
@@ -412,6 +420,11 @@
                     // 타이머 요소 추가
                     timersList.appendChild(newTimerElem);
                     console.log('새 타이머 요소가 DOM에 추가됨');
+                    
+                    // 브라우저에게 레이아웃을 계산할 시간 제공
+                    setTimeout(function() {
+                        newTimerElem.classList.remove('new-timer');
+                    }, 10);
                     
                     // 타이머 컨트롤 설정
                     setupTimerControls(newTimerElem, timerId);
