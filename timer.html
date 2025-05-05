@@ -17,14 +17,34 @@
             width: 100%;
         }
         
+        /* 타이머 항목의 기본 스타일 */
         .timer-item {
-            flex: 0 1 calc(33.333% - 14px);
-            box-sizing: border-box;
-            margin: 0;
-            padding: 15px;
             background-color: #f5f5f5;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            box-sizing: border-box;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* 타이머가 1개일 때 */
+        #timers-list .timer-item:first-child:nth-last-child(1) {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        /* 타이머가 2개일 때 */
+        #timers-list .timer-item:first-child:nth-last-child(2),
+        #timers-list .timer-item:first-child:nth-last-child(2) ~ .timer-item {
+            flex: 0 0 calc(50% - 10px);
+            max-width: calc(50% - 10px);
+        }
+
+        /* 타이머가 3개 이상일 때 */
+        #timers-list .timer-item:first-child:nth-last-child(n+3),
+        #timers-list .timer-item:first-child:nth-last-child(n+3) ~ .timer-item {
+            flex: 0 0 calc(33.333% - 14px);
             max-width: calc(33.333% - 14px);
         }
         
@@ -77,15 +97,16 @@
         
         /* 모바일 화면 대응 */
         @media (max-width: 992px) {
-            .timer-item {
-                flex: 0 1 calc(50% - 10px);
+            #timers-list .timer-item:first-child:nth-last-child(n+2),
+            #timers-list .timer-item:first-child:nth-last-child(n+2) ~ .timer-item {
+                flex: 0 0 calc(50% - 10px);
                 max-width: calc(50% - 10px);
             }
         }
         
         @media (max-width: 576px) {
-            .timer-item {
-                flex: 0 1 100%;
+            #timers-list .timer-item {
+                flex: 0 0 100%;
                 max-width: 100%;
             }
         }
