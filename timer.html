@@ -211,9 +211,6 @@
 
         <div class="tab-content" id="pomodoro-tab">
             <div class="pomodoro-container">
-                <div class="timer-display">
-                    <span id="pomodoro-minutes">25</span>:<span id="pomodoro-seconds">00</span>
-                </div>
                 <div class="pomodoro-status">
                     <div class="status-box">
                         <span>현재</span>
@@ -225,8 +222,12 @@
                         <span id="work-time">25:00</span>
                     </div>
                     <div class="status-box">
-                        <span>휴식 시간</span>
-                        <span id="break-time">05:00</span>
+                        <span>짧은 휴식</span>
+                        <span id="short-break-time">05:00</span>
+                    </div>
+                    <div class="status-box">
+                        <span>긴 휴식</span>
+                        <span id="long-break-time">15:00</span>
                     </div>
                     <div class="status-box">
                         <span>세션</span>
@@ -760,15 +761,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 포모도로 관련 요소들
-            const pomodoroDisplay = document.querySelector('#pomodoro-minutes, #pomodoro-seconds').parentElement;
+            const pomodoroDisplay = document.querySelector('.pomodoro-status');
             const statusText = document.getElementById('status-text');
             const currentModeTime = document.getElementById('current-mode-time');
             const workTime = document.getElementById('work-time');
-            const breakTime = document.getElementById('break-time');
+            const shortBreakTime = document.getElementById('short-break-time');
+            const longBreakTime = document.getElementById('long-break-time');
             const cycleCount = document.getElementById('cycle-count');
-            
-            const pomodoroMinutes = document.getElementById('pomodoro-minutes');
-            const pomodoroSeconds = document.getElementById('pomodoro-seconds');
             
             const workMinutesInput = document.getElementById('work-minutes');
             const shortBreakMinutesInput = document.getElementById('short-break-minutes');
@@ -796,28 +795,40 @@
             
             // 포모도로 타이머 업데이트 함수
             function updatePomodoroDisplay() {
-                pomodoroMinutes.textContent = String(currentMinutes).padStart(2, '0');
-                pomodoroSeconds.textContent = String(currentSeconds).padStart(2, '0');
-                
                 // 현재 모드 시간 업데이트
                 currentModeTime.textContent = `${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}`;
                 
                 // 작업/휴식 시간 하이라이트 처리
                 if (isWorking) {
+                    // 작업 모드일 때
                     workTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
-                    breakTime.textContent = isShortBreakNext() ? 
-                        `${String(shortBreakMinutes).padStart(2, '0')}:00` : 
-                        `${String(longBreakMinutes).padStart(2, '0')}:00`;
+                    shortBreakTime.textContent = `${String(shortBreakMinutes).padStart(2, '0')}:00`;
+                    longBreakTime.textContent = `${String(longBreakMinutes).padStart(2, '0')}:00`;
                 } else {
+                    // 휴식 모드일 때
                     workTime.textContent = `${String(workMinutes).padStart(2, '0')}:00`;
-                    breakTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
+                    
+                    // 짧은 휴식인지 긴 휴식인지 확인
+                    if (isShortBreakNext() || currentCycle < totalCycles - 1) {
+                        // 짧은 휴식일 때
+                        shortBreakTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
+                        longBreakTime.textContent = `${String(longBreakMinutes).padStart(2, '0')}:00`;
+                    } else {
+                        // 긴 휴식일 때
+                        shortBreakTime.textContent = `${String(shortBreakMinutes).padStart(2, '0')}:00`;
+                        longBreakTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
+                    }
                 }
                 
                 // 사이클 카운트 업데이트
                 cycleCount.textContent = `${currentCycle}/${totalCycles}`;
                 
                 // 상태 텍스트 업데이트
-                statusText.textContent = isWorking ? '작업 시간' : '휴식 시간';
+                if (isWorking) {
+                    statusText.textContent = '작업 시간';
+                } else {
+                    statusText.textContent = isShortBreakNext() ? '짧은 휴식' : '긴 휴식';
+                }
             }
             
             // 작업 시간 이후 짧은 휴식을 사용할지 결정하는 함수
