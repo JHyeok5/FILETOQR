@@ -86,6 +86,18 @@ export class Timer {
     }
     
     /**
+     * 현재 남은 시간 정보 가져오기
+     * @returns {Object} 시간, 분, 초 정보를 담은 객체
+     */
+    getRemainingTime() {
+        return {
+            hours: this.hours,
+            minutes: this.minutes,
+            seconds: this.seconds
+        };
+    }
+    
+    /**
      * 카운트다운 시작
      * @private
      */

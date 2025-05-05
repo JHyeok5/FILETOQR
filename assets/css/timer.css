@@ -607,4 +607,89 @@ footer {
     .plant-display {
         margin-bottom: 1rem;
     }
+}
+
+/* 타이머 전역 컨트롤 */
+.timer-global-controls {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.action-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* 타이머 아이템 */
+#timers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.timer-item {
+    background-color: var(--bg-gray);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.timer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.timer-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.5rem;
+    border: 1px solid transparent;
+    background-color: transparent;
+    border-radius: 4px;
+    width: 70%;
+}
+
+.timer-label:focus {
+    border-color: var(--border-color);
+    outline: none;
+    background-color: white;
+}
+
+.close-timer {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-timer:hover {
+    color: var(--accent-color);
+}
+
+/* 타이머 완료 스타일 */
+.timer-complete {
+    border: 2px solid var(--accent-color);
+}
+
+.timer-complete .timer-display {
+    color: var(--accent-color);
 } 
