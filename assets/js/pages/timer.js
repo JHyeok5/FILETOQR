@@ -5,74 +5,56 @@ import { Pomodoro } from '../core/Pomodoro.js';
 import { PlantSystem } from '../core/PlantSystem.js';
 import { NotificationManager } from '../utils/NotificationManager.js';
 
+// 전역 변수
+let timers = new Map();
+let timerIdCounter = 1;
+let notificationManager;
+
 // DOM 요소
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('타이머 페이지 초기화 시작');
+    console.log('타이머 페이지 초기화');
     
     try {
-        // 탭 전환 기능
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        // 각 모듈 인스턴스 생성
+        // 모듈 인스턴스 생성
+        notificationManager = new NotificationManager();
         const stopwatch = new Stopwatch();
         const pomodoro = new Pomodoro();
         const plantSystem = new PlantSystem();
-        const notificationManager = new NotificationManager();
         
-        // 다중 타이머 저장소
-        const timers = new Map();
-        let timerIdCounter = 1; // 첫 번째 타이머는 이미 HTML에 있으므로 1부터 시작
+        // 탭 전환 설정
+        setupTabs();
         
-        console.log('모듈 및 인스턴스 생성 완료');
-        
-        // 탭 전환 이벤트 설정
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabName = button.dataset.tab;
-                console.log(`탭 전환: ${tabName}`);
-                
-                // 모든 탭 버튼에서 active 클래스 제거
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                // 클릭한 탭 버튼에 active 클래스 추가
-                button.classList.add('active');
-                
-                // 모든 탭 콘텐츠 숨기기
-                tabContents.forEach(content => content.classList.remove('active'));
-                // 선택한 탭 콘텐츠만 표시
-                document.getElementById(`${tabName}-tab`).classList.add('active');
-                
-                // 포모도로 탭인 경우에만 식물 시스템 표시
-                const plantContainer = document.querySelector('.plant-container');
-                if (tabName === 'pomodoro') {
-                    if (plantContainer) plantContainer.style.display = 'block';
-                } else {
-                    if (plantContainer) plantContainer.style.display = 'none';
-                }
-            });
-        });
-        
-        // 타이머 초기화 및 이벤트 설정
-        initializeTimers(timers, notificationManager);
-        
-        // 스톱워치 초기화 및 이벤트 설정
+        // 각 기능 초기화
+        setupMultipleTimers();
         initializeStopwatch(stopwatch);
-        
-        // 포모도로 초기화 및 이벤트 설정
         initializePomodoro(pomodoro, notificationManager, plantSystem);
-        
-        // 설정 관련 초기화
         initializeSettings(notificationManager, plantSystem);
         
         // 식물 시스템 초기화
         plantSystem.initialize();
         
-        // 초기에 포모도로 탭이 아닌 경우 식물 컨테이너 숨기기
-        const activeTab = document.querySelector('.tab-btn.active');
-        if (activeTab && activeTab.dataset.tab !== 'pomodoro') {
-            const plantContainer = document.querySelector('.plant-container');
-            if (plantContainer) plantContainer.style.display = 'none';
+        // 타이머 추가 버튼 이벤트를 여러 방식으로 설정
+        // 1. 버튼에 직접 이벤트 리스너
+        const addTimerBtn = document.getElementById('add-timer');
+        if (addTimerBtn) {
+            addTimerBtn.addEventListener('click', function(e) {
+                console.log('타이머 추가 버튼 클릭 이벤트 발생');
+                e.preventDefault();
+                addNewTimer();
+            });
         }
+        
+        // 2. 커스텀 이벤트 리스너
+        document.addEventListener('add-new-timer', function() {
+            console.log('커스텀 이벤트로 타이머 추가');
+            addNewTimer();
+        });
+        
+        // 3. 글로벌 함수 설정
+        window.addNewTimerGlobal = function() {
+            console.log('글로벌 함수로 타이머 추가');
+            addNewTimer();
+        };
         
         console.log('타이머 페이지 초기화 완료');
     } catch (error) {
@@ -80,78 +62,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 다중 타이머 초기화 및 이벤트 설정 함수
-function initializeTimers(timers, notificationManager) {
-    try {
-        console.log('다중 타이머 초기화 시작');
-        
-        // 초기 타이머 설정
-        const initialTimerItem = document.querySelector('.timer-item');
-        
-        if (initialTimerItem) {
-            console.log('초기 타이머 항목 찾음');
-            const timerId = initialTimerItem.dataset.timerId;
-            const timerInstance = new Timer();
-            timers.set(timerId, timerInstance);
-            initializeTimerItem(initialTimerItem, timerInstance, notificationManager);
-        } else {
-            console.error('초기 타이머 항목을 찾을 수 없음');
-        }
-        
-        // 타이머 추가 버튼 이벤트
-        const addTimerBtn = document.getElementById('add-timer');
-        if (addTimerBtn) {
-            console.log('타이머 추가 버튼 이벤트 설정');
+// 탭 전환 설정 함수
+function setupTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.dataset.tab;
+            console.log(`탭 전환: ${tabName}`);
             
-            // 기존 이벤트 리스너 제거 (중복 방지)
-            addTimerBtn.removeEventListener('click', onAddTimerClick);
+            // 버튼 활성화 상태 변경
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
             
-            // 이벤트 리스너 추가
-            addTimerBtn.addEventListener('click', onAddTimerClick);
+            // 탭 콘텐츠 전환
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
             
-            // 클릭 이벤트 핸들러
-            function onAddTimerClick() {
-                console.log('타이머 추가 버튼 클릭됨');
-                createNewTimer(timers, notificationManager);
+            // 포모도로 탭일 때만 식물 컨테이너 표시
+            const plantContainer = document.querySelector('.plant-container');
+            if (plantContainer) {
+                plantContainer.style.display = tabName === 'pomodoro' ? 'block' : 'none';
             }
-        } else {
-            console.error('타이머 추가 버튼 요소를 찾을 수 없음');
-        }
-        
-        // 기존 타이머들의 닫기 버튼 이벤트 설정
-        document.querySelectorAll('.close-timer').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                console.log('닫기 버튼 클릭됨');
-                const timerItem = e.target.closest('.timer-item');
-                if (timerItem) {
-                    if (timerItem.dataset.timerId !== '0') { // 첫 번째 타이머는 삭제 불가하게 했지만 일단 모두 삭제 가능하게 수정
-                        removeTimer(timerItem, timers);
-                    } else {
-                        console.log('첫 번째 타이머도 삭제 가능하게 변경');
-                        removeTimer(timerItem, timers);
-                    }
-                }
-            });
         });
-        
-        // 주기적으로 활성 타이머 저장
-        setInterval(() => {
-            saveActiveTimers(timers);
-        }, 10000); // 10초마다 저장
-        
-        // 페이지 로드 시 저장된 타이머 복원
-        loadSavedTimers(timers, notificationManager);
-        
-        console.log('다중 타이머 초기화 완료');
-    } catch (error) {
-        console.error('다중 타이머 초기화 오류:', error);
-    }
+    });
 }
 
-// 새 타이머 생성 함수
-function createNewTimer(timers, notificationManager) {
+// 다중 타이머 설정 함수
+function setupMultipleTimers() {
+    console.log('다중 타이머 설정');
+    
+    // 초기 타이머 설정
+    const initialTimerItem = document.querySelector('.timer-item');
+    if (initialTimerItem) {
+        console.log('초기 타이머 설정');
+        const timerId = initialTimerItem.dataset.timerId;
+        const timerInstance = new Timer();
+        timers.set(timerId, timerInstance);
+        setupTimerControls(initialTimerItem, timerInstance);
+    }
+    
+    // 저장된 타이머 불러오기
+    loadSavedTimers();
+    
+    // 타이머 상태 주기적 저장
+    setInterval(saveActiveTimers, 10000);
+}
+
+// 새 타이머 추가 함수
+function addNewTimer() {
+    console.log('새 타이머 추가 함수 호출됨');
     try {
-        console.log('새 타이머 생성 시작');
         const timersListElem = document.getElementById('timers-list');
         if (!timersListElem) {
             console.error('타이머 목록 요소를 찾을 수 없음');
@@ -159,18 +121,18 @@ function createNewTimer(timers, notificationManager) {
         }
         
         const timerId = String(timerIdCounter++);
-        console.log(`새 타이머 ID: ${timerId}`);
+        console.log(`새 타이머 ID: ${timerId} 생성 중`);
         
-        // 새 타이머 인스턴스 생성
+        // 타이머 인스턴스 생성
         const timerInstance = new Timer();
         timers.set(timerId, timerInstance);
         
-        // 타이머 HTML 요소 생성
-        const timerElem = document.createElement('div');
-        timerElem.className = 'timer-item';
-        timerElem.dataset.timerId = timerId;
+        // 타이머 요소 생성
+        const newTimerElem = document.createElement('div');
+        newTimerElem.className = 'timer-item';
+        newTimerElem.dataset.timerId = timerId;
         
-        timerElem.innerHTML = `
+        newTimerElem.innerHTML = `
             <div class="timer-header">
                 <input type="text" class="timer-label" placeholder="타이머 이름">
                 <button class="close-timer"><i class="fas fa-times"></i></button>
@@ -205,71 +167,61 @@ function createNewTimer(timers, notificationManager) {
             </div>
         `;
         
-        timersListElem.appendChild(timerElem);
-        console.log('타이머 요소 추가됨');
+        // 타이머 요소 추가
+        timersListElem.appendChild(newTimerElem);
+        console.log('타이머 요소 DOM에 추가됨');
         
-        // 새 타이머 초기화
-        initializeTimerItem(timerElem, timerInstance, notificationManager);
+        // 타이머 컨트롤 설정
+        setupTimerControls(newTimerElem, timerInstance);
         
-        // 닫기 버튼 이벤트 설정
-        const closeBtn = timerElem.querySelector('.close-timer');
-        closeBtn.addEventListener('click', () => {
-            console.log('새 타이머 닫기 버튼 클릭됨');
-            removeTimer(timerElem, timers);
+        // 닫기 버튼 이벤트
+        const closeBtn = newTimerElem.querySelector('.close-timer');
+        closeBtn.addEventListener('click', function() {
+            console.log('닫기 버튼 클릭');
+            removeTimer(newTimerElem, timerId);
         });
         
-        // 포커스를 이름 입력창으로 이동
-        timerElem.querySelector('.timer-label').focus();
+        // 포커스 설정 및 스크롤
+        newTimerElem.querySelector('.timer-label').focus();
+        newTimerElem.scrollIntoView({ behavior: 'smooth' });
         
-        // 스크롤을 새 타이머로 이동
-        timerElem.scrollIntoView({ behavior: 'smooth' });
-        console.log('새 타이머 생성 완료');
+        console.log('새 타이머 추가 완료');
     } catch (error) {
-        console.error('새 타이머 생성 오류:', error);
+        console.error('타이머 추가 오류:', error);
+        alert('타이머 추가 중 오류가 발생했습니다.');
     }
 }
 
 // 타이머 제거 함수
-function removeTimer(timerElem, timers) {
-    try {
-        console.log('타이머 제거 시작');
-        const timerId = timerElem.dataset.timerId;
-        console.log(`제거할 타이머 ID: ${timerId}`);
-        
-        const timerInstance = timers.get(timerId);
-        
-        // 타이머 중지
-        if (timerInstance) {
-            console.log('타이머 인스턴스 찾음, 리셋 중');
-            timerInstance.reset();
-            timers.delete(timerId);
-        } else {
-            console.warn(`타이머 ID ${timerId}에 해당하는 인스턴스를 찾을 수 없음`);
-        }
-        
-        // 애니메이션과 함께 요소 제거
-        timerElem.style.opacity = '0';
-        timerElem.style.transform = 'scale(0.8)';
-        timerElem.style.transition = 'all 0.3s ease-out';
-        
-        setTimeout(() => {
-            console.log('타이머 요소 제거');
-            timerElem.remove();
-        }, 300);
-        
-        // 저장된 타이머에서도 제거
-        const savedTimers = JSON.parse(localStorage.getItem('activeTimers') || '{}');
-        delete savedTimers[timerId];
-        localStorage.setItem('activeTimers', JSON.stringify(savedTimers));
-        
-        console.log('타이머 제거 완료');
-    } catch (error) {
-        console.error('타이머 제거 오류:', error);
+function removeTimer(timerElem, timerId) {
+    console.log(`타이머 제거: ${timerId}`);
+    
+    // 타이머 인스턴스 정리
+    const timerInstance = timers.get(timerId);
+    if (timerInstance) {
+        timerInstance.reset();
+        timers.delete(timerId);
     }
+    
+    // 애니메이션 후 요소 제거
+    timerElem.style.opacity = '0';
+    timerElem.style.transform = 'scale(0.8)';
+    timerElem.style.transition = 'all 0.3s ease-out';
+    
+    setTimeout(() => {
+        timerElem.remove();
+        console.log('타이머 요소 제거됨');
+    }, 300);
+    
+    // 저장된 데이터에서도 제거
+    const savedTimers = JSON.parse(localStorage.getItem('activeTimers') || '{}');
+    delete savedTimers[timerId];
+    localStorage.setItem('activeTimers', JSON.stringify(savedTimers));
 }
 
-// 개별 타이머 항목 초기화 함수
-function initializeTimerItem(timerElem, timerInstance, notificationManager) {
+// 타이머 컨트롤 설정 함수
+function setupTimerControls(timerElem, timerInstance) {
+    // DOM 요소
     const hoursInput = timerElem.querySelector('.hours-input');
     const minutesInput = timerElem.querySelector('.minutes-input');
     const secondsInput = timerElem.querySelector('.seconds-input');
@@ -284,25 +236,21 @@ function initializeTimerItem(timerElem, timerInstance, notificationManager) {
     const timerMinutes = timerElem.querySelector('.timer-minutes');
     const timerSeconds = timerElem.querySelector('.timer-seconds');
     
-    // 타이머 업데이트 함수
+    // 타이머 업데이트 콜백
     timerInstance.onUpdate = (hours, minutes, seconds) => {
         timerHours.textContent = hours.toString().padStart(2, '0');
         timerMinutes.textContent = minutes.toString().padStart(2, '0');
         timerSeconds.textContent = seconds.toString().padStart(2, '0');
     };
     
-    // 타이머 완료 시 실행 함수
+    // 타이머 완료 콜백
     timerInstance.onComplete = () => {
-        // 타이머 이름 또는 기본 메시지
-        const timerName = timerLabel.value.trim() || '타이머';
-        notificationManager.playNotification(`${timerName} 완료!`, '설정한 시간이 완료되었습니다.');
-        
-        // 타이머 항목에 완료 스타일 추가
+        const name = timerLabel.value.trim() || '타이머';
+        notificationManager.playNotification(`${name} 완료!`, '설정한 시간이 완료되었습니다.');
         timerElem.classList.add('timer-complete');
-        
         resetTimerControls();
         
-        // 타이머 완료 알림음 재생
+        // 알림음 재생
         try {
             const audio = new Audio('assets/sounds/bell.mp3');
             audio.volume = 0.5;
@@ -312,36 +260,30 @@ function initializeTimerItem(timerElem, timerInstance, notificationManager) {
         }
     };
     
-    // 시작 버튼 클릭 이벤트
+    // 시작 버튼 이벤트
     startBtn.addEventListener('click', () => {
         const hours = parseInt(hoursInput.value) || 0;
         const minutes = parseInt(minutesInput.value) || 0;
         const seconds = parseInt(secondsInput.value) || 0;
         
-        // 시간이 설정되어 있는지 확인
         if (hours === 0 && minutes === 0 && seconds === 0) {
             alert('타이머 시간을 설정해주세요.');
             return;
         }
         
-        // 타이머 항목에서 완료 스타일 제거
         timerElem.classList.remove('timer-complete');
-        
-        // 타이머 시작
         timerInstance.start(hours, minutes, seconds);
         
-        // 버튼 상태 업데이트
         startBtn.disabled = true;
         pauseBtn.disabled = false;
         
-        // 입력 필드 비활성화
         hoursInput.disabled = true;
         minutesInput.disabled = true;
         secondsInput.disabled = true;
         presetBtns.forEach(btn => btn.disabled = true);
     });
     
-    // 일시 정지 버튼 클릭 이벤트
+    // 일시정지 버튼 이벤트
     pauseBtn.addEventListener('click', () => {
         if (timerInstance.isPaused) {
             timerInstance.resume();
@@ -352,14 +294,14 @@ function initializeTimerItem(timerElem, timerInstance, notificationManager) {
         }
     });
     
-    // 리셋 버튼 클릭 이벤트
+    // 리셋 버튼 이벤트
     resetBtn.addEventListener('click', () => {
         timerInstance.reset();
         resetTimerControls();
         timerElem.classList.remove('timer-complete');
     });
     
-    // 프리셋 버튼 클릭 이벤트
+    // 프리셋 버튼 이벤트
     presetBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const minutes = parseInt(btn.dataset.minutes);
@@ -367,14 +309,13 @@ function initializeTimerItem(timerElem, timerInstance, notificationManager) {
             minutesInput.value = minutes;
             secondsInput.value = 0;
             
-            // 타이머 디스플레이 업데이트
             timerHours.textContent = '00';
             timerMinutes.textContent = minutes.toString().padStart(2, '0');
             timerSeconds.textContent = '00';
         });
     });
     
-    // 타이머 컨트롤 리셋 함수
+    // 컨트롤 리셋 함수
     function resetTimerControls() {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
@@ -388,10 +329,9 @@ function initializeTimerItem(timerElem, timerInstance, notificationManager) {
 }
 
 // 활성 타이머 저장 함수
-function saveActiveTimers(timers) {
+function saveActiveTimers() {
     const activeTimers = {};
     
-    // 모든 타이머 순회
     timers.forEach((timerInstance, timerId) => {
         if (timerInstance.isActive) {
             const timerElem = document.querySelector(`.timer-item[data-timer-id="${timerId}"]`);
@@ -410,34 +350,20 @@ function saveActiveTimers(timers) {
         }
     });
     
-    // 로컬 스토리지에 저장
     localStorage.setItem('activeTimers', JSON.stringify(activeTimers));
 }
 
-// 저장된 타이머 로드 함수
-function loadSavedTimers(timers, notificationManager) {
+// 저장된 타이머 불러오기 함수
+function loadSavedTimers() {
     const savedTimers = JSON.parse(localStorage.getItem('activeTimers') || '{}');
     const timersListElem = document.getElementById('timers-list');
     
-    // 저장된 타이머가 없으면 종료
     if (Object.keys(savedTimers).length === 0) return;
     
-    // 초기 타이머 제거 (저장된 타이머로 대체)
-    if (timers.has('0')) {
-        const initialTimerElem = document.querySelector('.timer-item[data-timer-id="0"]');
-        if (initialTimerElem) {
-            initialTimerElem.remove();
-            timers.delete('0');
-        }
-    }
-    
-    // 저장된 각 타이머 복원
     Object.entries(savedTimers).forEach(([timerId, timerData]) => {
-        // 타이머 인스턴스 생성
         const timerInstance = new Timer();
         timers.set(timerId, timerInstance);
         
-        // 타이머 요소 생성
         const timerElem = document.createElement('div');
         timerElem.className = 'timer-item';
         timerElem.dataset.timerId = timerId;
@@ -448,7 +374,9 @@ function loadSavedTimers(timers, notificationManager) {
                 <button class="close-timer"><i class="fas fa-times"></i></button>
             </div>
             <div class="timer-display">
-                <span class="timer-hours">${timerData.hours.toString().padStart(2, '0')}</span>:<span class="timer-minutes">${timerData.minutes.toString().padStart(2, '0')}</span>:<span class="timer-seconds">${timerData.seconds.toString().padStart(2, '0')}</span>
+                <span class="timer-hours">${timerData.hours.toString().padStart(2, '0')}</span>:
+                <span class="timer-minutes">${timerData.minutes.toString().padStart(2, '0')}</span>:
+                <span class="timer-seconds">${timerData.seconds.toString().padStart(2, '0')}</span>
             </div>
             <div class="timer-controls">
                 <button class="timer-start control-btn" ${timerData.isPaused ? '' : 'disabled'}><i class="fas fa-play"></i></button>
@@ -478,28 +406,17 @@ function loadSavedTimers(timers, notificationManager) {
         `;
         
         timersListElem.appendChild(timerElem);
+        setupTimerControls(timerElem, timerInstance);
         
-        // 타이머 초기화
-        initializeTimerItem(timerElem, timerInstance, notificationManager);
-        
-        // 닫기 버튼 이벤트 설정
         const closeBtn = timerElem.querySelector('.close-timer');
-        closeBtn.addEventListener('click', () => {
-            removeTimer(timerElem, timers);
-        });
+        closeBtn.addEventListener('click', () => removeTimer(timerElem, timerId));
         
-        // 타이머 상태 복원
         if (!timerData.isPaused) {
-            timerInstance.start(
-                timerData.hours, 
-                timerData.minutes, 
-                timerData.seconds
-            );
+            timerInstance.start(timerData.hours, timerData.minutes, timerData.seconds);
         }
     });
     
-    // ID 카운터 업데이트
-    const maxId = Math.max(...Object.keys(savedTimers).map(id => parseInt(id)), 0);
+    const maxId = Math.max(0, ...Object.keys(savedTimers).map(id => parseInt(id)));
     timerIdCounter = maxId + 1;
 }
 
