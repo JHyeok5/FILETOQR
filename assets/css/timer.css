@@ -217,23 +217,47 @@ nav {
 .pomodoro-status {
     text-align: center;
     margin-bottom: 1rem;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 500;
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background-color: var(--bg-gray);
+    border-radius: 8px;
+    padding: 1rem;
 }
 
 .status-box {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
     align-items: center;
+    min-width: 80px;
 }
 
-#current-mode-time {
-    font-size: 1rem;
+.status-box span:first-child {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.status-box span:nth-child(2) {
+    font-weight: bold;
+    color: var(--dark-text);
+}
+
+.status-box span:last-child {
+    font-size: 1.1rem;
     color: var(--primary-color);
     font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+#current-mode-time, #work-time, #break-time, #cycle-count {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
 }
 
 /* 랩 컨테이너 */
