@@ -3,10 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>타이머 & 스톱워치 | 포모도로</title>
+    <meta name="description" content="타이머, 스톱워치 및 포모도로 타이머 - 여러 타이머를 동시에 관리하고 작업 효율성을 높이세요.">
+    <meta name="keywords" content="타이머, 스톱워치, 포모도로, 시간 관리, 생산성">
+    <title>타이머 & 스톱워치 | 포모도로 - FileToQR</title>
+    
+    <!-- CSS 스타일시트 -->
+    <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/timer.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 파비콘 -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- 초기 로딩 스타일 (JS 로딩 전에 적용) -->
     <style>
+        /* 헤더 초기 로딩 최소 스타일 */
+        #header-container {
+            min-height: 64px;
+        }
+        #header-container nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        #header-container .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #3B82F6;
+        }
+        #header-container .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        #header-container .nav-links a {
+            color: #4B5563;
+            text-decoration: none;
+        }
+        
         /* 타이머 그리드 레이아웃 */
         #timers-list {
             display: flex;
@@ -120,8 +164,9 @@
         }
     </style>
 </head>
-<body>
-    <header>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <!-- 헤더 컴포넌트 -->
+    <div id="header-container">
         <nav>
             <div class="logo">
                 <a href="index.html">FileToQR</a>
@@ -134,9 +179,9 @@
                 <li><a href="help.html">도움말</a></li>
             </ul>
         </nav>
-    </header>
+    </div>
 
-    <main class="container">
+    <main class="container mx-auto px-4 py-8">
         <div class="tabs">
             <button class="tab-btn active" data-tab="timer">타이머</button>
             <button class="tab-btn" data-tab="stopwatch">스톱워치</button>
@@ -253,738 +298,25 @@
                         <input type="number" id="long-break-minutes" min="1" max="60" value="15">
                     </div>
                     <div class="time-input">
-                        <label for="pomodoro-cycles">반복 횟수:</label>
-                        <input type="number" id="pomodoro-cycles" min="1" max="10" value="4">
+                        <label for="cycles">작업 세션 수:</label>
+                        <input type="number" id="cycles" min="1" max="10" value="4">
+                    </div>
+                    <div class="time-input">
+                        <label for="auto-start">자동 시작:</label>
+                        <input type="checkbox" id="auto-start" checked>
                     </div>
                 </div>
-                
-                <!-- 식물 키우기 기능 (포모도로 전용) -->
-                <div class="plant-container">
-                    <div class="plant-display">
-                        <div id="plant-image" class="plant-pot">
-                            <div class="plant-growth plant-stage-0">
-                                <div class="soil"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="plant-info">
-                        <h3 id="plant-name">새싹</h3>
-                        <p id="plant-level">레벨: 0</p>
-                        <p id="plant-exp">경험치: 0 / 100</p>
-                        <div class="plant-exp-bar">
-                            <div id="plant-exp-progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="plant-collection">
-                        <h3>식물 컬렉션</h3>
-                        <div class="collection-grid" id="plant-collection-grid">
-                            <!-- 식물 컬렉션은 자바스크립트로 추가됩니다 -->
-                        </div>
-                    </div>
-                    
-                    <div class="setting">
-                        <label for="plant-theme">식물 테마:</label>
-                        <select id="plant-theme">
-                            <option value="indoor">실내 식물</option>
-                            <option value="garden">정원 식물</option>
-                            <option value="tropical">열대 식물</option>
-                            <option value="succulent">다육 식물</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="settings-panel">
-            <h3>설정</h3>
-            <div class="setting">
-                <label for="notification-sound">알림 소리:</label>
-                <select id="notification-sound">
-                    <option value="bell">벨</option>
-                    <option value="digital">디지털</option>
-                    <option value="nature">자연</option>
-                    <option value="none">없음</option>
-                </select>
-            </div>
-            <div class="setting">
-                <label for="notification-volume">볼륨:</label>
-                <input type="range" id="notification-volume" min="0" max="100" value="80">
-            </div>
-            <div class="setting">
-                <label for="background-notification">백그라운드 알림:</label>
-                <input type="checkbox" id="background-notification" checked>
             </div>
         </div>
     </main>
-
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="about.html">소개</a>
-                <a href="privacy.html">개인정보 처리방침</a>
-                <a href="terms.html">이용약관</a>
-                <a href="contact.html">문의하기</a>
-            </div>
-            <p>&copy; 2023 FileToQR. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- 오디오 요소 -->
-    <audio id="bell-sound" src="assets/sounds/bell.mp3" preload="auto"></audio>
-    <audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio>
-    <audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio>
-
-    <!-- 디버깅용 콘솔 메시지 -->
-    <script>
-        console.log('타이머 페이지 로딩 시작');
-        
-        // 페이지 로드 완료 후 추가 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('타이머 페이지 DOM 로딩 완료');
-            
-            // 타이머 관련 변수
-            var activeTimers = {};
-            
-            // 타이머 추가 버튼에 직접 이벤트 핸들러 추가
-            var addTimerBtn = document.getElementById('add-timer');
-            if (addTimerBtn) {
-                console.log('타이머 추가 버튼 발견');
-                // 중복 이벤트 방지를 위해 여기서 이벤트 리스너 등록 제거
-                // addTimerBtn.addEventListener('click', function() {
-                //     console.log('타이머 추가 버튼 클릭 - 인라인 스크립트');
-                //     addNewTimer();
-                // });
-            } else {
-                console.error('타이머 추가 버튼을 찾을 수 없음');
-            }
-            
-            // 기존 타이머 제어 설정
-            setupExistingTimers();
-            
-            // 전역 함수로 타이머 추가 기능 구현
-            window.addNewTimer = function() {
-                try {
-                    console.log('타이머 추가 함수 호출됨');
-                    
-                    // 타이머 ID 생성
-                    var timerId = new Date().getTime();
-                    console.log('새 타이머 ID:', timerId);
-                    
-                    // 타이머 목록 요소 찾기
-                    var timersList = document.getElementById('timers-list');
-                    if (!timersList) {
-                        console.error('타이머 목록 요소를 찾을 수 없음');
-                        return;
-                    }
-                    
-                    // 새 타이머 요소 생성
-                    var newTimerElem = document.createElement('div');
-                    newTimerElem.className = 'timer-item new-timer';
-                    newTimerElem.dataset.timerId = timerId;
-                    
-                    // 타이머 HTML 설정
-                    newTimerElem.innerHTML = `
-                        <div class="timer-header">
-                            <input type="text" class="timer-label" placeholder="타이머 이름">
-                            <button class="close-timer"><i class="fas fa-times"></i></button>
-                        </div>
-                        <div class="timer-display">
-                            <span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span>
-                        </div>
-                        <div class="timer-controls">
-                            <button class="timer-start control-btn"><i class="fas fa-play"></i></button>
-                            <button class="timer-pause control-btn" disabled><i class="fas fa-pause"></i></button>
-                            <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button>
-                        </div>
-                        <div class="timer-settings">
-                            <div class="time-input">
-                                <label>시간:</label>
-                                <input type="number" class="hours-input" min="0" max="23" value="0">
-                            </div>
-                            <div class="time-input">
-                                <label>분:</label>
-                                <input type="number" class="minutes-input" min="0" max="59" value="0">
-                            </div>
-                            <div class="time-input">
-                                <label>초:</label>
-                                <input type="number" class="seconds-input" min="0" max="59" value="0">
-                            </div>
-                        </div>
-                        <div class="preset-buttons">
-                            <button class="preset-btn" data-minutes="5">5분</button>
-                            <button class="preset-btn" data-minutes="10">10분</button>
-                            <button class="preset-btn" data-minutes="15">15분</button>
-                            <button class="preset-btn" data-minutes="30">30분</button>
-                        </div>
-                    `;
-                    
-                    // 타이머 요소 추가
-                    timersList.appendChild(newTimerElem);
-                    console.log('새 타이머 요소가 DOM에 추가됨');
-                    
-                    // 브라우저에게 레이아웃을 계산할 시간 제공
-                    setTimeout(function() {
-                        newTimerElem.classList.remove('new-timer');
-                    }, 10);
-                    
-                    // 타이머 컨트롤 설정
-                    setupTimerControls(newTimerElem, timerId);
-                    
-                    // 포커스 설정 및 스크롤
-                    var labelInput = newTimerElem.querySelector('.timer-label');
-                    if (labelInput) labelInput.focus();
-                    newTimerElem.scrollIntoView({ behavior: 'smooth' });
-                    
-                    // 결과 알림
-                    console.log('새 타이머 추가 완료');
-                    return newTimerElem;
-                } catch (error) {
-                    console.error('타이머 추가 오류:', error);
-                    alert('타이머 추가 중 오류가 발생했습니다: ' + error.message);
-                }
-            };
-            
-            // 타이머 제거 함수
-            window.removeTimer = function(timerElem) {
-                try {
-                    console.log('타이머 제거 시작');
-                    var timerId = timerElem.dataset.timerId;
-                    
-                    // 타이머 중지
-                    if (activeTimers[timerId]) {
-                        clearInterval(activeTimers[timerId].interval);
-                        delete activeTimers[timerId];
-                    }
-                    
-                    // 애니메이션 효과와 함께 요소 제거
-                    timerElem.style.opacity = '0';
-                    timerElem.style.transform = 'scale(0.8)';
-                    timerElem.style.transition = 'all 0.3s ease-out';
-                    
-                    setTimeout(function() {
-                        timerElem.remove();
-                        console.log('타이머 요소 제거됨');
-                    }, 300);
-                } catch (error) {
-                    console.error('타이머 제거 오류:', error);
-                }
-            };
-            
-            // 기존 타이머 설정
-            function setupExistingTimers() {
-                var timerItems = document.querySelectorAll('.timer-item');
-                timerItems.forEach(function(timerItem) {
-                    var timerId = timerItem.dataset.timerId;
-                    setupTimerControls(timerItem, timerId);
-                });
-            }
-            
-            // 타이머 컨트롤 설정
-            function setupTimerControls(timerElem, timerId) {
-                // 타이머 요소들
-                var hoursInput = timerElem.querySelector('.hours-input');
-                var minutesInput = timerElem.querySelector('.minutes-input');
-                var secondsInput = timerElem.querySelector('.seconds-input');
-                var timerLabel = timerElem.querySelector('.timer-label');
-                
-                var timerHours = timerElem.querySelector('.timer-hours');
-                var timerMinutes = timerElem.querySelector('.timer-minutes');
-                var timerSeconds = timerElem.querySelector('.timer-seconds');
-                
-                var startBtn = timerElem.querySelector('.timer-start');
-                var pauseBtn = timerElem.querySelector('.timer-pause');
-                var resetBtn = timerElem.querySelector('.timer-reset');
-                var closeBtn = timerElem.querySelector('.close-timer');
-                var presetBtns = timerElem.querySelectorAll('.preset-btn');
-                
-                // 닫기 버튼 이벤트
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', function() {
-                        console.log('타이머 닫기 버튼 클릭');
-                        removeTimer(timerElem);
-                    });
-                }
-                
-                // 시작 버튼 이벤트
-                if (startBtn) {
-                    startBtn.addEventListener('click', function() {
-                        var hours = parseInt(hoursInput.value) || 0;
-                        var minutes = parseInt(minutesInput.value) || 0;
-                        var seconds = parseInt(secondsInput.value) || 0;
-                        
-                        // 시간 확인
-                        if (hours === 0 && minutes === 0 && seconds === 0) {
-                            alert('타이머 시간을 설정해주세요.');
-                            return;
-                        }
-                        
-                        // 완료 스타일 제거
-                        timerElem.classList.remove('timer-complete');
-                        
-                        // 타이머 시작
-                        startTimer(timerId, hours, minutes, seconds, timerElem);
-                        
-                        // UI 업데이트
-                        startBtn.disabled = true;
-                        pauseBtn.disabled = false;
-                        
-                        hoursInput.disabled = true;
-                        minutesInput.disabled = true;
-                        secondsInput.disabled = true;
-                        presetBtns.forEach(function(btn) {
-                            btn.disabled = true;
-                        });
-                    });
-                }
-                
-                // 일시정지 버튼 이벤트
-                if (pauseBtn) {
-                    pauseBtn.addEventListener('click', function() {
-                        var timerData = activeTimers[timerId];
-                        if (!timerData) return;
-                        
-                        if (timerData.isPaused) {
-                            // 타이머 재개
-                            resumeTimer(timerId, timerElem);
-                            pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        } else {
-                            // 타이머 일시정지
-                            pauseTimer(timerId);
-                            pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        }
-                    });
-                }
-                
-                // 리셋 버튼 이벤트
-                if (resetBtn) {
-                    resetBtn.addEventListener('click', function() {
-                        resetTimer(timerId, timerElem);
-                        timerElem.classList.remove('timer-complete');
-                        
-                        startBtn.disabled = false;
-                        pauseBtn.disabled = true;
-                        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        
-                        hoursInput.disabled = false;
-                        minutesInput.disabled = false;
-                        secondsInput.disabled = false;
-                        presetBtns.forEach(function(btn) {
-                            btn.disabled = false;
-                        });
-                    });
-                }
-                
-                // 프리셋 버튼 이벤트
-                presetBtns.forEach(function(btn) {
-                    btn.addEventListener('click', function() {
-                        var minutes = parseInt(btn.dataset.minutes) || 0;
-                        
-                        if (hoursInput) hoursInput.value = 0;
-                        if (minutesInput) minutesInput.value = minutes;
-                        if (secondsInput) secondsInput.value = 0;
-                        
-                        if (timerHours) timerHours.textContent = '00';
-                        if (timerMinutes) timerMinutes.textContent = minutes.toString().padStart(2, '0');
-                        if (timerSeconds) timerSeconds.textContent = '00';
-                    });
-                });
-            }
-            
-            // 타이머 시작 함수
-            function startTimer(timerId, hours, minutes, seconds, timerElem) {
-                // 기존 타이머 정리
-                if (activeTimers[timerId]) {
-                    clearInterval(activeTimers[timerId].interval);
-                }
-                
-                // 총 시간(초) 계산
-                var totalSeconds = hours * 3600 + minutes * 60 + seconds;
-                var initialTotalSeconds = totalSeconds;
-                var startTime = Date.now();
-                var isPaused = false;
-                var pausedTime = 0;
-                
-                // 타이머 표시 업데이트
-                updateTimerDisplay(timerElem, totalSeconds);
-                
-                // 인터벌 설정
-                var interval = setInterval(function() {
-                    if (isPaused) return;
-                    
-                    // 경과 시간 계산
-                    var elapsedSeconds = Math.floor((Date.now() - startTime - pausedTime) / 1000);
-                    totalSeconds = initialTotalSeconds - elapsedSeconds;
-                    
-                    if (totalSeconds <= 0) {
-                        // 타이머 완료
-                        clearInterval(interval);
-                        totalSeconds = 0;
-                        
-                        // 완료 처리
-                        timerComplete(timerId, timerElem);
-                        return;
-                    }
-                    
-                    // 타이머 표시 업데이트
-                    updateTimerDisplay(timerElem, totalSeconds);
-                }, 100);
-                
-                // 타이머 상태 저장
-                activeTimers[timerId] = {
-                    interval: interval,
-                    totalSeconds: totalSeconds,
-                    initialTotalSeconds: initialTotalSeconds,
-                    startTime: startTime,
-                    isPaused: isPaused,
-                    pausedTime: pausedTime,
-                    pauseStartTime: 0
-                };
-            }
-            
-            // 타이머 일시정지 함수
-            function pauseTimer(timerId) {
-                var timerData = activeTimers[timerId];
-                if (!timerData || timerData.isPaused) return;
-                
-                timerData.isPaused = true;
-                timerData.pauseStartTime = Date.now();
-            }
-            
-            // 타이머 재개 함수
-            function resumeTimer(timerId, timerElem) {
-                var timerData = activeTimers[timerId];
-                if (!timerData || !timerData.isPaused) return;
-                
-                // 일시정지 시간 누적
-                timerData.pausedTime += (Date.now() - timerData.pauseStartTime);
-                timerData.isPaused = false;
-            }
-            
-            // 타이머 리셋 함수
-            function resetTimer(timerId, timerElem) {
-                // 타이머 정리
-                if (activeTimers[timerId]) {
-                    clearInterval(activeTimers[timerId].interval);
-                    delete activeTimers[timerId];
-                }
-                
-                // 표시 초기화
-                var timerHours = timerElem.querySelector('.timer-hours');
-                var timerMinutes = timerElem.querySelector('.timer-minutes');
-                var timerSeconds = timerElem.querySelector('.timer-seconds');
-                
-                if (timerHours) timerHours.textContent = '00';
-                if (timerMinutes) timerMinutes.textContent = '00';
-                if (timerSeconds) timerSeconds.textContent = '00';
-            }
-            
-            // 타이머 완료 함수
-            function timerComplete(timerId, timerElem) {
-                var timerLabel = timerElem.querySelector('.timer-label');
-                var name = timerLabel && timerLabel.value.trim() ? timerLabel.value.trim() : '타이머';
-                
-                // 완료 표시
-                timerElem.classList.add('timer-complete');
-                
-                // 버튼 상태 업데이트
-                var startBtn = timerElem.querySelector('.timer-start');
-                var pauseBtn = timerElem.querySelector('.timer-pause');
-                var hoursInput = timerElem.querySelector('.hours-input');
-                var minutesInput = timerElem.querySelector('.minutes-input');
-                var secondsInput = timerElem.querySelector('.seconds-input');
-                var presetBtns = timerElem.querySelectorAll('.preset-btn');
-                
-                if (startBtn) startBtn.disabled = false;
-                if (pauseBtn) {
-                    pauseBtn.disabled = true;
-                    pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                }
-                
-                if (hoursInput) hoursInput.disabled = false;
-                if (minutesInput) minutesInput.disabled = false;
-                if (secondsInput) secondsInput.disabled = false;
-                presetBtns.forEach(function(btn) {
-                    btn.disabled = false;
-                });
-                
-                // 알림
-                alert(`${name} 타이머가 완료되었습니다!`);
-                
-                // 알림음 재생
-                try {
-                    var audio = new Audio('assets/sounds/bell.mp3');
-                    audio.volume = 0.5;
-                    audio.play();
-                } catch (e) {
-                    console.warn('알림음 재생 실패:', e);
-                }
-                
-                // 타이머 정리
-                delete activeTimers[timerId];
-            }
-            
-            // 타이머 표시 업데이트 함수
-            function updateTimerDisplay(timerElem, totalSeconds) {
-                var hours = Math.floor(totalSeconds / 3600);
-                var minutes = Math.floor((totalSeconds % 3600) / 60);
-                var seconds = totalSeconds % 60;
-                
-                var timerHours = timerElem.querySelector('.timer-hours');
-                var timerMinutes = timerElem.querySelector('.timer-minutes');
-                var timerSeconds = timerElem.querySelector('.timer-seconds');
-                
-                if (timerHours) timerHours.textContent = hours.toString().padStart(2, '0');
-                if (timerMinutes) timerMinutes.textContent = minutes.toString().padStart(2, '0');
-                if (timerSeconds) timerSeconds.textContent = seconds.toString().padStart(2, '0');
-            }
-        });
-    </script>
     
-    <!-- 타이머 추가 버튼에 직접 onclick 이벤트 추가 -->
-    <script>
-        // 더 이상 사용되지 않는 함수이므로 제거
-        // function addNewTimerDirectly() {
-        //     console.log('직접 호출된 타이머 추가 함수');
-        //     if (window.addNewTimer) {
-        //         window.addNewTimer();
-        //     } else {
-        //         console.error('addNewTimer 함수를 찾을 수 없음');
-        //         alert('타이머 추가 기능을 초기화할 수 없습니다. 페이지를 새로고침 해주세요.');
-        //     }
-        // }
-    </script>
+    <!-- 푸터 컴포넌트 -->
+    <div id="footer-container"></div>
+
+    <!-- 코어 모듈 로드 -->
+    <script src="assets/js/core/app-core.js" type="module"></script>
     
     <!-- 타이머 스크립트 -->
-    <script src="assets/js/pages/timer.js" type="module"></script>
-    
-    <!-- 포모도로 타이머 스크립트 추가 -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 포모도로 관련 요소들
-            const pomodoroDisplay = document.querySelector('.pomodoro-status');
-            const statusText = document.getElementById('status-text');
-            const currentModeTime = document.getElementById('current-mode-time');
-            const workTime = document.getElementById('work-time');
-            const shortBreakTime = document.getElementById('short-break-time');
-            const longBreakTime = document.getElementById('long-break-time');
-            const cycleCount = document.getElementById('cycle-count');
-            
-            const workMinutesInput = document.getElementById('work-minutes');
-            const shortBreakMinutesInput = document.getElementById('short-break-minutes');
-            const longBreakMinutesInput = document.getElementById('long-break-minutes');
-            const pomodoroCyclesInput = document.getElementById('pomodoro-cycles');
-            
-            const startBtn = document.getElementById('pomodoro-start');
-            const pauseBtn = document.getElementById('pomodoro-pause');
-            const resetBtn = document.getElementById('pomodoro-reset');
-            
-            // 초기 설정값
-            let workMinutes = parseInt(workMinutesInput.value) || 25;
-            let shortBreakMinutes = parseInt(shortBreakMinutesInput.value) || 5;
-            let longBreakMinutes = parseInt(longBreakMinutesInput.value) || 15;
-            let cycles = parseInt(pomodoroCyclesInput.value) || 4;
-            
-            // 타이머 상태 변수
-            let timerInterval = null;
-            let isPaused = false;
-            let currentMinutes = workMinutes;
-            let currentSeconds = 0;
-            let isWorking = true;
-            let currentCycle = 0;
-            let totalCycles = cycles;
-            
-            // 포모도로 타이머 업데이트 함수
-            function updatePomodoroDisplay() {
-                // 현재 모드 시간 업데이트
-                currentModeTime.textContent = `${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}`;
-                
-                // 작업/휴식 시간 하이라이트 처리
-                if (isWorking) {
-                    // 작업 모드일 때
-                    workTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
-                    shortBreakTime.textContent = `${String(shortBreakMinutes).padStart(2, '0')}:00`;
-                    longBreakTime.textContent = `${String(longBreakMinutes).padStart(2, '0')}:00`;
-                } else {
-                    // 휴식 모드일 때
-                    workTime.textContent = `${String(workMinutes).padStart(2, '0')}:00`;
-                    
-                    // 짧은 휴식인지 긴 휴식인지 확인
-                    if (isShortBreakNext() || currentCycle < totalCycles - 1) {
-                        // 짧은 휴식일 때
-                        shortBreakTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
-                        longBreakTime.textContent = `${String(longBreakMinutes).padStart(2, '0')}:00`;
-                    } else {
-                        // 긴 휴식일 때
-                        shortBreakTime.textContent = `${String(shortBreakMinutes).padStart(2, '0')}:00`;
-                        longBreakTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
-                    }
-                }
-                
-                // 사이클 카운트 업데이트
-                cycleCount.textContent = `${currentCycle}/${totalCycles}`;
-                
-                // 상태 텍스트 업데이트
-                if (isWorking) {
-                    statusText.textContent = '작업 시간';
-                } else {
-                    statusText.textContent = isShortBreakNext() ? '짧은 휴식' : '긴 휴식';
-                }
-            }
-            
-            // 작업 시간 이후 짧은 휴식을 사용할지 결정하는 함수
-            function isShortBreakNext() {
-                return currentCycle < totalCycles - 1;
-            }
-            
-            // 타이머 시작 함수
-            function startPomodoro() {
-                if (timerInterval) return;
-                
-                isPaused = false;
-                startBtn.disabled = true;
-                pauseBtn.disabled = false;
-                
-                workMinutesInput.disabled = true;
-                shortBreakMinutesInput.disabled = true;
-                longBreakMinutesInput.disabled = true;
-                pomodoroCyclesInput.disabled = true;
-                
-                timerInterval = setInterval(function() {
-                    if (currentSeconds === 0) {
-                        if (currentMinutes === 0) {
-                            // 타이머 완료 처리
-                            clearInterval(timerInterval);
-                            timerInterval = null;
-                            
-                            // 작업/휴식 모드 전환
-                            if (isWorking) {
-                                // 작업 완료 - 휴식 시간으로
-                                isWorking = false;
-                                // 짧은 휴식 또는 긴 휴식 결정
-                                currentMinutes = isShortBreakNext() ? shortBreakMinutes : longBreakMinutes;
-                            } else {
-                                // 휴식 완료 - 작업 시간으로
-                                isWorking = true;
-                                currentMinutes = workMinutes;
-                                currentCycle++;
-                                
-                                // 모든 사이클 완료 확인
-                                if (currentCycle > totalCycles) {
-                                    currentCycle = totalCycles;
-                                    resetPomodoro();
-                                    alert('모든 포모도로 세션이 완료되었습니다!');
-                                    return;
-                                }
-                            }
-                            
-                            currentSeconds = 0;
-                            updatePomodoroDisplay();
-                            
-                            // 알림음 재생
-                            try {
-                                const audio = document.getElementById('bell-sound');
-                                if (audio) audio.play();
-                            } catch (e) {
-                                console.warn('알림음 재생 실패:', e);
-                            }
-                            
-                            // 세션 전환 후 자동으로 다시 시작
-                            startPomodoro();
-                            return;
-                        }
-                        
-                        currentMinutes--;
-                        currentSeconds = 59;
-                    } else {
-                        currentSeconds--;
-                    }
-                    
-                    updatePomodoroDisplay();
-                }, 1000);
-                
-                updatePomodoroDisplay();
-            }
-            
-            // 타이머 일시 정지 함수
-            function pausePomodoro() {
-                if (!timerInterval) return;
-                
-                if (isPaused) {
-                    // 재개
-                    isPaused = false;
-                    pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    
-                    startPomodoro();
-                } else {
-                    // 일시 정지
-                    isPaused = true;
-                    pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                }
-            }
-            
-            // 타이머 리셋 함수
-            function resetPomodoro() {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                
-                isPaused = false;
-                isWorking = true;
-                currentCycle = 0;
-                
-                // 입력값 다시 읽기
-                workMinutes = parseInt(workMinutesInput.value) || 25;
-                shortBreakMinutes = parseInt(shortBreakMinutesInput.value) || 5;
-                longBreakMinutes = parseInt(longBreakMinutesInput.value) || 15;
-                totalCycles = parseInt(pomodoroCyclesInput.value) || 4;
-                
-                currentMinutes = workMinutes;
-                currentSeconds = 0;
-                
-                // 버튼 상태 업데이트
-                startBtn.disabled = false;
-                pauseBtn.disabled = true;
-                pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                
-                // 입력 필드 활성화
-                workMinutesInput.disabled = false;
-                shortBreakMinutesInput.disabled = false;
-                longBreakMinutesInput.disabled = false;
-                pomodoroCyclesInput.disabled = false;
-                
-                updatePomodoroDisplay();
-            }
-            
-            // 이벤트 리스너 설정
-            if (startBtn) startBtn.addEventListener('click', startPomodoro);
-            if (pauseBtn) pauseBtn.addEventListener('click', pausePomodoro);
-            if (resetBtn) resetBtn.addEventListener('click', resetPomodoro);
-            
-            // 설정 입력값 변경 이벤트 리스너
-            [workMinutesInput, shortBreakMinutesInput, longBreakMinutesInput, pomodoroCyclesInput].forEach(function(input) {
-                if (input) {
-                    input.addEventListener('change', function() {
-                        if (timerInterval) return; // 타이머 실행 중에는 변경 무시
-                        resetPomodoro();
-                    });
-                }
-            });
-            
-            // 초기 화면 업데이트
-            updatePomodoroDisplay();
-            
-            // 하이라이트 스타일 추가
-            const styleEl = document.createElement('style');
-            styleEl.textContent = `
-                .highlight {
-                    color: #007bff;
-                    font-weight: bold;
-                }
-            `;
-            document.head.appendChild(styleEl);
-        });
-    </script>
+    <script src="assets/js/pages/timer.js" defer></script>
 </body>
 </html> 
