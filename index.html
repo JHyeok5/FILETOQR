@@ -15,6 +15,38 @@
     
     <!-- 파비콘 -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- 초기 로딩 스타일 (JS 로딩 전에 적용) -->
+    <style>
+        /* 헤더 초기 로딩 최소 스타일 */
+        #header-container {
+            min-height: 64px;
+        }
+        #header-container nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        #header-container .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: #3B82F6;
+        }
+        #header-container .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        #header-container .nav-links a {
+            color: #4B5563;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
     <!-- 헤더 컴포넌트 -->
