@@ -25,6 +25,56 @@
   animation: slideUp 0.5s ease-in-out;
 }
 
+/* 헤더 로딩 스타일 - 로딩 중에도 깔끔하게 표시되도록 기본 스타일 적용 */
+#header-container {
+  min-height: 64px;
+  position: relative;
+}
+
+#header-container nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease;
+}
+
+#header-container .logo {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #3B82F6;
+}
+
+#header-container .nav-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#header-container .nav-links a {
+  color: #4B5563;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+#header-container .nav-links a:hover,
+#header-container .nav-links a.active {
+  color: #3B82F6;
+}
+
+/* 헤더 로딩 상태 스타일 */
+.header-loading nav {
+  opacity: 0.7;
+}
+
+.header-loaded {
+  animation: fadeIn 0.3s ease-out;
+}
+
 /* 스크롤바 커스터마이징 */
 ::-webkit-scrollbar {
   width: 8px;
