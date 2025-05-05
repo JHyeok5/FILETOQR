@@ -87,7 +87,10 @@
                     <span id="pomodoro-minutes">25</span>:<span id="pomodoro-seconds">00</span>
                 </div>
                 <div class="pomodoro-status">
-                    <span id="status-text">작업 시간</span>
+                    <div class="status-box">
+                        <span id="status-text">작업 시간</span>
+                        <span id="current-mode-time">25:00</span>
+                    </div>
                     <span id="cycle-count">세션: 0/4</span>
                 </div>
                 <div class="timer-controls">
@@ -108,30 +111,45 @@
                         <label for="long-break-minutes">긴 휴식(분):</label>
                         <input type="number" id="long-break-minutes" min="1" max="60" value="15">
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="plant-container">
-            <div class="plant-display">
-                <div id="plant-image" class="plant-pot">
-                    <div class="plant-growth plant-stage-0">
-                        <div class="soil"></div>
+                    <div class="time-input">
+                        <label for="pomodoro-cycles">반복 횟수:</label>
+                        <input type="number" id="pomodoro-cycles" min="1" max="10" value="4">
                     </div>
                 </div>
-            </div>
-            <div class="plant-info">
-                <h3 id="plant-name">새싹</h3>
-                <p id="plant-level">레벨: 0</p>
-                <p id="plant-exp">경험치: 0 / 100</p>
-                <div class="plant-exp-bar">
-                    <div id="plant-exp-progress" style="width: 0%"></div>
-                </div>
-            </div>
-            <div class="plant-collection">
-                <h3>식물 컬렉션</h3>
-                <div class="collection-grid" id="plant-collection-grid">
-                    <!-- 식물 컬렉션은 자바스크립트로 추가됩니다 -->
+                
+                <!-- 식물 키우기 기능 (포모도로 전용) -->
+                <div class="plant-container">
+                    <div class="plant-display">
+                        <div id="plant-image" class="plant-pot">
+                            <div class="plant-growth plant-stage-0">
+                                <div class="soil"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="plant-info">
+                        <h3 id="plant-name">새싹</h3>
+                        <p id="plant-level">레벨: 0</p>
+                        <p id="plant-exp">경험치: 0 / 100</p>
+                        <div class="plant-exp-bar">
+                            <div id="plant-exp-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="plant-collection">
+                        <h3>식물 컬렉션</h3>
+                        <div class="collection-grid" id="plant-collection-grid">
+                            <!-- 식물 컬렉션은 자바스크립트로 추가됩니다 -->
+                        </div>
+                    </div>
+                    
+                    <div class="setting">
+                        <label for="plant-theme">식물 테마:</label>
+                        <select id="plant-theme">
+                            <option value="indoor">실내 식물</option>
+                            <option value="garden">정원 식물</option>
+                            <option value="tropical">열대 식물</option>
+                            <option value="succulent">다육 식물</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,15 +172,6 @@
             <div class="setting">
                 <label for="background-notification">백그라운드 알림:</label>
                 <input type="checkbox" id="background-notification" checked>
-            </div>
-            <div class="setting">
-                <label for="plant-theme">식물 테마:</label>
-                <select id="plant-theme">
-                    <option value="indoor">실내 식물</option>
-                    <option value="garden">정원 식물</option>
-                    <option value="tropical">열대 식물</option>
-                    <option value="succulent">다육 식물</option>
-                </select>
             </div>
         </div>
     </main>
