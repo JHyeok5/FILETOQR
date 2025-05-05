@@ -101,10 +101,22 @@
                 </div>
                 <div class="pomodoro-status">
                     <div class="status-box">
+                        <span>현재</span>
                         <span id="status-text">작업 시간</span>
                         <span id="current-mode-time">25:00</span>
                     </div>
-                    <span id="cycle-count">세션: 0/4</span>
+                    <div class="status-box">
+                        <span>작업 시간</span>
+                        <span id="work-time">25:00</span>
+                    </div>
+                    <div class="status-box">
+                        <span>휴식 시간</span>
+                        <span id="break-time">05:00</span>
+                    </div>
+                    <div class="status-box">
+                        <span>세션</span>
+                        <span id="cycle-count">0/4</span>
+                    </div>
                 </div>
                 <div class="timer-controls">
                     <button id="pomodoro-start" class="control-btn"><i class="fas fa-play"></i></button>
@@ -206,6 +218,12 @@
     <audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio>
     <audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio>
 
+    <!-- 디버깅용 콘솔 메시지 -->
+    <script>
+        console.log('타이머 페이지 로딩 시작');
+    </script>
+    
+    <!-- 타이머 스크립트 -->
     <script src="assets/js/pages/timer.js" type="module"></script>
 </body>
 </html> 
