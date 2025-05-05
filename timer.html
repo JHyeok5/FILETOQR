@@ -235,10 +235,11 @@
             var addTimerBtn = document.getElementById('add-timer');
             if (addTimerBtn) {
                 console.log('타이머 추가 버튼 발견');
-                addTimerBtn.addEventListener('click', function() {
-                    console.log('타이머 추가 버튼 클릭 - 인라인 스크립트');
-                    addNewTimer();
-                });
+                // 중복 이벤트 방지를 위해 여기서 이벤트 리스너 등록 제거
+                // addTimerBtn.addEventListener('click', function() {
+                //     console.log('타이머 추가 버튼 클릭 - 인라인 스크립트');
+                //     addNewTimer();
+                // });
             } else {
                 console.error('타이머 추가 버튼을 찾을 수 없음');
             }
@@ -622,15 +623,16 @@
     
     <!-- 타이머 추가 버튼에 직접 onclick 이벤트 추가 -->
     <script>
-        function addNewTimerDirectly() {
-            console.log('직접 호출된 타이머 추가 함수');
-            if (window.addNewTimer) {
-                window.addNewTimer();
-            } else {
-                console.error('addNewTimer 함수를 찾을 수 없음');
-                alert('타이머 추가 기능을 초기화할 수 없습니다. 페이지를 새로고침 해주세요.');
-            }
-        }
+        // 더 이상 사용되지 않는 함수이므로 제거
+        // function addNewTimerDirectly() {
+        //     console.log('직접 호출된 타이머 추가 함수');
+        //     if (window.addNewTimer) {
+        //         window.addNewTimer();
+        //     } else {
+        //         console.error('addNewTimer 함수를 찾을 수 없음');
+        //         alert('타이머 추가 기능을 초기화할 수 없습니다. 페이지를 새로고침 해주세요.');
+        //     }
+        // }
     </script>
     
     <!-- 타이머 스크립트 -->
