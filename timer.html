@@ -10,6 +10,7 @@
         /* 타이머 그리드 레이아웃 */
         #timers-list {
             display: flex;
+            flex-direction: row;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: flex-start;
@@ -17,19 +18,19 @@
         }
         
         .timer-item {
-            flex: 0 0 calc(33.333% - 14px);
+            flex: 0 1 calc(33.333% - 14px);
             box-sizing: border-box;
             margin: 0;
             padding: 15px;
             background-color: #f5f5f5;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            min-width: 220px;
+            max-width: calc(33.333% - 14px);
         }
         
         /* 타이머 디스플레이 수정 */
         .timer-display {
-            font-size: 2rem;
+            font-size: 1.8rem;
             text-align: center;
             margin: 10px 0;
             font-weight: bold;
@@ -77,13 +78,15 @@
         /* 모바일 화면 대응 */
         @media (max-width: 992px) {
             .timer-item {
-                flex: 0 0 calc(50% - 10px);
+                flex: 0 1 calc(50% - 10px);
+                max-width: calc(50% - 10px);
             }
         }
         
         @media (max-width: 576px) {
             .timer-item {
-                flex: 0 0 100%;
+                flex: 0 1 100%;
+                max-width: 100%;
             }
         }
     </style>
