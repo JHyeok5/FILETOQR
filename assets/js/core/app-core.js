@@ -519,6 +519,7 @@ async function loadHeaderFooter(retryCount = 3) {
                       <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
                       <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
                       <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
+                      <li><a href="timer.html" class="text-gray-600 hover:text-blue-600">타이머</a></li>
                       <li><a href="blog.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
                       <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
                     </ul>
