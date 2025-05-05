@@ -755,5 +755,225 @@
     
     <!-- 타이머 스크립트 -->
     <script src="assets/js/pages/timer.js" type="module"></script>
+    
+    <!-- 포모도로 타이머 스크립트 추가 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 포모도로 관련 요소들
+            const pomodoroDisplay = document.querySelector('#pomodoro-minutes, #pomodoro-seconds').parentElement;
+            const statusText = document.getElementById('status-text');
+            const currentModeTime = document.getElementById('current-mode-time');
+            const workTime = document.getElementById('work-time');
+            const breakTime = document.getElementById('break-time');
+            const cycleCount = document.getElementById('cycle-count');
+            
+            const pomodoroMinutes = document.getElementById('pomodoro-minutes');
+            const pomodoroSeconds = document.getElementById('pomodoro-seconds');
+            
+            const workMinutesInput = document.getElementById('work-minutes');
+            const shortBreakMinutesInput = document.getElementById('short-break-minutes');
+            const longBreakMinutesInput = document.getElementById('long-break-minutes');
+            const pomodoroCyclesInput = document.getElementById('pomodoro-cycles');
+            
+            const startBtn = document.getElementById('pomodoro-start');
+            const pauseBtn = document.getElementById('pomodoro-pause');
+            const resetBtn = document.getElementById('pomodoro-reset');
+            
+            // 초기 설정값
+            let workMinutes = parseInt(workMinutesInput.value) || 25;
+            let shortBreakMinutes = parseInt(shortBreakMinutesInput.value) || 5;
+            let longBreakMinutes = parseInt(longBreakMinutesInput.value) || 15;
+            let cycles = parseInt(pomodoroCyclesInput.value) || 4;
+            
+            // 타이머 상태 변수
+            let timerInterval = null;
+            let isPaused = false;
+            let currentMinutes = workMinutes;
+            let currentSeconds = 0;
+            let isWorking = true;
+            let currentCycle = 0;
+            let totalCycles = cycles;
+            
+            // 포모도로 타이머 업데이트 함수
+            function updatePomodoroDisplay() {
+                pomodoroMinutes.textContent = String(currentMinutes).padStart(2, '0');
+                pomodoroSeconds.textContent = String(currentSeconds).padStart(2, '0');
+                
+                // 현재 모드 시간 업데이트
+                currentModeTime.textContent = `${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}`;
+                
+                // 작업/휴식 시간 하이라이트 처리
+                if (isWorking) {
+                    workTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
+                    breakTime.textContent = isShortBreakNext() ? 
+                        `${String(shortBreakMinutes).padStart(2, '0')}:00` : 
+                        `${String(longBreakMinutes).padStart(2, '0')}:00`;
+                } else {
+                    workTime.textContent = `${String(workMinutes).padStart(2, '0')}:00`;
+                    breakTime.innerHTML = `<span class="highlight">${String(currentMinutes).padStart(2, '0')}:${String(currentSeconds).padStart(2, '0')}</span>`;
+                }
+                
+                // 사이클 카운트 업데이트
+                cycleCount.textContent = `${currentCycle}/${totalCycles}`;
+                
+                // 상태 텍스트 업데이트
+                statusText.textContent = isWorking ? '작업 시간' : '휴식 시간';
+            }
+            
+            // 작업 시간 이후 짧은 휴식을 사용할지 결정하는 함수
+            function isShortBreakNext() {
+                return currentCycle < totalCycles - 1;
+            }
+            
+            // 타이머 시작 함수
+            function startPomodoro() {
+                if (timerInterval) return;
+                
+                isPaused = false;
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                
+                workMinutesInput.disabled = true;
+                shortBreakMinutesInput.disabled = true;
+                longBreakMinutesInput.disabled = true;
+                pomodoroCyclesInput.disabled = true;
+                
+                timerInterval = setInterval(function() {
+                    if (currentSeconds === 0) {
+                        if (currentMinutes === 0) {
+                            // 타이머 완료 처리
+                            clearInterval(timerInterval);
+                            timerInterval = null;
+                            
+                            // 작업/휴식 모드 전환
+                            if (isWorking) {
+                                // 작업 완료 - 휴식 시간으로
+                                isWorking = false;
+                                // 짧은 휴식 또는 긴 휴식 결정
+                                currentMinutes = isShortBreakNext() ? shortBreakMinutes : longBreakMinutes;
+                            } else {
+                                // 휴식 완료 - 작업 시간으로
+                                isWorking = true;
+                                currentMinutes = workMinutes;
+                                currentCycle++;
+                                
+                                // 모든 사이클 완료 확인
+                                if (currentCycle > totalCycles) {
+                                    currentCycle = totalCycles;
+                                    resetPomodoro();
+                                    alert('모든 포모도로 세션이 완료되었습니다!');
+                                    return;
+                                }
+                            }
+                            
+                            currentSeconds = 0;
+                            updatePomodoroDisplay();
+                            
+                            // 알림음 재생
+                            try {
+                                const audio = document.getElementById('bell-sound');
+                                if (audio) audio.play();
+                            } catch (e) {
+                                console.warn('알림음 재생 실패:', e);
+                            }
+                            
+                            // 세션 전환 후 자동으로 다시 시작
+                            startPomodoro();
+                            return;
+                        }
+                        
+                        currentMinutes--;
+                        currentSeconds = 59;
+                    } else {
+                        currentSeconds--;
+                    }
+                    
+                    updatePomodoroDisplay();
+                }, 1000);
+                
+                updatePomodoroDisplay();
+            }
+            
+            // 타이머 일시 정지 함수
+            function pausePomodoro() {
+                if (!timerInterval) return;
+                
+                if (isPaused) {
+                    // 재개
+                    isPaused = false;
+                    pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    
+                    startPomodoro();
+                } else {
+                    // 일시 정지
+                    isPaused = true;
+                    pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+            
+            // 타이머 리셋 함수
+            function resetPomodoro() {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                
+                isPaused = false;
+                isWorking = true;
+                currentCycle = 0;
+                
+                // 입력값 다시 읽기
+                workMinutes = parseInt(workMinutesInput.value) || 25;
+                shortBreakMinutes = parseInt(shortBreakMinutesInput.value) || 5;
+                longBreakMinutes = parseInt(longBreakMinutesInput.value) || 15;
+                totalCycles = parseInt(pomodoroCyclesInput.value) || 4;
+                
+                currentMinutes = workMinutes;
+                currentSeconds = 0;
+                
+                // 버튼 상태 업데이트
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                
+                // 입력 필드 활성화
+                workMinutesInput.disabled = false;
+                shortBreakMinutesInput.disabled = false;
+                longBreakMinutesInput.disabled = false;
+                pomodoroCyclesInput.disabled = false;
+                
+                updatePomodoroDisplay();
+            }
+            
+            // 이벤트 리스너 설정
+            if (startBtn) startBtn.addEventListener('click', startPomodoro);
+            if (pauseBtn) pauseBtn.addEventListener('click', pausePomodoro);
+            if (resetBtn) resetBtn.addEventListener('click', resetPomodoro);
+            
+            // 설정 입력값 변경 이벤트 리스너
+            [workMinutesInput, shortBreakMinutesInput, longBreakMinutesInput, pomodoroCyclesInput].forEach(function(input) {
+                if (input) {
+                    input.addEventListener('change', function() {
+                        if (timerInterval) return; // 타이머 실행 중에는 변경 무시
+                        resetPomodoro();
+                    });
+                }
+            });
+            
+            // 초기 화면 업데이트
+            updatePomodoroDisplay();
+            
+            // 하이라이트 스타일 추가
+            const styleEl = document.createElement('style');
+            styleEl.textContent = `
+                .highlight {
+                    color: #007bff;
+                    font-weight: bold;
+                }
+            `;
+            document.head.appendChild(styleEl);
+        });
+    </script>
 </body>
 </html> 
