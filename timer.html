@@ -162,6 +162,135 @@
                 max-width: 100%;
             }
         }
+        
+        /* 탭 스타일 */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #4b5563;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .tab-btn:hover {
+            color: #3b82f6;
+        }
+        
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* 타이머 완료 스타일 */
+        .timer-complete {
+            background-color: #e9f7ef;
+            border: 1px solid #10b981;
+        }
+        
+        /* 버튼 스타일 */
+        .control-btn, .action-btn {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .control-btn {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .control-btn:hover:not([disabled]) {
+            background-color: #e5e7eb;
+        }
+        
+        .action-btn {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .action-btn:hover {
+            background-color: #2563eb;
+        }
+        
+        /* 스톱워치 스타일 */
+        .laps-container {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        #laps-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        #laps-list li {
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* 포모도로 스타일 */
+        .pomodoro-status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .status-box {
+            padding: 10px;
+            background-color: #f9fafb;
+            border-radius: 4px;
+            flex: 1 1 calc(20% - 10px);
+            min-width: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .status-box span:first-child {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        .status-box span:nth-child(2) {
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .status-box span:last-child {
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+        
+        .highlight {
+            color: #3b82f6;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
@@ -317,6 +446,128 @@
     <script src="assets/js/core/app-core.js" type="module"></script>
     
     <!-- 타이머 스크립트 -->
-    <script src="assets/js/pages/timer.js" defer></script>
+    <script src="assets/js/pages/timer.js" type="module"></script>
+    
+    <!-- 오디오 요소 -->
+    <audio id="bell-sound" src="assets/sounds/bell.mp3" preload="auto"></audio>
+    <audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio>
+    <audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio>
+    
+    <!-- 별도 타이머 초기화 스크립트 -->
+    <script>
+        // 모듈 로드 실패 시 대체 스크립트
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('타이머 페이지 초기화 보조 스크립트 실행');
+            
+            // 모듈 로드 실패 시 기본 탭 기능 제공
+            const setupTabs = function() {
+                const tabButtons = document.querySelectorAll('.tab-btn');
+                const tabContents = document.querySelectorAll('.tab-content');
+                
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tabName = button.dataset.tab;
+                        console.log(`탭 전환: ${tabName}`);
+                        
+                        // 버튼 활성화 상태 변경
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        
+                        // 탭 콘텐츠 전환
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        document.getElementById(`${tabName}-tab`).classList.add('active');
+                    });
+                });
+            };
+            
+            // 타이머 추가 버튼 이벤트 대체
+            const addTimerBtn = document.getElementById('add-timer');
+            if (addTimerBtn) {
+                addTimerBtn.addEventListener('click', function() {
+                    console.log('타이머 추가 버튼 클릭 (대체 핸들러)');
+                    
+                    // window에 addNewTimer 함수가 정의되어 있다면 호출
+                    if (window.addNewTimer) {
+                        window.addNewTimer();
+                    } else if (window.addNewTimerGlobal) {
+                        window.addNewTimerGlobal();
+                    } else {
+                        // 모듈 임포트 실패 시 간단한 타이머 추가 기능
+                        const timersList = document.getElementById('timers-list');
+                        if (timersList) {
+                            const newTimerId = Date.now();
+                            
+                            const newTimerElem = document.createElement('div');
+                            newTimerElem.className = 'timer-item';
+                            newTimerElem.dataset.timerId = newTimerId;
+                            
+                            newTimerElem.innerHTML = `
+                                <div class="timer-header">
+                                    <input type="text" class="timer-label" placeholder="타이머 이름">
+                                    <button class="close-timer"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="timer-display">
+                                    <span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span>
+                                </div>
+                                <div class="timer-controls">
+                                    <button class="timer-start control-btn"><i class="fas fa-play"></i></button>
+                                    <button class="timer-pause control-btn" disabled><i class="fas fa-pause"></i></button>
+                                    <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button>
+                                </div>
+                                <div class="timer-settings">
+                                    <div class="time-input">
+                                        <label>시간:</label>
+                                        <input type="number" class="hours-input" min="0" max="23" value="0">
+                                    </div>
+                                    <div class="time-input">
+                                        <label>분:</label>
+                                        <input type="number" class="minutes-input" min="0" max="59" value="0">
+                                    </div>
+                                    <div class="time-input">
+                                        <label>초:</label>
+                                        <input type="number" class="seconds-input" min="0" max="59" value="0">
+                                    </div>
+                                </div>
+                                <div class="preset-buttons">
+                                    <button class="preset-btn" data-minutes="5">5분</button>
+                                    <button class="preset-btn" data-minutes="10">10분</button>
+                                    <button class="preset-btn" data-minutes="15">15분</button>
+                                    <button class="preset-btn" data-minutes="30">30분</button>
+                                </div>
+                            `;
+                            
+                            timersList.appendChild(newTimerElem);
+                            
+                            // 닫기 버튼 이벤트
+                            const closeBtn = newTimerElem.querySelector('.close-timer');
+                            if (closeBtn) {
+                                closeBtn.addEventListener('click', function() {
+                                    newTimerElem.remove();
+                                });
+                            }
+                            
+                            // 프리셋 버튼 이벤트
+                            const presetBtns = newTimerElem.querySelectorAll('.preset-btn');
+                            presetBtns.forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const minutes = parseInt(btn.dataset.minutes) || 0;
+                                    const minutesInput = newTimerElem.querySelector('.minutes-input');
+                                    const hoursInput = newTimerElem.querySelector('.hours-input');
+                                    const secondsInput = newTimerElem.querySelector('.seconds-input');
+                                    
+                                    if (hoursInput) hoursInput.value = 0;
+                                    if (minutesInput) minutesInput.value = minutes;
+                                    if (secondsInput) secondsInput.value = 0;
+                                });
+                            });
+                        }
+                    }
+                });
+            }
+            
+            // 초기화 함수 실행
+            setupTabs();
+        });
+    </script>
 </body>
 </html> 
