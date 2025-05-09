@@ -1,0 +1,102 @@
+{{!-- 
+  홈페이지 템플릿 (index.html)
+  FileToQR 웹사이트의 메인 페이지
+--}}
+
+<section class="text-center py-12">
+  <h1 class="text-4xl font-bold mb-4">{{t 'home.hero.title'}}</h1>
+  <p class="text-xl text-gray-600 mb-8">{{t 'home.hero.subtitle'}}</p>
+  <div class="flex flex-wrap justify-center gap-4">
+    <a href="{{localizedUrl 'convert.html'}}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">{{t 'home.hero.getStarted'}}</a>
+    <a href="{{localizedUrl 'qrcode.html'}}" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium">{{t 'qrcode.title'}}</a>
+  </div>
+</section>
+
+<section class="grid md:grid-cols-2 gap-8 py-12">
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4">{{t 'convert.title'}}</h2>
+    <p class="text-gray-600 mb-4">{{t 'home.features.conversion.description'}}</p>
+    <ul class="space-y-2 mb-4">
+      <li class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 {{#if isRTL}}ml-2{{else}}mr-2{{/if}}" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {{t 'home.features.conversion.formats.image'}}
+      </li>
+      <li class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 {{#if isRTL}}ml-2{{else}}mr-2{{/if}}" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {{t 'home.features.conversion.formats.document'}}
+      </li>
+      <li class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 {{#if isRTL}}ml-2{{else}}mr-2{{/if}}" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {{t 'home.features.conversion.formats.data'}}
+      </li>
+    </ul>
+    <a href="{{localizedUrl 'convert.html'}}" class="text-blue-600 font-medium hover:underline">{{t 'home.features.conversion.cta'}} →</a>
+  </div>
+  
+  <div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4">{{t 'qrcode.title'}}</h2>
+    <p class="text-gray-600 mb-4">{{t 'home.features.qrcode.description'}}</p>
+    <ul class="space-y-2 mb-4">
+      <li class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 {{#if isRTL}}ml-2{{else}}mr-2{{/if}}" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {{t 'home.features.qrcode.content'}}
+      </li>
+      <li class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 {{#if isRTL}}ml-2{{else}}mr-2{{/if}}" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {{t 'home.features.qrcode.customization'}}
+      </li>
+      <li class="flex items-center">
+        <svg class="w-5 h-5 text-green-500 {{#if isRTL}}ml-2{{else}}mr-2{{/if}}" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {{t 'home.features.qrcode.formats'}}
+      </li>
+    </ul>
+    <a href="{{localizedUrl 'qrcode.html'}}" class="text-green-600 font-medium hover:underline">{{t 'home.features.qrcode.cta'}} →</a>
+  </div>
+</section>
+
+<section class="py-12">
+  <h2 class="text-2xl font-bold mb-6 text-center">{{t 'home.features.why.title'}}</h2>
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="text-center p-4">
+      <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1h12a1 1 0 011 1v6H3V5a1 1 0 011-1zm0 8h12v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold mb-2">{{t 'home.features.why.privacy.title'}}</h3>
+      <p class="text-gray-600">{{t 'home.features.why.privacy.description'}}</p>
+    </div>
+    
+    <div class="text-center p-4">
+      <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold mb-2">{{t 'home.features.why.usability.title'}}</h3>
+      <p class="text-gray-600">{{t 'home.features.why.usability.description'}}</p>
+    </div>
+    
+    <div class="text-center p-4">
+      <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold mb-2">{{t 'home.features.why.versatility.title'}}</h3>
+      <p class="text-gray-600">{{t 'home.features.why.versatility.description'}}</p>
+    </div>
+  </div>
+</section> 
