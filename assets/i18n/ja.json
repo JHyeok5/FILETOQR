@@ -1,0 +1,151 @@
+{
+  "common": {
+    "title": "FileToQR",
+    "description": "サーバーにアップロードすることなく、ブラウザで直接ファイルを変換しQRコードを生成します",
+    "language": {
+      "ko": "韓国語",
+      "en": "英語",
+      "zh": "中国語",
+      "ja": "日本語"
+    },
+    "actions": {
+      "convert": "変換",
+      "generate": "生成",
+      "download": "ダウンロード",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "close": "閉じる"
+    },
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました"
+  },
+  "header": {
+    "home": "ホーム",
+    "convert": "ファイル変換",
+    "qrcode": "QRコード",
+    "timer": "タイマー",
+    "help": "ヘルプ",
+    "contact": "お問い合わせ"
+  },
+  "footer": {
+    "about": "FileToQR",
+    "shortcuts": "ショートカット",
+    "legal": "法的情報",
+    "copyright": "© 2025 FileToQR. All rights reserved.",
+    "lastUpdate": "最終更新日: 2025年5月2日",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約"
+  },
+  "home": {
+    "hero": {
+      "title": "ファイルをQRコードに簡単に変換",
+      "subtitle": "サーバーにアップロードすることなく、ブラウザで直接ファイルを変換しQRコードを生成します",
+      "getStarted": "今すぐ始める"
+    },
+    "features": {
+      "secure": {
+        "title": "セキュリティ重視",
+        "description": "ファイルはサーバーに送信されないため、個人情報が安全です"
+      },
+      "fast": {
+        "title": "高速変換",
+        "description": "最新のウェブ技術を活用して高速に処理します"
+      },
+      "easy": {
+        "title": "使いやすさ",
+        "description": "複雑な設定なしに、わずか数回のクリックで完了します"
+      }
+    }
+  },
+  "convert": {
+    "title": "ファイル変換",
+    "dropzone": "ファイルをここにドラッグ＆ドロップまたはクリックして選択",
+    "selectFile": "ファイル選択",
+    "formats": {
+      "title": "変換形式",
+      "source": "元の形式",
+      "target": "変換後の形式",
+      "options": "変換オプション"
+    },
+    "progress": "変換進捗",
+    "result": {
+      "title": "変換結果",
+      "success": "変換成功",
+      "error": "変換失敗",
+      "download": "結果をダウンロード"
+    }
+  },
+  "qrcode": {
+    "title": "QRコード生成",
+    "input": {
+      "title": "入力",
+      "text": "テキスト",
+      "url": "URL",
+      "email": "メール",
+      "phone": "電話番号",
+      "sms": "SMS",
+      "wifi": "WiFi",
+      "location": "位置情報",
+      "event": "イベント",
+      "file": "ファイル"
+    },
+    "options": {
+      "title": "QRコードオプション",
+      "size": "サイズ",
+      "errorCorrection": "誤り訂正レベル",
+      "color": "色",
+      "background": "背景色",
+      "margin": "余白",
+      "style": "スタイル"
+    },
+    "preview": "プレビュー",
+    "download": {
+      "title": "ダウンロードオプション",
+      "png": "PNGをダウンロード",
+      "svg": "SVGをダウンロード",
+      "pdf": "PDFをダウンロード"
+    }
+  },
+  "timer": {
+    "title": "タイマー",
+    "start": "開始",
+    "pause": "一時停止",
+    "reset": "リセット",
+    "setTime": "時間設定",
+    "hours": "時間",
+    "minutes": "分",
+    "seconds": "秒"
+  },
+  "help": {
+    "title": "ヘルプ",
+    "sections": {
+      "faq": "よくある質問",
+      "howto": "使い方",
+      "troubleshooting": "トラブルシューティング",
+      "contact": "お問い合わせ"
+    }
+  },
+  "contact": {
+    "title": "お問い合わせ",
+    "form": {
+      "name": "名前",
+      "email": "メールアドレス",
+      "subject": "件名",
+      "message": "メッセージ",
+      "submit": "送信"
+    }
+  },
+  "privacy": {
+    "title": "プライバシーポリシー"
+  },
+  "terms": {
+    "title": "利用規約"
+  },
+  "errors": {
+    "fileNotSupported": "サポートされていないファイル形式です",
+    "fileTooLarge": "ファイルサイズが大きすぎます",
+    "conversionFailed": "変換中にエラーが発生しました",
+    "networkError": "ネットワークエラーが発生しました",
+    "unknownError": "不明なエラーが発生しました"
+  }
+} 
