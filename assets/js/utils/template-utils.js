@@ -1,246 +1,454 @@
 /**
  * template-utils.js - FileToQR 템플릿 유틸리티
  * 버전: 1.0.0
- * 최종 업데이트: 2025-06-15
+ * 최종 업데이트: 2025-07-15
  * 
- * 이 모듈은 HTML 템플릿 조작 및 삽입을 위한 유틸리티 기능을 제공합니다:
- * - 컴포넌트 로드 및 삽입
+ * 이 모듈은 Handlebars 템플릿 엔진을 활용하여 템플릿 기반 UI 렌더링을 제공합니다.
+ * - 컴포넌트 로딩 및 렌더링
  * - 템플릿 캐싱
- * - 동적 템플릿 조작
+ * - Handlebars 헬퍼 등록
+ * - 다국어 지원 통합
  */
 
-// 템플릿 캐시
-const templateCache = new Map();
+import PathUtils from './path-utils.js';
 
-// 템플릿 유틸리티
+// Handlebars 의존성 동적 로드
+let Handlebars = null;
+
+/**
+ * FileToQR 템플릿 유틸리티 모듈
+ */
 const TemplateUtils = {
   /**
-   * 컴포넌트 로드 및 삽입
-   * @param {string} componentName - 컴포넌트 이름 (파일명)
-   * @param {HTMLElement|string} container - 컴포넌트를 삽입할 컨테이너 (DOM 요소 또는 선택자)
-   * @param {string} basePath - 기본 경로 (서브 디렉토리에서 호출 시 사용, 예: '../')
-   * @param {Object} data - 템플릿에 전달할 데이터 (옵션)
-   * @returns {Promise<boolean>} 로드 성공 여부
+   * 템플릿 캐시 저장소
+   * @type {Object}
+   * @private
    */
-  async loadComponent(componentName, container, basePath = '', data = {}) {
+  _templateCache: {},
+
+  /**
+   * 컴파일된 템플릿 함수 캐시
+   * @type {Object}
+   * @private
+   */
+  _compiledTemplates: {},
+
+  /**
+   * 템플릿 유틸리티 초기화
+   * @param {Object} options - 초기화 옵션
+   * @returns {Promise<void>} 초기화 완료 Promise
+   */
+  async init(options = {}) {
     try {
-      console.log(`컴포넌트 로드 요청: '${componentName}', basePath: '${basePath}'`);
+      console.log('템플릿 유틸리티 초기화 중...');
       
-      // 컨테이너 확인
-      const targetContainer = typeof container === 'string' ? 
-        document.querySelector(container) : container;
+      // Handlebars 로드
+      await this.loadHandlebars();
       
-      if (!targetContainer) {
-        console.warn(`컴포넌트 '${componentName}'를 삽입할 컨테이너를 찾을 수 없습니다.`);
-        return false;
+      // Handlebars 헬퍼 등록
+      this.registerHelpers();
+      
+      // 기본 파티셜 로드 (있는 경우)
+      if (options.loadPartials !== false) {
+        await this.loadCommonPartials();
       }
       
-      // 데이터에 basePath 추가
-      data.basePath = basePath || '';
-      console.log(`컴포넌트 데이터 basePath: '${data.basePath}'`);
+      console.log('템플릿 유틸리티 초기화 완료');
       
-      // 템플릿 가져오기 - 여러 경로 패턴 시도
-      let template = null;
-      const possiblePaths = [
-        // components 폴더에서 HTML 파일을 직접 로드
-        componentName.endsWith('.html') ? `${basePath}${componentName}` : `${basePath}components/${componentName}.html`,
-        componentName.includes('/') ? `${basePath}${componentName}` : `${basePath}components/${componentName}`
-      ];
-      
-      console.log('시도할 경로 목록:', possiblePaths);
-      
-      // 가능한 모든 경로를 순차적으로 시도
-      for (const path of possiblePaths) {
-        try {
-          console.log(`경로 '${path}' 시도 중...`);
-          template = await this.getTemplate(path);
-          if (template) {
-            console.log(`컴포넌트 '${componentName}' 템플릿을 '${path}'에서 로드했습니다.`);
-            break; // 성공하면 루프 종료
-          }
-        } catch (err) {
-          // 개별 시도 실패는 무시하고 다음 경로 패턴으로 넘어갑니다
-          console.debug(`경로 '${path}'에서 로드 실패, 다른 경로 시도 중...`, err);
-        }
-      }
-      
-      if (!template) {
-        console.warn(`컴포넌트 '${componentName}' 템플릿을 로드할 수 없습니다.`);
-        return false;
-      }
-      
-      // 데이터로 템플릿 처리 (있는 경우)
-      const processedTemplate = this.processTemplate(template, data);
-      
-      // 컨테이너에 삽입
-      targetContainer.innerHTML = processedTemplate;
-      console.log(`컴포넌트 '${componentName}' 삽입 완료`);
-      
-      // 스크립트 실행 (있는 경우)
-      this.executeScripts(targetContainer);
-      
-      return true;
+      return Promise.resolve();
     } catch (error) {
-      console.error(`컴포넌트 '${componentName}' 로드 중 오류 발생:`, error);
-      return false;
+      console.error('템플릿 유틸리티 초기화 실패:', error);
+      return Promise.reject(error);
     }
   },
-  
+
   /**
-   * 컴포넌트 템플릿 가져오기
-   * @param {string} componentName - 컴포넌트 경로
-   * @returns {Promise<string>} 템플릿 HTML
+   * Handlebars 라이브러리 동적 로드
+   * @returns {Promise<void>}
+   * @private
    */
-  async getTemplate(componentName) {
+  async loadHandlebars() {
+    if (Handlebars !== null) {
+      return Promise.resolve(Handlebars);
+    }
+    
     try {
-      // 경로 정규화 - 이미 .html로 끝나는지 확인
-      const templatePath = componentName.endsWith('.html') 
-        ? componentName 
-        : `${componentName}.html`;
+      // CDN에서 Handlebars 로드 시도
+      const HandlebarsScript = document.createElement('script');
+      HandlebarsScript.src = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
       
-      // 절대 경로 또는 상대 경로 처리
-      const fullPath = templatePath.startsWith('/') 
-        ? templatePath.substring(1) // 앞의 '/' 제거
-        : templatePath;
-        
-      console.log(`템플릿 로드 시도: ${fullPath}`);
-      
-      // 캐시 방지를 위한 타임스탬프 추가
-      const cacheBuster = `?_=${Date.now()}`;
-      
-      // 템플릿 가져오기
-      const response = await fetch(fullPath + cacheBuster, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'text/html',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        },
-        cache: 'no-store'
+      // 스크립트 로드 Promise
+      const loadPromise = new Promise((resolve, reject) => {
+        HandlebarsScript.onload = () => {
+          if (typeof window.Handlebars !== 'undefined') {
+            Handlebars = window.Handlebars;
+            console.log('Handlebars 로드 성공');
+            resolve(Handlebars);
+          } else {
+            reject(new Error('Handlebars 로드 실패: window.Handlebars가 정의되지 않음'));
+          }
+        };
+        HandlebarsScript.onerror = () => {
+          reject(new Error('Handlebars 스크립트 로드 오류'));
+        };
       });
       
-      if (!response.ok) {
-        console.error(`템플릿 로드 실패: ${response.status} ${response.statusText}, URL: ${fullPath}`);
-        throw new Error(`템플릿 로드 실패: ${response.status} ${response.statusText}`);
-      }
+      // DOM에 스크립트 추가
+      document.head.appendChild(HandlebarsScript);
       
-      const template = await response.text();
-      console.log(`템플릿 로드 성공: ${fullPath}, 길이: ${template.length}자`);
-      return template;
+      // 로드 완료까지 대기
+      await loadPromise;
+      
+      return Handlebars;
     } catch (error) {
-      console.error(`템플릿 '${componentName}' 로드 중 오류 발생:`, error);
+      console.error('Handlebars 로드 실패:', error);
       throw error;
     }
   },
-  
+
   /**
-   * 템플릿 처리 (변수 교체)
-   * @param {string} template - 처리할 템플릿
-   * @param {Object} data - 삽입할 데이터
-   * @returns {string} 처리된 템플릿
+   * Handlebars 헬퍼 등록
+   * @private
    */
-  processTemplate(template, data = {}) {
-    if (!template) return '';
+  registerHelpers() {
+    if (!Handlebars) return;
+    
+    // i18n 헬퍼 등록
+    Handlebars.registerHelper('t', (key, options) => {
+      // 글로벌 i18n 객체 사용
+      if (window.FileToQR && window.FileToQR.i18n) {
+        // 파라미터 추출
+        const params = {};
+        if (options && options.hash) {
+          Object.keys(options.hash).forEach(key => {
+            params[key] = options.hash[key];
+          });
+        }
+        
+        return window.FileToQR.i18n.t(key, params);
+      }
+      
+      // i18n 모듈이 없는 경우 키 자체 반환
+      return key;
+    });
+    
+    // formatDate 헬퍼 등록
+    Handlebars.registerHelper('formatDate', (date, options) => {
+      if (window.FileToQR && window.FileToQR.i18n) {
+        const formatOptions = options && options.hash ? options.hash : {};
+        return window.FileToQR.i18n.formatDate(date, formatOptions);
+      }
+      return date;
+    });
+    
+    // formatNumber 헬퍼 등록
+    Handlebars.registerHelper('formatNumber', (number, options) => {
+      if (window.FileToQR && window.FileToQR.i18n) {
+        const formatOptions = options && options.hash ? options.hash : {};
+        return window.FileToQR.i18n.formatNumber(number, formatOptions);
+      }
+      return number;
+    });
+    
+    // eq 비교 헬퍼
+    Handlebars.registerHelper('eq', function(a, b, options) {
+      return a === b ? options.fn(this) : options.inverse(this);
+    });
+    
+    // neq 비교 헬퍼
+    Handlebars.registerHelper('neq', function(a, b, options) {
+      return a !== b ? options.fn(this) : options.inverse(this);
+    });
+    
+    // gt 비교 헬퍼
+    Handlebars.registerHelper('gt', function(a, b, options) {
+      return a > b ? options.fn(this) : options.inverse(this);
+    });
+    
+    // gte 비교 헬퍼
+    Handlebars.registerHelper('gte', function(a, b, options) {
+      return a >= b ? options.fn(this) : options.inverse(this);
+    });
+    
+    // lt 비교 헬퍼
+    Handlebars.registerHelper('lt', function(a, b, options) {
+      return a < b ? options.fn(this) : options.inverse(this);
+    });
+    
+    // lte 비교 헬퍼
+    Handlebars.registerHelper('lte', function(a, b, options) {
+      return a <= b ? options.fn(this) : options.inverse(this);
+    });
+    
+    // contains 헬퍼
+    Handlebars.registerHelper('contains', function(arr, item, options) {
+      if (Array.isArray(arr) && arr.includes(item)) {
+        return options.fn(this);
+      }
+      return options.inverse(this);
+    });
+    
+    // 조건부 클래스 헬퍼
+    Handlebars.registerHelper('classIf', function(condition, trueClass, falseClass) {
+      return condition ? trueClass : (falseClass || '');
+    });
+    
+    console.log('Handlebars 헬퍼 등록 완료');
+  },
+
+  /**
+   * 공통 파티셜 로드
+   * @returns {Promise<void>}
+   * @private
+   */
+  async loadCommonPartials() {
+    if (!Handlebars) {
+      console.warn('Handlebars가 로드되지 않았습니다. 파티셜 로드를 건너뜁니다.');
+      return Promise.resolve();
+    }
     
     try {
-      console.log('템플릿 처리 시작, 전달된 데이터:', data);
+      // 공통 파티셜 목록
+      const commonPartials = [
+        { name: 'header', path: 'components/header.html' },
+        { name: 'footer', path: 'components/footer.html' },
+        { name: 'language-selector', path: 'components/language-selector.html' }
+      ];
       
-      // 기본 데이터 추가
-      const processData = {
-        timestamp: new Date().toISOString(),
-        baseUrl: window.location.origin,
-        currentPath: window.location.pathname,
-        ...data
-      };
-      
-      // 템플릿 변수 교체 ({{변수명}})
-      let processed = template;
-      
-      // 모든 {{변수명}} 패턴 찾기
-      const variablePattern = /\{\{([^}]+)\}\}/g;
-      let match;
-      
-      while ((match = variablePattern.exec(template)) !== null) {
-        const fullMatch = match[0]; // {{변수명}}
-        const variableName = match[1].trim(); // 변수명
-        
-        console.log(`템플릿 변수 발견: ${fullMatch}, 변수명: ${variableName}`);
-        
-        // 변수 값 가져오기 (점 표기법 지원)
-        let value = processData;
-        const parts = variableName.split('.');
-        
+      // 모든 파티셜 로드 (Promise.all 사용하여 병렬 로드)
+      await Promise.all(commonPartials.map(async ({ name, path }) => {
         try {
-          for (const part of parts) {
-            if (value === undefined || value === null) break;
-            value = value[part];
+          const template = await this.loadTemplate(path);
+          Handlebars.registerPartial(name, template);
+          console.log(`파티셜 등록 완료: ${name}`);
+        } catch (error) {
+          console.warn(`파티셜 로드 실패 (${name}): ${error.message}`);
+        }
+      }));
+      
+      console.log('공통 파티셜 로드 완료');
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('공통 파티셜 로드 실패:', error);
+      return Promise.reject(error);
+    }
+  },
+
+  /**
+   * 템플릿 로드 및 캐싱
+   * @param {string} templatePath - 템플릿 파일 경로
+   * @returns {Promise<string>} 템플릿 문자열
+   */
+  async loadTemplate(templatePath) {
+    // 이미 캐시에 있으면 반환
+    if (this._templateCache[templatePath]) {
+      return Promise.resolve(this._templateCache[templatePath]);
+    }
+    
+    try {
+      // 다양한 경로 패턴 시도
+      const pathVariations = [
+        templatePath,
+        `/${templatePath}`,
+        `./${templatePath}`,
+        `../${templatePath}`
+      ];
+      
+      let templateContent = null;
+      
+      for (const path of pathVariations) {
+        try {
+          const response = await fetch(path);
+          if (response.ok) {
+            templateContent = await response.text();
+            console.log(`템플릿 로드 성공: ${path}`);
+            break;
           }
-          
-          // undefined나 null이면 빈 문자열로
-          if (value === undefined || value === null) {
-            console.log(`변수 '${variableName}'의 값이 없음, 빈 문자열로 대체`);
-            value = '';
-          }
-          
-          // 객체나 배열이면 JSON 문자열로 변환
-          if (typeof value === 'object') {
-            value = JSON.stringify(value);
-          }
-          
-          console.log(`변수 '${variableName}' 값: ${value}`);
-          
-          // 변수 교체
-          processed = processed.replace(fullMatch, value);
         } catch (err) {
-          console.warn(`템플릿 변수 '${variableName}' 처리 중 오류:`, err);
-          // 오류 발생 시 빈 문자열로 교체
-          processed = processed.replace(fullMatch, '');
+          console.warn(`경로에서 템플릿 로드 실패: ${path}`);
         }
       }
       
-      return processed;
+      if (!templateContent) {
+        throw new Error(`템플릿을 찾을 수 없음: ${templatePath}`);
+      }
+      
+      // 캐시에 저장
+      this._templateCache[templatePath] = templateContent;
+      
+      return templateContent;
     } catch (error) {
-      console.error('템플릿 처리 중 오류 발생:', error);
-      return template; // 오류 시 원본 반환
+      console.error(`템플릿 로드 실패 (${templatePath}): ${error.message}`);
+      throw error;
     }
   },
-  
+
   /**
-   * 삽입된 스크립트 실행
-   * @param {HTMLElement} container - 스크립트가 포함된 컨테이너
+   * 템플릿 컴파일
+   * @param {string} template - 템플릿 문자열
+   * @param {string} [cacheKey] - 캐시 키 (선택사항)
+   * @returns {Function} 컴파일된 템플릿 함수
    */
-  executeScripts(container) {
-    const scripts = container.querySelectorAll('script');
-    console.log(`${scripts.length}개의 스크립트 실행 시작`);
+  compileTemplate(template, cacheKey = null) {
+    if (!Handlebars) {
+      throw new Error('Handlebars가 로드되지 않았습니다');
+    }
     
-    scripts.forEach(oldScript => {
-      const newScript = document.createElement('script');
-      
-      // 속성 복사
-      Array.from(oldScript.attributes).forEach(attr => {
-        newScript.setAttribute(attr.name, attr.value);
-      });
-      
-      // 내용 복사
-      newScript.textContent = oldScript.textContent;
-      
-      // 원본 스크립트 대체
-      oldScript.parentNode.replaceChild(newScript, oldScript);
-    });
-  },
-  
-  /**
-   * 템플릿 캐시 비우기
-   * @param {string} [path] - 특정 템플릿 경로 (생략 시 모든 캐시 비움)
-   */
-  clearCache(path = null) {
-    if (path) {
-      templateCache.delete(path);
-    } else {
-      templateCache.clear();
+    if (cacheKey && this._compiledTemplates[cacheKey]) {
+      return this._compiledTemplates[cacheKey];
     }
-    console.log(`템플릿 캐시 비움${path ? ': ' + path : ' (전체)'}`);
+    
+    try {
+      const compiledTemplate = Handlebars.compile(template);
+      
+      if (cacheKey) {
+        this._compiledTemplates[cacheKey] = compiledTemplate;
+      }
+      
+      return compiledTemplate;
+    } catch (error) {
+      console.error('템플릿 컴파일 실패:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * 컴포넌트 로드 및 렌더링
+   * @param {string} componentName - 컴포넌트 이름
+   * @param {HTMLElement} container - 렌더링할 컨테이너 요소
+   * @param {string} [basePath=''] - 기본 경로
+   * @param {Object} [data={}] - 템플릿 데이터
+   * @returns {Promise<boolean>} 성공 여부
+   */
+  async loadComponent(componentName, container, basePath = '', data = {}) {
+    if (!container) {
+      console.error('컴포넌트 로드 실패: 컨테이너가 없습니다');
+      return false;
+    }
+    
+    try {
+      // Handlebars 로드 확인
+      if (!Handlebars) {
+        await this.loadHandlebars();
+      }
+      
+      // 컴포넌트 경로 생성
+      const componentPath = `${basePath}components/${componentName}.html`;
+      
+      // 템플릿 로드
+      const template = await this.loadTemplate(componentPath);
+      
+      // 기본 데이터에 basePath 추가
+      const templateData = {
+        ...data,
+        basePath: basePath
+      };
+      
+      // 템플릿 컴파일 및 렌더링
+      const compiledTemplate = this.compileTemplate(template, componentName);
+      const renderedHtml = compiledTemplate(templateData);
+      
+      // 컨테이너에 HTML 삽입
+      container.innerHTML = renderedHtml;
+      
+      // i18n 사용 가능한 경우 번역 적용
+      if (window.FileToQR && window.FileToQR.i18n) {
+        window.FileToQR.i18n.applyTranslations();
+      }
+      
+      console.log(`컴포넌트 로드 완료: ${componentName}`);
+      
+      return true;
+    } catch (error) {
+      console.error(`컴포넌트 로드 실패 (${componentName}): ${error.message}`);
+      return false;
+    }
+  },
+
+  /**
+   * 템플릿 문자열 렌더링
+   * @param {string} template - 템플릿 문자열
+   * @param {Object} data - 템플릿 데이터
+   * @returns {string} 렌더링된 HTML
+   */
+  renderTemplate(template, data = {}) {
+    if (!Handlebars) {
+      throw new Error('Handlebars가 로드되지 않았습니다');
+    }
+    
+    try {
+      const compiledTemplate = this.compileTemplate(template);
+      return compiledTemplate(data);
+    } catch (error) {
+      console.error('템플릿 렌더링 실패:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * 파티셜 등록
+   * @param {string} name - 파티셜 이름
+   * @param {string} template - 파티셜 템플릿 문자열
+   */
+  registerPartial(name, template) {
+    if (!Handlebars) {
+      throw new Error('Handlebars가 로드되지 않았습니다');
+    }
+    
+    Handlebars.registerPartial(name, template);
+  },
+
+  /**
+   * 템플릿 캐시 지우기
+   * @param {string} [templatePath] - 특정 템플릿 경로 (없으면 전체 캐시 삭제)
+   */
+  clearCache(templatePath = null) {
+    if (templatePath) {
+      delete this._templateCache[templatePath];
+      delete this._compiledTemplates[templatePath];
+    } else {
+      this._templateCache = {};
+      this._compiledTemplates = {};
+    }
+  },
+
+  /**
+   * HTML 템플릿 요소를 렌더링
+   * @param {string} templateSelector - 템플릿 요소 선택자
+   * @param {HTMLElement} container - 렌더링할 컨테이너 요소
+   * @param {Object} data - 템플릿 데이터
+   * @returns {boolean} 성공 여부
+   */
+  renderTemplateElement(templateSelector, container, data = {}) {
+    if (!Handlebars) {
+      console.error('Handlebars가 로드되지 않았습니다');
+      return false;
+    }
+    
+    try {
+      const templateElement = document.querySelector(templateSelector);
+      if (!templateElement) {
+        console.error(`템플릿 요소를 찾을 수 없음: ${templateSelector}`);
+        return false;
+      }
+      
+      const template = templateElement.innerHTML;
+      const compiledTemplate = this.compileTemplate(template, templateSelector);
+      const renderedHtml = compiledTemplate(data);
+      
+      container.innerHTML = renderedHtml;
+      
+      // i18n 사용 가능한 경우 번역 적용
+      if (window.FileToQR && window.FileToQR.i18n) {
+        window.FileToQR.i18n.applyTranslations();
+      }
+      
+      return true;
+    } catch (error) {
+      console.error(`템플릿 렌더링 실패 (${templateSelector}): ${error.message}`);
+      return false;
+    }
   }
 };
 
