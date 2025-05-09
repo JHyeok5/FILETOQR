@@ -17,6 +17,7 @@
 // 코어 유틸리티 임포트
 import ModuleLoader from '../utils/module-loader.js';
 import UrlUtils from '../utils/url-utils.js';
+import PathUtils from '../utils/path-utils.js';
 
 // 안전한 registry 참조
 let registry = null;
@@ -123,33 +124,52 @@ async function init() {
 }
 
 /**
- * 현재 페이지 식별 함수
+ * 현재 페이지 식별자 반환
  * @returns {string} 페이지 식별자
  */
 function getCurrentPage() {
-  const path = window.location.pathname;
-  
-  // URL 패턴 정규화
-  if (path.endsWith('/') || path === '') return 'home';
-  if (path.endsWith('index.html')) return 'home';
-  if (path.endsWith('convert.html')) return 'convert';
-  if (path.endsWith('qrcode.html')) return 'qrcode';
-  if (path.endsWith('privacy.html')) return 'privacy';
-  if (path.endsWith('terms.html')) return 'terms';
-  if (path.endsWith('help.html')) return 'help';
-  if (path.endsWith('blog.html')) return 'blog';
-  
-  // 확장자 없는 URL 처리
-  const pathWithoutExtension = path.split('.')[0];
-  const segments = pathWithoutExtension.split('/').filter(Boolean);
-  if (segments.length > 0) {
-    const lastSegment = segments[segments.length - 1];
-    if (['convert', 'qrcode', 'privacy', 'terms', 'help', 'blog'].includes(lastSegment)) {
+  try {
+    // 페이지 경로를 가져와서 분석
+    const path = window.location.pathname;
+    
+    // 루트 페이지 확인
+    if (path === '/' || path.endsWith('/index.html')) return 'home';
+    
+    // 변환 페이지 확인
+    if (path.endsWith('convert.html')) return 'convert';
+    
+    // QR 코드 페이지 확인
+    if (path.endsWith('qrcode.html')) return 'qrcode';
+    
+    // 도움말 페이지 확인
+    if (path.endsWith('help.html')) return 'help';
+    
+    // 개인정보 처리방침 페이지 확인
+    if (path.endsWith('privacy.html')) return 'privacy';
+    
+    // 이용약관 페이지 확인
+    if (path.endsWith('terms.html')) return 'terms';
+    
+    // 타이머 페이지 확인
+    if (path.endsWith('timer.html')) return 'timer';
+    
+    // 문의하기 페이지 확인
+    if (path.endsWith('contact.html')) return 'contact';
+    
+    // 페이지 식별자를 파일명에서 추출
+    const lastSegment = path.split('/').pop().split('.')[0];
+    
+    // 특정 페이지 식별자 확인
+    if (['convert', 'qrcode', 'privacy', 'terms', 'help'].includes(lastSegment)) {
       return lastSegment;
     }
+    
+    console.warn(`알 수 없는 페이지 경로: ${path}`);
+    return 'unknown';
+  } catch (error) {
+    console.error('getCurrentPage 함수 오류:', error);
+    return 'unknown';
   }
-  
-  return 'other';
 }
 
 /**
@@ -649,66 +669,58 @@ function initDarkModeToggle() {
 
 /**
  * 페이지별 초기화
+ * 현재 페이지에 따라 적절한 초기화 로직 실행
+ * @param {string} page - 초기화할 페이지 식별자
  * @private
- * @async
- * @param {string} page - 페이지 식별자
  */
 async function initPageSpecific(page) {
-  console.log(`페이지 초기화: ${page}`);
+  console.log(`페이지별 초기화 시작: ${page}`);
   
-  switch (page) {
-    case 'home':
-      try {
-        // 상대 경로 사용으로 변경
-        const homePage = await import('../pages/home.js').then(module => module.default);
-        if (homePage && typeof homePage.init === 'function') {
-          homePage.init();
-        } else {
-          console.warn('홈페이지 모듈을 찾을 수 없거나 초기화 메서드가 없습니다. 기본 초기화를 사용합니다.');
-          initHomePage();
-        }
-      } catch (error) {
-        console.error('홈페이지 모듈 초기화 실패:', error);
-        // 폴백: 기본 홈페이지 초기화 사용
-        initHomePage();
-      }
-      break;
-      
-    case 'convert':
-      // 파일 변환기 초기화 - 다양한 경로 시도
-      await initFileConverter();
-      break;
-      
-    case 'qrcode':
-      // QR 코드 생성기 초기화 - 다양한 경로 시도
-      await initQRGenerator();
-      break;
-      
-    case 'blog':
-      try {
-        // 블로그 페이지 초기화 시도
-        const blogPage = await import('../pages/blog.js').catch(() => null);
-        if (blogPage && blogPage.default && typeof blogPage.default.init === 'function') {
-          blogPage.default.init();
-        } else {
-          console.log('블로그 페이지 모듈이 없거나 초기화 메서드가 없습니다. 기본 초기화를 사용합니다.');
-          // 블로그 페이지 기본 초기화 (컴포넌트 로드 확인)
-          ensureBlogPageComponents();
-        }
-      } catch (error) {
-        console.error('블로그 페이지 초기화 중 오류 발생:', error);
-      }
-      break;
-      
-    case 'privacy':
-    case 'terms':
-    case 'help':
-      // 정적 페이지에 특별한 초기화가 필요하지 않음
-      break;
-      
-    default:
-      console.log(`알 수 없는 페이지 유형: ${page}`);
-      break;
+  try {
+    switch (page) {
+      case 'home':
+        // 홈 페이지 초기화
+        await initHomePage();
+        break;
+        
+      case 'convert':
+        // 변환 페이지 초기화
+        await initConvertPage();
+        break;
+        
+      case 'qrcode':
+        // QR 코드 페이지 초기화
+        await initQRCodePage();
+        break;
+        
+      case 'help':
+        // 도움말 페이지 초기화
+        initHelpPage();
+        break;
+        
+      case 'privacy':
+      case 'terms':
+        // 법적 페이지 초기화
+        initLegalPage(page);
+        break;
+        
+      case 'timer':
+        // 타이머 페이지 초기화
+        await initTimerPage();
+        break;
+        
+      case 'contact':
+        // 문의하기 페이지 초기화
+        initContactPage();
+        break;
+        
+      default:
+        console.log(`정의된 초기화 로직이 없는 페이지: ${page}`);
+    }
+    
+    console.log(`페이지별 초기화 완료: ${page}`);
+  } catch (error) {
+    console.error(`페이지 초기화 중 오류 발생 (${page}):`, error);
   }
 }
 
@@ -885,35 +897,10 @@ document.addEventListener('DOMContentLoaded', async function() {
  */
 async function safeImport(modulePath) {
   try {
-    // 경로가 /로 시작하는지 확인 (절대 경로)
-    if (modulePath.startsWith('/')) {
-      // 앞의 / 제거
-      modulePath = modulePath.substring(1);
-    }
-    
-    // 상대 경로인지 확인
-    if (!modulePath.startsWith('./') && !modulePath.startsWith('../')) {
-      // 상대 경로로 변환
-      modulePath = './' + modulePath;
-    }
-    
-    console.log(`모듈 임포트 시도: ${modulePath}`);
-    return await import(modulePath);
+    return await PathUtils.importModule(modulePath);
   } catch (error) {
     console.error(`모듈 임포트 실패 (${modulePath}):`, error);
-    
-    // 두 번째 시도: 다른 경로 패턴 시도
-    try {
-      const altPath = modulePath.startsWith('./') 
-        ? modulePath.substring(2) // './' 제거
-        : './' + modulePath;
-      
-      console.log(`대체 경로로 모듈 임포트 시도: ${altPath}`);
-      return await import(altPath);
-    } catch (altError) {
-      console.error(`대체 경로 모듈 임포트도 실패 (${modulePath}):`, altError);
-      throw new Error(`모듈 로드 실패: ${modulePath}`);
-    }
+    throw new Error(`모듈 로드 실패: ${modulePath}`);
   }
 }
 
@@ -925,284 +912,99 @@ async function loadTemplateUtils() {
   try {
     console.log('템플릿 유틸리티 로드 시도 중...');
     
-    // 모듈 경로 목록 (시도할 순서대로)
-    const paths = [
-      './assets/js/utils/template-utils.js',
-      '../utils/template-utils.js',
-      '/assets/js/utils/template-utils.js',
-      'assets/js/utils/template-utils.js',
-      '../assets/js/utils/template-utils.js',
-      '../../assets/js/utils/template-utils.js'
-    ];
+    // PathUtils를 사용하여 템플릿 유틸리티 모듈 로드
+    const module = await PathUtils.importModule('utils/template-utils');
     
-    let lastError = null;
-    let module = null;
-    
-    // 각 경로 시도
-    for (const path of paths) {
-      try {
-        console.log(`템플릿 유틸리티 로드 시도: ${path}`);
-        
-        module = await import(path).catch(importError => {
-          console.warn(`경로 ${path}에서 로드 실패:`, importError);
-          return null;
-        });
-        
-        if (module && module.default) {
-          console.log(`템플릿 유틸리티 모듈 로드 성공: ${path}`);
-          
-          // 템플릿 유틸리티 유효성 확인 (주요 메서드 존재 여부)
-          if (typeof module.default.loadComponent === 'function') {
-            console.log('유효한 템플릿 유틸리티 모듈 확인됨');
-            
-            // 모듈을 글로벌 네임스페이스에 등록 (필요시)
-            if (typeof window !== 'undefined') {
-              window.FileToQR = window.FileToQR || {};
-              window.FileToQR.TemplateUtils = module.default;
-            }
-            
-            return module.default;
-          } else {
-            console.warn('로드된 모듈이 예상된 템플릿 유틸리티 인터페이스를 구현하지 않음');
-          }
-        }
-      } catch (error) {
-        console.warn(`경로 ${path}에서 템플릿 유틸리티 로드 시도 중 오류:`, error);
-        lastError = error;
-      }
-    }
-    
-    // 직접 구현된 간단한 템플릿 유틸리티 폴백 생성
-    console.warn('모든 템플릿 유틸리티 로드 시도 실패, 간단한 대체 구현을 사용합니다');
-    
-    const fallbackTemplateUtils = {
-      loadComponent: async function(componentName, container, basePath = './', data = {}) {
-        try {
-          console.log(`[폴백] 컴포넌트 로드 시도: ${componentName}, 경로: ${basePath}`);
-          
-          // 컴포넌트 경로 목록 시도
-          const possiblePaths = [
-            `${basePath}components/${componentName}.html`,
-            `${basePath}${componentName}.html`,
-            `components/${componentName}.html`,
-            `${componentName}.html`
-          ];
-          
-          let template = null;
-          
-          // 각 경로 시도
-          for (const path of possiblePaths) {
-            try {
-              console.log(`[폴백] 경로 시도: ${path}`);
-              const response = await fetch(path);
-              
-              if (response.ok) {
-                template = await response.text();
-                console.log(`[폴백] 컴포넌트 템플릿 로드 성공: ${path}`);
-                break;
-              }
-            } catch (pathError) {
-              console.warn(`[폴백] 경로 ${path} 시도 실패:`, pathError);
-            }
-          }
-          
-          if (!template) {
-            console.error(`[폴백] 컴포넌트 ${componentName} 로드 실패`);
-            return false;
-          }
-          
-          // basePath 변수 처리
-          template = template.replace(/\{\{basePath\}\}/g, basePath || './');
-          
-          // 데이터 변수 처리 (기본)
-          if (data && typeof data === 'object') {
-            for (const [key, value] of Object.entries(data)) {
-              const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-              template = template.replace(regex, value);
-            }
-          }
-          
-          // 컨테이너에 삽입
-          if (typeof container === 'string') {
-            container = document.querySelector(container);
-          }
-          
-          if (container) {
-            container.innerHTML = template;
-            return true;
-          }
-          
-          return false;
-        } catch (error) {
-          console.error('[폴백] 컴포넌트 로드 중 오류:', error);
-          return false;
-        }
-      },
+    if (module && module.default) {
+      console.log('템플릿 유틸리티 모듈 로드 성공');
       
-      processTemplate: function(template, data = {}) {
-        if (!template) return '';
+      // 템플릿 유틸리티 유효성 확인 (주요 메서드 존재 여부)
+      if (typeof module.default.loadComponent === 'function') {
+        console.log('유효한 템플릿 유틸리티 모듈 확인됨');
         
-        // basePath 처리
-        template = template.replace(/\{\{basePath\}\}/g, data.basePath || './');
-        
-        // 데이터 변수 처리
-        if (data && typeof data === 'object') {
-          for (const [key, value] of Object.entries(data)) {
-            const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-            template = template.replace(regex, value || '');
-          }
+        // 모듈을 글로벌 네임스페이스에 등록 (필요시)
+        if (typeof window !== 'undefined') {
+          window.FileToQR = window.FileToQR || {};
+          window.FileToQR.TemplateUtils = module.default;
         }
         
-        return template;
+        return module.default;
+      } else {
+        console.warn('로드된 모듈이 예상된 템플릿 유틸리티 인터페이스를 구현하지 않음');
       }
-    };
-    
-    // 폴백 유틸리티를 글로벌 네임스페이스에 등록
-    if (typeof window !== 'undefined') {
-      window.FileToQR = window.FileToQR || {};
-      window.FileToQR.TemplateUtils = fallbackTemplateUtils;
     }
     
-    console.log('폴백 템플릿 유틸리티 생성 완료');
-    return fallbackTemplateUtils;
+    throw new Error('템플릿 유틸리티 모듈을 로드할 수 없습니다.');
   } catch (error) {
-    console.error('템플릿 유틸리티 로드 중 치명적 오류 발생:', error);
-    throw error;
+    console.error('템플릿 유틸리티 로드 실패:', error);
+    return null;
   }
 }
 
 /**
- * 파일 변환기 초기화 - 다양한 경로 시도
+ * 파일 변환기 초기화
  * @private
  * @async
  */
 async function initFileConverter() {
-  // 가능한 모듈 경로 목록
-  const modulePaths = [
-    '../converters/file-converter.js',
-    './assets/js/converters/file-converter.js',
-    '/assets/js/converters/file-converter.js',
-    'assets/js/converters/file-converter.js'
-  ];
-  
-  // 동적 임포트 시도
-  let fileConverter = null;
-  let lastError = null;
-  
-  for (const path of modulePaths) {
-    try {
-      console.log(`파일 변환기 모듈 로드 시도 (경로: ${path})`);
-      const module = await import(path).catch(e => {
-        console.warn(`경로 ${path}에서 파일 변환기 모듈을 로드할 수 없습니다:`, e);
-        return null;
-      });
-      
-      if (module && module.default) {
-        fileConverter = module.default;
-        console.log('파일 변환기 모듈을 찾았습니다!');
-        break;
-      }
-    } catch (error) {
-      console.warn(`경로 ${path}에서 파일 변환기 모듈을 로드할 수 없습니다:`, error);
-      lastError = error;
-    }
-  }
-  
-  if (!fileConverter) {
-    console.error('파일 변환기 모듈을 찾을 수 없습니다:', lastError);
-    return null;
-  }
-  
   try {
-    await fileConverter.init();
-    console.log('파일 변환기가 성공적으로 초기화되었습니다.');
-    return fileConverter;
+    console.log('파일 변환기 모듈 로드 시도');
+    
+    // PathUtils를 사용하여 파일 변환기 모듈 로드
+    const module = await PathUtils.importModule('converters/file-converter');
+    
+    if (!module || !module.default) {
+      console.error('파일 변환기 모듈을 찾을 수 없습니다');
+      return null;
+    }
+    
+    const fileConverter = module.default;
+    
+    try {
+      await fileConverter.init();
+      console.log('파일 변환기가 성공적으로 초기화되었습니다');
+      return fileConverter;
+    } catch (error) {
+      console.error('파일 변환기 초기화 실패:', error);
+      return null;
+    }
   } catch (error) {
-    console.error('파일 변환기 초기화 실패:', error);
+    console.error('파일 변환기 모듈 로드 실패:', error);
     return null;
   }
 }
 
 /**
- * QR 코드 생성기 초기화 - 다양한 경로 시도
+ * QR 코드 생성기 초기화
  * @private
  * @async
  */
 async function initQRGenerator() {
-  // 가능한 모듈 경로 목록
-  const modulePaths = [
-    '../qr-generator/qr-generator.js',
-    './assets/js/qr-generator/qr-generator.js',
-    '/assets/js/qr-generator/qr-generator.js',
-    'assets/js/qr-generator/qr-generator.js'
-  ];
-  
-  // 동적 임포트 시도
-  let qrGenerator = null;
-  let lastError = null;
-  
-  for (const path of modulePaths) {
-    try {
-      console.log(`QR 생성기 모듈 로드 시도 (경로: ${path})`);
-      const module = await import(path).catch(e => {
-        console.warn(`경로 ${path}에서 QR 생성기 모듈을 로드할 수 없습니다:`, e);
-        return null;
-      });
-      
-      if (module && module.default) {
-        qrGenerator = module.default;
-        console.log('QR 생성기 모듈을 찾았습니다!');
-        break;
-      }
-    } catch (error) {
-      console.warn(`경로 ${path}에서 QR 생성기 모듈을 로드할 수 없습니다:`, error);
-      lastError = error;
-    }
-  }
-  
-  if (!qrGenerator) {
-    console.error('QR 생성기 모듈을 찾을 수 없습니다:', lastError);
-    return null;
-  }
-  
   try {
-    await qrGenerator.init();
-    console.log('QR 생성기가 성공적으로 초기화되었습니다.');
-    return qrGenerator;
+    console.log('QR 생성기 모듈 로드 시도');
+    
+    // PathUtils를 사용하여 QR 생성기 모듈 로드
+    const module = await PathUtils.importModule('qr-generator/qr-generator');
+    
+    if (!module || !module.default) {
+      console.error('QR 생성기 모듈을 찾을 수 없습니다');
+      return null;
+    }
+    
+    const qrGenerator = module.default;
+    
+    try {
+      await qrGenerator.init();
+      console.log('QR 생성기가 성공적으로 초기화되었습니다');
+      return qrGenerator;
+    } catch (error) {
+      console.error('QR 생성기 초기화 실패:', error);
+      return null;
+    }
   } catch (error) {
-    console.error('QR 생성기 초기화 실패:', error);
+    console.error('QR 생성기 모듈 로드 실패:', error);
     return null;
   }
-}
-
-/**
- * 블로그 페이지 컴포넌트 로드 확인
- * @private
- */
-function ensureBlogPageComponents() {
-  console.log('블로그 페이지 컴포넌트 확인 중...');
-  
-  // 헤더와 푸터 컨테이너 확인
-  const headerContainer = document.getElementById('header-container');
-  const footerContainer = document.getElementById('footer-container');
-  
-  // 컨테이너가 비어있는지 확인하고 템플릿 로드 재시도
-  if (headerContainer && headerContainer.innerHTML === '') {
-    console.log('헤더 컨테이너가 비어 있습니다. 재로드 시도...');
-    loadHeaderFooter(2); // 2회 재시도
-  }
-  
-  // 이미지 로드 확인
-  document.querySelectorAll('img').forEach(img => {
-    if (!img.complete) {
-      img.onerror = function() {
-        console.error(`이미지 로드 실패: ${img.src}`);
-        // 대체 이미지 로드
-        this.onerror = null;
-        this.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjOTk5IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48Y2lyY2xlIGN4PSI4LjUiIGN5PSI4LjUiIHI9IjEuNSI+PC9jaXJjbGU+PHBvbHlsaW5lIHBvaW50cz0iMjEgMTUgMTYgMTAgNSAyMSI+PC9wb2x5bGluZT48L3N2Zz4=';
-      };
-    }
-  });
 }
 
 // 하위 호환성을 위한 전역 참조

@@ -16,7 +16,6 @@
                     <li><a href="{{basePath}}convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
                     <li><a href="{{basePath}}qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
                     <li><a href="{{basePath}}timer.html" class="text-gray-700 hover:text-blue-600 font-medium">타이머</a></li>
-                    <li><a href="{{basePath}}blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
                     <li><a href="{{basePath}}help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
                     <li><a href="{{basePath}}contact.html" class="text-gray-700 hover:text-blue-600 font-medium">문의하기</a></li>
                 </ul>
@@ -41,22 +40,6 @@
                     link.setAttribute('href', fixedHref);
                     console.log(`링크 수정: ${originalHref} → ${fixedHref}`);
                 });
-            }
-            
-            // 블로그 링크가 있는지 확인하고 누락된 경우 추가
-            const blogLink = document.querySelector('a[href$="blog.html"]');
-            if (!blogLink) {
-                console.warn('블로그 링크가 누락되었습니다. 추가합니다.');
-                const nav = document.querySelector('nav ul');
-                if (nav) {
-                    const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.href = './blog.html';
-                    a.className = 'text-gray-700 hover:text-blue-600 font-medium';
-                    a.textContent = '블로그';
-                    li.appendChild(a);
-                    nav.appendChild(li);
-                }
             }
             
             // 타이머 링크가 있는지 확인하고 누락된 경우 추가

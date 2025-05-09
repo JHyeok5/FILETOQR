@@ -16,8 +16,7 @@ const UrlUtils = (function() {
     'qrcode',
     'help',
     'privacy',
-    'terms',
-    'blog'
+    'terms'
   ];
   
   // 확장자가 필요한 페이지 목록
