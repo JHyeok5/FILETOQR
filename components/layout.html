@@ -1,39 +1,48 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="{{lang}}" {{#if isRTL}}dir="rtl"{{/if}}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{{description}}">
-    <meta name="keywords" content="{{keywords}}">
-    <title>{{title}} - FileToQR</title>
+    <meta name="description" content="{{t 'meta.description'}}">
+    <meta name="keywords" content="{{t 'meta.keywords'}}">
+    <title>{{t page.title}} - {{t 'common.title'}}</title>
     
     <!-- CSS 스타일시트 -->
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/rtl.css">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- hreflang 태그 -->
+    {{#each supportedLanguages}}
+    <link rel="alternate" hreflang="{{this}}" href="{{../baseUrl}}/{{#if this}}{{this}}/{{/if}}{{../currentPage}}">
+    {{/each}}
+    <link rel="alternate" hreflang="x-default" href="{{baseUrl}}/{{currentPage}}">
+    
     <!-- 페이지별 추가 head 콘텐츠 -->
-    {{head_content}}
+    {{{head_content}}}
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col {{#if isRTL}}rtl{{/if}}">
     <!-- 헤더 -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
-                <a href="index.html" class="flex items-center">
-                    <img src="assets/images/logo.svg" alt="FileToQR Logo" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
-                    <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                <a href="{{localizedUrl 'index.html'}}" class="flex items-center">
+                    <img src="assets/images/logo.svg" alt="{{t 'common.logoAlt'}}" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
+                    <span class="text-2xl font-bold text-blue-600">{{t 'common.title'}}</span>
                 </a>
-                <nav>
-                    <ul class="flex space-x-6">
-                        <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
-                        <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
-                        <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
-                        <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium">타이머</a></li>
-                        <li><a href="blog.html" class="text-gray-700 hover:text-blue-600 font-medium">블로그</a></li>
-                        <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                <nav class="flex items-center">
+                    <ul class="flex space-x-6 {{#if isRTL}}space-x-reverse{{/if}}">
+                        <li><a href="{{localizedUrl 'index.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.home'}}</a></li>
+                        <li><a href="{{localizedUrl 'convert.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.convert'}}</a></li>
+                        <li><a href="{{localizedUrl 'qrcode.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.qrcode'}}</a></li>
+                        <li><a href="{{localizedUrl 'timer.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.timer'}}</a></li>
+                        <li><a href="{{localizedUrl 'help.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.help'}}</a></li>
                     </ul>
+                    
+                    <!-- 언어 선택 드롭다운 -->
+                    {{> language-selector }}
                 </nav>
             </div>
         </div>
@@ -41,7 +50,7 @@
 
     <!-- 헤더 배너 광고 -->
     <div id="ad-header" class="ad-container my-4 text-center">
-        <div class="ad-label text-xs text-gray-500">광고</div>
+        <div class="ad-label text-xs text-gray-500">{{t 'common.advertisement'}}</div>
         <div class="ad-slot">
             <!-- Google AdSense 헤더 광고 코드 삽입 위치 -->
             <ins class="adsbygoogle"
@@ -58,12 +67,12 @@
 
     <!-- 메인 콘텐츠 영역 -->
     <main class="flex-grow container mx-auto px-4 py-8">
-        {{main_content}}
+        {{{main_content}}}
     </main>
 
     <!-- 푸터 광고 -->
     <div id="ad-footer" class="ad-container my-4 text-center">
-        <div class="ad-label text-xs text-gray-500">광고</div>
+        <div class="ad-label text-xs text-gray-500">{{t 'common.advertisement'}}</div>
         <div class="ad-slot">
             <!-- Google AdSense 푸터 광고 코드 삽입 위치 -->
             <ins class="adsbygoogle"
@@ -83,32 +92,31 @@
         <div class="container mx-auto px-4 py-8">
             <div class="grid md:grid-cols-3 gap-8">
                 <div>
-                    <h3 class="text-lg font-bold mb-4">FileToQR</h3>
-                    <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+                    <h3 class="text-lg font-bold mb-4">{{t 'footer.about'}}</h3>
+                    <p class="text-gray-600 mb-4">{{t 'footer.description'}}</p>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <h3 class="text-lg font-bold mb-4">{{t 'footer.shortcuts'}}</h3>
                     <ul class="space-y-2">
-                        <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
-                        <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
-                        <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드 생성</a></li>
-                        <li><a href="timer.html" class="text-gray-600 hover:text-blue-600">타이머</a></li>
-                        <li><a href="blog.html" class="text-gray-600 hover:text-blue-600">블로그</a></li>
-                        <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                        <li><a href="{{localizedUrl 'index.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.home'}}</a></li>
+                        <li><a href="{{localizedUrl 'convert.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.convert'}}</a></li>
+                        <li><a href="{{localizedUrl 'qrcode.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.qrcode'}}</a></li>
+                        <li><a href="{{localizedUrl 'timer.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.timer'}}</a></li>
+                        <li><a href="{{localizedUrl 'help.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.help'}}</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold mb-4">법적 정보</h3>
+                    <h3 class="text-lg font-bold mb-4">{{t 'footer.legal'}}</h3>
                     <ul class="space-y-2">
-                        <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
-                        <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                        <li><a href="{{localizedUrl 'privacy.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'privacy.title'}}</a></li>
+                        <li><a href="{{localizedUrl 'terms.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'terms.title'}}</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
-                <p>&copy; 2025 FileToQR. All rights reserved.</p>
-                <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
+                <p>{{t 'footer.copyright'}}</p>
+                <p class="mt-1">{{t 'footer.lastUpdate'}}</p>
             </div>
         </div>
     </footer>
@@ -118,6 +126,6 @@
     <script src="assets/js/utils/adsense-manager.js" type="module"></script>
     
     <!-- 페이지별 스크립트 -->
-    {{scripts}}
+    {{{scripts}}}
 </body>
 </html> 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="파일 변환 및 QR 코드 생성 플랫폼. 이미지, 문서, 오디오 등 다양한 파일을 변환하고 맞춤형 QR 코드를 생성하세요. 최종 업데이트: 2025년 5월 2일">
     <meta name="keywords" content="파일 변환, QR 코드, 이미지 변환, 문서 변환, 온라인 변환, 무료 변환, PNG, JPG, PDF">
-    <title>FileToQR - 파일 변환 및 QR 코드 생성 플랫폼</title>
+    <title>FileToQR</title>
     
     <!-- CSS 스타일시트 -->
     <link rel="stylesheet" href="assets/css/styles.css">
@@ -18,37 +18,60 @@
     
     <!-- 초기 로딩 스타일 (JS 로딩 전에 적용) -->
     <style>
-        /* 헤더 초기 로딩 최소 스타일 */
-        #header-container {
-            min-height: 64px;
-        }
-        #header-container nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        #header-container .logo {
-            font-weight: bold;
-            font-size: 1.5rem;
-            color: #3B82F6;
-        }
-        #header-container .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            list-style: none;
+        /* Minimal styling for the loading state */
+        body {
             margin: 0;
             padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f7fafc;
         }
-        #header-container .nav-links a {
-            color: #4B5563;
-            text-decoration: none;
+        
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #4299e1;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .loading-text {
+            font-size: 16px;
+            color: #4a5568;
+        }
+        
+        .loading-container p {
+            max-width: 80%;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <!-- 로딩 표시기 -->
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+        <p>If the page doesn't load within a few seconds, please try refreshing.</p>
+    </div>
+
     <!-- 헤더 컴포넌트 -->
     <div id="header-container">
         <nav>
@@ -147,7 +170,7 @@
     <!-- 푸터 컴포넌트 -->
     <div id="footer-container"></div>
 
-    <!-- 코어 모듈 로드 -->
+    <!-- 코어 스크립트 -->
     <script src="assets/js/core/app-core.js" type="module"></script>
 </body>
 </html> 
