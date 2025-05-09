@@ -1,0 +1,383 @@
+<!-- 
+  언어 선택기 컴포넌트 - FileToQR 애플리케이션
+  버전: 2.0.0
+  최종 업데이트: 2025년 7월 15일
+-->
+<div class="language-selector dropdown">
+  <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="{{t 'common.language.change'}}">
+    <span class="lang-flag-icon {{currentLang}}-flag" aria-hidden="true"></span>
+    <span class="lang-label">{{t (concat 'common.language.' currentLang)}}</span>
+    <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+  
+  <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
+    <div class="lang-dropdown-header">
+      <span>{{t 'common.language.select'}}</span>
+    </div>
+    <div class="lang-dropdown-list">
+      {{#each supportedLanguages}}
+        <a href="javascript:void(0);" 
+           class="lang-option {{#eq this ../currentLang}}active{{/eq}}" 
+           data-lang="{{this}}" 
+           role="menuitem"
+           aria-label="{{t (concat 'common.language.' this)}}"
+           aria-current="{{#eq this ../currentLang}}true{{else}}false{{/eq}}">
+          <span class="lang-flag-icon {{this}}-flag" aria-hidden="true"></span>
+          <span class="lang-name">{{t (concat 'common.language.' this)}}</span>
+        </a>
+      {{/each}}
+    </div>
+  </div>
+</div>
+
+<style>
+  /* 언어 선택기 스타일 */
+  .language-selector {
+    position: relative;
+    display: inline-block;
+    margin-left: 1rem;
+  }
+  
+  [dir="rtl"] .language-selector {
+    margin-left: 0;
+    margin-right: 1rem;
+  }
+  
+  .lang-dropdown-btn {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .lang-dropdown-btn:hover {
+    background-color: #f7fafc;
+  }
+  
+  .lang-dropdown-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+  }
+  
+  .lang-flag-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  [dir="rtl"] .lang-flag-icon {
+    margin-right: 0;
+    margin-left: 0.5rem;
+  }
+  
+  .ko-flag {
+    background-image: url('assets/images/flags/ko.svg');
+  }
+  
+  .en-flag {
+    background-image: url('assets/images/flags/en.svg');
+  }
+  
+  .zh-flag {
+    background-image: url('assets/images/flags/zh.svg');
+  }
+  
+  .ja-flag {
+    background-image: url('assets/images/flags/ja.svg');
+  }
+  
+  /* 추가 언어 깃발 (향후 지원 예정) */
+  .ar-flag {
+    background-image: url('assets/images/flags/ar.svg');
+  }
+  
+  .es-flag {
+    background-image: url('assets/images/flags/es.svg');
+  }
+  
+  .fr-flag {
+    background-image: url('assets/images/flags/fr.svg');
+  }
+  
+  .de-flag {
+    background-image: url('assets/images/flags/de.svg');
+  }
+  
+  .ru-flag {
+    background-image: url('assets/images/flags/ru.svg');
+  }
+  
+  .pt-flag {
+    background-image: url('assets/images/flags/pt.svg');
+  }
+  
+  .lang-label {
+    margin-right: 0.5rem;
+  }
+  
+  [dir="rtl"] .lang-label {
+    margin-right: 0;
+    margin-left: 0.5rem;
+  }
+  
+  .lang-dropdown-arrow {
+    margin-left: auto;
+    transition: transform 0.2s;
+  }
+  
+  [dir="rtl"] .lang-dropdown-arrow {
+    margin-left: 0;
+    margin-right: auto;
+  }
+  
+  .language-selector.open .lang-dropdown-arrow {
+    transform: rotate(180deg);
+  }
+  
+  .lang-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    min-width: 10rem;
+    background-color: white;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 1000;
+    margin-top: 0.25rem;
+    overflow: hidden;
+  }
+  
+  [dir="rtl"] .lang-dropdown-content {
+    right: auto;
+    left: 0;
+    text-align: right;
+  }
+  
+  .language-selector.open .lang-dropdown-content {
+    display: block;
+  }
+  
+  .lang-dropdown-header {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    color: #718096;
+    background-color: #f7fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .lang-dropdown-list {
+    max-height: 15rem;
+    overflow-y: auto;
+  }
+  
+  .lang-option {
+    display: flex;
+    align-items: center;
+    padding: 0.625rem 1rem;
+    cursor: pointer;
+    color: #4a5568;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+  
+  .lang-option:hover {
+    background-color: #f7fafc;
+  }
+  
+  .lang-option.active {
+    background-color: #ebf8ff;
+    color: #3182ce;
+  }
+  
+  .lang-name {
+    margin-left: 0.5rem;
+  }
+  
+  [dir="rtl"] .lang-name {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+  
+  /* 다크 모드 지원 */
+  .dark-mode .lang-dropdown-btn {
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+  
+  .dark-mode .lang-dropdown-btn:hover {
+    background-color: #2d3748;
+  }
+  
+  .dark-mode .lang-dropdown-content {
+    background-color: #1a202c;
+  }
+  
+  .dark-mode .lang-dropdown-header {
+    color: #a0aec0;
+    background-color: #2d3748;
+    border-bottom-color: #4a5568;
+  }
+  
+  .dark-mode .lang-option {
+    color: #e2e8f0;
+  }
+  
+  .dark-mode .lang-option:hover {
+    background-color: #2d3748;
+  }
+  
+  .dark-mode .lang-option.active {
+    background-color: #2c5282;
+    color: #90cdf4;
+  }
+  
+  /* 키보드 접근성 향상 */
+  .lang-option:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #63b3ed;
+  }
+  
+  /* 모바일 대응 */
+  @media (max-width: 640px) {
+    .lang-dropdown-btn {
+      padding: 0.375rem 0.5rem;
+    }
+    
+    .lang-label {
+      display: none;
+    }
+    
+    .lang-dropdown-content {
+      right: -2rem;
+    }
+    
+    [dir="rtl"] .lang-dropdown-content {
+      right: auto;
+      left: -2rem;
+    }
+  }
+  
+  /* 고대비 모드 지원 */
+  @media (forced-colors: active) {
+    .lang-dropdown-btn {
+      border: 1px solid CanvasText;
+    }
+    
+    .lang-option.active {
+      outline: 2px solid CanvasText;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const langSelector = document.querySelector('.language-selector');
+    const langToggle = document.getElementById('lang-selector-toggle');
+    const langDropdown = document.getElementById('lang-dropdown-menu');
+    const langOptions = document.querySelectorAll('.lang-option');
+    
+    // 드롭다운 토글
+    if (langToggle) {
+      langToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        langSelector.classList.toggle('open');
+        
+        // WAI-ARIA 지원
+        const expanded = langSelector.classList.contains('open');
+        langToggle.setAttribute('aria-expanded', expanded);
+        
+        if (expanded) {
+          // 첫 번째 항목에 포커스
+          const firstOption = langDropdown.querySelector('.lang-option');
+          if (firstOption) {
+            firstOption.focus();
+          }
+        }
+      });
+    }
+    
+    // 언어 옵션 클릭 처리
+    langOptions.forEach(option => {
+      option.addEventListener('click', function(e) {
+        e.preventDefault();
+        const lang = this.dataset.lang;
+        
+        if (window.FileToQR && window.FileToQR.i18n) {
+          // 클릭 이벤트에서는 페이지 새로고침이 필요함을 표시
+          const event = new CustomEvent('languageChange', {
+            detail: {
+              language: lang,
+              userAction: true // 사용자 액션임을 표시
+            }
+          });
+          window.dispatchEvent(event);
+          
+          // i18n 유틸 사용
+          window.FileToQR.i18n.setLanguage(lang)
+            .then(() => {
+              // 드롭다운 닫기
+              langSelector.classList.remove('open');
+              langToggle.setAttribute('aria-expanded', 'false');
+              langToggle.focus();
+            })
+            .catch(error => {
+              console.error('언어 변경 실패:', error);
+            });
+        }
+      });
+      
+      // 키보드 접근성
+      option.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.click();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const next = this.nextElementSibling;
+          if (next && next.classList.contains('lang-option')) {
+            next.focus();
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = this.previousElementSibling;
+          if (prev && prev.classList.contains('lang-option')) {
+            prev.focus();
+          } else {
+            langToggle.focus();
+          }
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          langSelector.classList.remove('open');
+          langToggle.setAttribute('aria-expanded', 'false');
+          langToggle.focus();
+        }
+      });
+    });
+    
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', function(e) {
+      if (!langSelector.contains(e.target)) {
+        langSelector.classList.remove('open');
+        langToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    
+    // 초기 WAI-ARIA 상태 설정
+    if (langToggle) {
+      langToggle.setAttribute('aria-expanded', 'false');
+      langToggle.setAttribute('aria-haspopup', 'true');
+    }
+  });
+</script> 
