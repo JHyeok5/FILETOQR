@@ -46,13 +46,14 @@ const CONFIG = {
     includeExtension: true
   },
   routes: {
-    home: '/',
+    home: '/index.html',
     convert: '/convert.html',
     qrcode: '/qrcode.html',
     privacy: '/privacy.html',
     terms: '/terms.html',
     help: '/help.html'
-  }
+  },
+  supportedLanguages: ['ko', 'en', 'zh', 'ja']
 };
 
 // 앱 코어 모듈 API 정의
@@ -78,7 +79,7 @@ const APP_VERSION = '2.0.0';
  * 애플리케이션 초기화
  * @returns {Promise<void>}
  */
-async function initApp() {
+async function init() {
   console.log(`FileToQR 애플리케이션 초기화 시작 (v${APP_VERSION})`);
   
   try {
@@ -93,9 +94,6 @@ async function initApp() {
     
     // 페이지 컴포넌트 로드
     await loadPageComponents();
-    
-    // 헤더/푸터 초기화
-    await initHeaderFooter();
     
     // 페이지별 초기화
     await initCurrentPage();
@@ -137,7 +135,7 @@ async function initI18n() {
     // URL에서 언어 코드 추출
     let urlLang = null;
     const pathnameParts = window.location.pathname.split('/');
-    const supportedLangs = ['ko', 'en', 'zh', 'ja'];
+    const supportedLangs = CONFIG.supportedLanguages;
     
     // URL에 언어 코드가 포함되어 있는지 확인 (예: /en/index.html)
     for (let i = 0; i < pathnameParts.length; i++) {
@@ -243,44 +241,6 @@ async function loadPageComponents() {
 }
 
 /**
- * 헤더/푸터 초기화
- * @private
- * @returns {Promise<void>}
- */
-async function initHeaderFooter() {
-  try {
-    console.log('헤더/푸터 초기화 중...');
-    
-    // 헤더와 푸터에 전달할 데이터
-    const templateData = {
-      basePath: getBasePath(),
-      currentLang: I18nUtils.currentLang,
-      availableLanguages: I18nUtils.supportedLangs,
-      version: APP_VERSION
-    };
-    
-    // 헤더 로드
-    const headerContainer = document.getElementById('header-container');
-    if (headerContainer) {
-      await TemplateUtils.loadComponent('header', headerContainer, getBasePath(), templateData);
-    }
-    
-    // 푸터 로드
-    const footerContainer = document.getElementById('footer-container');
-    if (footerContainer) {
-      await TemplateUtils.loadComponent('footer', footerContainer, getBasePath(), templateData);
-    }
-    
-    // 페이지에 i18n 적용
-    I18nUtils.applyTranslations();
-    
-    console.log('헤더/푸터 초기화 완료');
-  } catch (error) {
-    console.error('헤더/푸터 초기화 실패:', error);
-  }
-}
-
-/**
  * 현재 페이지 초기화 (페이지별 로직)
  * @private
  * @returns {Promise<void>}
@@ -332,7 +292,7 @@ function initHomePage() {
   const getStartedBtns = document.querySelectorAll('.get-started-btn');
   getStartedBtns.forEach(btn => {
     btn.addEventListener('click', function() {
-      window.location.href = getBasePath() + 'convert.html';
+      navigateTo('convert.html');
     });
   });
 }
@@ -475,6 +435,22 @@ async function initQRGenerator() {
 }
 
 /**
+ * 모듈 안전 로드 헬퍼 함수
+ * @param {string} modulePath - 모듈 경로
+ * @returns {Promise<any>} - 로드된 모듈
+ */
+async function safeImport(modulePath) {
+  try {
+    const fullPath = `/assets/js/${modulePath}.js`;
+    const module = await import(fullPath);
+    return module.default || module;
+  } catch (error) {
+    console.error(`모듈 로드 실패: ${modulePath}`, error);
+    throw error;
+  }
+}
+
+/**
  * 현재 페이지 식별자 반환
  * @returns {string} 페이지 식별자
  */
@@ -483,32 +459,41 @@ function getCurrentPage() {
     // 페이지 경로를 가져와서 분석
     const path = window.location.pathname;
     
+    // 언어 코드 제거 (예: /en/index.html -> /index.html)
+    let pathWithoutLang = path;
+    const pathParts = path.split('/').filter(part => part);
+    
+    if (pathParts.length > 0 && CONFIG.supportedLanguages.includes(pathParts[0])) {
+      // 언어 코드를 제외한 경로 재구성
+      pathWithoutLang = '/' + pathParts.slice(1).join('/');
+    }
+    
     // 루트 페이지 확인
-    if (path === '/' || path.endsWith('/index.html')) return 'home';
+    if (pathWithoutLang === '/' || pathWithoutLang.endsWith('/index.html')) return 'home';
     
     // 변환 페이지 확인
-    if (path.endsWith('convert.html')) return 'convert';
+    if (pathWithoutLang.endsWith('/convert.html')) return 'convert';
     
     // QR 코드 페이지 확인
-    if (path.endsWith('qrcode.html')) return 'qrcode';
+    if (pathWithoutLang.endsWith('/qrcode.html')) return 'qrcode';
     
     // 도움말 페이지 확인
-    if (path.endsWith('help.html')) return 'help';
+    if (pathWithoutLang.endsWith('/help.html')) return 'help';
     
     // 개인정보 처리방침 페이지 확인
-    if (path.endsWith('privacy.html')) return 'privacy';
+    if (pathWithoutLang.endsWith('/privacy.html')) return 'privacy';
     
     // 이용약관 페이지 확인
-    if (path.endsWith('terms.html')) return 'terms';
+    if (pathWithoutLang.endsWith('/terms.html')) return 'terms';
     
     // 타이머 페이지 확인
-    if (path.endsWith('timer.html')) return 'timer';
+    if (pathWithoutLang.endsWith('/timer.html')) return 'timer';
     
     // 문의하기 페이지 확인
-    if (path.endsWith('contact.html')) return 'contact';
+    if (pathWithoutLang.endsWith('/contact.html')) return 'contact';
     
     // 페이지 식별자를 파일명에서 추출
-    const lastSegment = path.split('/').pop() || '';
+    const lastSegment = pathWithoutLang.split('/').pop() || '';
     const pageId = lastSegment.replace('.html', '');
     
     return pageId || 'unknown';
@@ -519,28 +504,88 @@ function getCurrentPage() {
 }
 
 /**
+ * 페이지 이동 함수
+ * @param {string} url - 이동할 URL
+ * @param {boolean} [newTab=false] - 새 탭에서 열기 여부
+ */
+function navigateTo(url, newTab = false) {
+  try {
+    // 기본 URL 구성
+    let targetUrl = url;
+    
+    // 상대 경로인 경우 현재 언어 경로 유지
+    if (!url.startsWith('http') && !url.startsWith('/')) {
+      // 현재 언어 코드 가져오기
+      const currentLang = I18nUtils.currentLang;
+      const isDefaultLang = currentLang === I18nUtils.defaultLang;
+      
+      // 현재 URL 경로 분석
+      const currentPath = window.location.pathname;
+      const pathParts = currentPath.split('/').filter(part => part);
+      
+      // 현재 URL에 언어 코드가 포함되어 있는지 확인
+      const hasLangInPath = pathParts.length > 0 && CONFIG.supportedLanguages.includes(pathParts[0]);
+      
+      // 새 URL 구성
+      if (hasLangInPath || !isDefaultLang) {
+        const langPrefix = hasLangInPath ? pathParts[0] : currentLang;
+        // 기본 언어가 아닌 경우에만 언어 코드 추가
+        if (langPrefix !== I18nUtils.defaultLang || hasLangInPath) {
+          targetUrl = langPrefix + '/' + url;
+        }
+      }
+    }
+    
+    // URL 열기
+    if (newTab) {
+      window.open(targetUrl, '_blank');
+    } else {
+      window.location.href = targetUrl;
+    }
+  } catch (error) {
+    console.error('페이지 이동 중 오류 발생:', error);
+  }
+}
+
+/**
  * 기본 경로 가져오기
  * @returns {string} 기본 경로
  */
 function getBasePath() {
-  // 서브 디렉토리 배포 시 기본 경로 설정을 위한 함수
+  // 현재 URL 경로 분석
+  const currentPath = window.location.pathname;
+  const pathParts = currentPath.split('/').filter(part => part);
+  
+  // 언어 코드가 포함된 경우 상위 디렉토리로 이동
+  if (pathParts.length > 0 && CONFIG.supportedLanguages.includes(pathParts[0])) {
+    return '../';
+  }
+  
   // 기본값은 상대 경로 './'
   return './';
 }
 
-// 글로벌 네임스페이스에 함수 등록
-window.FileToQR.initApp = initApp;
-window.FileToQR.getBasePath = getBasePath;
-window.FileToQR.getCurrentPage = getCurrentPage;
-window.FileToQR.version = APP_VERSION;
+// 자동 초기화
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', init);
+}
 
-// 초기화 실행
-document.addEventListener('DOMContentLoaded', initApp);
+// 글로벌 네임스페이스에 등록
+if (typeof window !== 'undefined') {
+  window.FileToQR = window.FileToQR || {};
+  window.FileToQR.appCore = appCore;
+  window.FileToQR.initApp = init;
+  window.FileToQR.getBasePath = getBasePath;
+  window.FileToQR.getCurrentPage = getCurrentPage;
+  window.FileToQR.navigateTo = navigateTo;
+  window.FileToQR.version = APP_VERSION;
+}
 
 // ES 모듈 내보내기
 export {
-  initApp,
+  init as initApp,
   getBasePath,
   getCurrentPage,
+  navigateTo,
   APP_VERSION
 }; 
