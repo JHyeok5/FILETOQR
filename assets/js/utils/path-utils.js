@@ -59,6 +59,61 @@ const PathUtils = {
   },
 
   /**
+   * 애플리케이션의 기본 경로를 가져옵니다.
+   * URL 기반으로 현재 애플리케이션의 기본 경로(basePath)를 확인합니다.
+   * 
+   * @returns {string} 애플리케이션 기본 경로
+   * 
+   * @example
+   * // URL이 https://example.com/my-app/index.html인 경우
+   * // 결과: '/my-app/'
+   * PathUtils.getBasePath();
+   * 
+   * @example
+   * // URL이 https://example.com/index.html인 경우
+   * // 결과: '/'
+   * PathUtils.getBasePath();
+   */
+  getBasePath() {
+    if (typeof window === 'undefined' || !window.location) {
+      return '/';
+    }
+    
+    try {
+      // URL 경로 가져오기
+      const pathname = window.location.pathname;
+      
+      // 파일명 제거하기 (index.html 등)
+      let basePath;
+      if (pathname.endsWith('/')) {
+        basePath = pathname; // 이미 / 로 끝나는 경우
+      } else {
+        // 마지막 / 이후의 파일명을 제거하고 / 추가
+        const lastSlashIndex = pathname.lastIndexOf('/');
+        if (lastSlashIndex === -1) {
+          basePath = '/';
+        } else {
+          basePath = pathname.substring(0, lastSlashIndex + 1);
+        }
+      }
+      
+      // 언어 경로 패턴 제거 (/en/, /ja/, /zh/ 등)
+      const langPattern = /\/([a-z]{2})\/$/;
+      if (langPattern.test(basePath)) {
+        // 언어 경로를 제외한 상위 경로로 변경
+        const parentPath = basePath.substring(0, basePath.length - 4); // '/xx/' 제거
+        basePath = parentPath.length > 0 ? parentPath : '/';
+      }
+      
+      console.log(`애플리케이션 기본 경로 계산됨: ${basePath}`);
+      return basePath;
+    } catch (error) {
+      console.error('기본 경로 계산 오류:', error);
+      return '/';
+    }
+  },
+
+  /**
    * 경로를 다양한 형식으로 변환하여 시도 가능한 경로 배열 반환
    * 브라우저 환경에서 모듈 로딩 시 다양한 경로 형식을 시도하기 위한 함수입니다.
    * 
@@ -96,6 +151,17 @@ const PathUtils = {
       paths.push(`assets/js/${basePath}`);
       paths.push(`./assets/js/${basePath}`);
       paths.push(`/assets/js/${basePath}`);
+    }
+    
+    // 애플리케이션 기본 경로 추가
+    const appBasePath = this.getBasePath();
+    if (appBasePath !== '/' && !paths.some(p => p.startsWith(appBasePath))) {
+      paths.push(`${appBasePath}${basePath}`);
+      if (basePath.startsWith('./')) {
+        paths.push(`${appBasePath}${basePath.substring(2)}`);
+      } else if (basePath.startsWith('/')) {
+        paths.push(`${appBasePath}${basePath.substring(1)}`);
+      }
     }
     
     return paths;
