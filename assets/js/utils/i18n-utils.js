@@ -286,14 +286,38 @@ function setDocumentDirection(lang) {
 }
 
 /**
- * 언어 변경 URL 생성 후 페이지 이동
- * @param {string} lang 변경할 언어 코드
+ * 지정된 언어로 페이지 이동
+ * @param {string} lang 이동할 언어 코드
  */
 export function navigateToLanguage(lang) {
-  if (typeof window === 'undefined') return;
-  
-  const newURL = getLocalizedURL(lang);
-  window.location.href = newURL;
+  try {
+    // 지원하지 않는 언어인 경우
+    if (!supportedLanguages.includes(lang)) {
+      console.warn(`지원하지 않는 언어: ${lang}`);
+      return;
+    }
+    
+    console.log(`언어 변경: ${currentLanguage} → ${lang}`);
+    
+    // URL 유틸리티를 사용하여 다국어 URL 생성
+    if (window.FileToQR && window.FileToQR.utils && window.FileToQR.utils.url) {
+      const languageUrl = window.FileToQR.utils.url.getLanguageUrl(lang);
+      console.log(`이동할 URL: ${languageUrl}`);
+      
+      // 페이지 이동
+      window.location.href = languageUrl;
+    } else {
+      // 이전 방식: 현재 URL에서 언어 경로 직접 수정
+      const currentUrl = window.location.href;
+      const alternateUrl = getAlternateURL(lang);
+      console.log(`이동할 URL: ${alternateUrl}`);
+      
+      // 페이지 이동
+      window.location.href = alternateUrl;
+    }
+  } catch (error) {
+    console.error('언어 변경 중 오류 발생:', error);
+  }
 }
 
 /**

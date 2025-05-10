@@ -23,6 +23,16 @@
     "loading": "로딩 중...",
     "error": "오류가 발생했습니다"
   },
+  "urls": {
+    "home": "/index.html",
+    "convert": "/convert.html",
+    "qrcode": "/qrcode.html", 
+    "timer": "/timer.html",
+    "help": "/help.html",
+    "contact": "/contact.html",
+    "privacy": "/privacy.html",
+    "terms": "/terms.html"
+  },
   "meta": {
     "description": "파일 변환 및 QR 코드 생성 플랫폼. 이미지, 문서, 오디오 등 다양한 파일을 변환하고 맞춤형 QR 코드를 생성하세요.",
     "keywords": "파일 변환, QR 코드, 이미지 변환, 문서 변환, 온라인 변환, 무료 변환, PNG, JPG, PDF"

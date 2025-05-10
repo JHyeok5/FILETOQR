@@ -158,18 +158,14 @@ async function init() {
             document.head.appendChild(handlebarsScript);
           });
           
-          console.log('Handlebars 라이브러리 로드 완료');
+          console.log('Handlebars 라이브러리 동적 로드 완료');
         }
         
-        // 템플릿 유틸리티 초기화
-        await window.FileToQR.TemplateUtils.init({
-          loadPartials: true
-        });
-        
+        await window.FileToQR.TemplateUtils.init();
         console.log('템플릿 유틸리티 초기화 완료');
         
-        // 템플릿 렌더링 시도
-        processTemplates();
+        // 템플릿 처리
+        await window.FileToQR.TemplateUtils.processTemplates();
       }
     } catch (error) {
       console.error('템플릿 유틸리티 초기화 실패:', error);
@@ -183,11 +179,16 @@ async function init() {
     console.log('초기화 완료 - 로딩 인디케이터 숨김');
     hideLoadingIndicator();
     
+    // 5. 초기화 완료 후 추가 작업 실행
+    onAppInitialized();
+    
     console.log('애플리케이션 초기화 완료');
   } catch (error) {
     console.error('애플리케이션 초기화 실패:', error);
     // 로딩 인디케이터 숨기기
     hideLoadingIndicator();
+    // 오류 메시지 표시
+    showErrorMessage('애플리케이션 초기화 중 오류가 발생했습니다.');
   }
 }
 
@@ -529,6 +530,154 @@ function getCurrentLanguage() {
   
   // 지원 언어 확인
   return CONFIG.supportedLanguages.includes(langCode) ? langCode : 'ko';
+}
+
+/**
+ * 모든 내부 링크를 현재 언어에 맞게 업데이트
+ * i18n URL 처리 및 언어 경로 추가
+ */
+function updateInternalLinks() {
+  try {
+    console.log('내부 링크 업데이트 시작');
+    
+    // URL 유틸리티 확인
+    const urlUtils = window.FileToQR && window.FileToQR.utils && window.FileToQR.utils.url;
+    if (!urlUtils) {
+      console.warn('URL 유틸리티를 찾을 수 없어 내부 링크 업데이트를 건너뜁니다.');
+      return;
+    }
+    
+    // i18n 모듈 확인
+    const i18n = window.FileToQR && window.FileToQR.i18n;
+    if (!i18n) {
+      console.warn('i18n 모듈을 찾을 수 없어 내부 링크 업데이트를 건너뜁니다.');
+      return;
+    }
+    
+    // 현재 언어 및 기본 언어 가져오기
+    const currentLang = i18n.getCurrentLang();
+    const defaultLang = i18n.getDefaultLang();
+    const supportedLangs = i18n.getSupportedLangs();
+    
+    console.log(`현재 언어: ${currentLang}, 기본 언어: ${defaultLang}`);
+    
+    // 알려진 내부 페이지 목록
+    const internalPages = [
+      { key: 'urls.home', path: 'index.html' },
+      { key: 'urls.convert', path: 'convert.html' },
+      { key: 'urls.qrcode', path: 'qrcode.html' },
+      { key: 'urls.timer', path: 'timer.html' },
+      { key: 'urls.help', path: 'help.html' },
+      { key: 'urls.contact', path: 'contact.html' },
+      { key: 'urls.privacy', path: 'privacy.html' },
+      { key: 'urls.terms', path: 'terms.html' }
+    ];
+    
+    // 모든 링크 요소 가져오기
+    const links = document.querySelectorAll('a');
+    
+    // 각 링크 처리
+    links.forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+      
+      // 외부 링크는 건너뛰기
+      if (href.startsWith('http://') || href.startsWith('https://') || 
+          href.startsWith('mailto:') || href.startsWith('tel:') || 
+          href.startsWith('#')) {
+        return;
+      }
+      
+      // 내부 경로인지 확인
+      const pageName = href.endsWith('.html') ? 
+        href.substring(0, href.length - 5) : href;
+      
+      // 기존 페이지 이름과 일치하는지 확인
+      const matchedPage = internalPages.find(page => {
+        return pageName === page.path.replace('.html', '') || 
+               href === page.path;
+      });
+      
+      if (matchedPage) {
+        // i18n URL 키를 사용하여 현재 언어에 맞는 URL 생성
+        const localizedUrl = urlUtils.getNavUrl(matchedPage.key);
+        console.log(`링크 업데이트: ${href} → ${localizedUrl}`);
+        link.setAttribute('href', localizedUrl);
+      } else {
+        // 알려진 내부 페이지가 아닌 경우, 직접 현재 언어 경로 추가
+        const newUrl = urlUtils.getI18nUrl(href, currentLang);
+        console.log(`직접 경로 추가: ${href} → ${newUrl}`);
+        link.setAttribute('href', newUrl);
+      }
+    });
+    
+    console.log('내부 링크 업데이트 완료');
+  } catch (error) {
+    console.error('내부 링크 업데이트 중 오류 발생:', error);
+  }
+}
+
+/**
+ * 애플리케이션 초기화가 완료된 후 추가 설정 및 초기화 작업 수행
+ */
+function onAppInitialized() {
+  try {
+    console.log('애플리케이션 초기화 후 추가 작업 시작');
+    
+    // 1. 내부 링크 업데이트
+    updateInternalLinks();
+    
+    // 2. 언어 선택기 이벤트 핸들러 업데이트
+    setupLanguageSelector();
+    
+    // 3. 기타 필요한 초기화 작업...
+    
+    console.log('추가 초기화 작업 완료');
+  } catch (error) {
+    console.error('추가 초기화 작업 중 오류 발생:', error);
+  }
+}
+
+/**
+ * 언어 선택기 이벤트 핸들러 설정
+ */
+function setupLanguageSelector() {
+  try {
+    const langLinks = document.querySelectorAll('.lang-option');
+    if (langLinks.length === 0) {
+      console.log('언어 선택기 요소를 찾을 수 없습니다.');
+      return;
+    }
+    
+    console.log(`${langLinks.length}개의 언어 선택 링크 발견`);
+    
+    // i18n 모듈 확인
+    const i18n = window.FileToQR && window.FileToQR.i18n;
+    if (!i18n) {
+      console.warn('i18n 모듈을 찾을 수 없어 언어 선택기 설정을 건너뜁니다.');
+      return;
+    }
+    
+    // 각 언어 링크에 이벤트 핸들러 추가
+    langLinks.forEach(link => {
+      // 기본 이벤트 방지 및 커스텀 처리를 위해 클릭 이벤트 재설정
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        
+        const lang = this.getAttribute('data-lang');
+        if (lang) {
+          console.log(`언어 선택: ${lang}`);
+          
+          // i18n 모듈을 통해 언어 변경 처리
+          i18n.navigateToLanguage(lang);
+        }
+      });
+    });
+    
+    console.log('언어 선택기 설정 완료');
+  } catch (error) {
+    console.error('언어 선택기 설정 중 오류 발생:', error);
+  }
 }
 
 // 자동 초기화
