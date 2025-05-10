@@ -104,7 +104,7 @@ export async function init(options = {}) {
 
 /**
  * URL 경로에서 언어 코드 감지
- * @returns {string|null} 감지된 언어 코드 또는 null
+   * @returns {string|null} 감지된 언어 코드 또는 null
  */
 function detectLanguageFromURL() {
   if (typeof window === 'undefined') return null;
@@ -115,9 +115,9 @@ function detectLanguageFromURL() {
   // 첫 번째 경로 부분이 지원 언어 중 하나인지 확인
   if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
     return pathParts[0];
-  }
-  
-  return null;
+    }
+    
+    return null;
 }
 
 /**
@@ -250,7 +250,7 @@ export async function changeLanguage(lang) {
     
     console.log(`언어 변경 완료: ${lang}`);
     return true;
-  } catch (error) {
+    } catch (error) {
     console.error('언어 변경 실패:', error);
     return false;
   }
@@ -300,8 +300,8 @@ export function navigateToLanguage(lang) {
  * 페이지의 모든 번역 적용
  */
 export function applyTranslations() {
-  if (typeof document === 'undefined') return;
-  
+    if (typeof document === 'undefined') return;
+    
   // data-i18n 속성이 있는 모든 요소 찾기
   const elements = document.querySelectorAll('[data-i18n]');
   
@@ -341,8 +341,8 @@ export function applyTranslations() {
  * 메타 태그 업데이트
  */
 export function updateMetaTags() {
-  if (typeof document === 'undefined') return;
-  
+    if (typeof document === 'undefined') return;
+    
   // hreflang 태그 업데이트
   const hreflangTags = document.querySelectorAll('link[rel="alternate"][hreflang]');
   const hasHreflangTags = hreflangTags.length > 0;
