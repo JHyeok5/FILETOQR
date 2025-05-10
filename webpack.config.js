@@ -5,12 +5,69 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HandlebarsPlugin = require('handlebars-webpack-plugin');
+const fs = require('fs');
 
 // HTML 페이지 목록
 const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms', 'timer', 'contact'];
 
 // 지원 언어 목록
 const languages = ['en', 'zh', 'ja'];
+
+// HTML 웹팩 플러그인 배열
+const htmlPlugins = [];
+
+// 기본 언어 (한국어 - ko) HTML 파일 생성
+htmlPages.forEach(page => {
+  htmlPlugins.push(
+    new HtmlWebpackPlugin({
+      template: `./${page}.html`,
+      filename: `${page}.html`,
+      chunks: ['app-core', 'vendors', page, 'template-utils'],
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        useShortDoctype: true
+      }
+    })
+  );
+});
+
+// 다른 언어 HTML 파일 생성 (en, zh, ja) - 기본 템플릿에서 복사
+languages.forEach(lang => {
+  // 언어 디렉토리가 없으면 생성
+  if (!fs.existsSync(path.resolve(__dirname, lang))) {
+    fs.mkdirSync(path.resolve(__dirname, lang), { recursive: true });
+  }
+
+  htmlPages.forEach(page => {
+    // 각 언어별 템플릿이 있는지 확인
+    const langTemplateExists = fs.existsSync(path.resolve(__dirname, `${lang}/${page}.html`));
+    const templatePath = langTemplateExists ? `./${lang}/${page}.html` : `./${page}.html`;
+    
+    htmlPlugins.push(
+      new HtmlWebpackPlugin({
+        template: templatePath, // 언어별 템플릿이 없으면 기본 템플릿 사용
+        filename: `${lang}/${page}.html`,
+        chunks: ['app-core', 'vendors', page, 'template-utils'],
+        minify: {
+          collapseWhitespace: true,
+          removeComments: true,
+          removeRedundantAttributes: true,
+          removeScriptTypeAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          useShortDoctype: true
+        },
+        templateParameters: {
+          lang: lang,
+          currentLang: lang
+        }
+      })
+    );
+  });
+});
 
 module.exports = {
   mode: 'production',
@@ -115,44 +172,15 @@ module.exports = {
           from: 'CNAME',
           to: 'CNAME',
           noErrorOnMissing: true
+        },
+        {
+          from: 'components/partials',
+          to: 'components/partials',
+          noErrorOnMissing: true
         }
       ]
     }),
-    // 기본 언어 (한국어 - ko) HTML 파일 생성
-    ...htmlPages.map(page => {
-      return new HtmlWebpackPlugin({
-        template: `./${page}.html`,
-        filename: `${page}.html`,
-        chunks: ['app-core', 'vendors', page, 'template-utils'],
-        minify: {
-          collapseWhitespace: true,
-          removeComments: true,
-          removeRedundantAttributes: true,
-          removeScriptTypeAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          useShortDoctype: true
-        }
-      });
-    }),
-    
-    // 다른 언어 HTML 파일 생성 (en, zh, ja)
-    ...languages.flatMap(lang => {
-      return htmlPages.map(page => {
-        return new HtmlWebpackPlugin({
-          template: `./${lang}/${page}.html`,
-          filename: `${lang}/${page}.html`,
-          chunks: ['app-core', 'vendors', page, 'template-utils'],
-          minify: {
-            collapseWhitespace: true,
-            removeComments: true,
-            removeRedundantAttributes: true,
-            removeScriptTypeAttributes: true,
-            removeStyleLinkTypeAttributes: true,
-            useShortDoctype: true
-          }
-        });
-      });
-    })
+    ...htmlPlugins
   ],
   devServer: {
     static: {
