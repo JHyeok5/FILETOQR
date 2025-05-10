@@ -203,34 +203,57 @@ const TemplateUtils = {
    */
   async loadCommonPartials() {
     if (!Handlebars) {
-      console.warn('Handlebars가 로드되지 않았습니다. 파티셜 로드를 건너뜁니다.');
-      return Promise.resolve();
+      console.error('Handlebars가 로드되지 않았습니다.');
+      return Promise.reject(new Error('Handlebars is not loaded'));
     }
     
     try {
-      // 공통 파티셜 목록
-      const commonPartials = [
-        { name: 'header', path: 'components/header.html' },
-        { name: 'footer', path: 'components/footer.html' },
-        { name: 'language-selector', path: 'components/language-selector.html' }
-      ];
+      console.log('공통 파티셜 로드 중...');
       
-      // 모든 파티셜 로드 (Promise.all 사용하여 병렬 로드)
-      await Promise.all(commonPartials.map(async ({ name, path }) => {
-        try {
-          const template = await this.loadTemplate(path);
-          Handlebars.registerPartial(name, template);
-          console.log(`파티셜 등록 완료: ${name}`);
-        } catch (error) {
-          console.warn(`파티셜 로드 실패 (${name}): ${error.message}`);
-        }
-      }));
+      // 공통 컴포넌트 파티셜 로드
+      const partials = {
+        'header': 'components/header',
+        'footer': 'components/footer',
+        'loading': 'components/loading',
+        'language-selector': 'components/language-selector'
+      };
       
-      console.log('공통 파티셜 로드 완료');
+      const loadPromises = [];
       
+      for (const [name, path] of Object.entries(partials)) {
+        loadPromises.push(
+          this.loadTemplate(path)
+            .then(template => {
+              this.registerPartial(name, template);
+              console.log(`파티셜 로드 완료: ${name}`);
+            })
+            .catch(error => {
+              console.warn(`파티셜 로드 실패: ${name}`, error);
+              // 실패해도 진행 - 빈 템플릿으로 등록
+              this.registerPartial(name, '<!-- 파티셜 로드 실패: ' + name + ' -->');
+            })
+        );
+      }
+      
+      await Promise.all(loadPromises);
+      
+      // 로딩 인디케이터 제거
+      const loadingElement = document.getElementById('loading-indicator');
+      if (loadingElement) {
+        // 페이드 아웃 애니메이션 적용
+        loadingElement.classList.add('fade-out');
+        // 애니메이션 완료 후 제거
+        setTimeout(() => {
+          if (loadingElement.parentNode) {
+            loadingElement.parentNode.removeChild(loadingElement);
+          }
+        }, 500); // 0.5초 후 제거
+      }
+      
+      console.log('모든 공통 파티셜 로드 완료');
       return Promise.resolve();
     } catch (error) {
-      console.error('공통 파티셜 로드 실패:', error);
+      console.error('공통 파티셜 로드 중 오류:', error);
       return Promise.reject(error);
     }
   },
@@ -452,10 +475,8 @@ const TemplateUtils = {
   }
 };
 
-// 글로벌 네임스페이스에 등록
-if (typeof window !== 'undefined') {
-  window.FileToQR = window.FileToQR || {};
-  window.FileToQR.TemplateUtils = TemplateUtils;
-}
+// 템플릿 유틸리티를 전역 객체에 등록
+window.FileToQR = window.FileToQR || {};
+window.FileToQR.TemplateUtils = TemplateUtils;
 
 export default TemplateUtils; 
