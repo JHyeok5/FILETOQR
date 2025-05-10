@@ -1,7 +1,7 @@
 /**
  * file-utils.js - FileToQR 파일 유틸리티 모듈
- * 버전: 1.1.0
- * 최종 업데이트: 2025-06-25
+ * 버전: 1.2.0
+ * 최종 업데이트: 2025-08-01
  *
  * 이 모듈은 파일 관련 공통 유틸리티 함수들을 제공합니다:
  * - 파일 확장자 추출
@@ -10,10 +10,7 @@
  * - 데이터 URI 변환
  */
 
-// 비공개 헬퍼 함수들
-function isValidFileName(filename) {
-  return typeof filename === 'string' && filename.length > 0;
-}
+import CommonUtils from './common-utils.js';
 
 // 파일 유틸리티 모듈 API 정의
 const FileUtils = {
@@ -23,7 +20,7 @@ const FileUtils = {
    * @returns {string} 소문자 확장자 (점 제외)
    */
   getFileExtension(filename) {
-    if (!isValidFileName(filename)) return '';
+    if (!CommonUtils.validation.isValidFileName(filename)) return '';
     return filename.split('.').pop().toLowerCase();
   },
 
@@ -153,6 +150,31 @@ const FileUtils = {
   getMimeTypeFromDataUri(dataUri) {
     const match = dataUri.match(/^data:([^;]+);/);
     return match ? match[1] : 'application/octet-stream';
+  },
+  
+  /**
+   * 파일 크기 검증
+   * @param {File} file - 파일 객체
+   * @param {number} maxSize - 최대 허용 크기 (바이트)
+   * @returns {boolean} 유효성 여부
+   */
+  validateFileSize(file, maxSize) {
+    return CommonUtils.validation.isValidFileSize(file.size, maxSize);
+  },
+  
+  /**
+   * 파일 형식 검증
+   * @param {File} file - 파일 객체
+   * @param {Array<string>} allowedFormats - 허용된 파일 형식 배열 (확장자)
+   * @returns {boolean} 유효성 여부
+   */
+  validateFileType(file, allowedFormats) {
+    if (!file || !allowedFormats || !Array.isArray(allowedFormats)) {
+      return false;
+    }
+    
+    const extension = this.getFileExtension(file.name);
+    return allowedFormats.includes(extension);
   }
 };
 
