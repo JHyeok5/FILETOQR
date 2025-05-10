@@ -1,0 +1,24 @@
+{{!-- language-selector.hbs - 언어 선택 드롭다운 파티셜 --}}
+<div class="language-selector dropdown">
+  <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="{{t 'common.language.change'}}">
+    <span class="lang-flag-icon {{currentLang}}-flag" aria-hidden="true"></span>
+    <span class="lang-label">{{t (concat 'common.language.' currentLang)}}</span>
+    <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+  
+  <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
+    <div class="lang-dropdown-header">
+      <span>{{t 'common.language.select'}}</span>
+    </div>
+    <div class="lang-dropdown-list">
+      {{#each languages}}
+        <a href="{{this.url}}" class="lang-option {{#if this.active}}active{{/if}}" data-lang="{{this.code}}" role="menuitem" aria-label="{{this.name}}" aria-current="{{this.active}}">
+          <span class="lang-flag-icon {{this.code}}-flag" aria-hidden="true"></span>
+          <span class="lang-name">{{this.name}}</span>
+        </a>
+      {{/each}}
+    </div>
+  </div>
+</div> 
