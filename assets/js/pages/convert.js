@@ -24,6 +24,9 @@ setTimeout(() => {
   console.log('- 결과 컨테이너:', document.getElementById('conversion-output') ? '존재' : '없음');
 }, 1000);
 
+// 필요한 모듈 임포트
+import ConverterCore from '../core/converter-core.js';
+
 // 전역 객체에 컨트롤러 등록
 window.FileToQR = window.FileToQR || {};
 
@@ -451,15 +454,31 @@ const ConvertPageController = {
    */
   async _processConversion(file, outputFormat, options) {
     try {
-      // FileConverter 모듈에서 변환 함수 호출
-      const result = await FileConverter._convertImage(file, outputFormat);
+      // 변환 진행 상태 업데이트를 위한 콜백 함수
+      const progressCallback = (progressData) => {
+        // 진행 상태 UI 업데이트
+        console.log('변환 진행 상태:', progressData);
+        
+        if (progressData.stage === 'error') {
+          this._updateConversionUI('error', {
+            error: progressData.message
+          });
+        }
+      };
       
-      if (result && result.url) {
+      // ConverterCore 모듈을 사용하여 파일 변환
+      const result = await ConverterCore.convertFile(file, outputFormat, options, progressCallback);
+      
+      if (result && result.blob) {
+        // Blob URL 생성
+        const url = URL.createObjectURL(result.blob);
+        const fileName = result.metadata.outputFileName;
+        
         // 변환 성공 처리
         this.state.conversionInProgress = false;
         this._updateConversionUI('success', {
-          downloadUrl: result.url,
-          fileName: result.fileName
+          downloadUrl: url,
+          fileName: fileName
         });
       } else {
         throw new Error('변환 결과가 올바르지 않습니다.');
