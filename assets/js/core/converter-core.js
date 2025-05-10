@@ -1,7 +1,7 @@
 /**
  * converter-core.js - FileToQR 파일 변환 핵심 모듈
- * 버전: 1.0.0
- * 최종 업데이트: 2025-06-15
+ * 버전: 1.2.0
+ * 최종 업데이트: 2025-08-01
  * 참조: ../../docs/architecture/converter-system.md
  * 
  * 이 모듈은 파일 변환 기능의 핵심 로직을 제공합니다:
@@ -11,6 +11,7 @@
  */
 
 import FileUtils from '../utils/file-utils.js';
+import CommonUtils from '../utils/common-utils.js';
 
 // 컨버터 코어 모듈 정의
 const ConverterCore = {
@@ -54,6 +55,47 @@ const ConverterCore = {
         'wav': ['mp3', 'ogg'],
         'ogg': ['mp3', 'wav']
       }
+    }
+  },
+
+  /**
+   * 새로운 통합 변환 인터페이스 - 프론트엔드 UI에서 사용
+   * @param {File} file - 원본 파일 객체
+   * @param {string} outputFormat - 변환할 형식 (확장자)
+   * @param {Object} options - 변환 옵션
+   * @param {Function} progressCallback - 진행 상황 콜백 함수
+   * @returns {Promise<Object>} 변환 결과 객체 (url, filename, size, mimeType)
+   */
+  async convert(file, outputFormat, options = {}, progressCallback = () => {}) {
+    try {
+      // 진행상황 업데이트 시작
+      progressCallback({ progress: 0 });
+      
+      // 기존 convertFile 함수 호출
+      const result = await this.convertFile(file, outputFormat, options, (data) => {
+        // 기존 콜백 포맷에서 새 포맷으로 변환
+        if (data.stage === 'start') {
+          progressCallback({ progress: 0 });
+        } else if (data.stage === 'processing') {
+          progressCallback({ progress: data.progress });
+        } else if (data.stage === 'complete') {
+          progressCallback({ progress: 100 });
+        }
+      });
+      
+      // Blob URL 생성
+      const url = URL.createObjectURL(result.blob);
+      
+      // 결과 리턴 포맷 변경
+      return {
+        url: url,
+        filename: result.metadata.outputFileName,
+        size: result.blob.size,
+        mimeType: result.blob.type
+      };
+    } catch (error) {
+      console.error('변환 실패:', error);
+      throw error;
     }
   },
 
