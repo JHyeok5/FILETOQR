@@ -51,8 +51,6 @@ htmlPages.forEach(page => {
         collapseWhitespace: true,
         removeComments: true,
         removeRedundantAttributes: true,
-        removeScriptTypeAttributes: true,
-        removeStyleLinkTypeAttributes: true,
         useShortDoctype: true
       }
     })
@@ -90,8 +88,6 @@ languages.forEach(lang => {
           collapseWhitespace: true,
           removeComments: true,
           removeRedundantAttributes: true,
-          removeScriptTypeAttributes: true,
-          removeStyleLinkTypeAttributes: true,
           useShortDoctype: true
         },
         templateParameters: {
