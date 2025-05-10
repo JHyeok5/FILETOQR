@@ -9,6 +9,7 @@
     
     <!-- CSS 스타일시트 -->
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/rtl.css">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,77 +17,69 @@
     <!-- 파비콘 -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     
-    <!-- 초기 로딩 스타일 (JS 로딩 전에 적용) -->
-    <style>
-        /* Minimal styling for the loading state */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f7fafc;
-        }
-        
-        .loading-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top-color: #4299e1;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        
-        .loading-text {
-            font-size: 16px;
-            color: #4a5568;
-        }
-        
-        .loading-container p {
-            max-width: 80%;
-            text-align: center;
-            color: #718096;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-    </style>
+    <!-- hreflang 태그 -->
+    <link rel="alternate" hreflang="ko" href="index.html">
+    <link rel="alternate" hreflang="en" href="en/index.html">
+    <link rel="alternate" hreflang="zh" href="zh/index.html">
+    <link rel="alternate" hreflang="ja" href="ja/index.html">
+    <link rel="alternate" hreflang="x-default" href="index.html">
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-    <!-- 로딩 표시기 -->
-    <div class="loading-container">
-        <div class="spinner"></div>
-        <div class="loading-text">Loading...</div>
-        <p>If the page doesn't load within a few seconds, please try refreshing.</p>
-    </div>
-
-    <!-- 헤더 컴포넌트 -->
-    <div id="header-container">
-        <nav>
-            <div class="logo">
-                <a href="index.html">FileToQR</a>
+    <!-- 헤더 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="flex items-center">
+                    <img src="assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
+                    <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                </a>
+                <nav class="flex items-center">
+                    <ul class="flex space-x-6">
+                        <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                        <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                        <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                        <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium">타이머</a></li>
+                        <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                    </ul>
+                    
+                    <!-- 언어 선택 드롭다운 -->
+                    <div class="language-selector dropdown">
+                      <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경">
+                        <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                        <span class="lang-label">한국어</span>
+                        <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </button>
+                      
+                      <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
+                        <div class="lang-dropdown-header">
+                          <span>언어 선택</span>
+                        </div>
+                        <div class="lang-dropdown-list">
+                          <a href="index.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                            <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                            <span class="lang-name">한국어</span>
+                          </a>
+                          <a href="en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
+                            <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+                            <span class="lang-name">영어</span>
+                          </a>
+                          <a href="zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
+                            <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+                            <span class="lang-name">중국어</span>
+                          </a>
+                          <a href="ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
+                            <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+                            <span class="lang-name">일본어</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                </nav>
             </div>
-            <ul class="nav-links">
-                <li><a href="index.html" class="active">홈</a></li>
-                <li><a href="convert.html">파일 변환</a></li>
-                <li><a href="qrcode.html">QR 코드</a></li>
-                <li><a href="timer.html">타이머</a></li>
-                <li><a href="help.html">도움말</a></li>
-            </ul>
-        </nav>
-    </div>
+        </div>
+    </header>
 
     <!-- 헤더 배너 광고 -->
     <div id="ad-header" class="ad-container my-4 text-center">
@@ -167,8 +160,260 @@
         </section>
     </main>
 
-    <!-- 푸터 컴포넌트 -->
-    <div id="footer-container"></div>
+    <!-- 푸터 -->
+    <footer class="bg-gray-100 mt-12">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">FileToQR</h3>
+                    <p class="text-gray-600 mb-4">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">바로가기</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
+                        <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
+                        <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드</a></li>
+                        <li><a href="timer.html" class="text-gray-600 hover:text-blue-600">타이머</a></li>
+                        <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">법적 정보</h3>
+                    <ul class="space-y-2">
+                        <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
+                        <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                <p>© 2025 FileToQR. 모든 권리 보유.</p>
+                <p class="mt-1">최종 업데이트: 2025년 5월 2일</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 언어 선택기 스타일 -->
+    <style>
+      /* 언어 선택기 스타일 */
+      .language-selector {
+        position: relative;
+        display: inline-block;
+        margin-left: 1rem;
+      }
+      
+      [dir="rtl"] .language-selector {
+        margin-left: 0;
+        margin-right: 1rem;
+      }
+      
+      .lang-dropdown-btn {
+        display: flex;
+        align-items: center;
+        background-color: transparent;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        color: #4a5568;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .lang-dropdown-btn:hover {
+        background-color: #f7fafc;
+      }
+      
+      .lang-dropdown-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+      }
+      
+      .lang-flag-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        background-size: cover;
+        background-position: center;
+      }
+      
+      [dir="rtl"] .lang-flag-icon {
+        margin-right: 0;
+        margin-left: 0.5rem;
+      }
+      
+      .ko-flag {
+        background-image: url('assets/images/flags/ko.svg');
+      }
+      
+      .en-flag {
+        background-image: url('assets/images/flags/en.svg');
+      }
+      
+      .zh-flag {
+        background-image: url('assets/images/flags/zh.svg');
+      }
+      
+      .ja-flag {
+        background-image: url('assets/images/flags/ja.svg');
+      }
+      
+      .lang-label {
+        margin-right: 0.5rem;
+      }
+      
+      [dir="rtl"] .lang-label {
+        margin-right: 0;
+        margin-left: 0.5rem;
+      }
+      
+      .lang-dropdown-arrow {
+        margin-left: auto;
+        transition: transform 0.2s;
+      }
+      
+      [dir="rtl"] .lang-dropdown-arrow {
+        margin-left: 0;
+        margin-right: auto;
+      }
+      
+      .language-selector.open .lang-dropdown-arrow {
+        transform: rotate(180deg);
+      }
+      
+      .lang-dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        min-width: 10rem;
+        background-color: white;
+        border-radius: 0.375rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 1000;
+        margin-top: 0.25rem;
+        overflow: hidden;
+      }
+      
+      [dir="rtl"] .lang-dropdown-content {
+        right: auto;
+        left: 0;
+        text-align: right;
+      }
+      
+      .language-selector.open .lang-dropdown-content {
+        display: block;
+      }
+      
+      .lang-dropdown-header {
+        padding: 0.75rem 1rem;
+        font-size: 0.75rem;
+        color: #718096;
+        background-color: #f7fafc;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      
+      .lang-dropdown-list {
+        max-height: 15rem;
+        overflow-y: auto;
+      }
+      
+      .lang-option {
+        display: flex;
+        align-items: center;
+        padding: 0.625rem 1rem;
+        cursor: pointer;
+        color: #4a5568;
+        text-decoration: none;
+        transition: background-color 0.2s;
+      }
+      
+      .lang-option:hover {
+        background-color: #f7fafc;
+      }
+      
+      .lang-option.active {
+        background-color: #ebf8ff;
+        color: #3182ce;
+      }
+      
+      .lang-name {
+        margin-left: 0.5rem;
+      }
+      
+      [dir="rtl"] .lang-name {
+        margin-left: 0;
+        margin-right: 0.5rem;
+      }
+      
+      /* 모바일 대응 */
+      @media (max-width: 640px) {
+        .lang-dropdown-btn {
+          padding: 0.375rem 0.5rem;
+        }
+        
+        .lang-label {
+          display: none;
+        }
+        
+        .lang-dropdown-content {
+          right: -2rem;
+        }
+        
+        [dir="rtl"] .lang-dropdown-content {
+          right: auto;
+          left: -2rem;
+        }
+      }
+    </style>
+
+    <!-- 언어 선택기 스크립트 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const langSelector = document.querySelector('.language-selector');
+        const langToggle = document.getElementById('lang-selector-toggle');
+        const langDropdown = document.getElementById('lang-dropdown-menu');
+        const langOptions = document.querySelectorAll('.lang-option');
+        
+        // 드롭다운 토글
+        if (langToggle) {
+          langToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            langSelector.classList.toggle('open');
+            
+            // WAI-ARIA 지원
+            const expanded = langSelector.classList.contains('open');
+            langToggle.setAttribute('aria-expanded', expanded);
+            
+            if (expanded) {
+              // 첫 번째 항목에 포커스
+              const firstOption = langDropdown.querySelector('.lang-option');
+              if (firstOption) {
+                firstOption.focus();
+              }
+            }
+          });
+        }
+        
+        // 외부 클릭 시 드롭다운 닫기
+        document.addEventListener('click', function(e) {
+          if (!langSelector.contains(e.target)) {
+            langSelector.classList.remove('open');
+            if (langToggle) {
+              langToggle.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+        
+        // 초기 WAI-ARIA 상태 설정
+        if (langToggle) {
+          langToggle.setAttribute('aria-expanded', 'false');
+          langToggle.setAttribute('aria-haspopup', 'true');
+        }
+      });
+    </script>
 
     <!-- 코어 스크립트 -->
     <script src="assets/js/core/app-core.js" type="module"></script>
