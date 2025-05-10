@@ -23,6 +23,16 @@
     "loading": "Loading...",
     "error": "An error occurred"
   },
+  "urls": {
+    "home": "/en/index.html",
+    "convert": "/en/convert.html",
+    "qrcode": "/en/qrcode.html", 
+    "timer": "/en/timer.html",
+    "help": "/en/help.html",
+    "contact": "/en/contact.html",
+    "privacy": "/en/privacy.html",
+    "terms": "/en/terms.html"
+  },
   "meta": {
     "description": "File conversion and QR code generation platform. Convert images, documents, audio and more, and create customized QR codes.",
     "keywords": "file conversion, QR code, image conversion, document conversion, online conversion, free conversion, PNG, JPG, PDF"
