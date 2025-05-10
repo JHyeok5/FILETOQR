@@ -1,7 +1,7 @@
 /**
  * app-core.js - FileToQR 애플리케이션 코어 모듈
- * 버전: 1.1.0
- * 최종 업데이트: 2025-07-15
+ * 버전: 1.2.0
+ * 최종 업데이트: 2025-07-26
  * 참조: ../../docs/architecture/module-registry.md
  * 
  * 이 모듈은 애플리케이션의 핵심 기능을 관리합니다:
@@ -13,32 +13,30 @@
  * - 버전 관리
  * - 페이지별 초기화
  * - 다국어 지원
+ * 
+ * 참고: 이 모듈과 main.js의 역할 구분
+ * - app-core.js: 애플리케이션의 핵심 구성 요소, 공통 유틸리티 및 모듈 정의
+ * - main.js: 특정 페이지 로직과 컴포넌트의 초기화를 처리합니다.
+ * 
+ * 두 모듈 모두 유지하는 이유는 다음과 같습니다:
+ * 1. app-core.js는 구성 및 유틸리티에 집중하며 전체 애플리케이션에서 공유됩니다.
+ * 2. main.js는 페이지별 특정 로직과 컴포넌트 초기화를 처리합니다.
+ * 3. 이러한 분리는 단일 책임 원칙을 지키며 유지보수성을 높입니다.
  */
 
 // 디버깅을 위한 로그 추가
 console.log('app-core.js 로딩 시작');
 
+// 필요한 모듈 임포트
+import Config from './config.js';
+import UrlUtils from '../utils/url-utils.js';
+import I18n from '../utils/i18n-utils.js';
+
 // 글로벌 네임스페이스 설정
 window.FileToQR = window.FileToQR || {};
 
 // 애플리케이션 버전
-const APP_VERSION = '2.0.0';
-
-// 애플리케이션 설정 및 상수
-const CONFIG = {
-  linkStandardization: {
-    includeExtension: true
-  },
-  routes: {
-    home: '/index.html',
-    convert: '/convert.html',
-    qrcode: '/qrcode.html',
-    privacy: '/privacy.html',
-    terms: '/terms.html',
-    help: '/help.html'
-  },
-  supportedLanguages: ['ko', 'en', 'zh', 'ja']
-};
+const APP_VERSION = Config.APP_VERSION;
 
 /**
  * 현재 페이지 식별자 반환
@@ -46,47 +44,7 @@ const CONFIG = {
  */
 function getCurrentPage() {
   try {
-    // 페이지 경로를 가져와서 분석
-    const path = window.location.pathname;
-    
-    // 언어 코드 제거 (예: /en/index.html -> /index.html)
-    let pathWithoutLang = path;
-    const pathParts = path.split('/').filter(part => part);
-    
-    if (pathParts.length > 0 && CONFIG.supportedLanguages.includes(pathParts[0])) {
-      // 언어 코드를 제외한 경로 재구성
-      pathWithoutLang = '/' + pathParts.slice(1).join('/');
-    }
-    
-    // 루트 페이지 확인
-    if (pathWithoutLang === '/' || pathWithoutLang.endsWith('/index.html')) return 'home';
-    
-    // 변환 페이지 확인
-    if (pathWithoutLang.endsWith('/convert.html')) return 'convert';
-    
-    // QR 코드 페이지 확인
-    if (pathWithoutLang.endsWith('/qrcode.html')) return 'qrcode';
-    
-    // 도움말 페이지 확인
-    if (pathWithoutLang.endsWith('/help.html')) return 'help';
-    
-    // 개인정보 처리방침 페이지 확인
-    if (pathWithoutLang.endsWith('/privacy.html')) return 'privacy';
-    
-    // 이용약관 페이지 확인
-    if (pathWithoutLang.endsWith('/terms.html')) return 'terms';
-    
-    // 타이머 페이지 확인
-    if (pathWithoutLang.endsWith('/timer.html')) return 'timer';
-    
-    // 문의하기 페이지 확인
-    if (pathWithoutLang.endsWith('/contact.html')) return 'contact';
-    
-    // 페이지 식별자를 파일명에서 추출
-    const lastSegment = pathWithoutLang.split('/').pop() || '';
-    const pageId = lastSegment.replace('.html', '');
-    
-    return pageId || 'unknown';
+    return UrlUtils.getPageIdFromUrl() || 'unknown';
   } catch (error) {
     console.error('현재 페이지 확인 중 오류 발생:', error);
     return 'unknown';
@@ -116,17 +74,7 @@ function navigateTo(url, newTab = false) {
  * @returns {string} 기본 경로
  */
 function getBasePath() {
-  // 현재 URL 경로 분석
-  const currentPath = window.location.pathname;
-  const pathParts = currentPath.split('/').filter(part => part);
-  
-  // 언어 코드가 포함된 경우 상위 디렉토리로 이동
-  if (pathParts.length > 0 && CONFIG.supportedLanguages.includes(pathParts[0])) {
-    return '../';
-  }
-  
-  // 기본값은 상대 경로 './'
-  return './';
+  return UrlUtils.getBasePath();
 }
 
 /**
@@ -140,7 +88,21 @@ async function init() {
     // 1. 로딩 인디케이터 표시
     showLoadingIndicator();
     
-    // 2. 템플릿 유틸리티 초기화 (필요한 경우)
+    // 2. 유틸리티 모듈 초기화 (순서 중요)
+    console.log('기본 유틸리티 모듈 초기화 시작');
+    
+    // a. URL 유틸리티 초기화
+    console.log('URL 유틸리티 초기화');
+    // URL 유틸리티는 자체 초기화 함수가 없으므로 넘어감
+    
+    // b. 다국어 지원 초기화
+    console.log('다국어 지원 초기화');
+    await I18n.init({
+      useSavedLang: true,
+      detectBrowserLang: true
+    });
+    
+    // 3. 템플릿 유틸리티 초기화 (필요한 경우)
     try {
       // 템플릿 유틸리티가 로드되었는지 확인
       if (typeof window.FileToQR.TemplateUtils !== 'undefined') {
@@ -172,14 +134,20 @@ async function init() {
       // 계속 진행 - 템플릿 없이도 기본 기능은 작동할 수 있도록
     }
     
-    // 3. 페이지별 초기화
+    // 4. 페이지별 초기화
     await initCurrentPage();
     
-    // 4. 로딩 인디케이터 숨기기 - 즉시 호출로 수정
+    // 5. 페이지 내 링크 업데이트
+    updateInternalLinks();
+    
+    // 6. 언어 선택기 설정
+    setupLanguageSelector();
+    
+    // 7. 로딩 인디케이터 숨기기
     console.log('초기화 완료 - 로딩 인디케이터 숨김');
     hideLoadingIndicator();
     
-    // 5. 초기화 완료 후 추가 작업 실행
+    // 8. 초기화 완료 후 추가 작업 실행
     onAppInitialized();
     
     console.log('애플리케이션 초기화 완료');
@@ -515,197 +483,125 @@ function processTemplates() {
  * @returns {string} 언어 코드
  */
 function getCurrentLanguage() {
-  // URL에서 언어 코드 추출
-  const path = window.location.pathname;
-  const pathParts = path.split('/').filter(part => part);
-  
-  // 첫 번째 경로 세그먼트가 지원 언어인지 확인
-  if (pathParts.length > 0 && CONFIG.supportedLanguages.includes(pathParts[0])) {
-    return pathParts[0];
-  }
-  
-  // 브라우저 언어 가져오기
-  const browserLang = navigator.language || navigator.userLanguage;
-  const langCode = browserLang ? browserLang.split('-')[0] : 'ko';
-  
-  // 지원 언어 확인
-  return CONFIG.supportedLanguages.includes(langCode) ? langCode : 'ko';
+  return I18n.getCurrentLang();
 }
 
 /**
- * 모든 내부 링크를 현재 언어에 맞게 업데이트
- * i18n URL 처리 및 언어 경로 추가
+ * 페이지 내 모든 내부 링크 업데이트
  */
 function updateInternalLinks() {
-  try {
-    console.log('내부 링크 업데이트 시작');
+  // 모든 앵커 태그 가져오기
+  const links = document.querySelectorAll('a');
+  
+  for (const link of links) {
+    const href = link.getAttribute('href');
     
-    // URL 유틸리티 확인
-    const urlUtils = window.FileToQR && window.FileToQR.utils && window.FileToQR.utils.url;
-    if (!urlUtils) {
-      console.warn('URL 유틸리티를 찾을 수 없어 내부 링크 업데이트를 건너뜁니다.');
-      return;
+    // href 속성이 없거나 외부 링크, 앵커 링크, 자바스크립트 링크인 경우 건너뛰기
+    if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+      continue;
     }
     
-    // i18n 모듈 확인
-    const i18n = window.FileToQR && window.FileToQR.i18n;
-    if (!i18n) {
-      console.warn('i18n 모듈을 찾을 수 없어 내부 링크 업데이트를 건너뜁니다.');
-      return;
+    // 특수 data-i18n-url 속성이 있는 경우 (다국어 URL)
+    if (link.hasAttribute('data-i18n-url')) {
+      const urlKey = link.getAttribute('data-i18n-url');
+      const newHref = I18n.getUrlFromKey(urlKey);
+      
+      if (newHref) {
+        link.setAttribute('href', newHref);
+      }
+      
+      continue;
     }
     
-    // 현재 언어 및 기본 언어 가져오기
-    const currentLang = i18n.getCurrentLang();
-    const defaultLang = i18n.getDefaultLang();
-    const supportedLangs = i18n.getSupportedLangs();
-    
-    console.log(`현재 언어: ${currentLang}, 기본 언어: ${defaultLang}`);
-    
-    // 알려진 내부 페이지 목록
-    const internalPages = [
-      { key: 'urls.home', path: 'index.html' },
-      { key: 'urls.convert', path: 'convert.html' },
-      { key: 'urls.qrcode', path: 'qrcode.html' },
-      { key: 'urls.timer', path: 'timer.html' },
-      { key: 'urls.help', path: 'help.html' },
-      { key: 'urls.contact', path: 'contact.html' },
-      { key: 'urls.privacy', path: 'privacy.html' },
-      { key: 'urls.terms', path: 'terms.html' }
-    ];
-    
-    // 모든 링크 요소 가져오기
-    const links = document.querySelectorAll('a');
-    
-    // 각 링크 처리
-    links.forEach(link => {
-      const href = link.getAttribute('href');
-      if (!href) return;
+    // 일반 내부 링크인 경우, 현재 언어 설정에 맞게 URL 업데이트
+    if (!UrlUtils.isExternalUrl(href)) {
+      const currentLang = I18n.getCurrentLang();
+      const defaultLang = Config.LANGUAGE_CONFIG.defaultLanguage;
       
-      // 외부 링크는 건너뛰기
-      if (href.startsWith('http://') || href.startsWith('https://') || 
-          href.startsWith('mailto:') || href.startsWith('tel:') || 
-          href.startsWith('#')) {
-        return;
+      // 기본 언어가 아닌 경우에만 변경
+      if (currentLang !== defaultLang) {
+        try {
+          const newHref = UrlUtils.getI18nUrl(href, currentLang);
+          link.setAttribute('href', newHref);
+        } catch (error) {
+          console.warn(`링크 ${href} 처리 실패:`, error);
+        }
       }
-      
-      // 내부 경로인지 확인
-      const pageName = href.endsWith('.html') ? 
-        href.substring(0, href.length - 5) : href;
-      
-      // 기존 페이지 이름과 일치하는지 확인
-      const matchedPage = internalPages.find(page => {
-        return pageName === page.path.replace('.html', '') || 
-               href === page.path;
-      });
-      
-      if (matchedPage) {
-        // i18n URL 키를 사용하여 현재 언어에 맞는 URL 생성
-        const localizedUrl = urlUtils.getNavUrl(matchedPage.key);
-        console.log(`링크 업데이트: ${href} → ${localizedUrl}`);
-        link.setAttribute('href', localizedUrl);
-      } else {
-        // 알려진 내부 페이지가 아닌 경우, 직접 현재 언어 경로 추가
-        const newUrl = urlUtils.getI18nUrl(href, currentLang);
-        console.log(`직접 경로 추가: ${href} → ${newUrl}`);
-        link.setAttribute('href', newUrl);
-      }
-    });
-    
-    console.log('내부 링크 업데이트 완료');
-  } catch (error) {
-    console.error('내부 링크 업데이트 중 오류 발생:', error);
+    }
   }
 }
 
 /**
- * 애플리케이션 초기화가 완료된 후 추가 설정 및 초기화 작업 수행
- */
-function onAppInitialized() {
-  try {
-    console.log('애플리케이션 초기화 후 추가 작업 시작');
-    
-    // 1. 내부 링크 업데이트
-    updateInternalLinks();
-    
-    // 2. 언어 선택기 이벤트 핸들러 업데이트
-    setupLanguageSelector();
-    
-    // 3. 기타 필요한 초기화 작업...
-    
-    console.log('추가 초기화 작업 완료');
-  } catch (error) {
-    console.error('추가 초기화 작업 중 오류 발생:', error);
-  }
-}
-
-/**
- * 언어 선택기 이벤트 핸들러 설정
+ * 언어 선택기 설정
  */
 function setupLanguageSelector() {
-  try {
-    const langLinks = document.querySelectorAll('.lang-option');
-    if (langLinks.length === 0) {
-      console.log('언어 선택기 요소를 찾을 수 없습니다.');
-      return;
+  const langSelector = document.getElementById('lang-selector-toggle');
+  const langDropdown = document.getElementById('lang-dropdown-menu');
+  
+  if (!langSelector || !langDropdown) {
+    console.warn('언어 선택기 요소를 찾을 수 없습니다');
+    return;
+  }
+  
+  // 언어 선택기 클릭 시 드롭다운 토글
+  langSelector.addEventListener('click', (event) => {
+    event.preventDefault();
+    langDropdown.classList.toggle('show');
+  });
+  
+  // 다른 곳 클릭 시 드롭다운 닫기
+  document.addEventListener('click', (event) => {
+    if (!langSelector.contains(event.target) && !langDropdown.contains(event.target)) {
+      langDropdown.classList.remove('show');
     }
-    
-    console.log(`${langLinks.length}개의 언어 선택 링크 발견`);
-    
-    // i18n 모듈 확인
-    const i18n = window.FileToQR && window.FileToQR.i18n;
-    if (!i18n) {
-      console.warn('i18n 모듈을 찾을 수 없어 언어 선택기 설정을 건너뜁니다.');
-      return;
-    }
-    
-    // 각 언어 링크에 이벤트 핸들러 추가
-    langLinks.forEach(link => {
-      // 기본 이벤트 방지 및 커스텀 처리를 위해 클릭 이벤트 재설정
-      link.addEventListener('click', function(event) {
-        event.preventDefault();
-        
-        const lang = this.getAttribute('data-lang');
-        if (lang) {
-          console.log(`언어 선택: ${lang}`);
-          
-          // i18n 모듈을 통해 언어 변경 처리
-          i18n.navigateToLanguage(lang);
-        }
-      });
+  });
+  
+  // 언어 옵션 클릭 시 언어 변경
+  const langOptions = document.querySelectorAll('.lang-option');
+  langOptions.forEach(option => {
+    option.addEventListener('click', (event) => {
+      event.preventDefault();
+      
+      const lang = option.getAttribute('data-lang');
+      I18n.navigateToLanguage(lang);
     });
-    
-    console.log('언어 선택기 설정 완료');
-  } catch (error) {
-    console.error('언어 선택기 설정 중 오류 발생:', error);
-  }
+  });
 }
 
-// 자동 초기화
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-    console.log('DOMContentLoaded 이벤트 핸들러 등록 완료');
-  } else {
-    // 문서가 이미 로드된 경우 즉시 초기화
-    console.log('문서가 이미 로드됨 - 초기화 즉시 실행');
-    setTimeout(init, 0);
-  }
+/**
+ * 애플리케이션 초기화 이후 추가 작업
+ */
+function onAppInitialized() {
+  // 언어 변경 이벤트 리스너 추가
+  window.addEventListener('languageChanged', (event) => {
+    const lang = event.detail.language;
+    updateInternalLinks();
+    console.log(`언어 변경 감지: ${lang}`);
+  });
+  
+  // 기타 전역 이벤트 리스너 설정
+  // ...
 }
 
-// 글로벌 네임스페이스에 등록
-window.FileToQR.appCore = {
+// 전역 객체에 등록
+window.FileToQR.app = {
   init,
   getCurrentPage,
   navigateTo,
-  getConfig: () => CONFIG,
   getBasePath,
-  showLoadingIndicator,
-  hideLoadingIndicator
+  getCurrentLanguage
 };
-window.FileToQR.initApp = init;
-window.FileToQR.getBasePath = getBasePath;
-window.FileToQR.getCurrentPage = getCurrentPage;
-window.FileToQR.navigateTo = navigateTo;
-window.FileToQR.showLoadingIndicator = showLoadingIndicator;
-window.FileToQR.hideLoadingIndicator = hideLoadingIndicator;
-window.FileToQR.version = APP_VERSION;
+
+// DOMContentLoaded 이벤트 시 앱 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  window.FileToQR.app.init();
+});
+
+// Export for ES modules
+export default {
+  init,
+  getCurrentPage,
+  navigateTo,
+  getBasePath,
+  getCurrentLanguage
+};
