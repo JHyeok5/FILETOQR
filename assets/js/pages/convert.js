@@ -10,7 +10,7 @@
  * - 변환 진행 상태 표시
  */
 
-import FileConverter from '../converters/file-converter.js';
+import FileConverter from '/assets/js/converters/file-converter.js';
 
 // 페이지 컨트롤러 모듈
 const ConvertPageController = {
