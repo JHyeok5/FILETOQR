@@ -32,7 +32,7 @@ const pageEntries = {
 
 // 기본 언어 (한국어 - ko) HTML 파일 생성
 htmlPages.forEach(page => {
-  const chunks = ['app-core', 'common', 'vendors'];
+  const chunks = ['app-core', 'common-utils', 'vendors'];
   
   // 페이지별 특정 스크립트 추가
   if (pageEntries[page]) {
@@ -69,7 +69,7 @@ languages.forEach(lang => {
     const langTemplateExists = fs.existsSync(path.resolve(__dirname, `${lang}/${page}.html`));
     const templatePath = langTemplateExists ? `./${lang}/${page}.html` : `./${page}.html`;
     
-    const chunks = ['app-core', 'common', 'vendors'];
+    const chunks = ['app-core', 'common-utils', 'vendors'];
     
     // 페이지별 특정 스크립트 추가
     if (pageEntries[page]) {
@@ -102,7 +102,7 @@ languages.forEach(lang => {
 // 페이지별 엔트리 포인트 생성
 const entries = {
   'app-core': './assets/js/core/app-core.js',
-  'common': './assets/js/utils/common-utils.js',
+  'common-utils': './assets/js/utils/common-utils.js',
   'converter-core': './assets/js/core/converter-core.js',
   'qr-generator': './assets/js/qr-generator/qr-generator.js',
   'template-utils': './assets/js/utils/template-utils.js',
@@ -147,8 +147,9 @@ module.exports = {
           chunks: 'all',
           priority: -10
         },
-        common: {
-          name: 'common',
+        // 'common'에서 'shared'로 이름 변경 및 설정 수정하여 충돌 해결
+        sharedModules: {
+          name: 'shared-modules',
           chunks: 'all',
           minChunks: 2, // 최소 2개 이상의 청크에서 사용되는 모듈 추출
           priority: -20
@@ -267,6 +268,10 @@ module.exports = {
       '@templates': path.resolve(__dirname, 'components'),
       '@partials': path.resolve(__dirname, 'components/partials'),
       '@common': path.resolve(__dirname, 'assets/js/utils/common-utils.js')
+    },
+    // es6-promise-polyfill 모듈을 찾지 못할 때 처리할 방법 추가
+    fallback: {
+      "es6-promise-polyfill": false
     }
   },
   // 소스맵 설정 - 개발 모드에서만 상세 소스맵 활성화
