@@ -12,13 +12,13 @@ module.exports = {
   mode: 'production',
   entry: {
     'app-core': './assets/js/core/app-core.js',
-    'file-converter': './assets/js/converters/file-converter.js',
+    'converter-core': './assets/js/core/converter-core.js',
     'qr-generator': './assets/js/qr-generator/qr-generator.js'
   },
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/dist/'
+    publicPath: './'
   },
   optimization: {
     minimizer: [
@@ -84,6 +84,11 @@ module.exports = {
         {
           from: 'assets/images',
           to: 'assets/images',
+          noErrorOnMissing: true
+        },
+        {
+          from: 'assets/css',
+          to: 'assets/css',
           noErrorOnMissing: true
         },
         {
