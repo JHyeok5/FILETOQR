@@ -573,11 +573,24 @@ const ConvertPageController = {
   }
 };
 
-// 페이지 로드 시 자동 초기화
+// 전역 객체에 컨트롤러 등록
+window.FileToQR = window.FileToQR || {};
+window.FileToQR.ConvertPageController = ConvertPageController;
+
+// 페이지가 로드된 후 컨트롤러 초기화
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM 로드 완료, 변환 페이지 컨트롤러 초기화');
-  ConvertPageController.init();
+  console.log('convert.js - DOMContentLoaded 이벤트 발생');
+  
+  if (window.FileToQR && window.FileToQR.ConvertPageController) {
+    // app-core.js가 이미 초기화를 처리하므로 여기서는 중복 초기화 방지
+    if (!window.FileToQR.ConvertPageController.state.initialized) {
+      console.log('convert.js에서 ConvertPageController 초기화 시작');
+      setTimeout(() => {
+        window.FileToQR.ConvertPageController.init();
+        console.log('convert.js에서 ConvertPageController 초기화 완료');
+      }, 0);
+    }
+  }
 });
 
-// 전역 객체에 컨트롤러 할당
-window.FileToQR.ConvertPageController = ConvertPageController; 
+export default ConvertPageController; 

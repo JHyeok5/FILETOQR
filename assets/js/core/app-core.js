@@ -137,12 +137,117 @@ async function init() {
   console.log(`FileToQR 애플리케이션 초기화 시작 (v${APP_VERSION})`);
   
   try {
-    // 페이지별 초기화
+    // 1. 로딩 인디케이터 표시
+    showLoadingIndicator();
+    
+    // 2. 템플릿 유틸리티 초기화 (필요한 경우)
+    if (typeof window.FileToQR.TemplateUtils !== 'undefined') {
+      try {
+        await window.FileToQR.TemplateUtils.init();
+        console.log('템플릿 유틸리티 초기화 완료');
+      } catch (error) {
+        console.error('템플릿 유틸리티 초기화 실패:', error);
+        // 계속 진행 - 템플릿 없이도 기본 기능은 작동할 수 있도록
+      }
+    }
+    
+    // 3. 페이지별 초기화
     await initCurrentPage();
+    
+    // 4. 로딩 인디케이터 숨기기 - 즉시 호출로 수정
+    console.log('초기화 완료 - 로딩 인디케이터 숨김');
+    hideLoadingIndicator();
     
     console.log('애플리케이션 초기화 완료');
   } catch (error) {
     console.error('애플리케이션 초기화 실패:', error);
+    // 로딩 인디케이터 숨기기
+    hideLoadingIndicator();
+  }
+}
+
+/**
+ * 로딩 인디케이터 표시
+ */
+function showLoadingIndicator() {
+  // 이미 존재하는 로딩 인디케이터 확인
+  let loadingIndicator = document.getElementById('loading-indicator');
+  
+  // 없는 경우만 생성
+  if (!loadingIndicator) {
+    loadingIndicator = document.createElement('div');
+    loadingIndicator.id = 'loading-indicator';
+    loadingIndicator.className = 'loading-overlay';
+    loadingIndicator.innerHTML = `
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">로딩 중... 페이지가 로드되지 않으면 새로고침하세요.</p>
+      </div>
+    `;
+    
+    // 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s;
+      }
+      .loading-overlay.fade-out {
+        opacity: 0;
+      }
+      .loading-container {
+        text-align: center;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(66, 153, 225, 0.2);
+        border-radius: 50%;
+        border-top-color: #4299e1;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1rem;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .loading-text {
+        color: #4a5568;
+        font-size: 1rem;
+        margin: 0;
+      }
+    `;
+    
+    document.head.appendChild(style);
+    document.body.appendChild(loadingIndicator);
+  }
+}
+
+/**
+ * 로딩 인디케이터 숨기기
+ */
+function hideLoadingIndicator() {
+  const loadingIndicator = document.getElementById('loading-indicator');
+  if (loadingIndicator) {
+    console.log('로딩 인디케이터 숨기기 실행');
+    // 즉시 제거로 변경
+    if (loadingIndicator.parentNode) {
+      loadingIndicator.parentNode.removeChild(loadingIndicator);
+      console.log('로딩 인디케이터 제거 완료');
+    }
   }
 }
 
@@ -206,9 +311,38 @@ function initHomePage() {
 function initConvertPage() {
   console.log('변환 페이지 초기화');
   
-  // 전역 객체에서 페이지 컨트롤러 확인 및 초기화
+  // convert.js 스크립트 로드 상태 확인
+  const convertScripts = Array.from(document.scripts).filter(script => 
+    script.src && (script.src.includes('/convert.js') || script.src.includes('convert.bundle.js'))
+  );
+  
+  if (convertScripts.length === 0) {
+    console.warn('convert.js 스크립트를 찾을 수 없습니다. 동적으로 로드합니다.');
+    
+    // 필요시 동적으로 스크립트 로드
+    const script = document.createElement('script');
+    script.src = 'assets/js/pages/convert.js';
+    script.type = 'module';
+    document.head.appendChild(script);
+    
+    // 스크립트 로드 완료 후 컨트롤러 초기화
+    script.onload = function() {
+      initConvertPageController();
+    };
+  } else {
+    // 스크립트가 이미 로드된 경우 컨트롤러 초기화
+    setTimeout(initConvertPageController, 100);
+  }
+}
+
+/**
+ * 변환 페이지 컨트롤러 초기화 헬퍼 함수
+ */
+function initConvertPageController() {
   if (window.FileToQR && window.FileToQR.ConvertPageController) {
+    console.log('변환 페이지 컨트롤러 초기화 시작');
     window.FileToQR.ConvertPageController.init();
+    console.log('변환 페이지 컨트롤러 초기화 완료');
   } else {
     console.error('ConvertPageController를 찾을 수 없습니다');
   }
@@ -264,7 +398,14 @@ function initTermsPage() {
 
 // 자동 초기화
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+    console.log('DOMContentLoaded 이벤트 핸들러 등록 완료');
+  } else {
+    // 문서가 이미 로드된 경우 즉시 초기화
+    console.log('문서가 이미 로드됨 - 초기화 즉시 실행');
+    setTimeout(init, 0);
+  }
 }
 
 // 글로벌 네임스페이스에 등록
@@ -273,10 +414,14 @@ window.FileToQR.appCore = {
   getCurrentPage,
   navigateTo,
   getConfig: () => CONFIG,
-  getBasePath
+  getBasePath,
+  showLoadingIndicator,
+  hideLoadingIndicator
 };
 window.FileToQR.initApp = init;
 window.FileToQR.getBasePath = getBasePath;
 window.FileToQR.getCurrentPage = getCurrentPage;
 window.FileToQR.navigateTo = navigateTo;
-window.FileToQR.version = APP_VERSION; 
+window.FileToQR.showLoadingIndicator = showLoadingIndicator;
+window.FileToQR.hideLoadingIndicator = hideLoadingIndicator;
+window.FileToQR.version = APP_VERSION;
