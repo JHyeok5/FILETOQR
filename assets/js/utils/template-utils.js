@@ -203,57 +203,82 @@ const TemplateUtils = {
    */
   async loadCommonPartials() {
     if (!Handlebars) {
-      console.error('Handlebars가 로드되지 않았습니다.');
-      return Promise.reject(new Error('Handlebars is not loaded'));
+      console.error('Handlebars가 로드되지 않은 상태에서 파티셜 로드 시도');
+      return Promise.reject(new Error('Handlebars not loaded'));
     }
     
+    console.log('공통 파티셜 로드 시작');
+    
     try {
-      console.log('공통 파티셜 로드 중...');
-      
-      // 공통 컴포넌트 파티셜 로드
-      const partials = {
-        'header': 'components/header',
-        'footer': 'components/footer',
-        'loading': 'components/loading',
-        'language-selector': 'components/language-selector'
-      };
-      
-      const loadPromises = [];
-      
-      for (const [name, path] of Object.entries(partials)) {
-        loadPromises.push(
-          this.loadTemplate(path)
-            .then(template => {
-              this.registerPartial(name, template);
-              console.log(`파티셜 로드 완료: ${name}`);
-            })
-            .catch(error => {
-              console.warn(`파티셜 로드 실패: ${name}`, error);
-              // 실패해도 진행 - 빈 템플릿으로 등록
-              this.registerPartial(name, '<!-- 파티셜 로드 실패: ' + name + ' -->');
-            })
-        );
-      }
-      
-      await Promise.all(loadPromises);
-      
-      // 로딩 인디케이터 제거
-      const loadingElement = document.getElementById('loading-indicator');
-      if (loadingElement) {
-        // 페이드 아웃 애니메이션 적용
-        loadingElement.classList.add('fade-out');
-        // 애니메이션 완료 후 제거
-        setTimeout(() => {
-          if (loadingElement.parentNode) {
-            loadingElement.parentNode.removeChild(loadingElement);
+      // DOM에서 파티셜 데이터 요소 찾기
+      const partialElements = document.querySelectorAll('script[type="text/x-handlebars-partial"]');
+      if (partialElements.length > 0) {
+        console.log(`DOM에서 ${partialElements.length}개의 파티셜 요소 발견`);
+        
+        // DOM에서 파티셜 등록
+        partialElements.forEach(element => {
+          const partialName = element.getAttribute('data-partial-name');
+          if (partialName) {
+            Handlebars.registerPartial(partialName, element.innerHTML);
+            console.log(`DOM 파티셜 등록: ${partialName}`);
           }
-        }, 500); // 0.5초 후 제거
+        });
       }
       
-      console.log('모든 공통 파티셜 로드 완료');
+      // 파티셜 컴포넌트 목록
+      const partials = [
+        'header',
+        'footer',
+        'loading',
+        'language-selector'
+      ];
+      
+      const basePath = PathUtils.getBasePath() || './';
+      console.log('파티셜 로드 기본 경로:', basePath);
+      
+      // 각 파티셜 로드 시도
+      for (const partial of partials) {
+        try {
+          // 첫 번째 시도: 컴포넌트 경로
+          let partialUrl = `${basePath}components/partials/${partial}.hbs`;
+          let response = await fetch(partialUrl);
+          
+          // 404인 경우 다른 경로 시도
+          if (!response.ok) {
+            console.log(`${partialUrl} 로드 실패, 다른 경로 시도`);
+            partialUrl = `${basePath}components/partials/${partial}.handlebars`;
+            response = await fetch(partialUrl);
+            
+            // 그래도 실패하면 HTML 파일 시도
+            if (!response.ok) {
+              partialUrl = `${basePath}components/partials/${partial}.html`;
+              response = await fetch(partialUrl);
+            }
+          }
+          
+          if (response.ok) {
+            const template = await response.text();
+            Handlebars.registerPartial(partial, template);
+            console.log(`파티셜 로드 성공: ${partial}`);
+          } else {
+            // 파티셜이 파일로 존재하지 않으면 DOM에서 찾기 시도
+            const inlinePartial = document.getElementById(`partial-${partial}`);
+            if (inlinePartial) {
+              Handlebars.registerPartial(partial, inlinePartial.innerHTML);
+              console.log(`인라인 파티셜 사용: ${partial}`);
+            } else {
+              console.warn(`파티셜 로드 실패: ${partial}`);
+            }
+          }
+        } catch (error) {
+          console.warn(`파티셜 '${partial}' 로드 오류:`, error);
+        }
+      }
+      
+      console.log('공통 파티셜 로드 완료');
       return Promise.resolve();
     } catch (error) {
-      console.error('공통 파티셜 로드 중 오류:', error);
+      console.error('공통 파티셜 로드 중 오류 발생:', error);
       return Promise.reject(error);
     }
   },
