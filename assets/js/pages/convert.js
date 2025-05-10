@@ -10,7 +10,11 @@
  * - 변환 진행 상태 표시
  */
 
-import FileConverter from '/assets/js/converters/file-converter.js';
+// 디버깅 로그
+console.log('convert.js 스크립트 로딩 시작');
+
+// 전역 객체에 컨트롤러 등록
+window.FileToQR = window.FileToQR || {};
 
 // 페이지 컨트롤러 모듈
 const ConvertPageController = {
@@ -31,9 +35,6 @@ const ConvertPageController = {
 
     try {
       console.log('파일 변환 페이지 초기화 중...');
-      
-      // FileConverter 모듈 초기화
-      await FileConverter.init();
       
       // UI 요소 초기화
       this._initUI();
@@ -544,7 +545,9 @@ const ConvertPageController = {
 
 // 페이지 로드 시 자동 초기화
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM 로드 완료, 변환 페이지 컨트롤러 초기화');
   ConvertPageController.init();
 });
 
-export default ConvertPageController; 
+// 전역 객체에 컨트롤러 할당
+window.FileToQR.ConvertPageController = ConvertPageController; 
