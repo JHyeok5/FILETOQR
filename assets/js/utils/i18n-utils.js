@@ -11,7 +11,6 @@
  * - RTL 언어 지원
  */
 
-import { Promise } from 'es6-promise-polyfill';
 import Config from '../core/config.js';
 import UrlUtils from './url-utils.js';
 
