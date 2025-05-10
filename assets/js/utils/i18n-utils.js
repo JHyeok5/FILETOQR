@@ -1,7 +1,7 @@
 /**
  * i18n-utils.js - FileToQR 다국어 지원 유틸리티
- * 버전: 1.1.0
- * 최종 업데이트: 2025-06-10
+ * 버전: 1.4.0
+ * 최종 업데이트: 2025-07-26
  * 
  * 이 모듈은 다국어 지원을 위한 핵심 기능을 제공합니다:
  * - 언어 리소스 로드
@@ -12,17 +12,24 @@
  */
 
 import { Promise } from 'es6-promise-polyfill';
-import PathUtils from './path-utils.js';
+import Config from '../core/config.js';
+import UrlUtils from './url-utils.js';
+
+// 전역 객체 설정
+window.FileToQR = window.FileToQR || {};
+window.FileToQR.i18n = window.FileToQR.i18n || {};
 
 // 언어 리소스 캐시
 let translations = {};
-let currentLanguage = 'ko';
-let defaultLanguage = 'ko';
-let supportedLanguages = ['ko', 'en', 'zh', 'ja'];
+let currentLanguage = Config.LANGUAGE_CONFIG.defaultLanguage;
 let loadedLanguages = [];
-let rtlLanguages = ['ar', 'he'];
 
-// 현재 언어 getter
+// 설정 관련 변수
+const defaultLanguage = Config.LANGUAGE_CONFIG.defaultLanguage;
+const supportedLanguages = Config.LANGUAGE_CONFIG.supportedLanguages;
+const rtlLanguages = Config.LANGUAGE_CONFIG.rtlLanguages;
+
+// 현재 언어 getter/setter
 export const getCurrentLang = () => currentLanguage;
 export const getDefaultLang = () => defaultLanguage;
 export const getSupportedLangs = () => supportedLanguages;
@@ -32,19 +39,11 @@ export const getDirectionForLang = (lang) => isRTL(lang) ? 'rtl' : 'ltr';
 /**
  * 다국어 지원 초기화
  * @param {Object} options 초기화 옵션
- * @param {string} [options.defaultLang='ko'] 기본 언어
- * @param {Array<string>} [options.supportedLangs=['ko', 'en', 'zh', 'ja']] 지원 언어 목록
- * @param {boolean} [options.detectBrowserLang=true] 브라우저 언어 감지 여부
- * @param {boolean} [options.useSavedLang=true] 저장된 언어 사용 여부
- * @param {Array<string>} [options.rtlLanguages=['ar', 'he']] RTL 언어 목록
  * @returns {Promise<boolean>} 초기화 성공 여부
  */
 export async function init(options = {}) {
   try {
-    // 옵션 설정
-    defaultLanguage = options.defaultLang || 'ko';
-    supportedLanguages = options.supportedLangs || ['ko', 'en', 'zh', 'ja'];
-    rtlLanguages = options.rtlLanguages || ['ar', 'he'];
+    console.log('다국어 지원 초기화 시작');
     
     // 언어 감지 순서:
     // 1. URL 경로에서 언어 감지
@@ -56,7 +55,7 @@ export async function init(options = {}) {
     
     // 1. URL 경로에서 언어 감지
     if (typeof window !== 'undefined') {
-      const urlLang = detectLanguageFromURL();
+      const urlLang = UrlUtils.getLanguageFromUrl();
       if (urlLang && supportedLanguages.includes(urlLang)) {
         detectedLang = urlLang;
         console.log(`URL에서 언어 감지: ${urlLang}`);
@@ -65,7 +64,7 @@ export async function init(options = {}) {
     
     // 2. 저장된 언어 불러오기
     if (!detectedLang && options.useSavedLang !== false && typeof localStorage !== 'undefined') {
-      const savedLang = localStorage.getItem('fileToQR_lang');
+      const savedLang = localStorage.getItem(Config.STORAGE_CONFIG.keys.language);
       if (savedLang && supportedLanguages.includes(savedLang)) {
         detectedLang = savedLang;
         console.log(`저장된 언어 불러옴: ${savedLang}`);
@@ -95,73 +94,12 @@ export async function init(options = {}) {
     updateMetaTags();
     
     // 초기화 완료
+    console.log('다국어 지원 초기화 완료');
     return true;
   } catch (error) {
     console.error('다국어 지원 초기화 실패:', error);
     return false;
   }
-}
-
-/**
- * URL 경로에서 언어 코드 감지
-   * @returns {string|null} 감지된 언어 코드 또는 null
- */
-function detectLanguageFromURL() {
-  if (typeof window === 'undefined') return null;
-  
-  // URL 경로 분석
-  const pathParts = window.location.pathname.split('/').filter(p => p);
-  
-  // 첫 번째 경로 부분이 지원 언어 중 하나인지 확인
-  if (pathParts.length > 0 && supportedLanguages.includes(pathParts[0])) {
-    return pathParts[0];
-    }
-    
-    return null;
-}
-
-/**
- * 지정된 언어로 URL 업데이트
- * @param {string} lang 언어 코드
- * @returns {string} 업데이트된 URL
- */
-export function getLocalizedURL(lang) {
-  if (typeof window === 'undefined') return '';
-  
-  const currentURL = window.location.href;
-  const currentPath = window.location.pathname;
-  const pathParts = currentPath.split('/').filter(p => p);
-  
-  // 첫 번째 부분이 언어 코드인지 확인
-  const hasLangInPath = pathParts.length > 0 && supportedLanguages.includes(pathParts[0]);
-  
-  // 현재 URL 분석
-  const urlObject = new URL(currentURL);
-  const pathWithoutLang = hasLangInPath ? 
-    '/' + pathParts.slice(1).join('/') : 
-    currentPath;
-  
-  // 기본 언어인 경우 경로에서 언어 코드 제거
-  if (lang === defaultLanguage) {
-    urlObject.pathname = pathWithoutLang;
-    return urlObject.toString();
-  }
-  
-  // 다른 언어인 경우 경로에 언어 코드 추가
-  urlObject.pathname = '/' + lang + pathWithoutLang;
-  
-  return urlObject.toString();
-}
-
-/**
- * 현재 페이지의 다른 언어 버전 URL을 반환
- * @param {string} lang 언어 코드
- * @returns {string} 현재 페이지의 다른 언어 URL
- */
-export function getAlternateURL(lang) {
-  if (typeof window === 'undefined') return '';
-  
-  return getLocalizedURL(lang);
 }
 
 /**
@@ -179,8 +117,8 @@ async function loadLanguageResource(lang) {
   try {
     console.log(`언어 리소스 로드 중: ${lang}`);
     
-    // 요청 URL 생성
-    const url = `/assets/i18n/${lang}.json`;
+    // 요청 URL 생성 (Config에서 경로 설정 사용)
+    const url = `${Config.PATH_CONFIG.i18n}${lang}.json`;
     
     // 리소스 가져오기
     const response = await fetch(url);
@@ -239,7 +177,7 @@ export async function changeLanguage(lang) {
     
     // 로컬 스토리지에 저장
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('fileToQR_lang', lang);
+      localStorage.setItem(Config.STORAGE_CONFIG.keys.language, lang);
     }
     
     // 언어 방향 설정
@@ -250,7 +188,7 @@ export async function changeLanguage(lang) {
     
     console.log(`언어 변경 완료: ${lang}`);
     return true;
-    } catch (error) {
+  } catch (error) {
     console.error('언어 변경 실패:', error);
     return false;
   }
@@ -297,24 +235,14 @@ export function navigateToLanguage(lang) {
       return;
     }
     
-    console.log(`언어 변경: ${currentLanguage} → ${lang}`);
+    console.log(`언어 변경 및 페이지 이동: ${currentLanguage} → ${lang}`);
     
     // URL 유틸리티를 사용하여 다국어 URL 생성
-    if (window.FileToQR && window.FileToQR.utils && window.FileToQR.utils.url) {
-      const languageUrl = window.FileToQR.utils.url.getLanguageUrl(lang);
-      console.log(`이동할 URL: ${languageUrl}`);
-      
-      // 페이지 이동
-      window.location.href = languageUrl;
-    } else {
-      // 이전 방식: 현재 URL에서 언어 경로 직접 수정
-      const currentUrl = window.location.href;
-      const alternateUrl = getAlternateURL(lang);
-      console.log(`이동할 URL: ${alternateUrl}`);
-      
-      // 페이지 이동
-      window.location.href = alternateUrl;
-    }
+    const languageUrl = UrlUtils.getLanguageUrl(lang);
+    console.log(`이동할 URL: ${languageUrl}`);
+    
+    // 페이지 이동
+    window.location.href = languageUrl;
   } catch (error) {
     console.error('언어 변경 중 오류 발생:', error);
   }
@@ -324,8 +252,8 @@ export function navigateToLanguage(lang) {
  * 페이지의 모든 번역 적용
  */
 export function applyTranslations() {
-    if (typeof document === 'undefined') return;
-    
+  if (typeof document === 'undefined') return;
+  
   // data-i18n 속성이 있는 모든 요소 찾기
   const elements = document.querySelectorAll('[data-i18n]');
   
@@ -334,26 +262,21 @@ export function applyTranslations() {
     const translated = translate(key);
     
     if (translated) {
-      // placeholder 속성이 있는 경우
+      // placeholder, title, value 속성이 있는 경우 해당 속성에 번역 적용
       if (el.hasAttribute('placeholder')) {
         el.setAttribute('placeholder', translated);
-      }
-      // title 속성이 있는 경우
-      else if (el.hasAttribute('title')) {
+      } else if (el.hasAttribute('title')) {
         el.setAttribute('title', translated);
-      }
-      // value 속성이 있는 경우 (input 등)
-      else if (el.hasAttribute('value')) {
+      } else if (el.hasAttribute('value')) {
         el.setAttribute('value', translated);
-      }
-      // 그 외의 경우 내용 교체
-      else {
+      } else {
+        // 그 외 요소 내용 교체
         el.textContent = translated;
       }
     }
   });
   
-  // 이벤트 발생
+  // 언어 변경 이벤트 발생
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('languageChanged', {
       detail: { language: currentLanguage }
@@ -362,11 +285,48 @@ export function applyTranslations() {
 }
 
 /**
+ * i18n URL 키에서 URL 생성 (i18n 데이터에 저장된 URL 정보 사용)
+ * @param {string} key - URL 번역 키 (예: 'urls.home')
+ * @param {Object} [options={}] - 추가 옵션
+ * @returns {string} 생성된 URL
+ */
+export function getUrlFromKey(key, options = {}) {
+  // 번역된 URL 경로 가져오기
+  const urlPath = translate(key);
+  
+  // 경로가 없으면 기본값 반환
+  if (!urlPath || urlPath === key) {
+    console.warn(`URL 키 없음: ${key}, 기본 경로 사용`);
+    
+    // 키에서 페이지 이름 추출 (예: 'urls.home' -> 'home')
+    const pageMatches = key.match(/urls\.(\w+)$/);
+    if (pageMatches && pageMatches[1]) {
+      const pageName = pageMatches[1];
+      const pagePath = Config.getPagePath(pageName);
+      
+      if (pagePath) {
+        return UrlUtils.getI18nUrl(pagePath, null, options);
+      }
+    }
+    
+    return '/';
+  }
+  
+  // 경로가 이미 절대 경로인 경우
+  if (urlPath.startsWith('http://') || urlPath.startsWith('https://')) {
+    return urlPath;
+  }
+  
+  // 상대 경로 또는 루트 상대 경로인 경우 언어 코드 추가
+  return UrlUtils.getI18nUrl(urlPath, null, options);
+}
+
+/**
  * 메타 태그 업데이트
  */
 export function updateMetaTags() {
-    if (typeof document === 'undefined') return;
-    
+  if (typeof document === 'undefined') return;
+  
   // hreflang 태그 업데이트
   const hreflangTags = document.querySelectorAll('link[rel="alternate"][hreflang]');
   const hasHreflangTags = hreflangTags.length > 0;
@@ -377,7 +337,7 @@ export function updateMetaTags() {
       const link = document.createElement('link');
       link.rel = 'alternate';
       link.hreflang = lang;
-      link.href = getAlternateURL(lang);
+      link.href = UrlUtils.getAlternateURL(lang);
       document.head.appendChild(link);
     });
     
@@ -385,7 +345,7 @@ export function updateMetaTags() {
     const defaultLink = document.createElement('link');
     defaultLink.rel = 'alternate';
     defaultLink.hreflang = 'x-default';
-    defaultLink.href = getAlternateURL(defaultLanguage);
+    defaultLink.href = UrlUtils.getAlternateURL(defaultLanguage);
     document.head.appendChild(defaultLink);
   }
   
@@ -627,10 +587,19 @@ export function plural(key, count, lang = currentLanguage) {
   return keyObj[form] || keyObj.other || key;
 }
 
-// 모듈 기본 내보내기
-export default {
+/**
+ * 언어 리소스 가져오기
+ * @param {string} [lang=currentLanguage] 언어 코드
+ * @returns {Object} 언어 리소스 객체
+ */
+export function getTranslations(lang = currentLanguage) {
+  return translations[lang] || translations[defaultLanguage] || {};
+}
+
+// i18n 객체 생성
+const I18n = {
   init,
-  translate,
+  translate: t,
   changeLanguage,
   formatDate,
   relativeTime,
@@ -642,7 +611,19 @@ export default {
   getDirectionForLang,
   applyTranslations,
   updateMetaTags,
-  getLocalizedURL,
-  getAlternateURL,
-  navigateToLanguage
-}; 
+  navigateToLanguage,
+  getUrlFromKey,
+  getTranslations
+};
+
+// 외부에서 t() 함수로 간편하게 접근할 수 있도록 별칭 제공
+export function t(key, params = {}, lang = currentLanguage) {
+  return translate(key, params, lang);
+}
+
+// 전역 객체에 등록
+window.FileToQR.i18n = I18n;
+window.FileToQR.t = t;
+
+// Export for ES modules
+export default I18n; 
