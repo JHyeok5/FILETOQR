@@ -8,6 +8,21 @@
     <meta name="keywords" content="파일 변환, 이미지 변환, 문서 변환, 온라인 변환, 무료 변환, PNG, JPG, PDF">
     <title>파일 변환 - FileToQR</title>
     
+    <!-- 디버깅 스크립트 -->
+    <script>
+      console.log('HTML 문서 로딩 시작', new Date().toISOString());
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded 이벤트 발생', new Date().toISOString());
+      });
+      window.addEventListener('load', function() {
+        console.log('window.load 이벤트 발생', new Date().toISOString());
+        console.log('스크립트 로딩 상태:');
+        document.querySelectorAll('script').forEach(function(script, index) {
+          console.log(`${index + 1}. ${script.src || '인라인 스크립트'}`);
+        });
+      });
+    </script>
+    
     <!-- CSS 스타일시트 -->
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/rtl.css">
@@ -505,10 +520,10 @@
         });
     </script>
     
-    <!-- 파일 변환 스크립트 -->
-    <script src="/assets/js/pages/convert.js"></script>
-
-    <!-- 코어 스크립트 -->
+    <!-- 코어 스크립트 먼저 로드 -->
     <script src="assets/js/core/app-core.js"></script>
+    
+    <!-- 파일 변환 스크립트 -->
+    <script src="assets/js/pages/convert.js"></script>
 </body>
 </html> 
