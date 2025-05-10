@@ -141,14 +141,39 @@ async function init() {
     showLoadingIndicator();
     
     // 2. 템플릿 유틸리티 초기화 (필요한 경우)
-    if (typeof window.FileToQR.TemplateUtils !== 'undefined') {
-      try {
-        await window.FileToQR.TemplateUtils.init();
+    try {
+      // 템플릿 유틸리티가 로드되었는지 확인
+      if (typeof window.FileToQR.TemplateUtils !== 'undefined') {
+        console.log('템플릿 유틸리티 발견, 초기화 시작');
+        
+        // 동적으로 Handlebars 로드 시도
+        if (!window.Handlebars) {
+          const handlebarsScript = document.createElement('script');
+          handlebarsScript.src = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
+          
+          // Handlebars 로드 대기
+          await new Promise((resolve, reject) => {
+            handlebarsScript.onload = resolve;
+            handlebarsScript.onerror = reject;
+            document.head.appendChild(handlebarsScript);
+          });
+          
+          console.log('Handlebars 라이브러리 로드 완료');
+        }
+        
+        // 템플릿 유틸리티 초기화
+        await window.FileToQR.TemplateUtils.init({
+          loadPartials: true
+        });
+        
         console.log('템플릿 유틸리티 초기화 완료');
-      } catch (error) {
-        console.error('템플릿 유틸리티 초기화 실패:', error);
-        // 계속 진행 - 템플릿 없이도 기본 기능은 작동할 수 있도록
+        
+        // 템플릿 렌더링 시도
+        processTemplates();
       }
+    } catch (error) {
+      console.error('템플릿 유틸리티 초기화 실패:', error);
+      // 계속 진행 - 템플릿 없이도 기본 기능은 작동할 수 있도록
     }
     
     // 3. 페이지별 초기화
@@ -394,6 +419,116 @@ function initPrivacyPage() {
  */
 function initTermsPage() {
   console.log('이용약관 페이지 초기화');
+}
+
+/**
+ * 템플릿 처리 및 렌더링
+ */
+function processTemplates() {
+  try {
+    if (window.Handlebars && window.FileToQR.TemplateUtils) {
+      // 템플릿 요소 검색
+      const templateElements = document.querySelectorAll('[data-template]');
+      console.log(`템플릿 요소 발견: ${templateElements.length}개`);
+      
+      // 각 템플릿 요소 처리
+      templateElements.forEach(element => {
+        const templateName = element.getAttribute('data-template');
+        const templateData = element.getAttribute('data-template-data');
+        
+        if (templateName) {
+          console.log(`템플릿 렌더링 시도: ${templateName}`);
+          
+          let data = {};
+          
+          // 템플릿 데이터 파싱 시도
+          if (templateData) {
+            try {
+              data = JSON.parse(templateData);
+            } catch (err) {
+              console.error(`템플릿 데이터 JSON 파싱 오류: ${templateName}`, err);
+            }
+          }
+          
+          // 현재 페이지 및 언어 정보 추가
+          const currentLang = getCurrentLanguage();
+          data.pageId = getCurrentPage();
+          data.currentLang = currentLang;
+          data.basePath = getBasePath();
+          
+          // 템플릿 렌더링
+          window.FileToQR.TemplateUtils.loadComponent(templateName, element, data.basePath, data)
+            .then(() => {
+              console.log(`템플릿 렌더링 성공: ${templateName}`);
+              
+              // 렌더링 후 이벤트 발생
+              const event = new CustomEvent('template:rendered', {
+                detail: { templateName, element }
+              });
+              document.dispatchEvent(event);
+            })
+            .catch(err => {
+              console.error(`템플릿 렌더링 실패: ${templateName}`, err);
+            });
+        }
+      });
+      
+      // 인라인 파티셜 처리
+      const partialElements = document.querySelectorAll('[data-partial]');
+      partialElements.forEach(element => {
+        const partialName = element.getAttribute('data-partial');
+        const partialData = element.getAttribute('data-partial-data');
+        
+        if (partialName && window.Handlebars.partials[partialName]) {
+          let data = {};
+          
+          // 파티셜 데이터 파싱 시도
+          if (partialData) {
+            try {
+              data = JSON.parse(partialData);
+            } catch (err) {
+              console.error(`파티셜 데이터 JSON 파싱 오류: ${partialName}`, err);
+            }
+          }
+          
+          // 기본 데이터 추가
+          data.currentLang = getCurrentLanguage();
+          data.basePath = getBasePath();
+          
+          // 파티셜 렌더링
+          const template = window.Handlebars.partials[partialName];
+          const compiledTemplate = typeof template === 'function' ? template : window.Handlebars.compile(template);
+          element.innerHTML = compiledTemplate(data);
+          
+          console.log(`파티셜 렌더링 완료: ${partialName}`);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('템플릿 처리 중 오류:', error);
+  }
+}
+
+/**
+ * 현재 언어 코드 가져오기
+ * @returns {string} 언어 코드
+ */
+function getCurrentLanguage() {
+  // URL에서 언어 코드 추출
+  const path = window.location.pathname;
+  const pathParts = path.split('/').filter(part => part);
+  
+  // 첫 번째 경로 세그먼트가 지원 언어인지 확인
+  if (pathParts.length > 0 && CONFIG.supportedLanguages.includes(pathParts[0])) {
+    return pathParts[0];
+  }
+  
+  // 브라우저 언어 가져오기
+  const browserLang = navigator.language || navigator.userLanguage;
+  const langCode = browserLang ? browserLang.split('-')[0] : 'ko';
+  
+  // 지원 언어 확인
+  return CONFIG.supportedLanguages.includes(langCode) ? langCode : 'ko';
 }
 
 // 자동 초기화
