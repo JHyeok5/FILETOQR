@@ -1,12 +1,20 @@
 /**
  * main.js - FileToQR 메인 초기화 모듈
- * 버전: 1.0.0
- * 최종 업데이트: 2025-06-15
+ * 버전: 1.1.0
+ * 최종 업데이트: 2025-07-26
  * 
  * 이 모듈은 FileToQR 애플리케이션의 초기화를 담당합니다:
  * - 헤더, 푸터 등 공통 UI 요소 로드
  * - 페이지별 모듈 초기화
  * - 전역 이벤트 설정
+ * 
+ * 참고: 이 모듈과 app-core.js의 역할 구분
+ * - app-core.js: 애플리케이션의 핵심 구성 요소, 공통 유틸리티 및 모듈 정의
+ * - main.js: 특정 페이지 로직 및 컴포넌트의 초기화를 처리합니다.
+ * 
+ * app-core.js가 애플리케이션의 핵심 구성 요소와 유틸리티를 제공하는 반면,
+ * main.js는 그러한 구성 요소를 사용하여 특정 페이지와 컴포넌트를 초기화합니다.
+ * 이러한 관심사의 분리를 통해 코드의 유지보수성과 확장성이 향상됩니다.
  */
 
 // 필요한 모듈 동적 임포트 준비
@@ -30,12 +38,12 @@ const importComponentSystem = async () => {
   }
 };
 
-const importFileConverter = async () => {
+const importFileToQRConverter = async () => {
   try {
-    const module = await import('../converters/file-converter.js');
+    const module = await import('../converters/file-to-qr-converter.js');
     return module.default;
   } catch (error) {
-    console.error('FileConverter 모듈 로드 실패:', error);
+    console.error('FileToQRConverter 모듈 로드 실패:', error);
     return null;
   }
 };
@@ -59,7 +67,7 @@ const Main = {
     modules: {
       templateUtils: null,
       componentSystem: null,
-      fileConverter: null,
+      fileToQRConverter: null,
       qrGenerator: null
     }
   },
@@ -160,10 +168,10 @@ const Main = {
           break;
           
         case 'convert':
-          // 파일 변환 모듈 초기화
-          this.state.modules.fileConverter = await importFileConverter();
-          if (this.state.modules.fileConverter) {
-            await this.state.modules.fileConverter.init();
+          // 파일-QR 변환 모듈 초기화
+          this.state.modules.fileToQRConverter = await importFileToQRConverter();
+          if (this.state.modules.fileToQRConverter) {
+            await this.state.modules.fileToQRConverter.init();
           }
           break;
           
@@ -175,32 +183,43 @@ const Main = {
           }
           break;
           
-        case 'help':
-          // 도움말 페이지 초기화
+        case 'text-to-qr':
+          // 텍스트-QR 변환 모듈 초기화
+          this.state.modules.fileToQRConverter = await importFileToQRConverter();
+          if (this.state.modules.fileToQRConverter) {
+            await this.state.modules.fileToQRConverter.init();
+          }
+          
+          // QR 코드 생성 모듈 초기화 (필요시)
+          this.state.modules.qrGenerator = await importQRGenerator();
+          if (this.state.modules.qrGenerator) {
+            await this.state.modules.qrGenerator.init();
+          }
           break;
           
         default:
-          // 기타 페이지
+          console.log(`페이지 ${this.state.currentPage}에 대한 특별한 초기화 없음`);
           break;
       }
       
       return true;
     } catch (error) {
-      console.error('페이지 모듈 초기화 실패:', error);
+      console.error('페이지별 모듈 초기화 실패:', error);
       return false;
     }
   }
 };
 
-// 애플리케이션 초기화
+// DOMContentLoaded 이벤트 시 초기화 실행
 document.addEventListener('DOMContentLoaded', () => {
-  Main.init();
+  Main.init().catch(error => {
+    console.error('메인 애플리케이션 초기화 실패:', error);
+  });
 });
 
-// 글로벌 네임스페이스에 등록
-if (typeof window !== 'undefined') {
-  window.FileToQR = window.FileToQR || {};
-  window.FileToQR.Main = Main;
-}
+// 전역 객체에 등록
+window.FileToQR = window.FileToQR || {};
+window.FileToQR.Main = Main;
 
+// Export for ES modules
 export default Main; 
