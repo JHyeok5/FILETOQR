@@ -165,19 +165,27 @@
                             </div>
                             <input id="file-upload" type="file" class="hidden" />
                         </label>
+                    </div>
+                    <!-- 파일 정보 표시 영역 추가 -->
+                    <div id="file-info" class="mt-4 p-3 bg-blue-50 rounded-md hidden">
+                        <!-- 파일 정보가 자바스크립트에 의해 여기에 채워집니다 -->
+                    </div>
                 </div>
-            </div>
 
                 <div id="conversion-output" class="mb-8 hidden">
                     <h2 class="text-xl font-semibold mb-4">변환 결과</h2>
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 min-h-32">
-                        <!-- 결과가 여기에 표시됨 -->
-                        <div class="text-center text-gray-500 py-12">파일을 업로드하고 변환 옵션을 선택하면 결과가 여기에 표시됩니다.</div>
+                    
+                    <!-- 진행 상태 표시 영역 추가 -->
+                    <div class="mb-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div id="conversion-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p id="conversion-progress-text" class="text-sm text-gray-600 mt-1 text-right">0% 완료</p>
                     </div>
-                    <div class="flex justify-center mt-4">
-                        <button id="download-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                            변환된 파일 다운로드
-                        </button>
+                    
+                    <!-- 변환 결과 컨테이너 -->
+                    <div id="conversion-result" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="text-center text-gray-500 py-8">파일을 업로드하고 변환 옵션을 선택하면 결과가 여기에 표시됩니다.</div>
                     </div>
                 </div>
             </div>
@@ -520,10 +528,25 @@
         });
     </script>
     
-    <!-- 코어 스크립트 먼저 로드 -->
-    <script src="assets/js/core/app-core.js" type="module"></script>
-    
-    <!-- 파일 변환 스크립트 -->
-    <script src="assets/js/pages/convert.js" type="module"></script>
+    <!-- 스크립트 섹션 - 컨트롤러 초기화 전에 로딩 인디케이터 추가 -->
+    <script>
+        // 페이지 로딩 상태 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            // 컨트롤러 초기화 전 로딩 메시지 표시
+            const converterOptions = document.getElementById('converter-options');
+            if (converterOptions) {
+                converterOptions.innerHTML = `
+                    <div class="flex items-center justify-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600 mr-3"></div>
+                        <p>모듈 초기화 중...</p>
+                    </div>
+                `;
+                converterOptions.classList.remove('hidden');
+            }
+        });
+    </script>
+
+    <!-- 메인 스크립트 -->
+    <script type="module" src="assets/js/pages/convert.js"></script>
 </body>
 </html> 
