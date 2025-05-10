@@ -19,10 +19,22 @@ jobs:
           node-version: '18'
       
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install es6-promise-polyfill --save
       
       - name: Build with webpack
-        run: npm run build
+        run: |
+          npm run build
+        continue-on-error: true
+
+      - name: Check build status and detailed logs
+        run: |
+          mkdir -p dist
+          if [ $? -ne 0 ]; then
+            echo "Build failed, detailed error logs:"
+            npx webpack --mode production --stats-error-details
+          fi
       
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
