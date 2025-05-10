@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹사이트 진단 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #3b82f6;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+            min-height: 20px;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>웹사이트 진단 페이지</h1>
+    
+    <div class="test-section">
+        <h2>1. 기본 정보</h2>
+        <div class="result" id="basic-info"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 파일 존재 여부 확인</h2>
+        <div>
+            <input type="text" id="file-path" value="assets/js/pages/convert.js" style="width: 300px;">
+            <button onclick="checkFile()">확인</button>
+        </div>
+        <div class="result" id="file-check-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 내비게이션 테스트</h2>
+        <div>
+            <button onclick="openPage('index.html')">홈페이지</button>
+            <button onclick="openPage('convert.html')">변환 페이지</button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 콘솔 로그</h2>
+        <div class="result" id="console-log"></div>
+        <button onclick="clearConsoleLog()">지우기</button>
+    </div>
+    
+    <script>
+        // 기본 정보 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            const basicInfo = document.getElementById('basic-info');
+            basicInfo.innerHTML = `
+                <p>URL: ${window.location.href}</p>
+                <p>브라우저: ${navigator.userAgent}</p>
+                <p>로딩 시간: ${new Date().toISOString()}</p>
+            `;
+            
+            // 콘솔 로그 오버라이드
+            const oldConsoleLog = console.log;
+            console.log = function() {
+                oldConsoleLog.apply(console, arguments);
+                const logDiv = document.getElementById('console-log');
+                const args = Array.from(arguments).map(arg => {
+                    if (typeof arg === 'object') {
+                        return JSON.stringify(arg, null, 2);
+                    }
+                    return arg;
+                }).join(' ');
+                logDiv.innerHTML += `<div>${args}</div>`;
+                logDiv.scrollTop = logDiv.scrollHeight;
+            };
+            
+            console.log('진단 페이지 로드 완료');
+        });
+        
+        // 파일 존재 여부 확인
+        function checkFile() {
+            const filePath = document.getElementById('file-path').value;
+            const resultDiv = document.getElementById('file-check-result');
+            
+            resultDiv.innerHTML = `<p>파일 확인 중: ${filePath}...</p>`;
+            
+            fetch(filePath)
+                .then(response => {
+                    if (response.ok) {
+                        resultDiv.innerHTML += `<p style="color: green;">✓ 파일이 존재합니다 (상태: ${response.status})</p>`;
+                        return response.text();
+                    } else {
+                        throw new Error(`파일을 찾을 수 없습니다 (상태: ${response.status})`);
+                    }
+                })
+                .then(content => {
+                    resultDiv.innerHTML += `<p>파일 크기: ${content.length} 바이트</p>`;
+                    resultDiv.innerHTML += `<p>파일 미리보기 (처음 100자):</p>`;
+                    resultDiv.innerHTML += `<pre>${content.substring(0, 100)}...</pre>`;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML += `<p style="color: red;">✗ 오류: ${error.message}</p>`;
+                });
+        }
+        
+        // 페이지 열기
+        function openPage(url) {
+            window.location.href = url;
+        }
+        
+        // 콘솔 로그 지우기
+        function clearConsoleLog() {
+            document.getElementById('console-log').innerHTML = '';
+        }
+    </script>
+</body>
+</html> 

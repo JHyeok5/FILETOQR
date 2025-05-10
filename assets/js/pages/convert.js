@@ -11,7 +11,18 @@
  */
 
 // 디버깅 로그
-console.log('convert.js 스크립트 로딩 시작');
+console.log('convert.js 스크립트 로딩 시작 - 스크립트 태그가 실행됨');
+
+// 문서가 완전히 로드되었는지 확인
+console.log('현재 문서 상태:', document.readyState);
+
+// HTML 요소 존재 여부 확인
+setTimeout(() => {
+  console.log('주요 HTML 요소 확인:');
+  console.log('- 변환 유형 버튼:', document.querySelectorAll('.converter-type-btn').length);
+  console.log('- 파일 업로드 입력:', document.getElementById('file-upload') ? '존재' : '없음');
+  console.log('- 결과 컨테이너:', document.getElementById('conversion-output') ? '존재' : '없음');
+}, 1000);
 
 // 전역 객체에 컨트롤러 등록
 window.FileToQR = window.FileToQR || {};
