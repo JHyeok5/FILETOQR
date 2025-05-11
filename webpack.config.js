@@ -236,8 +236,8 @@ module.exports = {
           noErrorOnMissing: true
         },
         {
-          from: 'components/partials',
-          to: 'components/partials',
+          from: 'components',
+          to: 'components',
           noErrorOnMissing: true
         }
       ]

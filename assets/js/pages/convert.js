@@ -425,7 +425,7 @@ const ConvertPageController = {
     
     // 변환 상태 업데이트
     this.state.conversionInProgress = true;
-    this._updateConversionUI('progress', { progress: 0 });
+    this._updateConversionUI('loading', { progress: 0 });
     
     // 변환 시작 버튼 비활성화
     const startConversionBtn = document.getElementById('start-conversion-btn');
@@ -482,155 +482,182 @@ const ConvertPageController = {
 
   /**
    * 파일 변환 처리
-   * @param {File} file - 변환할 파일
+   * @param {File} file - 원본 파일
    * @param {string} outputFormat - 출력 형식
-   * @param {Object} options - 추가 옵션
-   * @returns {Promise<Object>} - 변환 결과
+   * @param {Object} options - 변환 옵션
    * @private
    */
   async _processConversion(file, outputFormat, options) {
-    return new Promise((resolve, reject) => {
-      // 진행 상태 콜백
-      const progressCallback = (progressData) => {
-        this._updateConversionUI('progress', { progress: progressData.progress });
-      };
+    try {
+      // 변환 시작 상태 업데이트
+      this._updateConversionUI('processing', { progress: 0 });
       
-      try {
-        // ConverterCore 사용 (리팩토링된 코어 컨버터 사용)
-        ConverterCore.convert(file, outputFormat, options, progressCallback)
-          .then(result => {
-            resolve({
-              url: result.url,
-              filename: result.filename,
-              size: result.size,
-              mimeType: result.mimeType
-            });
-          })
-          .catch(error => {
-            reject(error);
-          });
-      } catch (error) {
-        // 변환 중 발생한 모든 예외 처리
-        reject(error);
-      }
-    });
+      // ConverterCore를 사용하여 파일 변환
+      const result = await ConverterCore.convert(file, outputFormat, options, (progressData) => {
+        // 진행 상태 업데이트
+        this._updateConversionUI('processing', { progress: progressData.progress });
+      });
+      
+      // 변환 성공 시 UI 업데이트
+      this._updateConversionUI('success', {
+        result,
+        outputFormat
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('파일 변환 오류:', error);
+      this._updateConversionUI('error', { message: error.message });
+      throw error;
+    }
   },
 
   /**
    * 변환 UI 업데이트
-   * @param {string} status - 상태 (progress, success, error)
-   * @param {Object} data - 상태에 따른 추가 데이터
+   * @param {string} status - 상태 ('loading', 'processing', 'success', 'error')
+   * @param {Object} data - 상태에 따른 데이터
    * @private
    */
   _updateConversionUI(status, data = {}) {
-    const conversionOutput = document.getElementById('conversion-output');
+    // 결과 영역 표시
+    const outputElement = document.getElementById('conversion-output');
+    if (outputElement) {
+      outputElement.classList.remove('hidden');
+    }
+    
+    // 진행 표시줄 요소
     const progressBar = document.getElementById('conversion-progress-bar');
     const progressText = document.getElementById('conversion-progress-text');
-    const resultContainer = document.getElementById('conversion-result');
+    const resultElement = document.getElementById('conversion-result');
     
-    if (!conversionOutput) return;
-    
-    conversionOutput.classList.remove('hidden');
-    
+    // 진행 상태에 따른 UI 업데이트
     switch (status) {
-      case 'progress':
-        // 진행 상태 업데이트
-        if (progressBar) {
-          progressBar.style.width = `${data.progress}%`;
-          progressBar.setAttribute('aria-valuenow', data.progress);
+      case 'loading':
+        if (progressBar) progressBar.style.width = '5%';
+        if (progressText) progressText.textContent = '준비 중...';
+        if (resultElement) {
+          resultElement.innerHTML = `
+            <div class="flex justify-center items-center py-12">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          `;
         }
+        break;
         
-        if (progressText) {
-          progressText.textContent = `${Math.round(data.progress)}% 완료`;
-        }
-        
-        // 결과 영역 숨김
-        if (resultContainer) {
-          resultContainer.classList.add('hidden');
+      case 'processing':
+        const progress = data.progress || 0;
+        if (progressBar) progressBar.style.width = `${progress}%`;
+        if (progressText) progressText.textContent = `${progress}% 완료`;
+        if (resultElement && progress < 100) {
+          resultElement.innerHTML = `
+            <div class="text-center py-12">
+              <p class="text-gray-600 mb-2">파일 변환 중입니다. 잠시만 기다려주세요.</p>
+              <p class="text-sm text-gray-500">파일 크기에 따라 시간이 더 걸릴 수 있습니다.</p>
+            </div>
+          `;
         }
         break;
         
       case 'success':
-        // 진행 상태 100%
-        if (progressBar) {
-          progressBar.style.width = '100%';
-          progressBar.setAttribute('aria-valuenow', 100);
-        }
+        if (progressBar) progressBar.style.width = '100%';
+        if (progressText) progressText.textContent = '변환 완료!';
         
-        if (progressText) {
-          progressText.textContent = '변환 완료';
-        }
-        
-        // 결과 영역 표시
-        if (resultContainer) {
-          resultContainer.classList.remove('hidden');
-          resultContainer.innerHTML = `
-            <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        if (resultElement && data.result) {
+          const { url, filename, size, mimeType } = data.result;
+          const isImage = mimeType.startsWith('image/');
+          
+          // 결과 표시 HTML
+          let resultHTML = `
+            <div class="flex flex-col items-center py-6">
+              <div class="text-center mb-6">
+                <div class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full mb-4">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
+                  <span>변환 완료</span>
                 </div>
-                <div class="ml-3">
-                  <h3 class="text-sm font-medium text-green-800">변환 성공</h3>
-                  <div class="mt-2 text-sm text-green-700">
-                    <p>파일이 성공적으로 변환되었습니다.</p>
-                  </div>
-                </div>
+                <h3 class="text-lg font-medium text-gray-900">${filename}</h3>
+                <p class="text-sm text-gray-600">${this._formatFileSize(size)} - ${mimeType}</p>
+              </div>
+          `;
+          
+          // 결과가 이미지인 경우 미리보기 표시
+          if (isImage) {
+            resultHTML += `
+              <div class="mb-6 p-4 border rounded-lg w-full max-w-md">
+                <img src="${url}" alt="변환된 이미지" class="max-w-full h-auto max-h-64 mx-auto">
+              </div>
+            `;
+          }
+          
+          // 다운로드 버튼
+          resultHTML += `
+              <div class="flex space-x-4">
+                <a href="${url}" download="${filename}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                  다운로드
+                </a>
+                <button id="convert-new-btn" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md">
+                  새 파일 변환
+                </button>
               </div>
             </div>
-            
-            <div class="border border-gray-200 rounded-md p-4">
-              <h3 class="font-medium mb-2">다운로드</h3>
-              <p class="text-sm text-gray-600 mb-4">${data.filename} (${this._formatFileSize(data.size)})</p>
-              <a 
-                id="download-btn" 
-                href="${data.url}" 
-                download="${data.filename}" 
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                다운로드
-              </a>
-            </div>
           `;
+          
+          resultElement.innerHTML = resultHTML;
+          
+          // 새 파일 변환 버튼 이벤트 리스너
+          const convertNewBtn = document.getElementById('convert-new-btn');
+          if (convertNewBtn) {
+            convertNewBtn.addEventListener('click', () => {
+              // 파일 업로드 인풋 초기화
+              const fileInput = document.getElementById('file-upload');
+              if (fileInput) fileInput.value = '';
+              
+              // 출력 영역 숨기기
+              if (outputElement) outputElement.classList.add('hidden');
+              
+              // 상태 초기화
+              this.state.uploadedFile = null;
+              this.state.conversionInProgress = false;
+            });
+          }
         }
         break;
         
       case 'error':
-        // 진행 상태 초기화
-        if (progressBar) {
-          progressBar.style.width = '0%';
-          progressBar.setAttribute('aria-valuenow', 0);
-        }
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressText) progressText.textContent = '변환 실패';
         
-        if (progressText) {
-          progressText.textContent = '변환 실패';
-        }
-        
-        // 오류 메시지 표시
-        if (resultContainer) {
-          resultContainer.classList.remove('hidden');
-          resultContainer.innerHTML = `
-            <div class="bg-red-50 border border-red-200 rounded-md p-4">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                  </svg>
-                </div>
-                <div class="ml-3">
-                  <h3 class="text-sm font-medium text-red-800">변환 실패</h3>
-                  <div class="mt-2 text-sm text-red-700">
-                    <p>${data.error || '알 수 없는 오류가 발생했습니다.'}</p>
-                  </div>
-                </div>
-              </div>
+        if (resultElement) {
+          resultElement.innerHTML = `
+            <div class="text-center py-8 px-4 bg-red-50 rounded-lg">
+              <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h3 class="text-lg font-medium text-red-800 mb-2">변환 실패</h3>
+              <p class="text-sm text-red-600">${data.message || '파일 변환 중 오류가 발생했습니다.'}</p>
+              <button id="try-again-btn" class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md">
+                다시 시도
+              </button>
             </div>
           `;
+          
+          // 다시 시도 버튼 이벤트 리스너
+          const tryAgainBtn = document.getElementById('try-again-btn');
+          if (tryAgainBtn) {
+            tryAgainBtn.addEventListener('click', () => {
+              // 파일 업로드 인풋 초기화
+              const fileInput = document.getElementById('file-upload');
+              if (fileInput) fileInput.value = '';
+              
+              // 출력 영역 숨기기
+              if (outputElement) outputElement.classList.add('hidden');
+              
+              // 상태 초기화
+              this.state.uploadedFile = null;
+              this.state.conversionInProgress = false;
+            });
+          }
         }
         break;
     }
