@@ -17,11 +17,22 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
       
+      - name: Update package-lock.json
+        run: npm install --package-lock-only
+
       - name: Install dependencies
         run: |
-          npm install
-          npm install es6-promise-polyfill --save
+          npm ci
+          npm install es6-promise-polyfill --save-exact
+          npm list es6-promise-polyfill || true
+      
+      - name: Debug i18n-utils.js
+        run: |
+          cat assets/js/utils/i18n-utils.js | head -20
+          echo "Checking webpack.config.js for fallback configuration..."
+          grep -A 5 "fallback" webpack.config.js || echo "fallback configuration not found"
       
       - name: Build with webpack
         run: |
