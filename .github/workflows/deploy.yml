@@ -27,10 +27,9 @@ jobs:
       
       - name: Install dependencies
         run: |
-          # package-lock.json이 package.json과 일치하지 않아 npm ci 사용 불가
-          # 대신 일반 npm install 사용
-          npm install
-          npm install es6-promise-polyfill --save-exact
+          # 의존성 충돌 문제를 해결하기 위해 --legacy-peer-deps 옵션 사용
+          npm install --legacy-peer-deps
+          npm install es6-promise-polyfill --save-exact --legacy-peer-deps
           npm list es6-promise-polyfill || true
       
       - name: Fix i18n-utils.js file
