@@ -6,50 +6,32 @@
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4">
         <div class="flex justify-between items-center">
-            <a href="{{basePath}}index.html" class="flex items-center">
-                <img src="{{basePath}}assets/images/logo.svg" alt="{{t 'common.title'}}" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxM1oiPjwvcGF0aD48cGF0aCBkPSJNMTMgMlYxMEgyMiI+PC9wYXRoPjwvc3ZnPg=='">
-                <span class="text-xl font-bold text-blue-600" data-i18n="common.title">FileToQR</span>
+            <a href="index.html" class="flex items-center">
+                <span class="text-2xl font-bold text-blue-600">FileToQR</span>
             </a>
-            
-            <div class="hidden md:flex space-x-1">
-                <nav class="flex items-center space-x-4">
-                    <a href="{{basePath}}index.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.home">홈</a>
-                    <a href="{{basePath}}convert.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.convert">파일 변환</a>
-                    <a href="{{basePath}}qrcode.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.qrcode">QR 코드</a>
-                    <a href="{{basePath}}timer.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.timer">타이머</a>
-                    <a href="{{basePath}}help.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.help">도움말</a>
-                    <a href="{{basePath}}contact.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.contact">문의하기</a>
-                </nav>
-                
-                <!-- 언어 선택기 -->
-                <div class="ml-4 flex items-center">
-                    {{> language-selector currentLang=currentLang availableLanguages=availableLanguages}}
-                </div>
-            </div>
-            
-            <!-- 모바일 메뉴 버튼 -->
-            <div class="md:hidden flex items-center">
-                <div class="mr-2">
-                    {{> language-selector currentLang=currentLang availableLanguages=availableLanguages}}
-                </div>
-                <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                    <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                    <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                    <li><a href="text-to-qr.html" class="text-gray-700 hover:text-blue-600 font-medium">텍스트 QR</a></li>
+                    <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                </ul>
+            </nav>
+            <div class="relative" id="lang-selector">
+                <button id="lang-selector-toggle" class="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <span>한국어</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
+                <div id="lang-dropdown-menu" class="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg hidden">
+                    <a href="#" data-lang="ko" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">한국어</a>
+                    <a href="#" data-lang="en" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">English</a>
+                    <a href="#" data-lang="zh" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">中文</a>
+                    <a href="#" data-lang="ja" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">日本語</a>
+                </div>
             </div>
-        </div>
-        
-        <!-- 모바일 메뉴 -->
-        <div id="mobile-menu" class="md:hidden hidden pt-4">
-            <nav class="flex flex-col space-y-2">
-                <a href="{{basePath}}index.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.home">홈</a>
-                <a href="{{basePath}}convert.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.convert">파일 변환</a>
-                <a href="{{basePath}}qrcode.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.qrcode">QR 코드</a>
-                <a href="{{basePath}}timer.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.timer">타이머</a>
-                <a href="{{basePath}}help.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.help">도움말</a>
-                <a href="{{basePath}}contact.html" class="px-3 py-2 text-gray-700 hover:text-blue-600 rounded-md hover:bg-gray-100 transition-colors" data-i18n="header.contact">문의하기</a>
-            </nav>
         </div>
     </div>
 </header>
