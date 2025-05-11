@@ -147,7 +147,7 @@ module.exports = {
           chunks: 'all',
           priority: -10
         },
-        // 'common'에서 'shared'로 이름 변경 및 설정 수정하여 충돌 해결
+        // 공유 모듈을 위한 캐시 그룹
         sharedModules: {
           name: 'shared-modules',
           chunks: 'all',
@@ -227,12 +227,12 @@ module.exports = {
         },
         {
           from: '.nojekyll',
-          to: '.nojekyll',
+          to: '.', // 루트 디렉토리에 복사
           noErrorOnMissing: true
         },
         {
           from: 'CNAME',
-          to: 'CNAME',
+          to: '.', // 루트 디렉토리에 복사
           noErrorOnMissing: true
         },
         {
@@ -269,7 +269,7 @@ module.exports = {
       '@partials': path.resolve(__dirname, 'components/partials'),
       '@common': path.resolve(__dirname, 'assets/js/utils/common-utils.js')
     },
-    // es6-promise-polyfill 모듈을 찾지 못할 때 처리할 방법 추가
+    // es6-promise-polyfill과 기타 필요한 모듈 대체 설정
     fallback: {
       "es6-promise-polyfill": false
     }

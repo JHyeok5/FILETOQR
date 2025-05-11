@@ -19,91 +19,60 @@ jobs:
           node-version: '18'
           cache: 'npm'
       
-      - name: Update package.json versions
-        run: |
-          echo "Updating package.json to match versions in package-lock.json..."
-          sed -i 's/"html-webpack-plugin": "\\^4.5.2"/"html-webpack-plugin": "\\^5.6.3"/' package.json
-          cat package.json | grep html-webpack-plugin
-      
       - name: Install dependencies
         run: |
-          # 의존성 충돌 문제를 해결하기 위해 --legacy-peer-deps 옵션 사용
+          # 의존성 설치 (필요한 경우 legacy-peer-deps 사용)
           npm install --legacy-peer-deps
-          npm install es6-promise-polyfill --save-exact --legacy-peer-deps
-          npm list es6-promise-polyfill || true
-      
-      - name: Fix i18n-utils.js file
-        run: |
-          echo "Fixing i18n-utils.js..."
-          sed -i '/import.*es6-promise-polyfill/d' assets/js/utils/i18n-utils.js
-          cat assets/js/utils/i18n-utils.js | head -20
-      
-      - name: Fix webpack.config.js
-        run: |
-          echo "Fixing webpack.config.js..."
-          # SplitChunksPlugin 충돌 문제 해결
-          sed -i "s/shared: { \/\/ 'common'에서 'shared'로 이름 변경/sharedModules: { \/\/ 'common'에서 'shared-modules'로 이름 변경/" webpack.config.js
-          sed -i "s/name: 'shared',/name: 'shared-modules',/" webpack.config.js
           
-          # fallback 설정 추가
-          if ! grep -q "fallback:" webpack.config.js; then
-            sed -i "/alias: {/a\\      // es6-promise-polyfill 모듈을 찾지 못할 때 처리할 방법 추가\\n      fallback: {\\n        \"es6-promise-polyfill\": false\\n      }" webpack.config.js
+          # 설치된 의존성 확인
+          echo "Installed packages:"
+          npm list --depth=0
+      
+      - name: Create necessary directories
+        run: |
+          # 필요한 디렉토리 생성 확인
+          mkdir -p dist
+          mkdir -p assets/i18n
+          
+          # CNAME 파일 복사 확인
+          if [ -f "CNAME" ]; then
+            echo "CNAME file exists: $(cat CNAME)"
+          else
+            echo "Creating CNAME file"
+            echo "filetoqr.space" > CNAME
           fi
-          
-          grep -A 10 "splitChunks" webpack.config.js
-          grep -A 10 "fallback" webpack.config.js || echo "fallback not found"
-      
-      - name: Fix app-core.js I18n import
-        run: |
-          echo "Checking app-core.js for I18n import..."
-          grep -n "import.*I18n" assets/js/core/app-core.js
-          
-          # 간단한 I18n 모듈 구현
-          echo '// i18n 간단 구현' > temp_i18n.js
-          echo 'const I18n = {' >> temp_i18n.js
-          echo '  init: async () => { console.log("I18n 초기화 시뮬레이션"); return true; },' >> temp_i18n.js
-          echo '  translate: (key) => key,' >> temp_i18n.js
-          echo '  getCurrentLang: () => "ko",' >> temp_i18n.js
-          echo '  getDefaultLang: () => "ko",' >> temp_i18n.js
-          echo '  isRTL: () => false,' >> temp_i18n.js
-          echo '  getDirectionForLang: () => "ltr"' >> temp_i18n.js
-          echo '};' >> temp_i18n.js
-          echo 'export default I18n;' >> temp_i18n.js
-          
-          # 임시 모듈 저장
-          mkdir -p node_modules/file-to-qr-i18n
-          cp temp_i18n.js node_modules/file-to-qr-i18n/index.js
-          
-          # app-core.js 파일에서 i18n-utils 임포트를 변경
-          sed -i 's|import I18n from "../utils/i18n-utils.js";|import I18n from "file-to-qr-i18n";|' assets/js/core/app-core.js
-          
-          # i18n 임포트 부분 확인
-          grep -n "import.*I18n" assets/js/core/app-core.js
       
       - name: Build with webpack
         run: |
-          npm run build
-        continue-on-error: true
-
-      - name: Check build status and detailed logs
-        run: |
-          mkdir -p dist
-          if [ $? -ne 0 ]; then
-            echo "Build failed, detailed error logs:"
-            npx webpack --mode production --stats-error-details
-          fi
+          echo "Starting webpack build..."
+          NODE_ENV=production npm run build
+        continue-on-error: false
       
-      - name: Force build if necessary
+      - name: Verify build output
         run: |
+          echo "Checking build output files:"
+          ls -la dist/
+          
           if [ ! -f "dist/index.html" ]; then
-            echo "Build failed, forcing creation of minimal build for deployment..."
-            mkdir -p dist
-            echo "<html><head><title>FileToQR</title></head><body><h1>Site Under Maintenance</h1><p>Our site is currently being updated. Please check back soon.</p></body></html>" > dist/index.html
+            echo "Error: index.html not found in build output!"
+            exit 1
+          else
+            echo "Build successful - index.html exists"
           fi
       
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages
-          folder: dist
-          clean: true 
+      - name: Copy built files to repository root
+        run: |
+          # dist 폴더의 모든 파일을 저장소 루트로 복사
+          cp -r dist/* .
+          
+          # 변경사항 확인
+          echo "Files copied to repository root:"
+          ls -la
+      
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Build and deploy website" || echo "No changes to commit"
+          git push 
