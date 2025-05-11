@@ -19,12 +19,17 @@ jobs:
           node-version: '18'
           cache: 'npm'
       
-      - name: Update package-lock.json
-        run: npm install --package-lock-only
-
+      - name: Update package.json versions
+        run: |
+          echo "Updating package.json to match versions in package-lock.json..."
+          sed -i 's/"html-webpack-plugin": "\\^4.5.2"/"html-webpack-plugin": "\\^5.6.3"/' package.json
+          cat package.json | grep html-webpack-plugin
+      
       - name: Install dependencies
         run: |
-          npm ci
+          # package-lock.json이 package.json과 일치하지 않아 npm ci 사용 불가
+          # 대신 일반 npm install 사용
+          npm install
           npm install es6-promise-polyfill --save-exact
           npm list es6-promise-polyfill || true
       
