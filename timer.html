@@ -266,7 +266,74 @@
         .highlight {
             color: #3b82f6;
             font-weight: bold;
-        }</style><script defer="defer" src="./assets/js/runtime.6f2dc29026f3291faf67.js"></script><script defer="defer" src="./assets/js/app-core.8c0d45125339ca8785cf.js"></script><script defer="defer" src="./assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script><script defer="defer" src="./assets/js/common-utils.91cc098f37078468f162.js"></script><script defer="defer" src="./assets/js/template-utils.364aa19228ee322888fd.js"></script><script defer="defer" src="./assets/js/timer.e95c80cf1826576d12b1.js"></script></head><body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col"><div id="header-container"><nav><div class="logo"><a href="index.html">FileToQR</a></div><ul class="nav-links"><li><a href="index.html">홈</a></li><li><a href="convert.html">파일 변환</a></li><li><a href="qrcode.html">QR 코드</a></li><li><a href="timer.html" class="active">타이머</a></li><li><a href="help.html">도움말</a></li></ul></nav></div><main class="container mx-auto px-4 py-8"><div class="tabs"><button class="tab-btn active" data-tab="timer">타이머</button> <button class="tab-btn" data-tab="stopwatch">스톱워치</button> <button class="tab-btn" data-tab="pomodoro">포모도로</button></div><div class="tab-content active" id="timer-tab"><div class="timer-container"><div class="timer-controls timer-global-controls"><button id="add-timer" class="action-btn"><i class="fas fa-plus"></i> 타이머 추가</button></div><div id="timers-list"><div class="timer-item" data-timer-id="0"><div class="timer-header"><input class="timer-label" placeholder="타이머 이름"> <button class="close-timer"><i class="fas fa-times"></i></button></div><div class="timer-display"><span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span></div><div class="timer-controls"><button class="timer-start control-btn"><i class="fas fa-play"></i></button> <button class="timer-pause control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button></div><div class="timer-settings"><div class="time-input"><label>시간:</label> <input type="number" class="hours-input" min="0" max="23" value="0"></div><div class="time-input"><label>분:</label> <input type="number" class="minutes-input" min="0" max="59" value="0"></div><div class="time-input"><label>초:</label> <input type="number" class="seconds-input" min="0" max="59" value="0"></div></div><div class="preset-buttons"><button class="preset-btn" data-minutes="5">5분</button> <button class="preset-btn" data-minutes="10">10분</button> <button class="preset-btn" data-minutes="15">15분</button> <button class="preset-btn" data-minutes="30">30분</button></div></div></div></div></div><div class="tab-content" id="stopwatch-tab"><div class="stopwatch-container"><div class="timer-display"><span id="stopwatch-hours">00</span>:<span id="stopwatch-minutes">00</span>:<span id="stopwatch-seconds">00</span>.<span id="stopwatch-milliseconds">00</span></div><div class="timer-controls"><button id="stopwatch-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="stopwatch-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="stopwatch-reset" class="control-btn"><i class="fas fa-redo"></i></button> <button id="stopwatch-lap" class="control-btn" disabled="disabled"><i class="fas fa-flag"></i></button></div><div class="laps-container"><h3>기록</h3><ul id="laps-list"></ul></div></div></div><div class="tab-content" id="pomodoro-tab"><div class="pomodoro-container"><div class="pomodoro-status"><div class="status-box"><span>현재</span> <span id="status-text">작업 시간</span> <span id="current-mode-time">25:00</span></div><div class="status-box"><span>작업 시간</span> <span id="work-time">25:00</span></div><div class="status-box"><span>짧은 휴식</span> <span id="short-break-time">05:00</span></div><div class="status-box"><span>긴 휴식</span> <span id="long-break-time">15:00</span></div><div class="status-box"><span>세션</span> <span id="cycle-count">0/4</span></div></div><div class="timer-controls"><button id="pomodoro-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="pomodoro-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="pomodoro-reset" class="control-btn"><i class="fas fa-redo"></i></button></div><div class="pomodoro-settings"><div class="time-input"><label for="work-minutes">작업 시간(분):</label> <input type="number" id="work-minutes" min="1" max="60" value="25"></div><div class="time-input"><label for="short-break-minutes">짧은 휴식(분):</label> <input type="number" id="short-break-minutes" min="1" max="30" value="5"></div><div class="time-input"><label for="long-break-minutes">긴 휴식(분):</label> <input type="number" id="long-break-minutes" min="1" max="60" value="15"></div><div class="time-input"><label for="cycles">작업 세션 수:</label> <input type="number" id="cycles" min="1" max="10" value="4"></div><div class="time-input"><label for="auto-start">자동 시작:</label> <input type="checkbox" id="auto-start" checked="checked"></div></div></div></div></main><div id="footer-container"></div><script src="assets/js/core/app-core.js" type="module"></script><script src="assets/js/pages/timer.js" type="module"></script><audio id="bell-sound" src="assets/sounds/bell.mp3" preload="auto"></audio><audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio><audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio><script>// 모듈 로드 실패 시 대체 스크립트
+        }</style><script defer="defer" src="./assets/js/runtime.6f2dc29026f3291faf67.js"></script><script defer="defer" src="./assets/js/app-core.8c0d45125339ca8785cf.js"></script><script defer="defer" src="./assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script><script defer="defer" src="./assets/js/common-utils.91cc098f37078468f162.js"></script><script defer="defer" src="./assets/js/template-utils.364aa19228ee322888fd.js"></script><script defer="defer" src="./assets/js/timer.e95c80cf1826576d12b1.js"></script></head><body class="bg-gray-50 flex flex-col min-h-screen">
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+            <a href="index.html" class="flex items-center">
+                <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+            </a>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                    <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                    <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                    <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                </ul>
+            </nav>
+            <div class="relative" id="lang-selector">
+                <button id="lang-selector-toggle" class="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
+                    <span>한국어</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="lang-dropdown-menu" class="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg hidden">
+                    <a href="#" data-lang="ko" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">한국어</a>
+                    <a href="#" data-lang="en" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">English</a>
+                    <a href="#" data-lang="zh" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">中文</a>
+                    <a href="#" data-lang="ja" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">日本語</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="flex-grow container mx-auto px-4 py-8"><div class="tabs"><button class="tab-btn active" data-tab="timer">타이머</button> <button class="tab-btn" data-tab="stopwatch">스톱워치</button> <button class="tab-btn" data-tab="pomodoro">포모도로</button></div><div class="tab-content active" id="timer-tab"><div class="timer-container"><div class="timer-controls timer-global-controls"><button id="add-timer" class="action-btn"><i class="fas fa-plus"></i> 타이머 추가</button></div><div id="timers-list"><div class="timer-item" data-timer-id="0"><div class="timer-header"><input class="timer-label" placeholder="타이머 이름"> <button class="close-timer"><i class="fas fa-times"></i></button></div><div class="timer-display"><span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span></div><div class="timer-controls"><button class="timer-start control-btn"><i class="fas fa-play"></i></button> <button class="timer-pause control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button></div><div class="timer-settings"><div class="time-input"><label>시간:</label> <input type="number" class="hours-input" min="0" max="23" value="0"></div><div class="time-input"><label>분:</label> <input type="number" class="minutes-input" min="0" max="59" value="0"></div><div class="time-input"><label>초:</label> <input type="number" class="seconds-input" min="0" max="59" value="0"></div></div><div class="preset-buttons"><button class="preset-btn" data-minutes="5">5분</button> <button class="preset-btn" data-minutes="10">10분</button> <button class="preset-btn" data-minutes="15">15분</button> <button class="preset-btn" data-minutes="30">30분</button></div></div></div></div></div><div class="tab-content" id="stopwatch-tab"><div class="stopwatch-container"><div class="timer-display"><span id="stopwatch-hours">00</span>:<span id="stopwatch-minutes">00</span>:<span id="stopwatch-seconds">00</span>.<span id="stopwatch-milliseconds">00</span></div><div class="timer-controls"><button id="stopwatch-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="stopwatch-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="stopwatch-reset" class="control-btn"><i class="fas fa-redo"></i></button> <button id="stopwatch-lap" class="control-btn" disabled="disabled"><i class="fas fa-flag"></i></button></div><div class="laps-container"><h3>기록</h3><ul id="laps-list"></ul></div></div></div><div class="tab-content" id="pomodoro-tab"><div class="pomodoro-container"><div class="pomodoro-status"><div class="status-box"><span>현재</span> <span id="status-text">작업 시간</span> <span id="current-mode-time">25:00</span></div><div class="status-box"><span>작업 시간</span> <span id="work-time">25:00</span></div><div class="status-box"><span>짧은 휴식</span> <span id="short-break-time">05:00</span></div><div class="status-box"><span>긴 휴식</span> <span id="long-break-time">15:00</span></div><div class="status-box"><span>세션</span> <span id="cycle-count">0/4</span></div></div><div class="timer-controls"><button id="pomodoro-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="pomodoro-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="pomodoro-reset" class="control-btn"><i class="fas fa-redo"></i></button></div><div class="pomodoro-settings"><div class="time-input"><label for="work-minutes">작업 시간(분):</label> <input type="number" id="work-minutes" min="1" max="60" value="25"></div><div class="time-input"><label for="short-break-minutes">짧은 휴식(분):</label> <input type="number" id="short-break-minutes" min="1" max="30" value="5"></div><div class="time-input"><label for="long-break-minutes">긴 휴식(분):</label> <input type="number" id="long-break-minutes" min="1" max="60" value="15"></div><div class="time-input"><label for="cycles">작업 세션 수:</label> <input type="number" id="cycles" min="1" max="10" value="4"></div><div class="time-input"><label for="auto-start">자동 시작:</label> <input type="checkbox" id="auto-start" checked="checked"></div></div></div></div></main><footer class="bg-gray-100 mt-12">
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold mb-4">FileToQR</h3>
+                <p class="text-gray-600 text-sm">파일 변환 및 QR 코드 생성 도구입니다. 쉽고 빠르게 파일을 변환하고 QR 코드를 생성하세요.</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">바로가기</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
+                    <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
+                    <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드</a></li>
+                    <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">정책</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
+                    <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">문의</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="contact.html" class="text-gray-600 hover:text-blue-600">문의하기</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+            <p>&copy; 2025 FileToQR. All rights reserved.</p>
+        </div>
+    </div>
+</footer><script src="assets/js/core/app-core.js" type="module"></script><script src="assets/js/pages/timer.js" type="module"></script><audio id="bell-sound" src="assets/sounds/bell.mp3" preload="auto"></audio><audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio><audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio><script>// 모듈 로드 실패 시 대체 스크립트
         document.addEventListener('DOMContentLoaded', function() {
             console.log('타이머 페이지 초기화 보조 스크립트 실행');
             

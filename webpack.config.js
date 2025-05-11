@@ -8,7 +8,7 @@ const HandlebarsPlugin = require('handlebars-webpack-plugin');
 const fs = require('fs');
 
 // HTML 페이지 목록
-const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms', 'timer', 'contact', 'text-to-qr'];
+const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms', 'timer', 'contact'];
 
 // 지원 언어 목록
 const languages = ['en', 'zh', 'ja'];
@@ -22,7 +22,6 @@ const pageEntries = {
   'convert': 'convert',
   'qrcode': 'qr-generator',
   'timer': 'timer',
-  'text-to-qr': 'text-to-qr',
   // 콘텐츠 페이지는 기본 앱 코어 사용
   'help': 'content',
   'privacy': 'content',
@@ -110,7 +109,6 @@ const entries = {
   'home': './assets/js/pages/home.js',
   'convert': './assets/js/pages/convert.js',
   'timer': './assets/js/pages/timer.js',
-  'text-to-qr': './assets/js/converters/file-to-qr-converter.js',
   // 콘텐츠 페이지 공통 스크립트
   'content': './assets/js/pages/content.js'
 };

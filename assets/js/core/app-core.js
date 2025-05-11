@@ -141,7 +141,7 @@ async function init() {
     updateInternalLinks();
     
     // 6. 언어 선택기 설정
-    setupLanguageSelector();
+    initLanguageSelector();
     
     // 7. 로딩 인디케이터 숨기기
     console.log('초기화 완료 - 로딩 인디케이터 숨김');
@@ -532,40 +532,120 @@ function updateInternalLinks() {
 }
 
 /**
- * 언어 선택기 설정
+ * 언어 선택기 초기화 함수
  */
-function setupLanguageSelector() {
-  const langSelector = document.getElementById('lang-selector-toggle');
-  const langDropdown = document.getElementById('lang-dropdown-menu');
-  
-  if (!langSelector || !langDropdown) {
-    console.warn('언어 선택기 요소를 찾을 수 없습니다');
-    return;
-  }
-  
-  // 언어 선택기 클릭 시 드롭다운 토글
-  langSelector.addEventListener('click', (event) => {
-    event.preventDefault();
-    langDropdown.classList.toggle('show');
-  });
-  
-  // 다른 곳 클릭 시 드롭다운 닫기
-  document.addEventListener('click', (event) => {
-    if (!langSelector.contains(event.target) && !langDropdown.contains(event.target)) {
-      langDropdown.classList.remove('show');
+function initLanguageSelector() {
+  try {
+    const langSelector = document.getElementById('lang-selector-toggle');
+    const langDropdown = document.getElementById('lang-dropdown-menu');
+    const langOptions = document.querySelectorAll('.lang-option');
+    
+    if (!langSelector || !langDropdown) {
+      console.warn('언어 선택기 요소를 찾을 수 없음');
+      return;
     }
-  });
-  
-  // 언어 옵션 클릭 시 언어 변경
-  const langOptions = document.querySelectorAll('.lang-option');
-  langOptions.forEach(option => {
-    option.addEventListener('click', (event) => {
-      event.preventDefault();
-      
-      const lang = option.getAttribute('data-lang');
-      I18n.navigateToLanguage(lang);
+    
+    // 현재 언어 표시 업데이트
+    updateLanguageDisplay();
+    
+    // 언어 선택기 토글
+    langSelector.addEventListener('click', function(e) {
+      e.preventDefault();
+      langDropdown.classList.toggle('hidden');
     });
-  });
+    
+    // 다른 곳 클릭 시 드롭다운 닫기
+    document.addEventListener('click', function(e) {
+      if (!langSelector.contains(e.target) && !langDropdown.contains(e.target)) {
+        langDropdown.classList.add('hidden');
+      }
+    });
+    
+    // 언어 옵션 클릭 처리
+    langOptions.forEach(option => {
+      option.addEventListener('click', function(e) {
+        e.preventDefault();
+        const lang = this.getAttribute('data-lang');
+        
+        if (lang) {
+          // I18n 유틸리티 사용하여 언어 변경
+          if (window.FileToQR && window.FileToQR.i18n) {
+            window.FileToQR.i18n.navigateToLanguage(lang);
+          } else {
+            // 대체 방법: 경로 기반 이동
+            const currentPath = window.location.pathname;
+            let newPath;
+            
+            // 현재 URL에서 언어 부분 추출하여 대체
+            if (currentPath.match(/^\/(ko|en|zh|ja)\//)) {
+              newPath = currentPath.replace(/^\/(ko|en|zh|ja)\//, `/${lang}/`);
+            } else {
+              // 루트 경로이거나 언어 부분이 없는 경우, 언어 경로 추가
+              const pageName = currentPath.split('/').pop() || 'index.html';
+              newPath = `/${lang}/${pageName}`;
+            }
+            
+            window.location.href = newPath;
+          }
+        }
+      });
+    });
+    
+    console.log('언어 선택기 초기화 완료');
+  } catch (error) {
+    console.error('언어 선택기 초기화 오류:', error);
+  }
+}
+
+/**
+ * 현재 언어에 맞게 언어 선택기 표시 업데이트
+ */
+function updateLanguageDisplay() {
+  try {
+    const langSelector = document.getElementById('lang-selector-toggle');
+    if (!langSelector) return;
+    
+    // 언어별 표시 이름
+    const langNames = {
+      'ko': '한국어',
+      'en': 'English',
+      'zh': '中文',
+      'ja': '日本語'
+    };
+    
+    // 현재 언어 감지
+    let currentLang = 'ko'; // 기본값
+    
+    // FileToQR i18n 객체 사용
+    if (window.FileToQR && window.FileToQR.i18n) {
+      currentLang = window.FileToQR.i18n.getCurrentLang();
+    } else {
+      // URL에서 언어 추출
+      const pathMatch = window.location.pathname.match(/^\/(ko|en|zh|ja)\//);
+      if (pathMatch) {
+        currentLang = pathMatch[1];
+      }
+    }
+    
+    // 언어 선택기 텍스트 업데이트
+    const langSpan = langSelector.querySelector('span');
+    if (langSpan) {
+      langSpan.textContent = langNames[currentLang] || langNames['ko'];
+    }
+    
+    // 현재 선택된 언어 옵션 강조
+    const langOptions = document.querySelectorAll('.lang-option');
+    langOptions.forEach(option => {
+      const optionLang = option.getAttribute('data-lang');
+      if (optionLang === currentLang) {
+        option.classList.add('bg-blue-500', 'text-white');
+      } else {
+        option.classList.remove('bg-blue-500', 'text-white');
+      }
+    });
+  } catch (error) {
+    console.error('언어 표시 업데이트 오류:', error);
+  }
 }
 
 /**
