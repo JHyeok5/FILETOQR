@@ -242,27 +242,6 @@ module.exports = {
           from: 'components',
           to: 'components',
           noErrorOnMissing: true
-        },
-        // 언어별 폴더 dist/ 하위로 복사
-        {
-          from: 'en',
-          to: 'en',
-          noErrorOnMissing: true
-        },
-        {
-          from: 'ko',
-          to: 'ko',
-          noErrorOnMissing: true
-        },
-        {
-          from: 'ja',
-          to: 'ja',
-          noErrorOnMissing: true
-        },
-        {
-          from: 'zh',
-          to: 'zh',
-          noErrorOnMissing: true
         }
       ]
     }),
