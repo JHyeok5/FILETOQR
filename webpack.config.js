@@ -108,7 +108,6 @@ languages.forEach(lang => {
 const entries = {
   'app-core': './assets/js/core/app-core.js',
   'common-utils': './assets/js/utils/common-utils.js',
-  'shared-modules': './assets/js/shared-modules.js',
   'qr-generator': './assets/js/qr-generator/qr-generator.js',
   'file-to-qr': './assets/js/qr-generator/file-to-qr.js',
   'template-utils': './assets/js/utils/template-utils.js',
@@ -116,8 +115,7 @@ const entries = {
   'timer': './assets/js/pages/timer.js',
   'convert': './assets/js/pages/convert.js',
   'content': './assets/js/pages/content.js',
-  'converter-core': './assets/js/core/converter-core.js',
-  'text-to-qr': './assets/js/pages/text-to-qr.js'
+  'converter-core': './assets/js/core/converter-core.js'
 };
 
 module.exports = {
@@ -154,7 +152,7 @@ module.exports = {
         },
         // 공유 모듈을 위한 캐시 그룹
         sharedModules: {
-          name: 'shared-modules',
+          name: 'shared-chunk',
           chunks: 'all',
           minChunks: 2, // 최소 2개 이상의 청크에서 사용되는 모듈 추출
           priority: -20
