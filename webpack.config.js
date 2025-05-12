@@ -11,7 +11,7 @@ const fs = require('fs');
 const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms', 'timer', 'contact'];
 
 // 지원 언어 목록 - 다국어 지원 활성화
-const languages = ['en', 'zh', 'ja'];
+const languages = ['en', 'zh', 'ja', 'ko'];
 
 // HTML 웹팩 플러그인 배열
 const htmlPlugins = [];
