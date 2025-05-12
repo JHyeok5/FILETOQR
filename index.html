@@ -10,5 +10,23 @@
 <body>
   <p>리다이렉션 중입니다...</p>
   <p>If you are not redirected, <a href="redirect.html?page=index.html">click here</a>.</p>
+  <script>
+    // 언어 감지 및 리다이렉트 (예시)
+    (function() {
+      var userLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      var langMap = {
+        'ko': '/ko/index.html',
+        'ja': '/ja/index.html',
+        'zh': '/zh/index.html',
+        'en': '/en/index.html'
+      };
+      var target = langMap['en']; // 기본값
+      if (userLang.startsWith('ko')) target = langMap['ko'];
+      else if (userLang.startsWith('ja')) target = langMap['ja'];
+      else if (userLang.startsWith('zh')) target = langMap['zh'];
+      // 절대경로로 리다이렉트
+      window.location.replace(target);
+    })();
+  </script>
 </body>
 </html>
