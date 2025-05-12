@@ -10,8 +10,9 @@ const fs = require('fs');
 // HTML 페이지 목록
 const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms', 'timer', 'contact'];
 
-// 지원 언어 목록
-const languages = ['en', 'zh', 'ja'];
+// 지원 언어 목록 - 다국어 지원 중단
+// const languages = ['en', 'zh', 'ja'];
+const languages = [];
 
 // HTML 웹팩 플러그인 배열
 const htmlPlugins = [];
@@ -56,7 +57,9 @@ htmlPages.forEach(page => {
   );
 });
 
-// 다른 언어 HTML 파일 생성 (en, zh, ja) - 기본 템플릿에서 복사
+// 다른 언어 HTML 파일 생성 - 비활성화
+// 아래 코드는 다국어 지원이 필요할 때 다시 활성화할 수 있습니다
+/*
 languages.forEach(lang => {
   // 언어 디렉토리가 없으면 생성
   if (!fs.existsSync(path.resolve(__dirname, lang))) {
@@ -97,6 +100,7 @@ languages.forEach(lang => {
     );
   });
 });
+*/
 
 // 페이지별 엔트리 포인트 생성
 const entries = {
