@@ -523,7 +523,7 @@ function updateInternalLinks() {
         try {
           const newHref = UrlUtils.getI18nUrl(href, currentLang);
           link.setAttribute('href', newHref);
-        } catch (error) {
+    } catch (error) {
           console.warn(`링크 ${href} 처리 실패:`, error);
         }
       }
@@ -684,4 +684,4 @@ export default {
   navigateTo,
   getBasePath,
   getCurrentLanguage
-};
+}; 

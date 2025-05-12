@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="타이머, 스톱워치 및 포모도로 타이머 - 여러 타이머를 동시에 관리하고 작업 효율성을 높이세요."><meta name="keywords" content="타이머, 스톱워치, 포모도로, 시간 관리, 생산성"><title>타이머 & 스톱워치 | 포모도로 - FileToQR</title><link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/timer.css"><script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="icon" href="favicon.ico" type="image/x-icon"><style>/* 헤더 초기 로딩 최소 스타일 */
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="タイマー、ストップウォッチおよびポモドーロタイマー - 複数のタイマーを同時に管理して作業効率を高めましょう。"><meta name="keywords" content="タイマー, ストップウォッチ, ポモドーロ, 時間管理, 生産性"><title>タイマー & ストップウォッチ | ポモドーロ - FileToQR</title><link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/timer.css"><script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><link rel="icon" href="favicon.ico" type="image/x-icon"><style>/* ヘッダーの初期ロード最小スタイル */
         #header-container {
             min-height: 64px;
         }
@@ -27,7 +27,7 @@
             text-decoration: none;
         }
         
-        /* 타이머 그리드 레이아웃 */
+        /* タイマーグリッドレイアウト */
         #timers-list {
             display: flex;
             flex-direction: row;
@@ -37,7 +37,7 @@
             width: 100%;
         }
         
-        /* 타이머 항목의 기본 스타일 */
+        /* タイマーアイテムの基本スタイル */
         .timer-item {
             background-color: #f5f5f5;
             border-radius: 8px;
@@ -50,33 +50,33 @@
             transform: translateY(0) scale(1);
         }
         
-        /* 새 타이머 애니메이션 */
+        /* 新しいタイマーアニメーション */
         .timer-item.new-timer {
             opacity: 0;
             transform: translateY(20px) scale(0.95);
         }
         
-        /* 타이머가 1개일 때 */
+        /* タイマーが1つの場合 */
         #timers-list .timer-item:first-child:nth-last-child(1) {
             flex: 0 0 100%;
             max-width: 100%;
         }
 
-        /* 타이머가 2개일 때 */
+        /* タイマーが2つの場合 */
         #timers-list .timer-item:first-child:nth-last-child(2),
         #timers-list .timer-item:first-child:nth-last-child(2) ~ .timer-item {
             flex: 0 0 calc(50% - 10px);
             max-width: calc(50% - 10px);
         }
 
-        /* 타이머가 3개 이상일 때 */
+        /* タイマーが3つ以上の場合 */
         #timers-list .timer-item:first-child:nth-last-child(n+3),
         #timers-list .timer-item:first-child:nth-last-child(n+3) ~ .timer-item {
             flex: 0 0 calc(33.333% - 14px);
             max-width: calc(33.333% - 14px);
         }
         
-        /* 타이머 디스플레이 수정 */
+        /* タイマーディスプレイ修正 */
         .timer-display {
             font-size: 1.8rem;
             text-align: center;
@@ -87,7 +87,7 @@
             overflow: hidden;
         }
         
-        /* 타이머 입력 필드 수정 */
+        /* タイマー入力フィールド修正 */
         .timer-settings {
             display: flex;
             justify-content: space-between;
@@ -109,7 +109,7 @@
             padding: 5px;
         }
         
-        /* 프리셋 버튼 조정 */
+        /* プリセットボタン調整 */
         .preset-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -123,7 +123,7 @@
             padding: 5px;
         }
         
-        /* 모바일 화면 대응 */
+        /* モバイル画面対応 */
         @media (max-width: 992px) {
             #timers-list .timer-item:first-child:nth-last-child(n+2),
             #timers-list .timer-item:first-child:nth-last-child(n+2) ~ .timer-item {
@@ -139,7 +139,7 @@
             }
         }
         
-        /* 탭 스타일 */
+        /* タブスタイル */
         .tabs {
             display: flex;
             margin-bottom: 20px;
@@ -176,13 +176,13 @@
             animation: fadeIn 0.3s ease;
         }
         
-        /* 타이머 완료 스타일 */
+        /* タイマー完了スタイル */
         .timer-complete {
             background-color: #e9f7ef;
             border: 1px solid #10b981;
         }
         
-        /* 버튼 스타일 */
+        /* ボタンスタイル */
         .control-btn, .action-btn {
             padding: 8px 12px;
             border-radius: 4px;
@@ -209,7 +209,7 @@
             background-color: #2563eb;
         }
         
-        /* 스톱워치 스타일 */
+        /* ストップウォッチスタイル */
         .laps-container {
             margin-top: 20px;
             max-height: 300px;
@@ -228,7 +228,7 @@
             justify-content: space-between;
         }
         
-        /* 포모도로 스타일 */
+        /* ポモドーロスタイル */
         .pomodoro-status {
             display: flex;
             flex-wrap: wrap;
@@ -266,11 +266,11 @@
         .highlight {
             color: #3b82f6;
             font-weight: bold;
-        }</style><script defer="defer" src="./assets/js/runtime.6f2dc29026f3291faf67.js"></script><script defer="defer" src="./assets/js/app-core.8c0d45125339ca8785cf.js"></script><script defer="defer" src="./assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script><script defer="defer" src="./assets/js/common-utils.91cc098f37078468f162.js"></script><script defer="defer" src="./assets/js/template-utils.364aa19228ee322888fd.js"></script><script defer="defer" src="./assets/js/timer.e95c80cf1826576d12b1.js"></script></head><body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col"><div id="header-container"><nav><div class="logo"><a href="index.html">FileToQR</a></div><ul class="nav-links"><li><a href="index.html">홈</a></li><li><a href="convert.html">파일 변환</a></li><li><a href="qrcode.html">QR 코드</a></li><li><a href="timer.html" class="active">타이머</a></li><li><a href="help.html">도움말</a></li></ul></nav></div><main class="container mx-auto px-4 py-8"><div class="tabs"><button class="tab-btn active" data-tab="timer">타이머</button> <button class="tab-btn" data-tab="stopwatch">스톱워치</button> <button class="tab-btn" data-tab="pomodoro">포모도로</button></div><div class="tab-content active" id="timer-tab"><div class="timer-container"><div class="timer-controls timer-global-controls"><button id="add-timer" class="action-btn"><i class="fas fa-plus"></i> 타이머 추가</button></div><div id="timers-list"><div class="timer-item" data-timer-id="0"><div class="timer-header"><input class="timer-label" placeholder="타이머 이름"> <button class="close-timer"><i class="fas fa-times"></i></button></div><div class="timer-display"><span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span></div><div class="timer-controls"><button class="timer-start control-btn"><i class="fas fa-play"></i></button> <button class="timer-pause control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button></div><div class="timer-settings"><div class="time-input"><label>시간:</label> <input type="number" class="hours-input" min="0" max="23" value="0"></div><div class="time-input"><label>분:</label> <input type="number" class="minutes-input" min="0" max="59" value="0"></div><div class="time-input"><label>초:</label> <input type="number" class="seconds-input" min="0" max="59" value="0"></div></div><div class="preset-buttons"><button class="preset-btn" data-minutes="5">5분</button> <button class="preset-btn" data-minutes="10">10분</button> <button class="preset-btn" data-minutes="15">15분</button> <button class="preset-btn" data-minutes="30">30분</button></div></div></div></div></div><div class="tab-content" id="stopwatch-tab"><div class="stopwatch-container"><div class="timer-display"><span id="stopwatch-hours">00</span>:<span id="stopwatch-minutes">00</span>:<span id="stopwatch-seconds">00</span>.<span id="stopwatch-milliseconds">00</span></div><div class="timer-controls"><button id="stopwatch-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="stopwatch-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="stopwatch-reset" class="control-btn"><i class="fas fa-redo"></i></button> <button id="stopwatch-lap" class="control-btn" disabled="disabled"><i class="fas fa-flag"></i></button></div><div class="laps-container"><h3>기록</h3><ul id="laps-list"></ul></div></div></div><div class="tab-content" id="pomodoro-tab"><div class="pomodoro-container"><div class="pomodoro-status"><div class="status-box"><span>현재</span> <span id="status-text">작업 시간</span> <span id="current-mode-time">25:00</span></div><div class="status-box"><span>작업 시간</span> <span id="work-time">25:00</span></div><div class="status-box"><span>짧은 휴식</span> <span id="short-break-time">05:00</span></div><div class="status-box"><span>긴 휴식</span> <span id="long-break-time">15:00</span></div><div class="status-box"><span>세션</span> <span id="cycle-count">0/4</span></div></div><div class="timer-controls"><button id="pomodoro-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="pomodoro-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="pomodoro-reset" class="control-btn"><i class="fas fa-redo"></i></button></div><div class="pomodoro-settings"><div class="time-input"><label for="work-minutes">작업 시간(분):</label> <input type="number" id="work-minutes" min="1" max="60" value="25"></div><div class="time-input"><label for="short-break-minutes">짧은 휴식(분):</label> <input type="number" id="short-break-minutes" min="1" max="30" value="5"></div><div class="time-input"><label for="long-break-minutes">긴 휴식(분):</label> <input type="number" id="long-break-minutes" min="1" max="60" value="15"></div><div class="time-input"><label for="cycles">작업 세션 수:</label> <input type="number" id="cycles" min="1" max="10" value="4"></div><div class="time-input"><label for="auto-start">자동 시작:</label> <input type="checkbox" id="auto-start" checked="checked"></div></div></div></div></main><div id="footer-container"></div><script src="assets/js/core/app-core.js" type="module"></script><script src="assets/js/pages/timer.js" type="module"></script><audio id="bell-sound" src="assets/sounds/bell.mp3" preload="auto"></audio><audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio><audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio><script>// 모듈 로드 실패 시 대체 스크립트
+        }</style><script defer="defer" src="./assets/js/runtime.6f2dc29026f3291faf67.js"></script><script defer="defer" src="./assets/js/app-core.8c0d45125339ca8785cf.js"></script><script defer="defer" src="./assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script><script defer="defer" src="./assets/js/common-utils.91cc098f37078468f162.js"></script><script defer="defer" src="./assets/js/template-utils.364aa19228ee322888fd.js"></script><script defer="defer" src="./assets/js/timer.e95c80cf1826576d12b1.js"></script></head><body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col"><div id="header-container"><nav><div class="logo"><a href="index.html">FileToQR</a></div><ul class="nav-links"><li><a href="index.html">ホーム</a></li><li><a href="convert.html">ファイル変換</a></li><li><a href="qrcode.html">QRコード</a></li><li><a href="timer.html" class="active">タイマー</a></li><li><a href="help.html">ヘルプ</a></li></ul></nav></div><main class="container mx-auto px-4 py-8"><div class="tabs"><button class="tab-btn active" data-tab="timer">タイマー</button> <button class="tab-btn" data-tab="stopwatch">ストップウォッチ</button> <button class="tab-btn" data-tab="pomodoro">ポモドーロ</button></div><div class="tab-content active" id="timer-tab"><div class="timer-container"><div class="timer-controls timer-global-controls"><button id="add-timer" class="action-btn"><i class="fas fa-plus"></i> タイマー追加</button></div><div id="timers-list"><div class="timer-item" data-timer-id="0"><div class="timer-header"><input class="timer-label" placeholder="タイマー名"> <button class="close-timer"><i class="fas fa-times"></i></button></div><div class="timer-display"><span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span></div><div class="timer-controls"><button class="timer-start control-btn"><i class="fas fa-play"></i></button> <button class="timer-pause control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button></div><div class="timer-settings"><div class="time-input"><label>時間:</label> <input type="number" class="hours-input" min="0" max="23" value="0"></div><div class="time-input"><label>分:</label> <input type="number" class="minutes-input" min="0" max="59" value="0"></div><div class="time-input"><label>秒:</label> <input type="number" class="seconds-input" min="0" max="59" value="0"></div></div><div class="preset-buttons"><button class="preset-btn" data-minutes="5">5分</button> <button class="preset-btn" data-minutes="10">10分</button> <button class="preset-btn" data-minutes="15">15分</button> <button class="preset-btn" data-minutes="30">30分</button></div></div></div></div></div><div class="tab-content" id="stopwatch-tab"><div class="stopwatch-container"><div class="timer-display"><span id="stopwatch-hours">00</span>:<span id="stopwatch-minutes">00</span>:<span id="stopwatch-seconds">00</span>.<span id="stopwatch-milliseconds">00</span></div><div class="timer-controls"><button id="stopwatch-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="stopwatch-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="stopwatch-reset" class="control-btn"><i class="fas fa-redo"></i></button> <button id="stopwatch-lap" class="control-btn" disabled="disabled"><i class="fas fa-flag"></i></button></div><div class="laps-container"><h3>記録</h3><ul id="laps-list"></ul></div></div></div><div class="tab-content" id="pomodoro-tab"><div class="pomodoro-container"><div class="pomodoro-status"><div class="status-box"><span>現在</span> <span id="status-text">作業時間</span> <span id="current-mode-time">25:00</span></div><div class="status-box"><span>作業時間</span> <span id="work-time">25:00</span></div><div class="status-box"><span>短い休憩</span> <span id="short-break-time">05:00</span></div><div class="status-box"><span>長い休憩</span> <span id="long-break-time">15:00</span></div><div class="status-box"><span>セッション</span> <span id="cycle-count">0/4</span></div></div><div class="timer-controls"><button id="pomodoro-start" class="control-btn"><i class="fas fa-play"></i></button> <button id="pomodoro-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i></button> <button id="pomodoro-reset" class="control-btn"><i class="fas fa-redo"></i></button></div><div class="pomodoro-settings"><div class="time-input"><label for="work-minutes">作業時間(分):</label> <input type="number" id="work-minutes" min="1" max="60" value="25"></div><div class="time-input"><label for="short-break-minutes">短い休憩(分):</label> <input type="number" id="short-break-minutes" min="1" max="30" value="5"></div><div class="time-input"><label for="long-break-minutes">長い休憩(分):</label> <input type="number" id="long-break-minutes" min="1" max="60" value="15"></div><div class="time-input"><label for="cycles">作業セッション数:</label> <input type="number" id="cycles" min="1" max="10" value="4"></div><div class="time-input"><label for="auto-start">自動開始:</label> <input type="checkbox" id="auto-start" checked="checked"></div></div></div></div></main><div id="footer-container"></div><script src="assets/js/core/app-core.js" type="module"></script><script src="assets/js/pages/timer.js" type="module"></script><audio id="bell-sound" src="assets/sounds/bell.mp3" preload="auto"></audio><audio id="digital-sound" src="assets/sounds/digital.mp3" preload="auto"></audio><audio id="nature-sound" src="assets/sounds/nature.mp3" preload="auto"></audio><script>// モジュールロード失敗時代替スクリプト
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('타이머 페이지 초기화 보조 스크립트 실행');
+            console.log('タイマーページ初期化補助スクリプト実行');
             
-            // 모듈 로드 실패 시 기본 탭 기능 제공
+            // モジュールロード失敗時基本タブ機能提供
             const setupTabs = function() {
                 const tabButtons = document.querySelectorAll('.tab-btn');
                 const tabContents = document.querySelectorAll('.tab-content');
@@ -278,32 +278,32 @@
                 tabButtons.forEach(button => {
                     button.addEventListener('click', () => {
                         const tabName = button.dataset.tab;
-                        console.log(`탭 전환: ${tabName}`);
+                        console.log(`タブ切り替え: ${tabName}`);
                         
-                        // 버튼 활성화 상태 변경
+                        // ボタン活性化状態変更
                         tabButtons.forEach(btn => btn.classList.remove('active'));
                         button.classList.add('active');
                         
-                        // 탭 콘텐츠 전환
+                        // タブコンテンツ切り替え
                         tabContents.forEach(content => content.classList.remove('active'));
                         document.getElementById(`${tabName}-tab`).classList.add('active');
                     });
                 });
             };
             
-            // 타이머 추가 버튼 이벤트 대체
+            // タイマー追加ボタンイベント代替
             const addTimerBtn = document.getElementById('add-timer');
             if (addTimerBtn) {
                 addTimerBtn.addEventListener('click', function() {
-                    console.log('타이머 추가 버튼 클릭 (대체 핸들러)');
+                    console.log('タイマー追加ボタンクリック (代替ハンドラー)');
                     
-                    // window에 addNewTimer 함수가 정의되어 있다면 호출
+                    // windowにaddNewTimer関数が定義されている場合は呼び出し
                     if (window.addNewTimer) {
                         window.addNewTimer();
                     } else if (window.addNewTimerGlobal) {
                         window.addNewTimerGlobal();
                     } else {
-                        // 모듈 임포트 실패 시 간단한 타이머 추가 기능
+                        // モジュールインポート失敗時簡単なタイマー追加機能
                         const timersList = document.getElementById('timers-list');
                         if (timersList) {
                             const newTimerId = Date.now();
@@ -314,7 +314,7 @@
                             
                             newTimerElem.innerHTML = `
                                 <div class="timer-header">
-                                    <input type="text" class="timer-label" placeholder="타이머 이름">
+                                    <input type="text" class="timer-label" placeholder="タイマー名">
                                     <button class="close-timer"><i class="fas fa-times"></i></button>
                                 </div>
                                 <div class="timer-display">
@@ -327,29 +327,29 @@
                                 </div>
                                 <div class="timer-settings">
                                     <div class="time-input">
-                                        <label>시간:</label>
+                                        <label>時間:</label>
                                         <input type="number" class="hours-input" min="0" max="23" value="0">
                                     </div>
                                     <div class="time-input">
-                                        <label>분:</label>
+                                        <label>分:</label>
                                         <input type="number" class="minutes-input" min="0" max="59" value="0">
                                     </div>
                                     <div class="time-input">
-                                        <label>초:</label>
+                                        <label>秒:</label>
                                         <input type="number" class="seconds-input" min="0" max="59" value="0">
                                     </div>
                                 </div>
                                 <div class="preset-buttons">
-                                    <button class="preset-btn" data-minutes="5">5분</button>
-                                    <button class="preset-btn" data-minutes="10">10분</button>
-                                    <button class="preset-btn" data-minutes="15">15분</button>
-                                    <button class="preset-btn" data-minutes="30">30분</button>
+                                    <button class="preset-btn" data-minutes="5">5分</button>
+                                    <button class="preset-btn" data-minutes="10">10分</button>
+                                    <button class="preset-btn" data-minutes="15">15分</button>
+                                    <button class="preset-btn" data-minutes="30">30分</button>
                                 </div>
                             `;
                             
                             timersList.appendChild(newTimerElem);
                             
-                            // 닫기 버튼 이벤트
+                            // 閉じるボタンイベント
                             const closeBtn = newTimerElem.querySelector('.close-timer');
                             if (closeBtn) {
                                 closeBtn.addEventListener('click', function() {
@@ -357,7 +357,7 @@
                                 });
                             }
                             
-                            // 프리셋 버튼 이벤트
+                            // プリセットボタンイベント
                             const presetBtns = newTimerElem.querySelectorAll('.preset-btn');
                             presetBtns.forEach(btn => {
                                 btn.addEventListener('click', function() {
@@ -376,6 +376,6 @@
                 });
             }
             
-            // 초기화 함수 실행
+            // 初期化関数実行
             setupTabs();
         });</script></body></html>

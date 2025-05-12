@@ -187,7 +187,7 @@ export async function changeLanguage(lang) {
     
     console.log(`언어 변경 완료: ${lang}`);
     return true;
-  } catch (error) {
+    } catch (error) {
     console.error('언어 변경 실패:', error);
     return false;
   }
@@ -251,8 +251,8 @@ export function navigateToLanguage(lang) {
  * 페이지의 모든 번역 적용
  */
 export function applyTranslations() {
-  if (typeof document === 'undefined') return;
-  
+    if (typeof document === 'undefined') return;
+    
   // data-i18n 속성이 있는 모든 요소 찾기
   const elements = document.querySelectorAll('[data-i18n]');
   
@@ -268,7 +268,7 @@ export function applyTranslations() {
         el.setAttribute('title', translated);
       } else if (el.hasAttribute('value')) {
         el.setAttribute('value', translated);
-      } else {
+    } else {
         // 그 외 요소 내용 교체
         el.textContent = translated;
       }
@@ -386,7 +386,7 @@ function updateMetaDescriptions() {
     const keywordsTag = document.querySelector('meta[name="keywords"]');
     if (keywordsTag) {
       keywordsTag.setAttribute('content', metaInfo.keywords);
-    } else {
+      } else {
       const meta = document.createElement('meta');
       meta.name = 'keywords';
       meta.content = metaInfo.keywords;
@@ -414,9 +414,9 @@ export function translate(key, params = {}, lang = currentLanguage) {
   // 없으면 키 그대로 반환
   if (value === undefined || value === null) {
     console.warn(`번역 키 없음: ${key}`);
-    return key;
-  }
-  
+      return key;
+    }
+    
   // 파라미터 대체
   if (params && typeof value === 'string') {
     Object.keys(params).forEach(param => {
@@ -460,7 +460,7 @@ export function formatDate(date, format = 'short', lang = currentLanguage) {
     };
     
     return new Intl.DateTimeFormat(getLangLocale(lang), options[format] || options.short).format(dateObj);
-  } catch (error) {
+    } catch (error) {
     console.error('날짜 형식화 오류:', error);
     return String(date);
   }
