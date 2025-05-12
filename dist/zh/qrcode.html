@@ -1,0 +1,640 @@
+<!doctype html><html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="무료로 다양한 콘텐츠 유형의 QR 코드를 쉽고 빠르게 생성하세요. URL, 텍스트, 연락처, 이메일 등을 QR 코드로 변환할 수 있습니다."><meta name="keywords" content="QR 코드 생성, QR 코드 만들기, 무료 QR 코드, URL QR 코드, 이메일 QR 코드, 연락처 QR 코드"><title>二维码生成 - FileToQR</title><link rel="stylesheet" href="assets/css/styles.css"><link rel="stylesheet" href="assets/css/components/qr-generator.css"><script src="https://cdn.tailwindcss.com"></script><style>/* QR 코드 프리뷰 스타일 */
+        .qr-preview-container {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            aspect-ratio: 1 / 1;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+        
+        /* 컬러 픽커 스타일 */
+        .color-picker {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .color-picker input[type="color"] {
+            border: 0;
+            padding: 0;
+            width: 150%;
+            height: 150%;
+            transform: translate(-10%, -10%);
+            cursor: pointer;
+        }
+        
+        /* 로고 미리보기 스타일 */
+        .logo-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            object-fit: contain;
+            background-color: #fff;
+        }
+        
+        /* 입력 타입 전환 탭 스타일 */
+        .content-type-tabs {
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
+        }
+        
+        .content-type-tabs button {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            margin-right: 0.5rem;
+        }
+        
+        .content-type-tabs button.active {
+            border-bottom: 2px solid #3B82F6;
+            color: #3B82F6;
+        }
+        
+        /* 숨김 및 표시 클래스 */
+        .hidden {
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }</style><script defer="defer" src="./assets/js/runtime.6f2dc29026f3291faf67.js"></script><script defer="defer" src="./assets/js/app-core.8c0d45125339ca8785cf.js"></script><script defer="defer" src="./assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script><script defer="defer" src="./assets/js/common-utils.91cc098f37078468f162.js"></script><script defer="defer" src="./assets/js/qr-generator.ed894cc7f5949b3559c6.js"></script><script defer="defer" src="./assets/js/template-utils.364aa19228ee322888fd.js"></script></head><body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col"><div id="header-container"></div><div id="ad-header" class="ad-container my-4 text-center"><div class="ad-label text-xs text-gray-500">광고</div><div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><main class="flex-grow container mx-auto px-4 py-8"><h1 class="text-3xl font-bold mb-6">二维码生成器</h1><div class="grid md:grid-cols-2 gap-8"><div><div class="bg-white rounded-lg shadow-md p-6 mb-6"><h2 class="text-xl font-semibold mb-4">二维码内容</h2><div class="content-type-tabs mb-4" id="content-type-tabs"><button class="active" data-type="url">URL</button> <button data-type="text">文本</button> <button data-type="email">邮箱</button> <button data-type="phone">电话</button> <button data-type="vcard">联系人</button> <button data-type="wifi">WiFi</button> <button data-type="file">文件</button></div><div class="content-form active" id="url-form"><div class="mb-4"><label for="url-input" class="block text-sm font-medium text-gray-700 mb-1">网站地址</label> <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com"><p class="text-xs text-gray-500 mt-1">例如: https://filetoqr.com</p></div></div><div class="content-form hidden" id="text-form"><div class="mb-4"><label for="text-input" class="block text-sm font-medium text-gray-700 mb-1">文本</label> <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="请输入内容"></textarea><p class="text-xs text-gray-500 mt-1">最多可输入7,089位数字或4,296个字母数字字符。</p></div></div><div class="content-form hidden" id="email-form"><div class="mb-4"><label for="email-address" class="block text-sm font-medium text-gray-700 mb-1">邮箱地址</label> <input type="email" id="email-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com"></div><div class="mb-4"><label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1">主题（可选）</label> <input id="email-subject" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="邮件主题"></div><div class="mb-4"><label for="email-body" class="block text-sm font-medium text-gray-700 mb-1">正文（可选）</label> <textarea id="email-body" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="邮件正文"></textarea></div></div><div class="content-form hidden" id="phone-form"><div class="mb-4"><label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1">电话号码</label> <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+86 138-1234-5678"><p class="text-xs text-gray-500 mt-1">请包含国家区号。例如: +86 138-1234-5678</p></div></div><div class="content-form hidden" id="vcard-form"><div class="mb-4"><label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1">姓名</label> <input id="vcard-name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="张三"></div><div class="mb-4"><label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1">公司/组织（可选）</label> <input id="vcard-org" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ABC公司"></div><div class="mb-4"><label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1">职位（可选）</label> <input id="vcard-title" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="经理"></div><div class="mb-4"><label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1">电话</label> <input type="tel" id="vcard-phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+86 138-1234-5678"></div><div class="mb-4"><label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label> <input type="email" id="vcard-email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="zhangsan@example.com"></div><div class="mb-4"><label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1">网站（可选）</label> <input type="url" id="vcard-website" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com"></div><div class="mb-4"><label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1">地址（可选）</label> <textarea id="vcard-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="北京市朝阳区"></textarea></div></div><div class="content-form hidden" id="wifi-form"><div class="mb-4"><label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1">WiFi名称（SSID）</label> <input id="wifi-ssid" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi网络名称"></div><div class="mb-4"><label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1">加密类型</label> <select id="wifi-encryption" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="WPA">WPA/WPA2/WPA3</option><option value="WEP">WEP</option><option value="nopass">无密码</option></select></div><div class="mb-4"><label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1">密码</label> <input type="password" id="wifi-password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi密码"></div><div class="flex items-center mb-4"><input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700">隐藏网络</label></div></div><div class="content-form hidden" id="file-form"><div class="mb-4"><label for="file-input" class="block text-sm font-medium text-gray-700 mb-1">选择文件</label> <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><p class="text-xs text-gray-500 mt-1">仅支持5MB以内的文件生成二维码。</p></div><div class="file-info p-4 border rounded-md mb-4 hidden"><h3 class="font-medium mb-2">文件信息</h3><div class="grid grid-cols-2 gap-2 text-sm"><div class="text-gray-600">文件名:</div><div class="file-name font-medium"></div><div class="text-gray-600">文件类型:</div><div class="file-type font-medium"></div><div class="text-gray-600">文件大小:</div><div class="file-size font-medium"></div></div></div><div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm"><p>由于大小限制，转换为二维码的文件适合小文件。大文件将被分割为多个二维码。</p></div></div></div><div class="bg-white rounded-lg shadow-md p-6"><h2 class="text-xl font-semibold mb-4">二维码设置</h2><div class="grid md:grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">前景色</label><div class="color-picker"><input type="color" id="foreground-color" value="#000000"></div></div><div><label class="block text-sm font-medium text-gray-700 mb-1">背景色</label><div class="color-picker"><input type="color" id="background-color" value="#FFFFFF"></div></div><div><label for="error-correction" class="block text-sm font-medium text-gray-700 mb-1">纠错级别</label> <select id="error-correction" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="L">低 (7%)</option><option value="M" selected="selected">中 (15%)</option><option value="Q">高 (25%)</option><option value="H">最高 (30%)</option></select></div><div><label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1">二维码尺寸</label> <select id="qr-size" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="128">小 (128x128px)</option><option value="256" selected="selected">中 (256x256px)</option><option value="512">大 (512x512px)</option><option value="1024">超大 (1024x1024px)</option></select></div></div><div class="mt-4"><label for="margin" class="block text-sm font-medium text-gray-700 mb-1">边距</label> <input type="range" id="margin" min="0" max="5" value="1" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>0</span> <span>1</span> <span>2</span> <span>3</span> <span>4</span> <span>5</span></div></div><div class="mt-4"><div class="flex items-center mb-2"><input type="checkbox" id="add-logo" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"> <label for="add-logo" class="ml-2 block text-sm font-medium text-gray-700">添加Logo</label></div><div id="logo-options" class="mt-2 hidden"><div class="flex items-center space-x-4"><div><label for="logo-file" class="block text-sm font-medium text-gray-700 mb-1">Logo图片</label> <input type="file" id="logo-file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/*"></div><div><img id="logo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'%3E%3C/circle%3E%3Cpolyline points='21 15 16 10 5 21'%3E%3C/polyline%3E%3C/svg%3E" alt="Logo Preview" class="logo-preview"></div></div><div class="mt-2"><label for="logo-size" class="block text-sm font-medium text-gray-700 mb-1">Logo大小</label> <input type="range" id="logo-size" min="5" max="30" value="15" class="w-full"><div class="flex justify-between text-xs text-gray-500"><span>小</span> <span>大</span></div></div></div></div><div class="mt-6"><button id="generate-qr" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">生成二维码</button></div></div></div><div><div class="bg-white rounded-lg shadow-md p-6 mb-6"><h2 class="text-xl font-semibold mb-4">二维码预览</h2><div class="qr-preview-container mb-6" id="qr-preview"><div class="text-center text-gray-500"><svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg><p>生成的二维码将在此显示。</p></div></div><div class="space-y-4" id="download-options" style="display: none;"><h3 class="text-lg font-semibold">下载</h3><div class="grid grid-cols-3 gap-4"><button class="flex flex-col items-center justify-center p-4 border rounded-md hover:bg-gray-50" id="download-png"><svg class="w-8 h-8 text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> <span class="text-sm">PNG</span></button> <button class="flex flex-col items-center justify-center p-4 border rounded-md hover:bg-gray-50" id="download-svg"><svg class="w-8 h-8 text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg> <span class="text-sm">SVG</span></button> <button class="flex flex-col items-center justify-center p-4 border rounded-md hover:bg-gray-50" id="download-jpeg"><svg class="w-8 h-8 text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> <span class="text-sm">JPEG</span></button></div></div></div><div id="ad-content" class="ad-container mb-6 text-center"><div class="ad-label text-xs text-gray-500">광고</div><div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="bg-white rounded-lg shadow-md p-6"><h2 class="text-xl font-semibold mb-4">二维码使用技巧</h2><div class="space-y-4"><div><h3 class="font-medium text-blue-600">如何让二维码更易于扫描</h3><p class="text-gray-600 text-sm mt-1">确保二维码与背景有足够的对比度，并将纠错级别设置为"高"，以提高扫描成功率。</p></div><div><h3 class="font-medium text-blue-600">添加Logo的技巧</h3><p class="text-gray-600 text-sm mt-1">添加Logo时，仅使用二维码的中心区域，并将纠错级别设置为"高"或"最高"。</p></div><div><h3 class="font-medium text-blue-600">用于打印的二维码</h3><p class="text-gray-600 text-sm mt-1">用于打印时，请下载SVG格式的二维码，以便在调整大小时保持质量。</p></div><div><h3 class="font-medium text-blue-600">测试您的二维码</h3><p class="text-gray-600 text-sm mt-1">使用前请在多台设备和扫描应用上测试，以确保能被正确识别。</p></div></div></div><div class="content-form hidden" id="scanner-panel"><div class="scanner-tabs mb-4 border-b"><button class="scanner-tab active px-4 py-2 font-medium" data-panel="camera-scan-panel">通过相机扫描</button> <button class="scanner-tab px-4 py-2 font-medium" data-panel="image-scan-panel">通过图像扫描</button></div><div id="scanner-container" class="relative mb-4"><div id="loading-message" class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-700">⌛ 相机加载中...</div><div id="camera-scan-panel" class="scanner-panel"><canvas id="scanner-canvas" class="w-full"></canvas></div><div id="image-scan-panel" class="scanner-panel hidden"><div class="mb-4"><label for="qr-image-input" class="block text-sm font-medium text-gray-700 mb-1">选择二维码图像</label> <input type="file" id="qr-image-input" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/*"></div><div id="image-preview" class="mb-4 hidden"><img id="preview-image" class="max-w-full h-auto border rounded-md" src="" alt="二维码预览"></div><button id="scan-image" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">通过图像读取二维码</button></div></div><div id="file-recovery-ui" class="hidden mb-6 p-4 bg-blue-50 rounded-md border border-blue-200"><h3 class="text-lg font-semibold mb-2">文件恢复模式</h3><p class="text-sm mb-4">扫描二维码以恢复原始文件。首先扫描元数据二维码，然后按顺序扫描剩余的块。</p><div class="mb-4"><div class="flex justify-between mb-1"><span class="text-sm font-medium">恢复进度</span> <span id="recovery-summary" class="text-sm">首先扫描元数据二维码。</span></div><div class="w-full bg-gray-200 rounded-full h-3"><div id="recovery-progress-bar" class="bg-blue-600 h-3 rounded-full" style="width: 0%"></div></div><p id="recovery-progress-text" class="text-xs text-gray-500 mt-1">恢复准备中...</p></div><div id="recovery-metadata-section" class="hidden mb-4 p-3 bg-white rounded-md border border-gray-200"><h4 class="text-sm font-medium mb-2">文件信息</h4><div class="text-sm grid grid-cols-2 gap-2"><div><span class="text-gray-500">文件名:</span> <span id="recovery-filename" class="font-medium ml-1">-</span></div><div><span class="text-gray-500">大小:</span> <span id="recovery-filesize" class="font-medium ml-1">-</span></div><div><span class="text-gray-500">类型:</span> <span id="recovery-filetype" class="font-medium ml-1">-</span></div></div></div><div id="recovery-complete-message" class="hidden mb-4 p-3 bg-green-50 text-green-800 rounded-md border border-green-200"><div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> <span class="font-medium">所有二维码都已扫描！您可以下载文件。</span></div></div><div class="flex space-x-2"><button id="reset-recovery" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm">重新开始</button> <button id="download-file" class="bg-gray-400 text-white px-3 py-2 rounded-md text-sm" disabled="disabled">下载文件</button></div></div><div id="scan-result" class="hidden"><h3 class="text-lg font-semibold mb-2">扫描结果</h3><div class="mb-4"><div class="flex items-center mb-1"><span class="text-gray-700 font-medium">类型:</span> <span id="result-type" class="ml-2">文本</span></div><div class="p-4 bg-gray-50 rounded-md border"><pre id="result-content" class="text-sm whitespace-pre-wrap break-all"></pre></div></div><div class="flex space-x-4"><button id="copy-result" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">复制到剪贴板</button> <a id="result-action" href="#" target="_blank" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">打开</a></div></div></div></div></div></main><div id="ad-footer" class="ad-container my-4 text-center"><div class="ad-label text-xs text-gray-500">광고</div><div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div id="footer-container"></div><script src="assets/js/core/app-core.js" type="module"></script><script>// QR 코드 라이브러리 로드 (CDN을 우선적으로 시도)
+        (function loadQRCodeLibrary() {
+            // 라이브러리가 이미 로드되었는지 확인
+            if (typeof QRCode !== 'undefined') {
+                console.log('QRCode 라이브러리가 이미 로드되어 있습니다.');
+                return;
+            }
+            
+            // CDN에서 로드
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+            script.onload = function() {
+                console.log('QRCode 라이브러리가 CDN에서 성공적으로 로드되었습니다.');
+            };
+            script.onerror = function() {
+                console.warn('CDN에서 QRCode 라이브러리 로드 실패, 로컬 파일 시도...');
+                
+                // 로컬 파일 시도
+                const localScript = document.createElement('script');
+                localScript.src = 'assets/js/vendor/qrcode.min.js';
+                localScript.onload = function() {
+                    console.log('QRCode 라이브러리가 로컬 파일에서 성공적으로 로드되었습니다.');
+                };
+                localScript.onerror = function() {
+                    console.error('QRCode 라이브러리 로드 실패 (CDN 및 로컬 모두)');
+                };
+                document.head.appendChild(localScript);
+            };
+            document.head.appendChild(script);
+        })();</script><script src="assets/js/utils/qr-debugger.js" type="module"></script><script>document.addEventListener('DOMContentLoaded', function() {
+            // 헤더와 푸터 직접 로드
+            loadComponents();
+            
+            // 콘텐츠 유형 탭 설정 
+            setupContentTypeTabs();
+            
+            // 로고 옵션 토글
+            setupLogoOptions();
+            
+            // QR 코드 생성 버튼 이벤트
+            setupGenerateButton();
+            
+            // 다운로드 버튼 이벤트
+            setupDownloadButtons();
+        });
+        
+        // 헤더 및 푸터 컴포넌트 로드
+        function loadComponents() {
+            // 헤더 로드
+            const headerContainer = document.getElementById('header-container');
+            if (headerContainer) {
+                fetch('components/header.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        headerContainer.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('헤더 로드 실패:', error);
+                        // 대체 헤더 제공
+                        headerContainer.innerHTML = `
+                            <header class="bg-white shadow-sm sticky top-0 z-50">
+                                <div class="container mx-auto px-4 py-4">
+                                    <div class="flex justify-between items-center">
+                                        <a href="index.html" class="flex items-center">
+                                            <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+                                        </a>
+                                        <nav>
+                                            <ul class="flex space-x-6">
+                                                <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
+                                                <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
+                                                <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
+                                                <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </header>
+                        `;
+                    });
+            }
+            
+            // 푸터 로드
+            const footerContainer = document.getElementById('footer-container');
+            if (footerContainer) {
+                fetch('components/footer.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        footerContainer.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('푸터 로드 실패:', error);
+                        // 대체 푸터 제공
+                        footerContainer.innerHTML = `
+                            <footer class="bg-gray-100 mt-12">
+                                <div class="container mx-auto px-4 py-8">
+                                    <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                                        <p>&copy; 2025 FileToQR. All rights reserved.</p>
+                                    </div>
+                                </div>
+                            </footer>
+                        `;
+                    });
+            }
+        }
+        
+        // 콘텐츠 유형 탭 설정
+        function setupContentTypeTabs() {
+            const contentTypeTabs = document.querySelectorAll('#content-type-tabs button');
+            const contentForms = document.querySelectorAll('.content-form');
+            
+            contentTypeTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 모든 탭 비활성화
+                    contentTypeTabs.forEach(t => t.classList.remove('active'));
+                    // 현재 탭 활성화
+                    this.classList.add('active');
+                    
+                    // 모든 폼 숨기기
+                    contentForms.forEach(form => form.classList.add('hidden'));
+                    
+                    // 선택된 유형의 폼 표시
+                    const activeType = this.getAttribute('data-type');
+                    const activeForm = document.getElementById(`${activeType}-form`);
+                    if (activeForm) {
+                        activeForm.classList.remove('hidden');
+                    }
+                });
+            });
+        }
+            
+        // 로고 옵션 토글
+        function setupLogoOptions() {
+            const addLogoCheckbox = document.getElementById('add-logo');
+            const logoOptions = document.getElementById('logo-options');
+            
+            if (addLogoCheckbox && logoOptions) {
+            addLogoCheckbox.addEventListener('change', function() {
+                    logoOptions.classList.toggle('hidden', !this.checked);
+                });
+            }
+            
+            // 로고 파일 선택 이벤트
+            const logoFileInput = document.getElementById('logo-file');
+            const logoPreview = document.getElementById('logo-preview');
+            
+            if (logoFileInput && logoPreview) {
+                logoFileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            logoPreview.src = e.target.result;
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                }
+            });
+            }
+        }
+            
+        // QR 코드 생성 버튼 이벤트
+        function setupGenerateButton() {
+            const generateBtn = document.getElementById('generate-qr');
+            
+            if (generateBtn) {
+                generateBtn.addEventListener('click', function() {
+                generateQRCode();
+            });
+            }
+        }
+        
+        // QR 코드 생성 함수
+        function generateQRCode() {
+            console.log('QR 코드 생성 시작');
+            
+            // 현재 선택된 탭 타입 찾기
+            const activeTab = document.querySelector('#content-type-tabs button.active');
+            if (!activeTab) {
+                console.error('활성화된 탭을 찾을 수 없습니다.');
+                return;
+            }
+            
+            const contentType = activeTab.getAttribute('data-type');
+            console.log('선택된 콘텐츠 타입:', contentType);
+            
+            // 콘텐츠 가져오기
+            let content = '';
+            
+            switch (contentType) {
+                case 'url':
+                    content = document.getElementById('url-input').value.trim();
+                    if (!content) {
+                        alert('请输入URL。');
+                        return;
+                    }
+                    // URL 형식 자동 수정
+                    if (!content.startsWith('http://') && !content.startsWith('https://')) {
+                        content = 'https://' + content;
+                    }
+                    break;
+                
+                case 'text':
+                    content = document.getElementById('text-input').value.trim();
+                    if (!content) {
+                        alert('请输入文本。');
+                        return;
+                    }
+                    break;
+                
+                case 'email':
+                    const email = document.getElementById('email-address').value.trim();
+                    const subject = document.getElementById('email-subject').value.trim();
+                    const body = document.getElementById('email-body').value.trim();
+                    
+                    if (!email) {
+                        alert('请输入邮箱地址。');
+                        return;
+                    }
+                    
+                    content = `mailto:${email}`;
+                    if (subject || body) {
+                        content += `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    }
+                    break;
+                
+                case 'phone':
+                    content = document.getElementById('phone-input').value.trim();
+                    if (!content) {
+                        alert('请输入电话号码。');
+                        return;
+                    }
+                    content = `tel:${content}`;
+                    break;
+                
+                case 'vcard':
+                    const name = document.getElementById('vcard-name').value.trim();
+                    const org = document.getElementById('vcard-org').value.trim();
+                    const title = document.getElementById('vcard-title').value.trim();
+                    const phone = document.getElementById('vcard-phone').value.trim();
+                    const vcardEmail = document.getElementById('vcard-email').value.trim();
+                    const website = document.getElementById('vcard-website').value.trim();
+                    const address = document.getElementById('vcard-address').value.trim();
+                    
+                    if (!name) {
+                        alert('请输入姓名。');
+                        return;
+                    }
+                    
+                    // vCard 형식 생성
+                    content = 'BEGIN:VCARD\nVERSION:3.0\n';
+                    content += `N:${name};;;\n`;
+                    content += `FN:${name}\n`;
+                    if (org) content += `ORG:${org}\n`;
+                    if (title) content += `TITLE:${title}\n`;
+                    if (phone) content += `TEL:${phone}\n`;
+                    if (vcardEmail) content += `EMAIL:${vcardEmail}\n`;
+                    if (website) content += `URL:${website}\n`;
+                    if (address) content += `ADR:;;${address};;;\n`;
+                    content += 'END:VCARD';
+                    break;
+                
+                case 'wifi':
+                    const ssid = document.getElementById('wifi-ssid').value.trim();
+                    const encryption = document.getElementById('wifi-encryption').value;
+                    const password = document.getElementById('wifi-password').value;
+                    const hidden = document.getElementById('wifi-hidden').checked;
+                    
+                    if (!ssid) {
+                        alert('请输入WiFi名称（SSID）。');
+                        return;
+                    }
+                    
+                    // WiFi QR 코드 형식
+                    content = `WIFI:S:${ssid};T:${encryption};`;
+                    if (encryption !== 'nopass') {
+                        content += `P:${password};`;
+                    }
+                    if (hidden) {
+                        content += 'H:true;';
+                    }
+                    content += ';';
+                    break;
+                
+                case 'file':
+                    alert('文件二维码功能正在开发中。');
+                    return;
+                
+                default:
+                    alert('不支持的媒体类型。');
+                    return;
+            }
+            
+            // QR 코드 생성 설정
+            const foregroundColor = document.getElementById('foreground-color').value;
+            const backgroundColor = document.getElementById('background-color').value;
+            const errorCorrectionLevel = document.getElementById('error-correction').value;
+            const qrSize = parseInt(document.getElementById('qr-size').value);
+            const margin = parseInt(document.getElementById('margin').value);
+            
+            // 오류 수정 레벨 매핑
+            let correctLevel;
+            if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel) {
+                switch (errorCorrectionLevel) {
+                    case 'L': correctLevel = QRCode.CorrectLevel.L; break;
+                    case 'M': correctLevel = QRCode.CorrectLevel.M; break;
+                    case 'Q': correctLevel = QRCode.CorrectLevel.Q; break;
+                    case 'H': correctLevel = QRCode.CorrectLevel.H; break;
+                    default: correctLevel = QRCode.CorrectLevel.M;
+                }
+            } else {
+                // 기본값 사용
+                correctLevel = 0; // M
+            }
+            
+            // QR 코드 컨테이너 준비
+            const qrPreview = document.getElementById('qr-preview');
+            
+            // 기존 QR 코드 및 로딩 표시 제거
+            qrPreview.innerHTML = `
+                <div class="flex justify-center items-center h-full">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+                </div>
+            `;
+            
+            console.log('QR 코드 생성 옵션:', {
+                content: content.length > 30 ? content.substring(0, 30) + '...' : content,
+                size: qrSize,
+                foreground: foregroundColor,
+                background: backgroundColor,
+                errorCorrection: errorCorrectionLevel,
+                margin: margin
+            });
+            
+            // QR 코드 생성 시도
+            try {
+                // 라이브러리가 로드되었는지 확인
+                if (typeof QRCode === 'undefined') {
+                    throw new Error('QR 코드 라이브러리가 로드되지 않았습니다.');
+                }
+                
+                // QR 코드 생성 방식 결정 (인스턴스 방식 또는 toCanvas 메서드)
+                if (typeof QRCode === 'function') {
+                    // 기존 내용 제거
+                    qrPreview.innerHTML = '';
+                    
+                    // 인스턴스 방식
+                    new QRCode(qrPreview, {
+                        text: content,
+                        width: qrSize,
+                        height: qrSize,
+                        colorDark: foregroundColor,
+                        colorLight: backgroundColor,
+                        correctLevel: correctLevel,
+                        margin: margin
+                    });
+                    
+                    console.log('QR 코드 생성 성공 (인스턴스 방식)');
+                    
+                    // 다운로드 버튼 표시
+                    document.getElementById('download-options').style.display = 'block';
+                } else if (typeof QRCode.toCanvas === 'function') {
+                    // Canvas 생성
+                    const canvas = document.createElement('canvas');
+                    canvas.width = qrSize;
+                    canvas.height = qrSize;
+                    
+                    // toCanvas 메서드 사용
+                    QRCode.toCanvas(canvas, content, {
+                        width: qrSize,
+                        margin: margin,
+                        color: {
+                            dark: foregroundColor,
+                            light: backgroundColor
+                        },
+                        errorCorrectionLevel: errorCorrectionLevel
+                    }, function(error) {
+                        if (error) {
+                            console.error('QR 코드 생성 오류:', error);
+                            qrPreview.innerHTML = `
+                                <div class="text-center text-red-600">
+                                    <p>QR 코드 생성 오류</p>
+                                    <p class="text-sm">${error.message}</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        // 성공 시 Canvas 표시
+                        qrPreview.innerHTML = '';
+                        qrPreview.appendChild(canvas);
+                        console.log('QR 코드 생성 성공 (toCanvas 방식)');
+                        
+                        // 다운로드 버튼 표시
+                        document.getElementById('download-options').style.display = 'block';
+                    });
+                } else {
+                    throw new Error('지원되는 QR 코드 생성 방식을 찾을 수 없습니다.');
+                }
+                
+                // 로고 추가 처리 (로고 기능을 추가한 경우)
+                if (document.getElementById('add-logo').checked) {
+                    handleLogoAddition(qrPreview);
+                }
+            } catch (error) {
+                console.error('QR 코드 생성 중 오류 발생:', error);
+                qrPreview.innerHTML = `
+                    <div class="text-center text-red-600">
+                        <p>QR 코드 생성 오류</p>
+                        <p class="text-sm">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 로고 추가 처리 (선택적 기능)
+        function handleLogoAddition(qrContainer) {
+            // 로고 파일이 선택되었는지 확인
+            const logoFile = document.getElementById('logo-file').files[0];
+            if (!logoFile) {
+                console.log('로고 파일이 선택되지 않았습니다.');
+                return;
+            }
+            
+            // QR 코드 생성이 완료되길 기다림
+            setTimeout(() => {
+                // QR 코드 캔버스 찾기
+                const canvas = qrContainer.querySelector('canvas');
+                if (!canvas) {
+                    console.warn('QR 코드 캔버스를 찾을 수 없습니다.');
+                    return;
+                }
+                
+                // 로고 크기 계산
+                const logoSize = parseInt(document.getElementById('logo-size').value) / 100 * canvas.width;
+                
+                // 로고 이미지 불러오기
+                const logoImg = new Image();
+                logoImg.onload = function() {
+                    // 캔버스 컨텍스트
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 로고 그리기
+                    const logoX = (canvas.width - logoSize) / 2;
+                    const logoY = (canvas.height - logoSize) / 2;
+                    
+                    // 로고 영역 배경 (흰색)
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(logoX - 2, logoY - 2, logoSize + 4, logoSize + 4);
+                    
+                    // 로고 이미지 그리기
+                    ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                    
+                    console.log('로고가 QR 코드에 추가되었습니다.');
+                };
+                logoImg.src = URL.createObjectURL(logoFile);
+            }, 100); // QR 코드 생성 완료 후 약간의 지연 시간
+        }
+        
+        // 다운로드 버튼 이벤트
+        function setupDownloadButtons() {
+            // PNG 다운로드
+            const downloadPngBtn = document.getElementById('download-png');
+            if (downloadPngBtn) {
+                downloadPngBtn.addEventListener('click', function() {
+                downloadQRCode('png');
+            });
+            }
+            
+            // SVG 다운로드
+            const downloadSvgBtn = document.getElementById('download-svg');
+            if (downloadSvgBtn) {
+                downloadSvgBtn.addEventListener('click', function() {
+                downloadQRCode('svg');
+            });
+            }
+            
+            // JPEG 다운로드
+            const downloadJpegBtn = document.getElementById('download-jpeg');
+            if (downloadJpegBtn) {
+                downloadJpegBtn.addEventListener('click', function() {
+                downloadQRCode('jpeg');
+            });
+            }
+        }
+        
+        // QR 코드 다운로드 함수
+        function downloadQRCode(format) {
+            // QR 코드 캔버스 찾기
+            const qrPreview = document.getElementById('qr-preview');
+            const canvas = qrPreview.querySelector('canvas');
+            
+            if (!canvas) {
+                alert('다운로드할 QR 코드를 찾을 수 없습니다.');
+                return;
+            }
+            
+            let dataUrl;
+            let filename = `qrcode_${new Date().getTime()}`;
+            
+            switch (format) {
+                case 'png':
+                    dataUrl = canvas.toDataURL('image/png');
+                    filename += '.png';
+                    break;
+                
+                case 'jpeg':
+                    dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                    filename += '.jpg';
+                    break;
+                
+                case 'svg':
+                    // SVG 변환 (간단 구현)
+                    const svg = generateSVGFromCanvas(canvas);
+                    const blob = new Blob([svg], { type: 'image/svg+xml' });
+                    dataUrl = URL.createObjectURL(blob);
+                    filename += '.svg';
+                    break;
+                
+                default:
+                    alert('지원하지 않는 형식입니다.');
+                    return;
+            }
+            
+            // 다운로드 링크 생성 및 클릭
+            const downloadLink = document.createElement('a');
+            downloadLink.href = dataUrl;
+            downloadLink.download = filename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+                    
+            // SVG Blob URL 해제
+            if (format === 'svg') {
+                URL.revokeObjectURL(dataUrl);
+            }
+            
+            console.log(`QR 코드가 ${format} 형식으로 다운로드되었습니다.`);
+        }
+        
+        // Canvas에서 SVG 생성 함수
+        function generateSVGFromCanvas(canvas) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            
+            // SVG 시작 태그
+            let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
+            
+            // 배경색 (흰색)
+            svg += `<rect width="${width}" height="${height}" fill="#FFFFFF"/>`;
+            
+            // 픽셀 순회하며 검은색 픽셀 찾기
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+                    
+                    // 어두운 픽셀 (QR 코드 모듈)
+                    if (r < 128 && g < 128 && b < 128) {
+                        svg += `<rect x="${x}" y="${y}" width="1" height="1" fill="#000000"/>`;
+                    }
+                }
+            }
+            
+            // SVG 종료 태그
+            svg += '</svg>';
+            
+            return svg;
+        }</script></body></html>
