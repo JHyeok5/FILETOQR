@@ -10,9 +10,8 @@ const fs = require('fs');
 // HTML 페이지 목록
 const htmlPages = ['index', 'convert', 'qrcode', 'help', 'privacy', 'terms', 'timer', 'contact'];
 
-// 지원 언어 목록 - 다국어 지원 중단
-// const languages = ['en', 'zh', 'ja'];
-const languages = [];
+// 지원 언어 목록 - 다국어 지원 활성화
+const languages = ['en', 'zh', 'ja'];
 
 // HTML 웹팩 플러그인 배열
 const htmlPlugins = [];
@@ -52,14 +51,16 @@ htmlPages.forEach(page => {
         removeComments: true,
         removeRedundantAttributes: true,
         useShortDoctype: true
+      },
+      templateParameters: {
+        lang: 'ko',
+        currentLang: 'ko'
       }
     })
   );
 });
 
-// 다른 언어 HTML 파일 생성 - 비활성화
-// 아래 코드는 다국어 지원이 필요할 때 다시 활성화할 수 있습니다
-/*
+// 다른 언어 HTML 파일 생성 (en, zh, ja)
 languages.forEach(lang => {
   // 언어 디렉토리가 없으면 생성
   if (!fs.existsSync(path.resolve(__dirname, lang))) {
@@ -69,6 +70,8 @@ languages.forEach(lang => {
   htmlPages.forEach(page => {
     // 각 언어별 템플릿이 있는지 확인
     const langTemplateExists = fs.existsSync(path.resolve(__dirname, `${lang}/${page}.html`));
+    
+    // 언어 템플릿이 있으면 해당 템플릿 사용, 없으면 기본 템플릿(한국어) 사용
     const templatePath = langTemplateExists ? `./${lang}/${page}.html` : `./${page}.html`;
     
     const chunks = ['app-core', 'common-utils', 'vendors'];
@@ -100,21 +103,21 @@ languages.forEach(lang => {
     );
   });
 });
-*/
 
 // 페이지별 엔트리 포인트 생성
 const entries = {
   'app-core': './assets/js/core/app-core.js',
   'common-utils': './assets/js/utils/common-utils.js',
-  'converter-core': './assets/js/core/converter-core.js',
+  'shared-modules': './assets/js/shared-modules.js',
   'qr-generator': './assets/js/qr-generator/qr-generator.js',
+  'file-to-qr': './assets/js/qr-generator/file-to-qr.js',
   'template-utils': './assets/js/utils/template-utils.js',
-  // 페이지별 스크립트
   'home': './assets/js/pages/home.js',
-  'convert': './assets/js/pages/convert.js',
   'timer': './assets/js/pages/timer.js',
-  // 콘텐츠 페이지 공통 스크립트
-  'content': './assets/js/pages/content.js'
+  'convert': './assets/js/pages/convert.js',
+  'content': './assets/js/pages/content.js',
+  'converter-core': './assets/js/core/converter-core.js',
+  'text-to-qr': './assets/js/pages/text-to-qr.js'
 };
 
 module.exports = {
