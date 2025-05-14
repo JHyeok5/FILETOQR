@@ -86,7 +86,7 @@ const importQRCodeLibrary = async () => {
     const msg = i18n && typeof i18n.translate === 'function'
       ? i18n.translate('qrcode.errors.qrLibLoadFail', {}, 'QR 코드 라이브러리를 로드할 수 없습니다. 제한된 기능으로 계속합니다.')
       : 'QR 코드 라이브러리를 로드할 수 없습니다. 제한된 기능으로 계속합니다.';
-    showErrorMessage(msg);
+    showErrorMessage('qrcode.errors.qrLibLoadFail', msg);
     return window.QRCode;
   } catch (error) {
     console.error('QRCode 라이브러리 로드 중 심각한 오류 발생:', error);
@@ -94,7 +94,7 @@ const importQRCodeLibrary = async () => {
     const msg = i18n && typeof i18n.translate === 'function'
       ? i18n.translate('qrcode.errors.qrLibInitFail', {}, 'QR 코드 생성기를 초기화할 수 없습니다. 페이지를 새로고침하거나 다시 시도해주세요.')
       : 'QR 코드 생성기를 초기화할 수 없습니다. 페이지를 새로고침하거나 다시 시도해주세요.';
-    showErrorMessage(msg);
+    showErrorMessage('qrcode.errors.qrLibInitFail', msg);
     // 최소한의 대체 라이브러리 제공
     window.QRCode = createFallbackQRCodeLibrary();
     return window.QRCode;
@@ -144,7 +144,12 @@ function createFallbackQRCodeLibrary() {
 }
 
 // 오류 메시지 표시 함수
-function showErrorMessage(message) {
+function showErrorMessage(messageKey, defaultMsg) {
+  // 오류 메시지는 반드시 i18n을 통해 출력해야 함
+  const i18n = window.FileToQR && window.FileToQR.i18n;
+  const message = i18n && typeof i18n.translate === 'function'
+    ? i18n.translate(messageKey, {}, defaultMsg || messageKey)
+    : (defaultMsg || messageKey);
   // Toast 메시지 생성
   const toast = document.createElement('div');
   toast.className = 'toast toast-error';
@@ -157,7 +162,6 @@ function showErrorMessage(message) {
     </div>
     <button class="toast-close">×</button>
   `;
-  
   // 닫기 버튼 이벤트 리스너
   const closeBtn = toast.querySelector('.toast-close');
   if (closeBtn) {
@@ -166,16 +170,13 @@ function showErrorMessage(message) {
       setTimeout(() => toast.remove(), 300);
     });
   }
-  
   // 기존 토스트 메시지가 있으면 제거
   const existingToast = document.querySelector('.toast');
   if (existingToast) {
     existingToast.remove();
   }
-  
   // 페이지에 토스트 추가
   document.body.appendChild(toast);
-  
   // 자동 제거 타이머 (10초)
   setTimeout(() => {
     if (document.body.contains(toast)) {
@@ -183,19 +184,10 @@ function showErrorMessage(message) {
       setTimeout(() => toast.remove(), 300);
     }
   }, 10000);
-  
   // QR 프리뷰 영역에도 오류 표시
   const qrPreview = document.getElementById('qr-preview');
   if (qrPreview) {
-    qrPreview.innerHTML = `
-      <div class="error-message text-center">
-        <svg class="w-16 h-16 mx-auto mb-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-        </svg>
-        <p class="text-red-600 font-medium mb-2">QR 코드 생성 오류</p>
-        <p class="text-gray-600 text-sm">${message}</p>
-      </div>
-    `;
+    qrPreview.innerHTML = `<div class="p-4 bg-red-100 text-red-800 rounded-lg"><h3 class="font-medium">${i18n ? i18n.translate('errors.errorOccurred', {}, '오류 발생') : '오류 발생'}</h3><p>${message}</p></div>`;
   }
 }
 
@@ -255,7 +247,7 @@ const QRGenerator = {
       console.error('에러 발생 시 모듈 상태:', JSON.stringify(this.state));
       
       // 사용자에게 에러 메시지 표시
-      showErrorMessage('QR 코드 생성기를 초기화하는 도중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
+      showErrorMessage('qrcode.errors.qrLibInitFail', 'QR 코드 생성기를 초기화하는 도중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
       
       return false;
     }

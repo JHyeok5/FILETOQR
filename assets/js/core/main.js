@@ -40,7 +40,8 @@ const importComponentSystem = async () => {
 
 const importFileToQRConverter = async () => {
   try {
-    const module = await import('../converters/file-to-qr-converter.js');
+    // 통합 모듈로 변경 (file-to-qr-core.js)
+    const module = await import('../qr-generator/file-to-qr-core.js');
     return module.default;
   } catch (error) {
     console.error('FileToQRConverter 모듈 로드 실패:', error);

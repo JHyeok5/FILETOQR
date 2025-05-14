@@ -88,24 +88,23 @@ export class NotificationManager {
      * @private
      */
     _showNotification(title, message) {
+        const i18n = window.FileToQR && window.FileToQR.i18n;
         if (!('Notification' in window)) {
-            console.warn('이 브라우저는 알림을 지원하지 않습니다.');
+            const notSupportedMsg = i18n && typeof i18n.translate === 'function'
+                ? i18n.translate('errors.notificationNotSupported', {}, '이 브라우저는 알림을 지원하지 않습니다.')
+                : '이 브라우저는 알림을 지원하지 않습니다.';
+            console.warn(notSupportedMsg);
             return;
         }
-        
         if (Notification.permission === 'granted') {
             const notification = new Notification(title, {
                 body: message,
                 icon: '/assets/images/timer-icon.png'
             });
-            
-            // 알림 클릭 시 포커스
             notification.onclick = () => {
                 window.focus();
                 notification.close();
             };
-            
-            // 5초 후 자동으로 닫힘
             setTimeout(() => notification.close(), 5000);
         } else if (Notification.permission !== 'denied') {
             this._requestNotificationPermission();
@@ -117,17 +116,23 @@ export class NotificationManager {
      * @private
      */
     _requestNotificationPermission() {
+        const i18n = window.FileToQR && window.FileToQR.i18n;
         if (!('Notification' in window)) return;
-        
         if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
             Notification.requestPermission()
                 .then(permission => {
                     if (permission === 'granted') {
-                        console.log('알림 권한이 허용되었습니다.');
+                        const grantedMsg = i18n && typeof i18n.translate === 'function'
+                            ? i18n.translate('notification.permissionGranted', {}, '알림 권한이 허용되었습니다.')
+                            : '알림 권한이 허용되었습니다.';
+                        console.log(grantedMsg);
                     }
                 })
                 .catch(error => {
-                    console.error('알림 권한 요청 중 오류 발생:', error);
+                    const errorMsg = i18n && typeof i18n.translate === 'function'
+                        ? i18n.translate('errors.notificationPermissionError', {}, '알림 권한 요청 중 오류 발생:')
+                        : '알림 권한 요청 중 오류 발생:';
+                    console.error(errorMsg, error);
                 });
         }
     }

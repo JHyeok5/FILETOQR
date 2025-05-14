@@ -211,5 +211,114 @@
       "time": "HH시 mm분 ss초",
       "dateTime": "YYYY년 MM월 DD일 HH시 mm분"
     }
+  },
+  "nav": {
+    "home": "홈",
+    "convert": "파일 변환",
+    "qrcode": "QR 코드",
+    "timer": "타이머",
+    "help": "도움말"
+  },
+  "lang": {
+    "ko": "한국어",
+    "en": "영어",
+    "zh": "중국어",
+    "ja": "일본어"
+  },
+  "main": {
+    "title": "파일을 QR 코드로 변환",
+    "desc": "FileToQR는 다양한 파일과 텍스트, URL, 연락처 정보를 쉽고 빠르게 QR 코드로 변환할 수 있는 무료 서비스입니다.",
+    "selectContent": "변환할 콘텐츠 선택"
+  },
+  "tab": {
+    "url": "URL",
+    "text": "텍스트",
+    "email": "이메일",
+    "phone": "전화번호",
+    "vcard": "연락처",
+    "wifi": "WiFi",
+    "file": "파일"
+  },
+  "form": {
+    "url": {
+      "label": "웹사이트 주소",
+      "placeholder": "https://example.com",
+      "example": "예: https://filetoqr.com"
+    },
+    "text": {
+      "label": "텍스트",
+      "placeholder": "내용을 입력하세요",
+      "desc": "최대 7,089자의 숫자 또는 4,296자의 영숫자를 입력할 수 있습니다."
+    },
+    "email": {
+      "label": "이메일 주소",
+      "placeholder": "example@example.com",
+      "subject": "제목 (선택사항)",
+      "subjectPlaceholder": "이메일 제목",
+      "body": "내용 (선택사항)",
+      "bodyPlaceholder": "이메일 내용"
+    },
+    "phone": {
+      "label": "전화번호",
+      "placeholder": "+82 10-1234-5678",
+      "example": "국가 코드와 함께 입력하세요. 예: +82 10-1234-5678"
+    },
+    "vcard": {
+      "name": "이름",
+      "namePlaceholder": "홍길동",
+      "org": "회사/조직 (선택사항)",
+      "orgPlaceholder": "ABC 회사",
+      "title": "직함 (선택사항)",
+      "titlePlaceholder": "매니저",
+      "phone": "전화번호",
+      "phonePlaceholder": "+82 10-1234-5678",
+      "email": "이메일",
+      "emailPlaceholder": "example@example.com",
+      "website": "웹사이트 (선택사항)",
+      "websitePlaceholder": "https://example.com",
+      "address": "주소 (선택사항)",
+      "addressPlaceholder": "서울시 강남구 테헤란로 123"
+    },
+    "wifi": {
+      "ssid": "WiFi 이름 (SSID)",
+      "ssidPlaceholder": "WiFi 네트워크 이름",
+      "encryption": "암호화 유형",
+      "wpa": "WPA/WPA2/WPA3",
+      "wep": "WEP",
+      "nopass": "암호 없음",
+      "password": "비밀번호",
+      "passwordPlaceholder": "WiFi 비밀번호",
+      "hidden": "숨겨진 네트워크"
+    },
+    "file": {
+      "label": "파일 선택",
+      "desc": "5MB 이하의 파일만 QR 코드로 변환이 가능합니다.",
+      "info": "파일 정보",
+      "name": "파일명:",
+      "type": "파일 유형:",
+      "size": "파일 크기:"
+    }
+  },
+  "tips": {
+    "title": "QR 코드 활용 팁",
+    "scan": "스캔하기 쉬운 QR 코드 만들기",
+    "scan.desc": "QR 코드와 배경색 사이에 충분한 대비를 두고, 오류 수정 수준을 '높음'으로 설정하면 스캔 성공률이 높아집니다.",
+    "logo": "로고를 넣을 때 주의할 점",
+    "logo.desc": "로고를 추가할 때는 QR 코드 중앙 부분만 사용하고, 오류 수정 수준을 '높음' 또는 '매우 높음'으로 설정하세요.",
+    "print": "인쇄용 QR 코드",
+    "print.desc": "인쇄물에 사용할 QR 코드는 SVG 형식으로 다운로드하면 크기를 조정해도 품질이 유지됩니다.",
+    "test": "QR 코드 테스트",
+    "test.desc": "사용하기 전에 여러 기기와 스캐너 앱에서 테스트하여 정상적으로 인식되는지 확인하세요."
+  },
+  "footer": {
+    "brand": "FileToQR",
+    "desc": "서버에 파일을 업로드하지 않고, 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.",
+    "quick": "바로가기",
+    "legal": "법적 정보",
+    "privacy": "개인정보처리방침",
+    "terms": "이용약관",
+    "contact": "문의하기",
+    "copyright": "© 2025 FileToQR. 모든 권리 보유.",
+    "updated": "최종 업데이트: 2025년 5월 2일"
   }
 } 

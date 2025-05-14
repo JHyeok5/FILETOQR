@@ -147,5 +147,114 @@
     "conversionFailed": "转换过程中发生错误",
     "networkError": "网络错误",
     "unknownError": "发生未知错误"
+  },
+  "nav": {
+    "home": "首页",
+    "convert": "文件转换",
+    "qrcode": "二维码",
+    "timer": "计时器",
+    "help": "帮助"
+  },
+  "lang": {
+    "ko": "韩语",
+    "en": "英语",
+    "zh": "中文",
+    "ja": "日语"
+  },
+  "main": {
+    "title": "将文件转换为二维码",
+    "desc": "FileToQR 是一项免费服务，可让您快速轻松地将各种文件、文本、URL 和联系人信息转换为二维码。",
+    "selectContent": "选择要转换的内容"
+  },
+  "tab": {
+    "url": "URL",
+    "text": "文本",
+    "email": "电子邮件",
+    "phone": "电话号码",
+    "vcard": "联系人",
+    "wifi": "WiFi",
+    "file": "文件"
+  },
+  "form": {
+    "url": {
+      "label": "网站地址",
+      "placeholder": "https://example.com",
+      "example": "例如：https://filetoqr.com"
+    },
+    "text": {
+      "label": "文本",
+      "placeholder": "请输入内容",
+      "desc": "最多可输入 7,089 个数字或 4,296 个字母数字字符。"
+    },
+    "email": {
+      "label": "电子邮件地址",
+      "placeholder": "example@example.com",
+      "subject": "主题（可选）",
+      "subjectPlaceholder": "电子邮件主题",
+      "body": "内容（可选）",
+      "bodyPlaceholder": "电子邮件内容"
+    },
+    "phone": {
+      "label": "电话号码",
+      "placeholder": "+82 10-1234-5678",
+      "example": "请包含国家代码。例如：+82 10-1234-5678"
+    },
+    "vcard": {
+      "name": "姓名",
+      "namePlaceholder": "洪吉童",
+      "org": "公司/组织（可选）",
+      "orgPlaceholder": "ABC 公司",
+      "title": "职位（可选）",
+      "titlePlaceholder": "经理",
+      "phone": "电话号码",
+      "phonePlaceholder": "+82 10-1234-5678",
+      "email": "电子邮件",
+      "emailPlaceholder": "example@example.com",
+      "website": "网站（可选）",
+      "websitePlaceholder": "https://example.com",
+      "address": "地址（可选）",
+      "addressPlaceholder": "首尔市江南区德黑兰路123号"
+    },
+    "wifi": {
+      "ssid": "WiFi 名称 (SSID)",
+      "ssidPlaceholder": "WiFi 网络名称",
+      "encryption": "加密类型",
+      "wpa": "WPA/WPA2/WPA3",
+      "wep": "WEP",
+      "nopass": "无密码",
+      "password": "密码",
+      "passwordPlaceholder": "WiFi 密码",
+      "hidden": "隐藏网络"
+    },
+    "file": {
+      "label": "选择文件",
+      "desc": "仅支持 5MB 以下的文件转换为二维码。",
+      "info": "文件信息",
+      "name": "文件名：",
+      "type": "文件类型：",
+      "size": "文件大小："
+    }
+  },
+  "tips": {
+    "title": "二维码使用技巧",
+    "scan": "如何制作易于扫描的二维码",
+    "scan.desc": "确保二维码与背景之间有足够的对比度，并将纠错级别设置为\"高\"，以提高扫描成功率。",
+    "logo": "添加徽标的注意事项",
+    "logo.desc": "添加徽标时，仅使用二维码的中心部分，并将纠错级别设置为\"高\"或\"非常高\"。",
+    "print": "用于打印的二维码",
+    "print.desc": "用于印刷品的二维码建议下载为 SVG 格式，以便调整大小时保持质量。",
+    "test": "二维码测试",
+    "test.desc": "使用前请在多台设备和扫描应用上测试，以确保能正常识别。"
+  },
+  "footer": {
+    "brand": "FileToQR",
+    "desc": "无需上传到服务器，直接在浏览器中转换文件并生成二维码。",
+    "quick": "快捷方式",
+    "legal": "法律信息",
+    "privacy": "隐私政策",
+    "terms": "使用条款",
+    "contact": "联系我们",
+    "copyright": "© 2025 FileToQR. 保留所有权利。",
+    "updated": "最后更新：2025年5月2日"
   }
 } 

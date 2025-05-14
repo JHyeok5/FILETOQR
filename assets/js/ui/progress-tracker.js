@@ -300,30 +300,32 @@ class ProgressTracker {
    * @param {Object} error - 오류 정보
    */
   handleError(error) {
-    const errorMessage = error.message || '알 수 없는 오류가 발생했습니다.';
-    
+    const i18n = window.FileToQR && window.FileToQR.i18n;
+    const unknownErrorMsg = i18n && typeof i18n.translate === 'function'
+      ? i18n.translate('errors.unknownError', {}, '알 수 없는 오류가 발생했습니다.')
+      : '알 수 없는 오류가 발생했습니다.';
+    const retryText = i18n && typeof i18n.translate === 'function'
+      ? i18n.translate('common.retry', {}, '다시 시도')
+      : '다시 시도';
+    const errorMessage = error.message || unknownErrorMsg;
     // 진행 상태 업데이트
     if (this.progressText) {
-      this.progressText.textContent = `오류: ${errorMessage}`;
+      this.progressText.textContent = `${i18n ? i18n.translate('errors.error', {}, '오류') : '오류'}: ${errorMessage}`;
       this.progressText.className = 'text-center text-red-600';
     }
-    
     // 진행 바 색상 변경
     if (this.progressBar) {
       this.progressBar.className = 'bg-red-500 h-4 rounded-full';
     }
-    
     // 현재 단계를 오류 상태로 표시
     if (this.options.detailedStepsEnabled) {
       this.updateStepUI(this.currentStep, 'error');
     }
-    
     // 재시도 버튼 추가
     const retryButton = document.createElement('button');
     retryButton.className = 'mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md';
-    retryButton.textContent = '다시 시도';
+    retryButton.textContent = retryText;
     retryButton.onclick = () => window.location.reload();
-    
     if (this.progressContainer) {
       this.progressContainer.appendChild(retryButton);
     }

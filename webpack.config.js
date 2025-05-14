@@ -109,7 +109,7 @@ const entries = {
   'app-core': './assets/js/core/app-core.js',
   'common-utils': './assets/js/utils/common-utils.js',
   'qr-generator': './assets/js/qr-generator/qr-generator.js',
-  'file-to-qr': './assets/js/qr-generator/file-to-qr.js',
+  'file-to-qr': './assets/js/qr-generator/file-to-qr-core.js',
   'template-utils': './assets/js/utils/template-utils.js',
   'home': './assets/js/pages/home.js',
   'timer': './assets/js/pages/timer.js',

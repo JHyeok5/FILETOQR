@@ -1,212 +1,269 @@
-<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="ファイル変換とQRコード生成プラットフォーム。画像、文書、音声などさまざまなファイルを変換し、カスタマイズ可能なQRコードを生成できます。最終更新：2025年5月2日"><meta name="keywords" content="ファイル変換, QRコード, 画像変換, 文書変換, オンライン変換, 無料変換, PNG, JPG, PDF"><title>FileToQR</title><link rel="stylesheet" href="../assets/css/styles.css"><link rel="stylesheet" href="../assets/css/rtl.css"><script src="https://cdn.tailwindcss.com"></script><link rel="icon" href="../favicon.ico" type="image/x-icon"><link rel="alternate" hreflang="ko" href="../index.html"><link rel="alternate" hreflang="en" href="../en/index.html"><link rel="alternate" hreflang="zh" href="../zh/index.html"><link rel="alternate" hreflang="ja" href="index.html"><link rel="alternate" hreflang="x-default" href="../index.html"><script defer="defer" src="../assets/js/runtime.6f2dc29026f3291faf67.js"></script><script defer="defer" src="../assets/js/app-core.8c0d45125339ca8785cf.js"></script><script defer="defer" src="../assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script><script defer="defer" src="../assets/js/common-utils.91cc098f37078468f162.js"></script><script defer="defer" src="../assets/js/template-utils.364aa19228ee322888fd.js"></script><script defer="defer" src="../assets/js/home.aecc48b012aa5e852c03.js"></script></head><body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col"><header class="bg-white shadow-sm sticky top-0 z-50"><div class="container mx-auto px-4 py-4"><div class="flex justify-between items-center"><a href="index.html" class="flex items-center"><img src="../assets/images/logo.svg" alt="FileToQR ロゴ" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');"> <span class="text-2xl font-bold text-blue-600">FileToQR</span></a><nav class="flex items-center"><ul class="flex space-x-6"><li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">ホーム</a></li><li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">ファイル変換</a></li><li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QRコード</a></li><li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium">タイマー</a></li><li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">ヘルプ</a></li></ul><div class="language-selector dropdown"><button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="言語を変更"><span class="lang-flag-icon ja-flag" aria-hidden="true"></span> <span class="lang-label">日本語</span> <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu"><div class="lang-dropdown-header"><span>言語を選択</span></div><div class="lang-dropdown-list"><a href="../index.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="韓国語" aria-current="false"><span class="lang-flag-icon ko-flag" aria-hidden="true"></span> <span class="lang-name">韓国語</span> </a><a href="../en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="英語" aria-current="false"><span class="lang-flag-icon en-flag" aria-hidden="true"></span> <span class="lang-name">英語</span> </a><a href="../zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="中国語" aria-current="false"><span class="lang-flag-icon zh-flag" aria-hidden="true"></span> <span class="lang-name">中国語</span> </a><a href="index.html" class="lang-option active" data-lang="ja" role="menuitem" aria-label="日本語" aria-current="true"><span class="lang-flag-icon ja-flag" aria-hidden="true"></span> <span class="lang-name">日本語</span></a></div></div></div></nav></div></div></header><div id="ad-header" class="ad-container my-4 text-center"><div class="ad-label text-xs text-gray-500">広告</div><div class="ad-slot"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><main class="flex-grow container mx-auto px-4 py-8"><section class="text-center py-12"><h1 class="text-4xl font-bold mb-4">ファイル変換とQRコード生成プラットフォーム</h1><p class="text-xl text-gray-600 mb-8">サーバーにファイルをアップロードせず、ブラウザ上で直接ファイルを変換し、QRコードを生成できます。</p><div class="flex flex-wrap justify-center gap-4"><a href="convert.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium">ファイル変換を始める</a> <a href="qrcode.html" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium">QRコード生成</a></div></section><section class="grid md:grid-cols-2 gap-8 py-12"><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-4">ファイル変換</h2><p class="text-gray-600 mb-4">様々なファイル形式間の変換をサポートしています。画像、文書、音声、動画、データファイルを簡単に変換できます。</p><ul class="space-y-2 mb-4"><li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>画像変換 (PNG, JPG, WebP, GIF, SVG など)</li><li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>文書変換 (PDF, DOCX, TXT など)</li><li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>データ変換 (CSV, JSON, YAML, XML など)</li></ul><a href="convert.html" class="text-blue-600 font-medium hover:underline">ファイルを変換する →</a></div><div class="bg-white p-6 rounded-lg shadow-md"><h2 class="text-2xl font-bold mb-4">QRコード生成</h2><p class="text-gray-600 mb-4">カスタマイズ可能なQRコードを簡単に生成できます。様々なコンテンツ形式をサポートしています。</p><ul class="space-y-2 mb-4"><li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>URL、テキスト、連絡先、Wi-Fiなど様々なコンテンツ</li><li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>色、ロゴ、コーナースタイルのカスタマイズ</li><li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>PNG、SVG、PDFなど様々な出力形式</li></ul><a href="qrcode.html" class="text-green-600 font-medium hover:underline">QRコードを生成する →</a></div></section><section class="py-12"><h2 class="text-2xl font-bold mb-6 text-center">FileToQRの特徴</h2><div class="grid md:grid-cols-3 gap-6"><div class="text-center p-4"><div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm2-1h12a1 1 0 011 1v6H3V5a1 1 0 011-1zm0 8h12v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path></svg></div><h3 class="text-lg font-bold mb-2">プライバシー保護</h3><p class="text-gray-600">すべてのファイル処理はブラウザ内で行われるため、ファイルが外部サーバーに送信されることはありません。</p></div><div class="text-center p-4"><div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg></div><h3 class="text-lg font-bold mb-2">使いやすさ</h3><p class="text-gray-600">直感的なインターフェースと簡単な操作で、誰でも簡単にファイルを変換しQRコードを生成できます。</p></div><div class="text-center p-4"><div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"><svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></div><h3 class="text-lg font-bold mb-2">多様な形式サポート</h3><p class="text-gray-600">画像、文書、音声、データなど様々なファイル形式をサポートし、必要なすべての変換作業を一か所で解決できます。</p></div></div></section></main><footer class="bg-gray-100 mt-12"><div class="container mx-auto px-4 py-8"><div class="grid md:grid-cols-3 gap-8"><div><h3 class="text-lg font-bold mb-4">FileToQR</h3><p class="text-gray-600 mb-4">サーバーにファイルをアップロードせず、ブラウザ上で直接ファイルを変換し、QRコードを生成できます。</p></div><div><h3 class="text-lg font-bold mb-4">ショートカット</h3><ul class="space-y-2"><li><a href="index.html" class="text-gray-600 hover:text-blue-600">ホーム</a></li><li><a href="convert.html" class="text-gray-600 hover:text-blue-600">ファイル変換</a></li><li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QRコード</a></li><li><a href="timer.html" class="text-gray-600 hover:text-blue-600">タイマー</a></li><li><a href="help.html" class="text-gray-600 hover:text-blue-600">ヘルプ</a></li></ul></div><div><h3 class="text-lg font-bold mb-4">法的情報</h3><ul class="space-y-2"><li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">プライバシーポリシー</a></li><li><a href="terms.html" class="text-gray-600 hover:text-blue-600">利用規約</a></li></ul></div></div><div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500"><p>© 2025 FileToQR. All rights reserved.</p><p class="mt-1">最終更新: 2025年5月2日</p></div></div></footer><style>/* 言語セレクタースタイル */
-      .language-selector {
-        position: relative;
-        display: inline-block;
-        margin-left: 1rem;
-      }
-      
-      [dir="rtl"] .language-selector {
-        margin-left: 0;
-        margin-right: 1rem;
-      }
-      
-      .lang-dropdown-btn {
-        display: flex;
-        align-items: center;
-        background-color: transparent;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.375rem;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        color: #4a5568;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      
-      .lang-dropdown-btn:hover {
-        background-color: #f7fafc;
-      }
-      
-      .lang-dropdown-btn:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
-      }
-      
-      .lang-flag-icon {
-        width: 1.25rem;
-        height: 1.25rem;
-        border-radius: 50%;
-        margin-right: 0.5rem;
-        background-size: cover;
-        background-position: center;
-      }
-      
-      [dir="rtl"] .lang-flag-icon {
-        margin-right: 0;
-        margin-left: 0.5rem;
-      }
-      
-      .ko-flag {
-        background-image: url('../assets/images/flags/ko.svg');
-      }
-      
-      .en-flag {
-        background-image: url('../assets/images/flags/en.svg');
-      }
-      
-      .zh-flag {
-        background-image: url('../assets/images/flags/zh.svg');
-      }
-      
-      .ja-flag {
-        background-image: url('../assets/images/flags/ja.svg');
-      }
-      
-      .lang-label {
-        margin-right: 0.5rem;
-      }
-      
-      [dir="rtl"] .lang-label {
-        margin-right: 0;
-        margin-left: 0.5rem;
-      }
-      
-      .lang-dropdown-arrow {
-        margin-left: auto;
-        transition: transform 0.2s;
-      }
-      
-      [dir="rtl"] .lang-dropdown-arrow {
-        margin-left: 0;
-        margin-right: auto;
-      }
-      
-      .language-selector.open .lang-dropdown-arrow {
-        transform: rotate(180deg);
-      }
-      
-      .lang-dropdown-content {
-        display: none;
-        position: absolute;
-        right: 0;
-        min-width: 10rem;
-        background-color: white;
-        border-radius: 0.375rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        z-index: 1000;
-        margin-top: 0.25rem;
-        overflow: hidden;
-      }
-      
-      [dir="rtl"] .lang-dropdown-content {
-        right: auto;
-        left: 0;
-        text-align: right;
-      }
-      
-      .language-selector.open .lang-dropdown-content {
-        display: block;
-      }
-      
-      .lang-dropdown-header {
-        padding: 0.75rem 1rem;
-        font-size: 0.75rem;
-        color: #718096;
-        background-color: #f7fafc;
-        border-bottom: 1px solid #e2e8f0;
-      }
-      
-      .lang-dropdown-list {
-        max-height: 15rem;
-        overflow-y: auto;
-      }
-      
-      .lang-option {
-        display: flex;
-        align-items: center;
-        padding: 0.625rem 1rem;
-        cursor: pointer;
-        color: #4a5568;
-        text-decoration: none;
-        transition: background-color 0.2s;
-      }
-      
-      .lang-option:hover {
-        background-color: #f7fafc;
-      }
-      
-      .lang-option.active {
-        background-color: #ebf8ff;
-        color: #3182ce;
-      }
-      
-      .lang-name {
-        margin-left: 0.5rem;
-      }
-      
-      [dir="rtl"] .lang-name {
-        margin-left: 0;
-        margin-right: 0.5rem;
-      }
-      
-      /* モバイル対応 */
-      @media (max-width: 640px) {
-        .lang-dropdown-btn {
-          padding: 0.375rem 0.5rem;
-        }
-        
-        .lang-label {
-          display: none;
-        }
-        
-        .lang-dropdown-content {
-          right: -2rem;
-        }
-        
-        [dir="rtl"] .lang-dropdown-content {
-          right: auto;
-          left: -2rem;
-        }
-      }</style><script>document.addEventListener('DOMContentLoaded', function() {
-        const langSelector = document.querySelector('.language-selector');
-        const langToggle = document.getElementById('lang-selector-toggle');
-        const langDropdown = document.getElementById('lang-dropdown-menu');
-        const langOptions = document.querySelectorAll('.lang-option');
-        
-        // ドロップダウン切り替え
-        if (langToggle) {
-          langToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            langSelector.classList.toggle('open');
-            
-            // WAI-ARIA サポート
-            const expanded = langSelector.classList.contains('open');
-            langToggle.setAttribute('aria-expanded', expanded);
-            
-            if (expanded) {
-              // 最初の項目にフォーカス
-              const firstOption = langDropdown.querySelector('.lang-option');
-              if (firstOption) {
-                firstOption.focus();
-              }
-            }
-          });
-        }
-        
-        // 外部クリックでドロップダウンを閉じる
-        document.addEventListener('click', function(e) {
-          if (!langSelector.contains(e.target)) {
-            langSelector.classList.remove('open');
-            if (langToggle) {
-              langToggle.setAttribute('aria-expanded', 'false');
-            }
-          }
-        });
-        
-        // 初期WAI-ARIA状態設定
-        if (langToggle) {
-          langToggle.setAttribute('aria-expanded', 'false');
-          langToggle.setAttribute('aria-haspopup', 'true');
-        }
-      });</script><script src="../assets/js/core/app-core.js" type="module"></script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="FileToQR - 파일을 QR 코드로 변환하는 무료 서비스">
+  <meta name="keywords" content="QR 코드, 파일 변환, 무료, FileToQR">
+  <title>FileToQR - 파일을 QR 코드로 변환</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="/index.html">
+  <link rel="alternate" hreflang="en" href="/en/index.html">
+  <link rel="alternate" hreflang="zh" href="/zh/index.html">
+  <link rel="alternate" hreflang="ja" href="/ja/index.html">
+  <link rel="alternate" hreflang="x-default" href="/index.html">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/assets/js/runtime.6f2dc29026f3291faf67.js"></script>
+  <script defer src="/assets/js/app-core.8c0d45125339ca8785cf.js"></script>
+  <script defer src="/assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script>
+  <script defer src="/assets/js/common-utils.91cc098f37078468f162.js"></script>
+  <script defer src="/assets/js/template-utils.364aa19228ee322888fd.js"></script>
+  <script defer src="/assets/js/home.aecc48b012aa5e852c03.js"></script>
+  <script defer src="/assets/js/pages/home.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a href="index.html" class="flex items-center">
+          <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2">
+          <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+        </a>
+        <nav class="flex items-center">
+          <ul class="flex space-x-6">
+            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">홈</a></li>
+            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
+          </ul>
+          <div class="language-selector dropdown">
+            <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경">
+              <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+              <span class="lang-label" data-i18n="lang.ko">한국어</span>
+              <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
+              <div class="lang-dropdown-header">
+                <span>언어 선택</span>
+              </div>
+              <div class="lang-dropdown-list">
+                <a href="/index.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                  <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ko">한국어</span>
+                </a>
+                <a href="/en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
+                  <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.en">영어</span>
+                </a>
+                <a href="/zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
+                  <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.zh">중국어</span>
+                </a>
+                <a href="/ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
+                  <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ja">일본어</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <div id="ad-header" class="ad-container my-4 text-center">
+    <div class="ad-label text-xs text-gray-500">광고</div>
+    <div class="ad-slot">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6" data-i18n="main.title">파일을 QR 코드로 변환</h1>
+    <p class="mb-4" data-i18n="main.desc">FileToQR는 다양한 파일과 텍스트, URL, 연락처 정보를 쉽고 빠르게 QR 코드로 변환할 수 있는 무료 서비스입니다.</p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-4" data-i18n="main.selectContent">변환할 콘텐츠 선택</h2>
+          <div class="content-type-tabs mb-4" id="content-type-tabs">
+            <button class="active" data-type="url" data-i18n="tab.url">URL</button>
+            <button data-type="text" data-i18n="tab.text">텍스트</button>
+            <button data-type="email" data-i18n="tab.email">이메일</button>
+            <button data-type="phone" data-i18n="tab.phone">전화번호</button>
+            <button data-type="vcard" data-i18n="tab.vcard">연락처</button>
+            <button data-type="wifi" data-i18n="tab.wifi">WiFi</button>
+            <button data-type="file" data-i18n="tab.file">파일</button>
+          </div>
+          <div class="content-form active" id="url-form">
+            <div class="mb-4">
+              <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.url.label">웹사이트 주소</label>
+              <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.url.placeholder">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.url.example">예: https://filetoqr.com</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="text-form">
+            <div class="mb-4">
+              <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.text.label">텍스트</label>
+              <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="내용을 입력하세요" data-i18n-placeholder="form.text.placeholder"></textarea>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.text.desc">최대 7,089자의 숫자 또는 4,296자의 영숫자를 입력할 수 있습니다.</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="email-form">
+            <div class="mb-4">
+              <label for="email-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.label">이메일 주소</label>
+              <input type="email" id="email-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.email.placeholder">
+            </div>
+            <div class="mb-4">
+              <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.subject">제목 (선택사항)</label>
+              <input id="email-subject" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="이메일 제목" data-i18n-placeholder="form.email.subjectPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="email-body" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.body">내용 (선택사항)</label>
+              <textarea id="email-body" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="이메일 내용" data-i18n-placeholder="form.email.bodyPlaceholder"></textarea>
+            </div>
+          </div>
+          <div class="content-form hidden" id="phone-form">
+            <div class="mb-4">
+              <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.phone.label">전화번호</label>
+              <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.phone.placeholder">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.phone.example">국가 코드와 함께 입력하세요. 예: +82 10-1234-5678</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="vcard-form">
+            <div class="mb-4">
+              <label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.name">이름</label>
+              <input id="vcard-name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="홍길동" data-i18n-placeholder="form.vcard.namePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.org">회사/조직 (선택사항)</label>
+              <input id="vcard-org" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ABC 회사" data-i18n-placeholder="form.vcard.orgPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.title">직함 (선택사항)</label>
+              <input id="vcard-title" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="매니저" data-i18n-placeholder="form.vcard.titlePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.phone">전화번호</label>
+              <input type="tel" id="vcard-phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.vcard.phonePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.email">이메일</label>
+              <input type="email" id="vcard-email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.vcard.emailPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.website">웹사이트 (선택사항)</label>
+              <input type="url" id="vcard-website" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.vcard.websitePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.address">주소 (선택사항)</label>
+              <textarea id="vcard-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="서울시 강남구 테헤란로 123" data-i18n-placeholder="form.vcard.addressPlaceholder"></textarea>
+            </div>
+          </div>
+          <div class="content-form hidden" id="wifi-form">
+            <div class="mb-4">
+              <label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.ssid">WiFi 이름 (SSID)</label>
+              <input id="wifi-ssid" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi 네트워크 이름" data-i18n-placeholder="form.wifi.ssidPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.encryption">암호화 유형</label>
+              <select id="wifi-encryption" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="WPA" data-i18n="form.wifi.wpa">WPA/WPA2/WPA3</option>
+                <option value="WEP" data-i18n="form.wifi.wep">WEP</option>
+                <option value="nopass" data-i18n="form.wifi.nopass">암호 없음</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.password">비밀번호</label>
+              <input type="password" id="wifi-password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi 비밀번호" data-i18n-placeholder="form.wifi.passwordPlaceholder">
+            </div>
+            <div class="flex items-center mb-4">
+              <input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700" data-i18n="form.wifi.hidden">숨겨진 네트워크</label>
+            </div>
+          </div>
+          <div class="content-form hidden" id="file-form">
+            <div class="mb-4">
+              <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.file.label">파일 선택</label>
+              <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.file.desc">5MB 이하의 파일만 QR 코드로 변환이 가능합니다.</p>
+            </div>
+            <div class="file-info p-4 border rounded-md mb-4 hidden">
+              <h3 class="font-medium mb-2" data-i18n="form.file.info">파일 정보</h3>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="text-gray-600" data-i18n="form.file.name">파일명:</div>
+                <div class="file-name font-medium"></div>
+                <div class="text-gray-600" data-i18n="form.file.type">파일 유형:</div>
+                <div class="file-type font-medium"></div>
+                <div class="text-gray-600" data-i18n="form.file.size">파일 크기:</div>
+                <div class="file-size font-medium"></div>
+              </div>
+            </div>
+            <div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
+              <p>QR 코드로 변환된 파일은 크기 제한으로 인해 작은 파일에 적합합니다. 큰 파일은 여러 QR 코드로 나누어집니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4" data-i18n="tips.title">QR 코드 활용 팁</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.scan">스캔하기 쉬운 QR 코드 만들기</h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.scan.desc">QR 코드와 배경색 사이에 충분한 대비를 두고, 오류 수정 수준을 '높음'으로 설정하면 스캔 성공률이 높아집니다.</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.logo">로고를 넣을 때 주의할 점</h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.logo.desc">로고를 추가할 때는 QR 코드 중앙 부분만 사용하고, 오류 수정 수준을 '높음' 또는 '매우 높음'으로 설정하세요.</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.print">인쇄용 QR 코드</h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.print.desc">인쇄물에 사용할 QR 코드는 SVG 형식으로 다운로드하면 크기를 조정해도 품질이 유지됩니다.</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.test">QR 코드 테스트</h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.test.desc">사용하기 전에 여러 기기와 스캐너 앱에서 테스트하여 정상적으로 인식되는지 확인하세요.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="bg-gray-100 mt-12">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.brand">FileToQR</h3>
+          <p class="text-gray-600 mb-4" data-i18n="footer.desc">서버에 파일을 업로드하지 않고, 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.quick">바로가기</h3>
+          <ul class="space-y-2">
+            <li><a href="index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">홈</a></li>
+            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">도움말</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">법적 정보</h3>
+          <ul class="space-y-2">
+            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">개인정보처리방침</a></li>
+            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">이용약관</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">문의하기</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+        <p data-i18n="footer.copyright">© 2025 FileToQR. 모든 권리 보유.</p>
+        <p class="mt-1" data-i18n="footer.updated">최종 업데이트: 2025년 5월 2일</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

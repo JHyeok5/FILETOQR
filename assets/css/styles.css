@@ -318,13 +318,14 @@ body {
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
 }
 
+/* 언어 플래그 아이콘 스타일 (이미지는 JS에서 <img>로 동적 할당) */
 .lang-flag-icon {
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 50%;
   margin-right: 0.5rem;
-  background-size: cover;
-  background-position: center;
+  object-fit: cover; /* <img> 사용 시 이미지 비율 유지 */
+  display: inline-block;
 }
 
 [dir="rtl"] .lang-flag-icon {
@@ -332,20 +333,9 @@ body {
   margin-left: 0.5rem;
 }
 
-.ko-flag {
-  /* background-image: url('/assets/images/flags/ko.svg'); */
-}
-
-.en-flag {
-  /* background-image: url('/assets/images/flags/en.svg'); */
-}
-
-.zh-flag {
-  /* background-image: url('/assets/images/flags/zh.svg'); */
-}
-
-.ja-flag {
-  /* background-image: url('/assets/images/flags/ja.svg'); */
+/* 아래 클래스들은 더 이상 background-image를 사용하지 않음. 유지보수 참고용 주석만 남김 */
+.ko-flag, .en-flag, .zh-flag, .ja-flag {
+  /* 플래그 이미지는 JS에서 <img> src로 동적 할당 */
 }
 
 .lang-label {
