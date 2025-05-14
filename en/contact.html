@@ -27,9 +27,10 @@
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
         <a href="index.html" class="flex items-center">
+          <img src="/assets/images/logo.svg" alt="FileToQR Logo" class="h-8 mr-2">
           <span class="text-2xl font-bold text-blue-600">FileToQR</span>
         </a>
-        <nav>
+        <nav class="flex items-center">
           <ul class="flex space-x-6">
             <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a></li>
             <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">Convert</a></li>
@@ -47,10 +48,10 @@
           <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
             <div class="lang-dropdown-header"><span>Select Language</span></div>
             <div class="lang-dropdown-list">
-              <a href="../index.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="Korean" aria-current="false"><span class="lang-flag-icon ko-flag" aria-hidden="true"></span> <span class="lang-name">Korean</span> </a>
-              <a href="index.html" class="lang-option active" data-lang="en" role="menuitem" aria-label="English" aria-current="true"><span class="lang-flag-icon en-flag" aria-hidden="true"></span> <span class="lang-name">English</span> </a>
-              <a href="../zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="Chinese" aria-current="false"><span class="lang-flag-icon zh-flag" aria-hidden="true"></span> <span class="lang-name">Chinese</span> </a>
-              <a href="../ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="Japanese" aria-current="false"><span class="lang-flag-icon ja-flag" aria-hidden="true"></span> <span class="lang-name">Japanese</span></a>
+              <a href="../contact.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="Korean" aria-current="false"><span class="lang-flag-icon ko-flag" aria-hidden="true"></span> <span class="lang-name">한국어</span> </a>
+              <a href="contact.html" class="lang-option active" data-lang="en" role="menuitem" aria-label="English" aria-current="true"><span class="lang-flag-icon en-flag" aria-hidden="true"></span> <span class="lang-name">English</span> </a>
+              <a href="../zh/contact.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="Chinese" aria-current="false"><span class="lang-flag-icon zh-flag" aria-hidden="true"></span> <span class="lang-name">中文</span> </a>
+              <a href="../ja/contact.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="Japanese" aria-current="false"><span class="lang-flag-icon ja-flag" aria-hidden="true"></span> <span class="lang-name">日本語</span></a>
             </div>
           </div>
         </div>
@@ -124,5 +125,98 @@
     alert('Thank you for your message. We will get back to you as soon as possible.');
     this.reset();
   });</script>
+  <style>/* Language selector styles */
+.language-selector {
+  position: relative;
+  margin-left: 1.5rem;
+}
+.lang-dropdown-btn {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  background-color: #f3f4f6;
+  transition: background-color 0.2s;
+}
+.lang-dropdown-btn:hover {
+  background-color: #e5e7eb;
+}
+.lang-flag-icon {
+  width: 20px;
+  height: 15px;
+  margin-right: 0.5rem;
+  background-size: cover;
+  background-position: center;
+}
+.en-flag {
+  background-image: url('/assets/images/flags/en.svg');
+}
+.ko-flag {
+  background-image: url('/assets/images/flags/ko.svg');
+}
+.zh-flag {
+  background-image: url('/assets/images/flags/zh.svg');
+}
+.ja-flag {
+  background-image: url('/assets/images/flags/ja.svg');
+}
+.lang-label {
+  margin-right: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.lang-dropdown-arrow {
+  transition: transform 0.2s;
+}
+.lang-dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  min-width: 12rem;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 20;
+  overflow: hidden;
+}
+.language-selector:hover .lang-dropdown-content,
+.lang-dropdown-content:hover {
+  display: block;
+}
+.language-selector:hover .lang-dropdown-arrow {
+  transform: rotate(180deg);
+}
+.lang-dropdown-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+.lang-dropdown-list {
+  max-height: 16rem;
+  overflow-y: auto;
+}
+.lang-option {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  transition: background-color 0.2s;
+}
+.lang-option:hover {
+  background-color: #f3f4f6;
+}
+.lang-option.active {
+  background-color: #ebf5ff;
+  color: #3b82f6;
+}
+.lang-name {
+  font-size: 0.875rem;
+}
+  </style>
 </body>
 </html>
