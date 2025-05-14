@@ -23,6 +23,13 @@
     "loading": "Loading...",
     "error": "An error occurred"
   },
+  "language": {
+    "ko": "Korean",
+    "en": "English",
+    "zh": "Chinese",
+    "ja": "Japanese",
+    "select": "Select Language"
+  },
   "urls": {
     "home": "/en/index.html",
     "convert": "/en/convert.html",
@@ -37,9 +44,9 @@
     "description": "File conversion and QR code generation platform. Convert images, documents, audio and more, and create customized QR codes.",
     "keywords": "file conversion, QR code, image conversion, document conversion, online conversion, free conversion, PNG, JPG, PDF"
   },
-  "header": {
+  "nav": {
     "home": "Home",
-    "convert": "Convert Files",
+    "convert": "Convert",
     "qrcode": "QR Code",
     "timer": "Timer",
     "help": "Help",
@@ -51,7 +58,7 @@
     "shortcuts": "Shortcuts",
     "legal": "Legal Information",
     "copyright": "© 2025 FileToQR. All rights reserved.",
-    "lastUpdate": "Last updated: May 2, 2025",
+    "last_updated": "Last updated: May 2, 2025",
     "privacy": "Privacy Policy",
     "terms": "Terms of Use"
   },
@@ -127,33 +134,108 @@
   },
   "qrcode": {
     "title": "QR Code Generator",
-    "input": {
-      "title": "Input",
-      "text": "Text",
+    "content_section": "QR Code Content",
+    "settings_section": "QR Code Settings",
+    "preview_section": "QR Code Preview",
+    "download_section": "Download",
+    "generate_button": "Generate QR Code",
+    "content_type": {
       "url": "URL",
+      "text": "Text",
       "email": "Email",
       "phone": "Phone",
-      "sms": "SMS",
-      "wifi": "Wi-Fi",
-      "location": "Location",
-      "event": "Event",
+      "vcard": "Contact",
+      "wifi": "WiFi",
       "file": "File"
     },
-    "options": {
-      "title": "QR Code Options",
-      "size": "Size",
-      "errorCorrection": "Error Correction Level",
-      "color": "Color",
-      "background": "Background",
-      "margin": "Margin",
-      "style": "Style"
+    "url": {
+      "label": "Website URL",
+      "hint": "e.g. https://filetoqr.com"
     },
-    "preview": "Preview",
-    "download": {
-      "title": "Download Options",
-      "png": "Download PNG",
-      "svg": "Download SVG",
-      "pdf": "Download PDF"
+    "text": {
+      "label": "Text",
+      "hint": "Up to 7,089 digits or 4,296 alphanumeric characters."
+    },
+    "email": {
+      "address_label": "Email Address",
+      "subject_label": "Subject (optional)",
+      "body_label": "Body (optional)"
+    },
+    "phone": {
+      "label": "Phone Number",
+      "hint": "Include country code. e.g. +82 10-1234-5678"
+    },
+    "vcard": {
+      "name_label": "Name",
+      "org_label": "Organization (optional)",
+      "title_label": "Title (optional)",
+      "phone_label": "Phone",
+      "email_label": "Email",
+      "website_label": "Website (optional)",
+      "address_label": "Address (optional)"
+    },
+    "wifi": {
+      "ssid_label": "WiFi Name (SSID)",
+      "encryption_label": "Encryption Type",
+      "encryption_wpa": "WPA/WPA2/WPA3",
+      "encryption_wep": "WEP",
+      "encryption_none": "No password",
+      "password_label": "Password",
+      "hidden_label": "Hidden Network"
+    },
+    "file": {
+      "label": "Select File",
+      "limit_hint": "Only files up to 5MB can be converted to QR code.",
+      "info_title": "File Info",
+      "name": "File Name:",
+      "type": "File Type:",
+      "size": "File Size:",
+      "warning": "Files converted to QR code are suitable for small files due to size limits. Large files will be split into multiple QR codes."
+    },
+    "settings": {
+      "foreground": "Foreground Color",
+      "background": "Background Color",
+      "error_correction": "Error Correction Level",
+      "error_low": "Low (7%)",
+      "error_medium": "Medium (15%)",
+      "error_high": "High (25%)",
+      "error_highest": "Very High (30%)",
+      "size": "QR Code Size",
+      "size_small": "Small (128x128px)",
+      "size_medium": "Medium (256x256px)",
+      "size_large": "Large (512x512px)",
+      "size_xlarge": "Extra Large (1024x1024px)",
+      "margin": "Margin",
+      "add_logo": "Add Logo",
+      "logo_image": "Logo Image",
+      "logo_size": "Logo Size",
+      "logo_size_small": "Small",
+      "logo_size_large": "Large"
+    },
+    "preview": {
+      "placeholder": "The generated QR code will be displayed here."
+    },
+    "scanner": {
+      "title": "QR Code Scanner",
+      "camera_tab": "Scan with Camera",
+      "image_tab": "Scan from Image",
+      "camera_loading": "Loading camera...",
+      "image_select": "Select QR Code Image",
+      "scan_button": "Read QR Code from Image",
+      "result_title": "Scan Result",
+      "result_type": "Type:",
+      "copy_button": "Copy to Clipboard",
+      "open_button": "Open"
+    },
+    "file_recovery": {
+      "title": "File Recovery Mode",
+      "description": "Scan QR code to restore original file. First scan the metadata QR code, then scan the rest of the chunks in order.",
+      "progress": "Recovery Progress",
+      "metadata": "Scan the metadata QR code first.",
+      "file_info": "File Info",
+      "complete": "All QR codes scanned! You can download the file now.",
+      "restart": "Restart",
+      "download": "Download File"
     }
   },
   "timer": {

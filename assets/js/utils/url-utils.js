@@ -1,7 +1,7 @@
 /**
  * url-utils.js - FileToQR URL 유틸리티
- * 버전: 1.3.0
- * 최종 업데이트: 2025-07-26
+ * 버전: 1.3.5
+ * 최종 업데이트: 2025-07-28
  * 
  * 이 모듈은 URL과 관련된 유틸리티 함수를 제공합니다.
  * - URL 매개변수 처리
@@ -76,15 +76,20 @@ const UrlUtils = {
    * @returns {string|null} 언어 코드 또는 null (찾지 못한 경우)
    */
   getLanguageFromUrl(url = window.location.href) {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split('/').filter(part => part);
-    const supportedLangs = Config.LANGUAGE_CONFIG.supportedLanguages;
-    
-    if (pathParts.length > 0 && supportedLangs.includes(pathParts[0])) {
-      return pathParts[0];
+    try {
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/').filter(part => part);
+      const supportedLangs = Config.LANGUAGE_CONFIG.supportedLanguages;
+      
+      if (pathParts.length > 0 && supportedLangs.includes(pathParts[0])) {
+        return pathParts[0];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('URL에서 언어 추출 중 오류:', error);
+      return null;
     }
-    
-    return null;
   },
   
   /**
@@ -94,38 +99,49 @@ const UrlUtils = {
    * @returns {string} 언어 버전 URL
    */
   getLanguageUrl(lang, url = window.location.href) {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split('/').filter(part => part);
-    const currentLang = this.getLanguageFromUrl(url) || Config.LANGUAGE_CONFIG.defaultLanguage;
-    const defaultLang = Config.LANGUAGE_CONFIG.defaultLanguage;
-    
-    // 언어 코드가 지원되지 않는 경우 기본 언어 사용
-    if (!Config.isSupportedLanguage(lang)) {
-      console.warn(`지원하지 않는 언어: ${lang}, 기본 언어(${defaultLang})로 대체`);
-      lang = defaultLang;
-    }
-    
-    // 경로에 언어 코드가 있는 경우
-    if (currentLang && currentLang !== defaultLang) {
-      // 첫 번째 부분이 현재 언어 코드인 경우
-      if (pathParts[0] === currentLang) {
-        // 기본 언어로 변경하는 경우 언어 코드 제거
-        if (lang === defaultLang) {
-          urlObj.pathname = '/' + pathParts.slice(1).join('/');
-        } else {
-          // 다른 언어로 변경
-          pathParts[0] = lang;
-          urlObj.pathname = '/' + pathParts.join('/');
+    try {
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/').filter(part => part);
+      const currentLang = this.getLanguageFromUrl(url);
+      const defaultLang = Config.LANGUAGE_CONFIG.defaultLanguage;
+      
+      // 언어 코드가 지원되지 않는 경우 기본 언어 사용
+      if (!Config.isSupportedLanguage(lang)) {
+        console.warn(`지원하지 않는 언어: ${lang}, 기본 언어(${defaultLang})로 대체`);
+        lang = defaultLang;
+      }
+      
+      // 새 경로 파트 배열 생성
+      let newPathParts = [...pathParts];
+      
+      // 현재 URL에 언어 코드가 있는 경우
+      if (currentLang) {
+        // 첫 번째 경로 파트를 언어 코드로 교체
+        newPathParts[0] = lang;
+      } else {
+        // 언어 코드가 기본 언어가 아닌 경우, 경로 맨 앞에 추가
+        if (lang !== defaultLang) {
+          newPathParts.unshift(lang);
         }
       }
-    } else {
-      // 경로에 언어 코드가 없고, 기본 언어가 아닌 경우 언어 코드 추가
-      if (lang !== defaultLang) {
-        urlObj.pathname = '/' + lang + urlObj.pathname;
+      
+      // 기본 언어로 전환하고 현재 언어가 있는 경우
+      if (lang === defaultLang && currentLang) {
+        // 기본 언어 코드 제거 (첫 번째 경로 파트)
+        newPathParts.shift();
       }
+      
+      // 새 경로 생성
+      urlObj.pathname = '/' + newPathParts.join('/');
+      
+      return urlObj.toString();
+    } catch (error) {
+      console.error('언어 URL 생성 중 오류:', error, {
+        lang, url, 
+        currentLang: this.getLanguageFromUrl(url)
+      });
+      return url; // 오류 발생 시 원래 URL 반환
     }
-    
-    return urlObj.toString();
   },
 
   /**
@@ -136,42 +152,60 @@ const UrlUtils = {
    * @returns {string} 생성된 URL
    */
   getI18nUrl(path, lang = null, options = {}) {
-    const defaultOptions = {
-      absolute: false,
-      defaultLang: Config.LANGUAGE_CONFIG.defaultLanguage
-    };
-    
-    const opts = { ...defaultOptions, ...options };
-    
-    // 현재 언어 확인 - 우선순위에 따라 결정
-    let currentLang;
-    
-    if (lang) {
-      // 1. 명시적 언어 코드가 제공된 경우
-      currentLang = lang;
-    } else if (window.FileToQR && window.FileToQR.i18n && typeof window.FileToQR.i18n.getCurrentLang === 'function') {
-      // 2. i18n 모듈에서 현재 언어를 가져올 수 있는 경우
-      currentLang = window.FileToQR.i18n.getCurrentLang();
-    } else {
-      // 3. URL에서 언어를 추출하거나 기본값 사용
-      currentLang = this.getLanguageFromUrl() || opts.defaultLang;
+    try {
+      const defaultOptions = {
+        absolute: false,
+        defaultLang: Config.LANGUAGE_CONFIG.defaultLanguage,
+        useBaseUrl: true
+      };
+      
+      const opts = { ...defaultOptions, ...options };
+      
+      // 현재 언어 확인 - 우선순위에 따라 결정
+      let currentLang;
+      
+      if (lang) {
+        // 1. 명시적 언어 코드가 제공된 경우
+        currentLang = lang;
+      } else if (window.FileToQR && window.FileToQR.i18n && typeof window.FileToQR.i18n.getCurrentLang === 'function') {
+        // 2. i18n 모듈에서 현재 언어를 가져올 수 있는 경우
+        currentLang = window.FileToQR.i18n.getCurrentLang();
+      } else {
+        // 3. URL에서 언어를 추출하거나 기본값 사용
+        currentLang = this.getLanguageFromUrl() || opts.defaultLang;
+      }
+      
+      // 시작 및 끝 슬래시 제거
+      const cleanPath = path.replace(/^\/|\/$/g, '');
+      
+      let urlPath;
+      
+      // 기본 언어인 경우 언어 경로 없음 (선택적으로 설정 가능)
+      if (currentLang === opts.defaultLang && !opts.alwaysIncludeLang) {
+        urlPath = `/${cleanPath}`;
+      } else {
+        urlPath = `/${currentLang}/${cleanPath}`;
+      }
+      
+      // 절대 URL 요청 시
+      if (opts.absolute) {
+        const baseUrl = window.location.origin;
+        return `${baseUrl}${urlPath}`;
+      }
+      
+      // 기본 URL 사용 여부
+      if (opts.useBaseUrl) {
+        const basePath = this.getBasePath();
+        // 첫 슬래시 제거하여 상대 경로와 연결
+        const relPath = urlPath.replace(/^\//, '');
+        return `${baseUrl}${relPath}`;
+      }
+      
+      return urlPath;
+    } catch (error) {
+      console.error('i18n URL 생성 중 오류:', error, { path, lang, options });
+      return path; // 오류 발생 시 원래 경로 반환
     }
-    
-    // 경로에서 시작 슬래시 제거
-    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    
-    // 기본 언어인 경우 언어 경로 없음
-    const urlPath = currentLang === opts.defaultLang ? 
-      `/${cleanPath}` : 
-      `/${currentLang}/${cleanPath}`;
-    
-    // 절대 URL 요청 시
-    if (opts.absolute) {
-      const baseUrl = window.location.origin;
-      return `${baseUrl}${urlPath}`;
-    }
-    
-    return urlPath;
   },
   
   /**
@@ -182,13 +216,18 @@ const UrlUtils = {
    * @returns {string} 페이지 URL
    */
   getPageUrl(pageId, lang = null, options = {}) {
-    const pagePath = Config.getPagePath(pageId);
-    if (!pagePath) {
-      console.warn(`알 수 없는 페이지 ID: ${pageId}`);
-      return '/';
+    try {
+      const pagePath = Config.getPagePath(pageId);
+      if (!pagePath) {
+        console.warn(`알 수 없는 페이지 ID: ${pageId}`);
+        return '/';
+      }
+      
+      return this.getI18nUrl(pagePath, lang, options);
+    } catch (error) {
+      console.error('페이지 URL 생성 중 오류:', error, { pageId, lang, options });
+      return '/'; // 오류 발생 시 홈페이지로 이동
     }
-    
-    return this.getI18nUrl(pagePath, lang, options);
   },
   
   /**
@@ -201,22 +240,38 @@ const UrlUtils = {
   },
   
   /**
-   * 기본 경로 가져오기
+   * 기본 경로 가져오기 - 상대 경로 계산을 위한 함수
    * @returns {string} 기본 경로
    */
   getBasePath() {
-    // 현재 URL 경로 분석
-    const currentPath = window.location.pathname;
-    const pathParts = currentPath.split('/').filter(part => part);
-    const supportedLangs = Config.LANGUAGE_CONFIG.supportedLanguages;
-    
-    // 언어 코드가 포함된 경우 상위 디렉토리로 이동
-    if (pathParts.length > 0 && supportedLangs.includes(pathParts[0])) {
-      return '../';
+    try {
+      // 현재 URL 경로 분석
+      const currentPath = window.location.pathname;
+      const pathParts = currentPath.split('/').filter(part => part);
+      const supportedLangs = Config.LANGUAGE_CONFIG.supportedLanguages;
+      
+      // 기본값은 상대 경로 './'
+      let basePath = './';
+      
+      // URL에 언어 코드가 포함된 경우 - 상위 디렉토리로 이동
+      if (pathParts.length > 0 && supportedLangs.includes(pathParts[0])) {
+        basePath = '../';
+      }
+      
+      // 추가적인 중첩 깊이가 있는 경우 (언어 코드 이후에 추가 디렉토리)
+      if (pathParts.length > 1) {
+        const additionalDepth = pathParts.length - (supportedLangs.includes(pathParts[0]) ? 1 : 0);
+        if (additionalDepth > 0) {
+          // 추가 깊이에 따라 '../' 추가
+          basePath = '../'.repeat(additionalDepth + (basePath === '../' ? 0 : 1));
+        }
+      }
+      
+      return basePath;
+    } catch (error) {
+      console.error('기본 경로 계산 중 오류:', error);
+      return './'; // 오류 발생 시 현재 디렉토리 반환
     }
-    
-    // 기본값은 상대 경로 './'
-    return './';
   },
   
   /**
@@ -233,7 +288,7 @@ const UrlUtils = {
       
       // 호스트명 비교
       const currentHost = window.location.hostname;
-      const urlObj = new URL(url);
+      const urlObj = new URL(url, window.location.origin);
       
       return urlObj.hostname !== currentHost;
     } catch (error) {
@@ -250,30 +305,34 @@ const UrlUtils = {
   getPageIdFromUrl(url = window.location.href) {
     try {
       const urlObj = new URL(url);
-      let path = urlObj.pathname;
+      const pathParts = urlObj.pathname.split('/').filter(part => part);
+      const supportedLangs = Config.LANGUAGE_CONFIG.supportedLanguages;
       
-      // 언어 코드 제거
-      const pathParts = path.split('/').filter(part => part);
-      if (pathParts.length > 0 && Config.LANGUAGE_CONFIG.supportedLanguages.includes(pathParts[0])) {
-        path = '/' + pathParts.slice(1).join('/');
+      // 언어 코드가 있는 경우 건너뜀
+      let startIdx = 0;
+      if (pathParts.length > 0 && supportedLangs.includes(pathParts[0])) {
+        startIdx = 1;
       }
       
-      // 루트 페이지 또는 index.html
-      if (path === '/' || path.endsWith('/index.html')) return 'home';
+      // 파일명 추출 (경로의 마지막 부분)
+      if (pathParts.length > startIdx) {
+        const fileName = pathParts[pathParts.length - 1];
+        // .html 확장자가 있으면 제거
+        const pageId = fileName.replace(/\.html$/, '');
+        return pageId;
+      }
       
-      // 파일 확장자 제거
-      const lastSegment = path.split('/').pop() || '';
-      const pageId = lastSegment.replace(/\.html$/, '');
-      
-      return pageId || 'unknown';
+      // 기본값 반환
+      return 'index';
     } catch (error) {
-      console.error('페이지 ID 추출 중 오류 발생:', error);
-      return 'unknown';
+      console.error('페이지 ID 추출 중 오류:', error);
+      return 'index';
     }
   }
 };
 
 // 전역 객체에 등록
+window.FileToQR.utils = window.FileToQR.utils || {};
 window.FileToQR.utils.url = UrlUtils;
 
 // Export for ES modules

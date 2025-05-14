@@ -23,78 +23,6 @@
   <script defer src="/assets/js/common-utils.91cc098f37078468f162.js"></script>
   <script defer src="/assets/js/qr-generator.ed894cc7f5949b3559c6.js"></script>
   <script defer src="/assets/js/template-utils.364aa19228ee322888fd.js"></script>
-  <style>
-    /* QR 코드 프리뷰 스타일 */
-    .qr-preview-container {
-      width: 100%;
-      max-width: 300px;
-      margin: 0 auto;
-      aspect-ratio: 1 / 1;
-      border: 2px dashed #ccc;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #f9f9f9;
-      overflow: hidden;
-    }
-    
-    /* 컬러 픽커 스타일 */
-    .color-picker {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      overflow: hidden;
-      cursor: pointer;
-    }
-    
-    .color-picker input[type="color"] {
-      border: 0;
-      padding: 0;
-      width: 150%;
-      height: 150%;
-      transform: translate(-10%, -10%);
-      cursor: pointer;
-    }
-    
-    /* 로고 미리보기 스타일 */
-    .logo-preview {
-      width: 60px;
-      height: 60px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      object-fit: contain;
-      background-color: #fff;
-    }
-    
-    /* 입력 타입 전환 탭 스타일 */
-    .content-type-tabs {
-      border-bottom: 1px solid #e2e8f0;
-      margin-bottom: 1rem;
-    }
-    
-    .content-type-tabs button {
-      padding: 0.5rem 1rem;
-      font-weight: 500;
-      border-bottom: 2px solid transparent;
-      margin-right: 0.5rem;
-    }
-    
-    .content-type-tabs button.active {
-      border-bottom: 2px solid #3B82F6;
-      color: #3B82F6;
-    }
-    
-    /* 숨김 및 표시 클래스 */
-    .hidden {
-      display: none;
-    }
-    
-    .active {
-      display: block;
-    }
-  </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <header class="bg-white shadow-sm sticky top-0 z-50">
@@ -105,26 +33,26 @@
         </a>
         <nav>
           <ul class="flex space-x-6">
-            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a></li>
-            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">Convert</a></li>
-            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium active">QR Code</a></li>
-            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium">Timer</a></li>
-            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">Help</a></li>
+            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">Home</a></li>
+            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">Convert</a></li>
+            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.qrcode">QR Code</a></li>
+            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">Timer</a></li>
+            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">Help</a></li>
           </ul>
         </nav>
         <div class="language-selector dropdown">
           <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="Change Language">
             <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
-            <span class="lang-label">English</span>
+            <span class="lang-label" data-i18n="language.en">English</span>
             <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </button>
           <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
-            <div class="lang-dropdown-header"><span>Select Language</span></div>
+            <div class="lang-dropdown-header"><span data-i18n="language.select">Select Language</span></div>
             <div class="lang-dropdown-list">
-              <a href="../index.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="Korean" aria-current="false"><span class="lang-flag-icon ko-flag" aria-hidden="true"></span> <span class="lang-name">Korean</span> </a>
-              <a href="index.html" class="lang-option active" data-lang="en" role="menuitem" aria-label="English" aria-current="true"><span class="lang-flag-icon en-flag" aria-hidden="true"></span> <span class="lang-name">English</span> </a>
-              <a href="../zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="Chinese" aria-current="false"><span class="lang-flag-icon zh-flag" aria-hidden="true"></span> <span class="lang-name">Chinese</span> </a>
-              <a href="../ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="Japanese" aria-current="false"><span class="lang-flag-icon ja-flag" aria-hidden="true"></span> <span class="lang-name">Japanese</span></a>
+              <a href="../ko/qrcode.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="Korean" aria-current="false"><span class="lang-flag-icon ko-flag" aria-hidden="true"></span> <span class="lang-name" data-i18n="language.ko">Korean</span> </a>
+              <a href="qrcode.html" class="lang-option active" data-lang="en" role="menuitem" aria-label="English" aria-current="true"><span class="lang-flag-icon en-flag" aria-hidden="true"></span> <span class="lang-name" data-i18n="language.en">English</span> </a>
+              <a href="../zh/qrcode.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="Chinese" aria-current="false"><span class="lang-flag-icon zh-flag" aria-hidden="true"></span> <span class="lang-name" data-i18n="language.zh">Chinese</span> </a>
+              <a href="../ja/qrcode.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="Japanese" aria-current="false"><span class="lang-flag-icon ja-flag" aria-hidden="true"></span> <span class="lang-name" data-i18n="language.ja">Japanese</span></a>
             </div>
           </div>
         </div>
@@ -132,172 +60,172 @@
     </div>
   </header>
   <div id="ad-header" class="ad-container my-4 text-center">
-    <div class="ad-label text-xs text-gray-500">Advertisement</div>
+    <div class="ad-label text-xs text-gray-500" data-i18n="common.advertisement">Advertisement</div>
     <div class="ad-slot">
       <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
   </div>
   <main class="flex-grow container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">QR Code Generator</h1>
+    <h1 class="text-3xl font-bold mb-6" data-i18n="qrcode.title">QR Code Generator</h1>
     <div class="grid md:grid-cols-2 gap-8">
       <div>
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 class="text-xl font-semibold mb-4">QR Code Content</h2>
+          <h2 class="text-xl font-semibold mb-4" data-i18n="qrcode.content_section">QR Code Content</h2>
           <div class="content-type-tabs mb-4" id="content-type-tabs">
-            <button class="active" data-type="url">URL</button>
-            <button data-type="text">Text</button>
-            <button data-type="email">Email</button>
-            <button data-type="phone">Phone</button>
-            <button data-type="vcard">Contact</button>
-            <button data-type="wifi">WiFi</button>
-            <button data-type="file">File</button>
+            <button class="active" data-type="url" data-i18n="qrcode.content_type.url">URL</button>
+            <button data-type="text" data-i18n="qrcode.content_type.text">Text</button>
+            <button data-type="email" data-i18n="qrcode.content_type.email">Email</button>
+            <button data-type="phone" data-i18n="qrcode.content_type.phone">Phone</button>
+            <button data-type="vcard" data-i18n="qrcode.content_type.vcard">Contact</button>
+            <button data-type="wifi" data-i18n="qrcode.content_type.wifi">WiFi</button>
+            <button data-type="file" data-i18n="qrcode.content_type.file">File</button>
           </div>
           <div class="content-form active" id="url-form">
             <div class="mb-4">
-              <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
+              <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.url.label">Website URL</label>
               <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com">
-              <p class="text-xs text-gray-500 mt-1">e.g. https://filetoqr.com</p>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="qrcode.url.hint">e.g. https://filetoqr.com</p>
             </div>
           </div>
           <div class="content-form hidden" id="text-form">
             <div class="mb-4">
-              <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1">Text</label>
+              <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.text.label">Text</label>
               <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Enter your content"></textarea>
-              <p class="text-xs text-gray-500 mt-1">Up to 7,089 digits or 4,296 alphanumeric characters.</p>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="qrcode.text.hint">Up to 7,089 digits or 4,296 alphanumeric characters.</p>
             </div>
           </div>
           <div class="content-form hidden" id="email-form">
             <div class="mb-4">
-              <label for="email-address" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <label for="email-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.email.address_label">Email Address</label>
               <input type="email" id="email-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com">
             </div>
             <div class="mb-4">
-              <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1">Subject (optional)</label>
+              <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.email.subject_label">Subject (optional)</label>
               <input id="email-subject" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email Subject">
             </div>
             <div class="mb-4">
-              <label for="email-body" class="block text-sm font-medium text-gray-700 mb-1">Body (optional)</label>
+              <label for="email-body" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.email.body_label">Body (optional)</label>
               <textarea id="email-body" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Email Body"></textarea>
             </div>
           </div>
           <div class="content-form hidden" id="phone-form">
             <div class="mb-4">
-              <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.phone.label">Phone Number</label>
               <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678">
-              <p class="text-xs text-gray-500 mt-1">Include country code. e.g. +82 10-1234-5678</p>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="qrcode.phone.hint">Include country code. e.g. +82 10-1234-5678</p>
             </div>
           </div>
           <div class="content-form hidden" id="vcard-form">
             <div class="mb-4">
-              <label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.vcard.name_label">Name</label>
               <input id="vcard-name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="John Doe">
             </div>
             <div class="mb-4">
-              <label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1">Organization (optional)</label>
+              <label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.vcard.org_label">Organization (optional)</label>
               <input id="vcard-org" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ABC Corp">
             </div>
             <div class="mb-4">
-              <label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1">Title (optional)</label>
+              <label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.vcard.title_label">Title (optional)</label>
               <input id="vcard-title" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Manager">
             </div>
             <div class="mb-4">
-              <label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.vcard.phone_label">Phone</label>
               <input type="tel" id="vcard-phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678">
             </div>
             <div class="mb-4">
-              <label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.vcard.email_label">Email</label>
               <input type="email" id="vcard-email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="john@example.com">
             </div>
             <div class="mb-4">
-              <label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1">Website (optional)</label>
+              <label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.vcard.website_label">Website (optional)</label>
               <input type="url" id="vcard-website" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com">
             </div>
             <div class="mb-4">
-              <label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1">Address (optional)</label>
+              <label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.vcard.address_label">Address (optional)</label>
               <textarea id="vcard-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="123 Main St, Anytown, USA"></textarea>
             </div>
           </div>
           <div class="content-form hidden" id="wifi-form">
             <div class="mb-4">
-              <label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1">WiFi Name (SSID)</label>
+              <label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.wifi.ssid_label">WiFi Name (SSID)</label>
               <input id="wifi-ssid" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi Network Name">
             </div>
             <div class="mb-4">
-              <label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1">Encryption Type</label>
+              <label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.wifi.encryption_label">Encryption Type</label>
               <select id="wifi-encryption" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="WPA">WPA/WPA2/WPA3</option>
-                <option value="WEP">WEP</option>
-                <option value="nopass">No password</option>
+                <option value="WPA" data-i18n="qrcode.wifi.encryption_wpa">WPA/WPA2/WPA3</option>
+                <option value="WEP" data-i18n="qrcode.wifi.encryption_wep">WEP</option>
+                <option value="nopass" data-i18n="qrcode.wifi.encryption_none">No password</option>
               </select>
             </div>
             <div class="mb-4">
-              <label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.wifi.password_label">Password</label>
               <input type="password" id="wifi-password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi Password">
             </div>
             <div class="flex items-center mb-4">
               <input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-              <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700">Hidden Network</label>
+              <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700" data-i18n="qrcode.wifi.hidden_label">Hidden Network</label>
             </div>
           </div>
           <div class="content-form hidden" id="file-form">
             <div class="mb-4">
-              <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1">Select File</label>
+              <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.file.label">Select File</label>
               <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <p class="text-xs text-gray-500 mt-1">Only files up to 5MB can be converted to QR code.</p>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="qrcode.file.limit_hint">Only files up to 5MB can be converted to QR code.</p>
             </div>
             <div class="file-info p-4 border rounded-md mb-4 hidden">
-              <h3 class="font-medium mb-2">File Info</h3>
+              <h3 class="font-medium mb-2" data-i18n="qrcode.file.info_title">File Info</h3>
               <div class="grid grid-cols-2 gap-2 text-sm">
-                <div class="text-gray-600">File Name:</div>
+                <div class="text-gray-600" data-i18n="qrcode.file.name">File Name:</div>
                 <div class="file-name font-medium"></div>
-                <div class="text-gray-600">File Type:</div>
+                <div class="text-gray-600" data-i18n="qrcode.file.type">File Type:</div>
                 <div class="file-type font-medium"></div>
-                <div class="text-gray-600">File Size:</div>
+                <div class="text-gray-600" data-i18n="qrcode.file.size">File Size:</div>
                 <div class="file-size font-medium"></div>
               </div>
             </div>
             <div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
-              <p>Files converted to QR code are suitable for small files due to size limits. Large files will be split into multiple QR codes.</p>
+              <p data-i18n="qrcode.file.warning">Files converted to QR code are suitable for small files due to size limits. Large files will be split into multiple QR codes.</p>
             </div>
           </div>
         </div>
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold mb-4">QR Code Settings</h2>
+          <h2 class="text-xl font-semibold mb-4" data-i18n="qrcode.settings_section">QR Code Settings</h2>
           <div class="grid md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Foreground Color</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.settings.foreground">Foreground Color</label>
               <div class="color-picker">
                 <input type="color" id="foreground-color" value="#000000">
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.settings.background">Background Color</label>
               <div class="color-picker">
                 <input type="color" id="background-color" value="#FFFFFF">
               </div>
             </div>
             <div>
-              <label for="error-correction" class="block text-sm font-medium text-gray-700 mb-1">Error Correction Level</label>
+              <label for="error-correction" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.settings.error_correction">Error Correction Level</label>
               <select id="error-correction" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="L">Low (7%)</option>
-                <option value="M" selected="selected">Medium (15%)</option>
-                <option value="Q">High (25%)</option>
-                <option value="H">Very High (30%)</option>
+                <option value="L" data-i18n="qrcode.settings.error_low">Low (7%)</option>
+                <option value="M" selected="selected" data-i18n="qrcode.settings.error_medium">Medium (15%)</option>
+                <option value="Q" data-i18n="qrcode.settings.error_high">High (25%)</option>
+                <option value="H" data-i18n="qrcode.settings.error_highest">Very High (30%)</option>
               </select>
             </div>
             <div>
-              <label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1">QR Code Size</label>
+              <label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.settings.size">QR Code Size</label>
               <select id="qr-size" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="128">Small (128x128px)</option>
-                <option value="256" selected="selected">Medium (256x256px)</option>
-                <option value="512">Large (512x512px)</option>
-                <option value="1024">Extra Large (1024x1024px)</option>
+                <option value="128" data-i18n="qrcode.settings.size_small">Small (128x128px)</option>
+                <option value="256" selected="selected" data-i18n="qrcode.settings.size_medium">Medium (256x256px)</option>
+                <option value="512" data-i18n="qrcode.settings.size_large">Large (512x512px)</option>
+                <option value="1024" data-i18n="qrcode.settings.size_xlarge">Extra Large (1024x1024px)</option>
               </select>
             </div>
           </div>
           <div class="mt-4">
-            <label for="margin" class="block text-sm font-medium text-gray-700 mb-1">Margin</label>
+            <label for="margin" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.settings.margin">Margin</label>
             <input type="range" id="margin" min="0" max="5" value="1" class="w-full">
             <div class="flex justify-between text-xs text-gray-500">
               <span>0</span>
@@ -311,12 +239,12 @@
           <div class="mt-4">
             <div class="flex items-center mb-2">
               <input type="checkbox" id="add-logo" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-              <label for="add-logo" class="ml-2 block text-sm font-medium text-gray-700">Add Logo</label>
+              <label for="add-logo" class="ml-2 block text-sm font-medium text-gray-700" data-i18n="qrcode.settings.add_logo">Add Logo</label>
             </div>
             <div id="logo-options" class="mt-2 hidden">
               <div class="flex items-center space-x-4">
                 <div>
-                  <label for="logo-file" class="block text-sm font-medium text-gray-700 mb-1">Logo Image</label>
+                  <label for="logo-file" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.settings.logo_image">Logo Image</label>
                   <input type="file" id="logo-file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/*">
                 </div>
                 <div>
@@ -324,33 +252,33 @@
                 </div>
               </div>
               <div class="mt-2">
-                <label for="logo-size" class="block text-sm font-medium text-gray-700 mb-1">Logo Size</label>
+                <label for="logo-size" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="qrcode.settings.logo_size">Logo Size</label>
                 <input type="range" id="logo-size" min="5" max="30" value="15" class="w-full">
                 <div class="flex justify-between text-xs text-gray-500">
-                  <span>Small</span>
-                  <span>Large</span>
+                  <span data-i18n="qrcode.settings.logo_size_small">Small</span>
+                  <span data-i18n="qrcode.settings.logo_size_large">Large</span>
                 </div>
               </div>
             </div>
           </div>
           <div class="mt-6">
-            <button id="generate-qr" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">Generate QR Code</button>
+            <button id="generate-qr" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium" data-i18n="qrcode.generate_button">Generate QR Code</button>
           </div>
         </div>
       </div>
       <div>
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 class="text-xl font-semibold mb-4">QR Code Preview</h2>
+          <h2 class="text-xl font-semibold mb-4" data-i18n="qrcode.preview_section">QR Code Preview</h2>
           <div class="qr-preview-container mb-6" id="qr-preview">
             <div class="text-center text-gray-500">
               <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
               </svg>
-              <p>The generated QR code will be displayed here.</p>
+              <p data-i18n="qrcode.preview.placeholder">The generated QR code will be displayed here.</p>
             </div>
           </div>
-          <div class="space-y-4" id="download-options" style="display: none;">
-            <h3 class="text-lg font-semibold">Download</h3>
+          <div class="space-y-4 hidden" id="download-options">
+            <h3 class="text-lg font-semibold" data-i18n="qrcode.download_section">Download</h3>
             <div class="grid grid-cols-3 gap-4">
               <button class="flex flex-col items-center justify-center p-4 border rounded-md hover:bg-gray-50" id="download-png">
                 <svg class="w-8 h-8 text-gray-700 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -374,659 +302,57 @@
           </div>
         </div>
         <div id="ad-content" class="ad-container mb-6 text-center">
-          <div class="ad-label text-xs text-gray-500">Advertisement</div>
+          <div class="ad-label text-xs text-gray-500" data-i18n="common.advertisement">Advertisement</div>
           <div class="ad-slot">
             <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
             <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
           </div>
         </div>
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold mb-4">QR Code Tips</h2>
-          <div class="space-y-4">
-            <div>
-              <h3 class="font-medium text-blue-600">How to make QR codes easy to scan</h3>
-              <p class="text-gray-600 text-sm mt-1">Ensure enough contrast between the QR code and background, and set error correction to 'High' for better scan success.</p>
-            </div>
-            <div>
-              <h3 class="font-medium text-blue-600">Tips for adding a logo</h3>
-              <p class="text-gray-600 text-sm mt-1">When adding a logo, use only the center area of the QR code and set error correction to 'High' or 'Very High'.</p>
-            </div>
-            <div>
-              <h3 class="font-medium text-blue-600">QR codes for printing</h3>
-              <p class="text-gray-600 text-sm mt-1">For print, download the QR code as SVG to maintain quality when resizing.</p>
-            </div>
-            <div>
-              <h3 class="font-medium text-blue-600">Test your QR code</h3>
-              <p class="text-gray-600 text-sm mt-1">Test with multiple devices and scanner apps before use to ensure proper recognition.</p>
-            </div>
-          </div>
-        </div>
-        <div class="content-form hidden" id="scanner-panel">
-          <div class="scanner-tabs mb-4 border-b">
-            <button class="scanner-tab active px-4 py-2 font-medium" data-panel="camera-scan-panel">Scan with Camera</button>
-            <button class="scanner-tab px-4 py-2 font-medium" data-panel="image-scan-panel">Scan from Image</button>
-          </div>
-          <div id="scanner-container" class="relative mb-4">
-            <div id="loading-message" class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-700">⌛ Loading camera...</div>
-            <div id="camera-scan-panel" class="scanner-panel">
-              <canvas id="scanner-canvas" class="w-full"></canvas>
-            </div>
-            <div id="image-scan-panel" class="scanner-panel hidden">
-              <div class="mb-4">
-                <label for="qr-image-input" class="block text-sm font-medium text-gray-700 mb-1">Select QR Code Image</label>
-                <input type="file" id="qr-image-input" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/*">
-              </div>
-              <div id="image-preview" class="mb-4 hidden">
-                <img id="preview-image" class="max-w-full h-auto border rounded-md" src="" alt="QR Code Preview">
-              </div>
-              <button id="scan-image" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Read QR Code from Image</button>
-            </div>
-          </div>
-          <div id="file-recovery-ui" class="hidden mb-6 p-4 bg-blue-50 rounded-md border border-blue-200">
-            <h3 class="text-lg font-semibold mb-2">File Recovery Mode</h3>
-            <p class="text-sm mb-4">Scan QR code to restore original file. First scan the metadata QR code, then scan the rest of the chunks in order.</p>
-            <div class="mb-4">
-              <div class="flex justify-between mb-1">
-                <span class="text-sm font-medium">Recovery Progress</span>
-                <span id="recovery-summary" class="text-sm">Scan the metadata QR code first.</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-3">
-                <div id="recovery-progress-bar" class="bg-blue-600 h-3 rounded-full" style="width: 0%"></div>
-              </div>
-              <p id="recovery-progress-text" class="text-xs text-gray-500 mt-1">Preparing...</p>
-            </div>
-            <div id="recovery-metadata-section" class="hidden mb-4 p-3 bg-white rounded-md border border-gray-200">
-              <h4 class="text-sm font-medium mb-2">File Info</h4>
-              <div class="text-sm grid grid-cols-2 gap-2">
-                <div><span class="text-gray-500">File Name:</span> <span id="recovery-filename" class="font-medium ml-1">-</span></div>
-                <div><span class="text-gray-500">Size:</span> <span id="recovery-filesize" class="font-medium ml-1">-</span></div>
-                <div><span class="text-gray-500">Type:</span> <span id="recovery-filetype" class="font-medium ml-1">-</span></div>
-              </div>
-            </div>
-            <div id="recovery-complete-message" class="hidden mb-4 p-3 bg-green-50 text-green-800 rounded-md border border-green-200">
-              <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="font-medium">All QR codes scanned! You can download the file now.</span>
-              </div>
-            </div>
-            <div class="flex space-x-2">
-              <button id="reset-recovery" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm">Restart</button>
-              <button id="download-file" class="bg-gray-400 text-white px-3 py-2 rounded-md text-sm" disabled="disabled">Download File</button>
-            </div>
-          </div>
-          <div id="scan-result" class="hidden">
-            <h3 class="text-lg font-semibold mb-2">Scan Result</h3>
-            <div class="mb-4">
-              <div class="flex items-center mb-1">
-                <span class="text-gray-700 font-medium">Type:</span>
-                <span id="result-type" class="ml-2">Text</span>
-              </div>
-              <div class="p-4 bg-gray-50 rounded-md border">
-                <pre id="result-content" class="text-sm whitespace-pre-wrap break-all"></pre>
-              </div>
-            </div>
-            <div class="flex space-x-4">
-              <button id="copy-result" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Copy to Clipboard</button>
-              <a id="result-action" href="#" target="_blank" class="hidden bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">Open</a>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </main>
+
   <footer class="bg-gray-100 mt-12">
     <div class="container mx-auto px-4 py-8">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4">FileToQR</h3>
+          <p class="text-gray-600 mb-4" data-i18n="footer.description">Convert files and generate QR codes directly in your browser without uploading to any server.</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.shortcuts">Shortcuts</h3>
+          <ul class="space-y-2">
+            <li><a href="index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">Home</a></li>
+            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">Convert Files</a></li>
+            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QR Code</a></li>
+            <li><a href="timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">Timer</a></li>
+            <li><a href="help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">Help</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">Legal Information</h3>
+          <ul class="space-y-2">
+            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">Privacy Policy</a></li>
+            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">Terms of Use</a></li>
+          </ul>
+        </div>
+      </div>
       <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
-        <p>&copy; 2025 FileToQR. All rights reserved.</p>
-        <p class="mt-1">Last updated: May 2, 2025</p>
+        <p data-i18n="footer.copyright">© 2025 FileToQR. All rights reserved.</p>
+        <p class="mt-1" data-i18n="footer.last_updated">Last updated: May 2, 2025</p>
       </div>
     </div>
   </footer>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 헤더와 푸터 직접 로드
-      loadComponents();
-      
-      // 콘텐츠 유형 탭 설정 
-      setupContentTypeTabs();
-      
-      // 로고 옵션 토글
-      setupLogoOptions();
-      
-      // QR 코드 생성 버튼 이벤트
-      setupGenerateButton();
-      
-      // 다운로드 버튼 이벤트
-      setupDownloadButtons();
-    });
-    
-    // 헤더 및 푸터 컴포넌트 로드
-    function loadComponents() {
-      // 헤더 로드
-      const headerContainer = document.getElementById('header-container');
-      if (headerContainer) {
-        fetch('components/header.html')
-          .then(response => response.text())
-          .then(html => {
-            headerContainer.innerHTML = html;
-          })
-          .catch(error => {
-            console.error('헤더 로드 실패:', error);
-            // 대체 헤더 제공
-            headerContainer.innerHTML = `
-              <header class="bg-white shadow-sm sticky top-0 z-50">
-                <div class="container mx-auto px-4 py-4">
-                  <div class="flex justify-between items-center">
-                    <a href="index.html" class="flex items-center">
-                      <span class="text-2xl font-bold text-blue-600">FileToQR</span>
-                    </a>
-                    <nav>
-                      <ul class="flex space-x-6">
-                        <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a></li>
-                        <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">Convert</a></li>
-                        <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR Code</a></li>
-                        <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">Help</a></li>
-                      </ul>
-                    </nav>
-                  </div>
-                </div>
-              </header>
-            `;
-          });
-      }
-      
-      // 푸터 로드
-      const footerContainer = document.getElementById('footer-container');
-      if (footerContainer) {
-        fetch('components/footer.html')
-          .then(response => response.text())
-          .then(html => {
-            footerContainer.innerHTML = html;
-          })
-          .catch(error => {
-            console.error('푸터 로드 실패:', error);
-            // 대체 푸터 제공
-            footerContainer.innerHTML = `
-              <footer class="bg-gray-100 mt-12">
-                <div class="container mx-auto px-4 py-8">
-                  <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
-                    <p>&copy; 2025 FileToQR. All rights reserved.</p>
-                  </div>
-                </div>
-              </footer>
-            `;
-          });
-      }
-    }
-    
-    // 콘텐츠 유형 탭 설정
-    function setupContentTypeTabs() {
-      const contentTypeTabs = document.querySelectorAll('#content-type-tabs button');
-      const contentForms = document.querySelectorAll('.content-form');
-      
-      contentTypeTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-          // 모든 탭 비활성화
-          contentTypeTabs.forEach(t => t.classList.remove('active'));
-          // 현재 탭 활성화
-          this.classList.add('active');
-          
-          // 모든 폼 숨기기
-          contentForms.forEach(form => form.classList.add('hidden'));
-          
-          // 선택된 유형의 폼 표시
-          const activeType = this.getAttribute('data-type');
-          const activeForm = document.getElementById(`${activeType}-form`);
-          if (activeForm) {
-            activeForm.classList.remove('hidden');
-          }
-        });
-      });
-    }
-        
-    // 로고 옵션 토글
-    function setupLogoOptions() {
-      const addLogoCheckbox = document.getElementById('add-logo');
-      const logoOptions = document.getElementById('logo-options');
-      
-      if (addLogoCheckbox && logoOptions) {
-        addLogoCheckbox.addEventListener('change', function() {
-          logoOptions.classList.toggle('hidden', !this.checked);
-        });
-      }
-      
-      // 로고 파일 선택 이벤트
-      const logoFileInput = document.getElementById('logo-file');
-      const logoPreview = document.getElementById('logo-preview');
-      
-      if (logoFileInput && logoPreview) {
-        logoFileInput.addEventListener('change', function() {
-          if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-              logoPreview.src = e.target.result;
-            };
-            reader.readAsDataURL(this.files[0]);
-          }
-        });
-      }
-    }
-        
-    // QR 코드 생성 버튼 이벤트
-    function setupGenerateButton() {
-      const generateBtn = document.getElementById('generate-qr');
-      
-      if (generateBtn) {
-        generateBtn.addEventListener('click', function() {
-          generateQRCode();
-        });
-      }
-    }
-    
-    // QR 코드 생성 함수
-    function generateQRCode() {
-      console.log('QR Code Generation Started');
-      
-      // 현재 선택된 탭 타입 찾기
-      const activeTab = document.querySelector('#content-type-tabs button.active');
-      if (!activeTab) {
-        console.error('활성화된 탭을 찾을 수 없습니다.');
-        return;
-      }
-      
-      const contentType = activeTab.getAttribute('data-type');
-      console.log('선택된 콘텐츠 타입:', contentType);
-      
-      // 콘텐츠 가져오기
-      let content = '';
-      
-      switch (contentType) {
-        case 'url':
-          content = document.getElementById('url-input').value.trim();
-          if (!content) {
-            alert('Please enter a URL.');
-            return;
-          }
-          // URL 형식 자동 수정
-          if (!content.startsWith('http://') && !content.startsWith('https://')) {
-            content = 'https://' + content;
-          }
-          break;
-        
-        case 'text':
-          content = document.getElementById('text-input').value.trim();
-          if (!content) {
-            alert('Please enter text.');
-            return;
-          }
-          break;
-        
-        case 'email':
-          const email = document.getElementById('email-address').value.trim();
-          const subject = document.getElementById('email-subject').value.trim();
-          const body = document.getElementById('email-body').value.trim();
-          
-          if (!email) {
-            alert('Please enter an email address.');
-            return;
-          }
-          
-          content = `mailto:${email}`;
-          if (subject || body) {
-            content += `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-          }
-          break;
-        
-        case 'phone':
-          content = document.getElementById('phone-input').value.trim();
-          if (!content) {
-            alert('Please enter a phone number.');
-            return;
-          }
-          content = `tel:${content}`;
-          break;
-        
-        case 'vcard':
-          const name = document.getElementById('vcard-name').value.trim();
-          const org = document.getElementById('vcard-org').value.trim();
-          const title = document.getElementById('vcard-title').value.trim();
-          const phone = document.getElementById('vcard-phone').value.trim();
-          const vcardEmail = document.getElementById('vcard-email').value.trim();
-          const website = document.getElementById('vcard-website').value.trim();
-          const address = document.getElementById('vcard-address').value.trim();
-          
-          if (!name) {
-            alert('Please enter a name.');
-            return;
-          }
-          
-          // vCard 형식 생성
-          content = 'BEGIN:VCARD\nVERSION:3.0\n';
-          content += `N:${name};;;\n`;
-          content += `FN:${name}\n`;
-          if (org) content += `ORG:${org}\n`;
-          if (title) content += `TITLE:${title}\n`;
-          if (phone) content += `TEL:${phone}\n`;
-          if (vcardEmail) content += `EMAIL:${vcardEmail}\n`;
-          if (website) content += `URL:${website}\n`;
-          if (address) content += `ADR:;;${address};;;\n`;
-          content += 'END:VCARD';
-          break;
-        
-        case 'wifi':
-          const ssid = document.getElementById('wifi-ssid').value.trim();
-          const encryption = document.getElementById('wifi-encryption').value;
-          const password = document.getElementById('wifi-password').value;
-          const hidden = document.getElementById('wifi-hidden').checked;
-          
-          if (!ssid) {
-            alert('Please enter a WiFi name (SSID).');
-            return;
-          }
-          
-          // WiFi QR 코드 형식
-          content = `WIFI:S:${ssid};T:${encryption};`;
-          if (encryption !== 'nopass') {
-            content += `P:${password};`;
-          }
-          if (hidden) {
-            content += 'H:true;';
-          }
-          content += ';';
-          break;
-        
-        case 'file':
-          alert('File QR code feature is still under development.');
-          return;
-        
-        default:
-          alert('Unsupported content type.');
-          return;
-      }
-      
-      // QR 코드 생성 설정
-      const foregroundColor = document.getElementById('foreground-color').value;
-      const backgroundColor = document.getElementById('background-color').value;
-      const errorCorrectionLevel = document.getElementById('error-correction').value;
-      const qrSize = parseInt(document.getElementById('qr-size').value);
-      const margin = parseInt(document.getElementById('margin').value);
-      
-      // 오류 수정 레벨 매핑
-      let correctLevel;
-      if (typeof QRCode !== 'undefined' && QRCode.CorrectLevel) {
-        switch (errorCorrectionLevel) {
-          case 'L': correctLevel = QRCode.CorrectLevel.L; break;
-          case 'M': correctLevel = QRCode.CorrectLevel.M; break;
-          case 'Q': correctLevel = QRCode.CorrectLevel.Q; break;
-          case 'H': correctLevel = QRCode.CorrectLevel.H; break;
-          default: correctLevel = QRCode.CorrectLevel.M;
-        }
+      // QR 코드 생성기 초기화
+      if (window.FileToQR && window.FileToQR.qrGenerator) {
+        window.FileToQR.qrGenerator.init();
       } else {
-        // 기본값 사용
-        correctLevel = 0; // M
+        console.error('QR 코드 생성기 모듈을 찾을 수 없습니다.');
       }
-      
-      // QR 코드 컨테이너 준비
-      const qrPreview = document.getElementById('qr-preview');
-      
-      // 기존 QR 코드 및 로딩 표시 제거
-      qrPreview.innerHTML = `
-        <div class="flex justify-center items-center h-full">
-          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-        </div>
-      `;
-      
-      console.log('QR Code Generation Options:', {
-        content: content.length > 30 ? content.substring(0, 30) + '...' : content,
-        size: qrSize,
-        foreground: foregroundColor,
-        background: backgroundColor,
-        errorCorrection: errorCorrectionLevel,
-        margin: margin
-      });
-      
-      // QR 코드 생성 시도
-      try {
-        // 라이브러리가 로드되었는지 확인
-        if (typeof QRCode === 'undefined') {
-          throw new Error('QR Code library not loaded.');
-        }
-        
-        // QR 코드 생성 방식 결정 (인스턴스 방식 또는 toCanvas 메서드)
-        if (typeof QRCode === 'function') {
-          // 기존 내용 제거
-          qrPreview.innerHTML = '';
-          
-          // 인스턴스 방식
-          new QRCode(qrPreview, {
-            text: content,
-            width: qrSize,
-            height: qrSize,
-            colorDark: foregroundColor,
-            colorLight: backgroundColor,
-            correctLevel: correctLevel,
-            margin: margin
-          });
-          
-          console.log('QR Code generated successfully (instance method)');
-          
-          // 다운로드 버튼 표시
-          document.getElementById('download-options').style.display = 'block';
-        } else if (typeof QRCode.toCanvas === 'function') {
-          // Canvas 생성
-          const canvas = document.createElement('canvas');
-          canvas.width = qrSize;
-          canvas.height = qrSize;
-          
-          // toCanvas 메서드 사용
-          QRCode.toCanvas(canvas, content, {
-            width: qrSize,
-            margin: margin,
-            color: {
-              dark: foregroundColor,
-              light: backgroundColor
-            },
-            errorCorrectionLevel: errorCorrectionLevel
-          }, function(error) {
-            if (error) {
-              console.error('QR Code generation error:', error);
-              qrPreview.innerHTML = `
-                <div class="text-center text-red-600">
-                  <p>QR Code generation error</p>
-                  <p class="text-sm">${error.message}</p>
-                </div>
-              `;
-              return;
-            }
-            
-            // 성공 시 Canvas 표시
-            qrPreview.innerHTML = '';
-            qrPreview.appendChild(canvas);
-            console.log('QR Code generated successfully (toCanvas method)');
-            
-            // 다운로드 버튼 표시
-            document.getElementById('download-options').style.display = 'block';
-          });
-        } else {
-          throw new Error('Unsupported QR Code generation method.');
-        }
-        
-        // 로고 추가 처리 (로고 기능을 추가한 경우)
-        if (document.getElementById('add-logo').checked) {
-          handleLogoAddition(qrPreview);
-        }
-      } catch (error) {
-        console.error('QR Code generation error:', error);
-        qrPreview.innerHTML = `
-          <div class="text-center text-red-600">
-            <p>QR Code generation error</p>
-            <p class="text-sm">${error.message}</p>
-          </div>
-        `;
-      }
-    }
-    
-    // 로고 추가 처리 (선택적 기능)
-    function handleLogoAddition(qrContainer) {
-      // 로고 파일이 선택되었는지 확인
-      const logoFile = document.getElementById('logo-file').files[0];
-      if (!logoFile) {
-        console.log('로고 파일이 선택되지 않았습니다.');
-        return;
-      }
-      
-      // QR 코드 생성이 완료되길 기다림
-      setTimeout(() => {
-        // QR 코드 캔버스 찾기
-        const canvas = qrContainer.querySelector('canvas');
-        if (!canvas) {
-          console.warn('QR Code canvas not found.');
-          return;
-        }
-        
-        // 로고 크기 계산
-        const logoSize = parseInt(document.getElementById('logo-size').value) / 100 * canvas.width;
-        
-        // 로고 이미지 불러오기
-        const logoImg = new Image();
-        logoImg.onload = function() {
-          // 캔버스 컨텍스트
-          const ctx = canvas.getContext('2d');
-          
-          // 로고 그리기
-          const logoX = (canvas.width - logoSize) / 2;
-          const logoY = (canvas.height - logoSize) / 2;
-          
-          // 로고 영역 배경 (흰색)
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(logoX - 2, logoY - 2, logoSize + 4, logoSize + 4);
-          
-          // 로고 이미지 그리기
-          ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-          
-          console.log('Logo added to QR Code');
-        };
-        logoImg.src = URL.createObjectURL(logoFile);
-      }, 100); // QR Code generation complete delay
-    }
-    
-    // 다운로드 버튼 이벤트
-    function setupDownloadButtons() {
-      // PNG 다운로드
-      const downloadPngBtn = document.getElementById('download-png');
-      if (downloadPngBtn) {
-        downloadPngBtn.addEventListener('click', function() {
-          downloadQRCode('png');
-        });
-      }
-      
-      // SVG 다운로드
-      const downloadSvgBtn = document.getElementById('download-svg');
-      if (downloadSvgBtn) {
-        downloadSvgBtn.addEventListener('click', function() {
-          downloadQRCode('svg');
-        });
-      }
-      
-      // JPEG 다운로드
-      const downloadJpegBtn = document.getElementById('download-jpeg');
-      if (downloadJpegBtn) {
-        downloadJpegBtn.addEventListener('click', function() {
-          downloadQRCode('jpeg');
-        });
-      }
-    }
-    
-    // QR 코드 다운로드 함수
-    function downloadQRCode(format) {
-      // QR 코드 캔버스 찾기
-      const qrPreview = document.getElementById('qr-preview');
-      const canvas = qrPreview.querySelector('canvas');
-      
-      if (!canvas) {
-        alert('QR Code canvas not found.');
-        return;
-      }
-      
-      let dataUrl;
-      let filename = `qrcode_${new Date().getTime()}`;
-      
-      switch (format) {
-        case 'png':
-          dataUrl = canvas.toDataURL('image/png');
-          filename += '.png';
-          break;
-        
-        case 'jpeg':
-          dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-          filename += '.jpg';
-          break;
-        
-        case 'svg':
-          // SVG 변환 (간단 구현)
-          const svg = generateSVGFromCanvas(canvas);
-          const blob = new Blob([svg], { type: 'image/svg+xml' });
-          dataUrl = URL.createObjectURL(blob);
-          filename += '.svg';
-          break;
-        
-        default:
-          alert('Unsupported format.');
-          return;
-      }
-      
-      // 다운로드 링크 생성 및 클릭
-      const downloadLink = document.createElement('a');
-      downloadLink.href = dataUrl;
-      downloadLink.download = filename;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      
-      // SVG Blob URL 해제
-      if (format === 'svg') {
-        URL.revokeObjectURL(dataUrl);
-      }
-      
-      console.log(`QR Code downloaded as ${format} format`);
-    }
-    
-    // Canvas에서 SVG 생성 함수
-    function generateSVGFromCanvas(canvas) {
-      const width = canvas.width;
-      const height = canvas.height;
-      const ctx = canvas.getContext('2d');
-      const imageData = ctx.getImageData(0, 0, width, height);
-      const data = imageData.data;
-      
-      // SVG 시작 태그
-      let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`;
-      
-      // 배경색 (흰색)
-      svg += `<rect width="${width}" height="${height}" fill="#FFFFFF"/>`;
-      
-      // 픽셀 순회하며 검은색 픽셀 찾기
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = (y * width + x) * 4;
-          const r = data[idx];
-          const g = data[idx + 1];
-          const b = data[idx + 2];
-          
-          // 어두운 픽셀 (QR 코드 모듈)
-          if (r < 128 && g < 128 && b < 128) {
-            svg += `<rect x="${x}" y="${y}" width="1" height="1" fill="#000000"/>`;
-          }
-        }
-      }
-      
-      // SVG 종료 태그
-      svg += '</svg>';
-      
-      return svg;
-    }
+    });
   </script>
 </body>
 </html>

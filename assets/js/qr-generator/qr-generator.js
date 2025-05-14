@@ -1,7 +1,7 @@
 /**
  * qr-generator.js - FileToQR QR 코드 생성 모듈
- * 버전: 1.0.0
- * 최종 업데이트: 2025-06-15
+ * 버전: 1.1.0
+ * 최종 업데이트: 2025-06-20
  * 
  * 이 모듈은 다양한 콘텐츠로 QR 코드를 생성하는 기능을 제공합니다:
  * - URL, 텍스트, 연락처 정보 등을 QR 코드로 변환
@@ -9,14 +9,20 @@
  * - 생성된 QR 코드 다운로드 (PNG, SVG, PDF)
  */
 
-// 로컬 QR 코드 라이브러리 파일 경로 시도 목록
-const QR_LIB_PATHS = [
-  'assets/js/vendor/qrcode.min.js',
-  '/assets/js/vendor/qrcode.min.js',
-  './assets/js/vendor/qrcode.min.js',
-  '../js/vendor/qrcode.min.js',
-  '../../assets/js/vendor/qrcode.min.js'
-];
+// QR 코드 라이브러리 URL 설정
+const QR_LIB_URLS = {
+  local: [
+    '/assets/js/vendor/qrcode.min.js',
+    './assets/js/vendor/qrcode.min.js',
+    '../assets/js/vendor/qrcode.min.js',
+    '../../assets/js/vendor/qrcode.min.js'
+  ],
+  cdn: [
+    'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
+    'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
+    'https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js'
+  ]
+};
 
 // QR 코드 생성 라이브러리 임포트 (QRCode.js 사용)
 const importQRCodeLibrary = async () => {
@@ -26,123 +32,172 @@ const importQRCodeLibrary = async () => {
     return window.QRCode;
   }
   
+  // 로딩 상태 업데이트
+  const qrPreview = document.getElementById('qr-preview');
+  if (qrPreview) {
+    qrPreview.innerHTML = `
+      <div class="loading-status text-center">
+        <div class="spinner mx-auto mb-2"></div>
+        <p class="text-gray-500">QR 코드 생성기 준비 중...</p>
+      </div>
+    `;
+  }
+  
   try {
-    // QRCode 라이브러리 번들에서 가져오기 또는 CDN에서 로드
     console.log('QRCode 라이브러리 로드 시도');
     
-    // 첫 번째 방법: 글로벌 스크립트 태그에서 로드된 경우
-    if (typeof QRCode !== 'undefined') {
-      console.log('QRCode가 글로벌 스코프에서 발견되었습니다.');
-      window.QRCode = QRCode;
-      return QRCode;
+    // 1. 로컬 라이브러리 시도
+    for (const path of QR_LIB_URLS.local) {
+      try {
+        const response = await fetch(path, { method: 'HEAD' });
+        if (response.ok) {
+          console.log(`로컬 QRCode 라이브러리 발견 (${path}), 로드 중...`);
+          await loadScript(path);
+          if (window.QRCode) {
+            console.log('로컬 QRCode 라이브러리 로드 성공');
+            return window.QRCode;
+          }
+        }
+      } catch (error) {
+        console.warn(`로컬 경로 ${path} 확인 실패:`, error);
+      }
     }
     
-    // 두 번째 방법: 동적 스크립트 로드
-    return new Promise(async (resolve, reject) => {
-      // 로컬 파일이 있는지 확인 - 여러 경로 시도
-      let localPathFound = false;
-      
-      for (const path of QR_LIB_PATHS) {
-        try {
-          console.log(`로컬 경로 시도: ${path}`);
-          const response = await fetch(path, { method: 'HEAD' });
-          
-          if (response.ok) {
-            console.log(`로컬 QRCode 라이브러리 파일 발견 (${path}), 로드 중...`);
-            localPathFound = true;
-            
-    const script = document.createElement('script');
-            script.src = path;
-    script.onload = () => {
-              console.log('로컬 QRCode 라이브러리 로드 성공');
-              window.QRCode = QRCode;
-              resolve(QRCode);
-    };
-    script.onerror = (error) => {
-              console.warn(`로컬 QRCode 라이브러리 파일 로드 실패 (${path}):`, error);
-              // 다음 경로 시도 대신 CDN으로 넘어감
-              loadFromCDN();
-    };
-    document.head.appendChild(script);
-            
-            // 로컬 파일을 찾았으므로 루프 중단
-            break;
-          }
-        } catch (error) {
-          console.warn(`로컬 경로 확인 실패 (${path}):`, error);
-}
+    // 2. CDN에서 로드 시도
+    for (const url of QR_LIB_URLS.cdn) {
+      try {
+        console.log(`CDN에서 QRCode 라이브러리 로드 시도: ${url}`);
+        await loadScript(url);
+        if (window.QRCode) {
+          console.log('CDN QRCode 라이브러리 로드 성공');
+          return window.QRCode;
+        }
+      } catch (error) {
+        console.warn(`CDN QRCode 라이브러리 로드 실패 (${url}):`, error);
       }
-      
-      // 로컬 파일을 찾지 못했으면 CDN에서 로드
-      if (!localPathFound) {
-        console.log('로컬 QRCode 라이브러리 없음, CDN 시도...');
-        loadFromCDN();
-      }
-      
-      // CDN에서 로드하는 함수
-      function loadFromCDN() {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-        script.onload = () => {
-          console.log('QRCode 라이브러리 CDN에서 로드 성공');
-          window.QRCode = QRCode;
-          resolve(QRCode);
-        };
-        script.onerror = (error) => {
-          console.error('QRCode 라이브러리 로드 실패, 백업 CDN 시도:', error);
-          
-          // 백업 CDN 시도
-          const backupScript = document.createElement('script');
-          backupScript.src = 'https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js';
-          backupScript.onload = () => {
-            console.log('QRCode 라이브러리 백업 CDN에서 로드 성공');
-            resolve(window.QRCode);
-          };
-          backupScript.onerror = () => {
-            // 최종 백업: 인라인 기본 QR 코드 생성기 제공
-            console.error('모든 QRCode 라이브러리 로드 실패, 내장 QR 생성기 사용');
-            
-            // 간단한 QR 코드 생성 API 제공
-            window.QRCode = {
-              toCanvas: (canvas, text, options) => {
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = options?.colorLight || '#FFFFFF';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = options?.colorDark || '#000000';
-                ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('QR 코드 생성 실패', canvas.width/2, canvas.height/2 - 20);
-                ctx.font = '12px Arial';
-                ctx.fillText('라이브러리를 로드할 수 없습니다', canvas.width/2, canvas.height/2 + 10);
-                
-                // 간단한 QR 코드처럼 보이는 패턴 그리기
-                ctx.fillRect(canvas.width/4, canvas.height/4, 20, 20);
-                ctx.fillRect(canvas.width*3/4 - 20, canvas.height/4, 20, 20);
-                ctx.fillRect(canvas.width/4, canvas.height*3/4 - 20, 20, 20);
-                
-                return Promise.resolve();
-              },
-              CorrectLevel: {
-                L: 1,
-                M: 0,
-                Q: 3,
-                H: 2
-              }
-            };
-            
-            resolve(window.QRCode);
-          };
-          document.head.appendChild(backupScript);
-        };
-        document.head.appendChild(script);
-      }
-    });
+    }
+    
+    // 3. 모든 시도 실패 - 내장 기본 QR 코드 생성기 제공
+    console.error('모든 QRCode 라이브러리 로드 실패, 내장 QR 생성기로 대체');
+    // 간단한 QR 코드 생성 API 제공
+    window.QRCode = createFallbackQRCodeLibrary();
+    // 다국어 안내 메시지 적용
+    const i18n = window.FileToQR && window.FileToQR.i18n;
+    const msg = i18n && typeof i18n.translate === 'function'
+      ? i18n.translate('qrcode.errors.qrLibLoadFail', {}, 'QR 코드 라이브러리를 로드할 수 없습니다. 제한된 기능으로 계속합니다.')
+      : 'QR 코드 라이브러리를 로드할 수 없습니다. 제한된 기능으로 계속합니다.';
+    showErrorMessage(msg);
+    return window.QRCode;
   } catch (error) {
-    console.error('QRCode 라이브러리 로드 중 오류 발생:', error);
-    throw error;
+    console.error('QRCode 라이브러리 로드 중 심각한 오류 발생:', error);
+    const i18n = window.FileToQR && window.FileToQR.i18n;
+    const msg = i18n && typeof i18n.translate === 'function'
+      ? i18n.translate('qrcode.errors.qrLibInitFail', {}, 'QR 코드 생성기를 초기화할 수 없습니다. 페이지를 새로고침하거나 다시 시도해주세요.')
+      : 'QR 코드 생성기를 초기화할 수 없습니다. 페이지를 새로고침하거나 다시 시도해주세요.';
+    showErrorMessage(msg);
+    // 최소한의 대체 라이브러리 제공
+    window.QRCode = createFallbackQRCodeLibrary();
+    return window.QRCode;
   }
 };
+
+// 스크립트 로드 유틸리티 함수
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = () => resolve();
+    script.onerror = (error) => reject(error);
+    document.head.appendChild(script);
+  });
+}
+
+// 내장 기본 QR 코드 생성기 생성
+function createFallbackQRCodeLibrary() {
+  return {
+    toCanvas: (canvas, text, options) => {
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = options?.colorLight || '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = options?.colorDark || '#000000';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('QR 코드 생성 실패', canvas.width/2, canvas.height/2 - 20);
+      ctx.font = '12px Arial';
+      ctx.fillText('라이브러리를 로드할 수 없습니다', canvas.width/2, canvas.height/2 + 10);
+      
+      // 간단한 QR 코드처럼 보이는 패턴 그리기
+      ctx.fillRect(canvas.width/4, canvas.height/4, 20, 20);
+      ctx.fillRect(canvas.width*3/4 - 20, canvas.height/4, 20, 20);
+      ctx.fillRect(canvas.width/4, canvas.height*3/4 - 20, 20, 20);
+      
+      return Promise.resolve();
+    },
+    CorrectLevel: {
+      L: 1,
+      M: 0,
+      Q: 3,
+      H: 2
+    }
+  };
+}
+
+// 오류 메시지 표시 함수
+function showErrorMessage(message) {
+  // Toast 메시지 생성
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-error';
+  toast.innerHTML = `
+    <div class="toast-content">
+      <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+      </svg>
+      <span>${message}</span>
+    </div>
+    <button class="toast-close">×</button>
+  `;
+  
+  // 닫기 버튼 이벤트 리스너
+  const closeBtn = toast.querySelector('.toast-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      toast.classList.add('toast-closing');
+      setTimeout(() => toast.remove(), 300);
+    });
+  }
+  
+  // 기존 토스트 메시지가 있으면 제거
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+  
+  // 페이지에 토스트 추가
+  document.body.appendChild(toast);
+  
+  // 자동 제거 타이머 (10초)
+  setTimeout(() => {
+    if (document.body.contains(toast)) {
+      toast.classList.add('toast-closing');
+      setTimeout(() => toast.remove(), 300);
+    }
+  }, 10000);
+  
+  // QR 프리뷰 영역에도 오류 표시
+  const qrPreview = document.getElementById('qr-preview');
+  if (qrPreview) {
+    qrPreview.innerHTML = `
+      <div class="error-message text-center">
+        <svg class="w-16 h-16 mx-auto mb-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        <p class="text-red-600 font-medium mb-2">QR 코드 생성 오류</p>
+        <p class="text-gray-600 text-sm">${message}</p>
+      </div>
+    `;
+  }
+}
 
 // QR 코드 생성기 모듈
 const QRGenerator = {
@@ -168,24 +223,25 @@ const QRGenerator = {
    * @returns {Promise<boolean>} 초기화 성공 여부
    */
   async init() {
-    if (this.state.initialized) {
-      console.log('QRGenerator가 이미 초기화되어 있습니다.');
-      return true;
-    }
-    
     try {
       console.log('QR 코드 생성기 초기화 시작...');
+      
+      // 이미 초기화된 경우 중복 실행 방지
+      if (this.state.initialized) {
+        console.log('QRGenerator가 이미 초기화되어 있습니다.');
+        return true;
+      }
       
       // QR 코드 라이브러리 로드
       console.log('QR 코드 라이브러리 로드 시도');
       this.state.qrLibrary = await importQRCodeLibrary();
-      console.log('QR 코드 라이브러리 로드 성공:', this.state.qrLibrary);
+      console.log('QR 코드 라이브러리 로드 상태:', this.state.qrLibrary ? '성공' : '실패');
       
       // UI 요소 초기화
       console.log('UI 요소 초기화 시작');
       this._initUI();
-  
-  // 이벤트 리스너 등록
+      
+      // 이벤트 리스너 등록
       console.log('이벤트 리스너 등록 시작');
       this._registerEventListeners();
       
@@ -197,6 +253,10 @@ const QRGenerator = {
       // 에러 상세 추적
       console.error('스택 트레이스:', error.stack);
       console.error('에러 발생 시 모듈 상태:', JSON.stringify(this.state));
+      
+      // 사용자에게 에러 메시지 표시
+      showErrorMessage('QR 코드 생성기를 초기화하는 도중 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
+      
       return false;
     }
   },

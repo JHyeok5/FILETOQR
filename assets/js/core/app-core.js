@@ -536,62 +536,119 @@ function updateInternalLinks() {
  */
 function initLanguageSelector() {
   try {
-    const langSelector = document.getElementById('lang-selector-toggle');
+    const langSelector = document.querySelector('.language-selector');
+    const langToggle = document.getElementById('lang-selector-toggle');
     const langDropdown = document.getElementById('lang-dropdown-menu');
     const langOptions = document.querySelectorAll('.lang-option');
-    
-    if (!langSelector || !langDropdown) {
+    if (!langSelector || !langToggle || !langDropdown) {
       console.warn('언어 선택기 요소를 찾을 수 없음');
       return;
     }
-    
     // 현재 언어 표시 업데이트
     updateLanguageDisplay();
-    
-    // 언어 선택기 토글
-    langSelector.addEventListener('click', function(e) {
+    // 드롭다운 열기/닫기 함수
+    function openDropdown() {
+      langSelector.classList.add('open');
+      langToggle.setAttribute('aria-expanded', 'true');
+      langDropdown.setAttribute('aria-hidden', 'false');
+      // 첫 번째 옵션에 포커스
+      if (langOptions.length > 0) langOptions[0].focus();
+    }
+    function closeDropdown() {
+      langSelector.classList.remove('open');
+      langToggle.setAttribute('aria-expanded', 'false');
+      langDropdown.setAttribute('aria-hidden', 'true');
+    }
+    // 토글 버튼 클릭
+    langToggle.addEventListener('click', function(e) {
       e.preventDefault();
-      langDropdown.classList.toggle('hidden');
-    });
-    
-    // 다른 곳 클릭 시 드롭다운 닫기
-    document.addEventListener('click', function(e) {
-      if (!langSelector.contains(e.target) && !langDropdown.contains(e.target)) {
-        langDropdown.classList.add('hidden');
+      e.stopPropagation();
+      if (langSelector.classList.contains('open')) {
+        closeDropdown();
+      } else {
+        openDropdown();
       }
     });
-    
+    // 외부 클릭 시 닫기
+    document.addEventListener('mousedown', function(e) {
+      if (!langSelector.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+    // ESC 키로 닫기 및 키보드 접근성
+    langToggle.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openDropdown();
+      }
+    });
+    langDropdown.addEventListener('keydown', function(e) {
+      const focusable = Array.from(langOptions);
+      const idx = focusable.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = (idx + 1) % focusable.length;
+        focusable[next].focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = (idx - 1 + focusable.length) % focusable.length;
+        focusable[prev].focus();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeDropdown();
+        langToggle.focus();
+      } else if (e.key === 'Tab') {
+        // 드롭다운 내에서만 순환
+        if (e.shiftKey && idx === 0) {
+          e.preventDefault();
+          focusable[focusable.length - 1].focus();
+        } else if (!e.shiftKey && idx === focusable.length - 1) {
+          e.preventDefault();
+          focusable[0].focus();
+        }
+      }
+    });
     // 언어 옵션 클릭 처리
     langOptions.forEach(option => {
+      option.setAttribute('tabindex', '0');
       option.addEventListener('click', function(e) {
         e.preventDefault();
         const lang = this.getAttribute('data-lang');
-        
         if (lang) {
-          // I18n 유틸리티 사용하여 언어 변경
+          langOptions.forEach(opt => opt.classList.remove('active'));
+          this.classList.add('active');
           if (window.FileToQR && window.FileToQR.i18n) {
             window.FileToQR.i18n.navigateToLanguage(lang);
           } else {
-            // 대체 방법: 경로 기반 이동
             const currentPath = window.location.pathname;
             let newPath;
-            
-            // 현재 URL에서 언어 부분 추출하여 대체
             if (currentPath.match(/^\/(ko|en|zh|ja)\//)) {
               newPath = currentPath.replace(/^\/(ko|en|zh|ja)\//, `/${lang}/`);
             } else {
-              // 루트 경로이거나 언어 부분이 없는 경우, 언어 경로 추가
               const pageName = currentPath.split('/').pop() || 'index.html';
               newPath = `/${lang}/${pageName}`;
             }
-            
             window.location.href = newPath;
           }
         }
       });
+      // 키보드 엔터/스페이스로 선택
+      option.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.click();
+        }
+      });
     });
-    
-    console.log('언어 선택기 초기화 완료');
+    // ARIA 속성 보강
+    langToggle.setAttribute('aria-haspopup', 'listbox');
+    langToggle.setAttribute('aria-controls', 'lang-dropdown-menu');
+    langDropdown.setAttribute('role', 'listbox');
+    langDropdown.setAttribute('aria-hidden', 'true');
+    langOptions.forEach(option => {
+      option.setAttribute('role', 'option');
+    });
+    console.log('언어 선택기 접근성 및 일관성 개선 완료');
   } catch (error) {
     console.error('언어 선택기 초기화 오류:', error);
   }
@@ -628,19 +685,36 @@ function updateLanguageDisplay() {
     }
     
     // 언어 선택기 텍스트 업데이트
-    const langSpan = langSelector.querySelector('span');
-    if (langSpan) {
-      langSpan.textContent = langNames[currentLang] || langNames['ko'];
+    const langLabel = langSelector.querySelector('.lang-label');
+    if (langLabel) {
+      langLabel.textContent = langNames[currentLang] || langNames['ko'];
+    }
+    
+    // 언어 플래그 아이콘 업데이트
+    const flagIcon = langSelector.querySelector('.lang-flag-icon');
+    if (flagIcon) {
+      // 모든 플래그 클래스 제거
+      flagIcon.classList.remove('ko-flag', 'en-flag', 'zh-flag', 'ja-flag');
+      // 현재 언어에 맞는 플래그 클래스 추가
+      flagIcon.classList.add(`${currentLang}-flag`);
+      // 플래그 이미지 경로를 JS에서 동적으로 할당
+      let basePath = './';
+      if (typeof getBasePath === 'function') {
+        basePath = getBasePath();
+      }
+      // basePath가 '/'로 끝나지 않도록 보정
+      if (basePath.endsWith('/')) basePath = basePath;
+      const flagPath = `${basePath}assets/images/flags/${currentLang}.svg`;
+      flagIcon.style.backgroundImage = `url('${flagPath}')`;
     }
     
     // 현재 선택된 언어 옵션 강조
     const langOptions = document.querySelectorAll('.lang-option');
     langOptions.forEach(option => {
       const optionLang = option.getAttribute('data-lang');
+      option.classList.remove('active');
       if (optionLang === currentLang) {
-        option.classList.add('bg-blue-500', 'text-white');
-      } else {
-        option.classList.remove('bg-blue-500', 'text-white');
+        option.classList.add('active');
       }
     });
   } catch (error) {
