@@ -1,0 +1,260 @@
+{
+  "common": {
+    "title": "FileToQR",
+    "description": "サーバーにアップロードすることなく、ブラウザで直接ファイルを変換しQRコードを生成します",
+    "language": {
+      "ko": "韓国語",
+      "en": "英語",
+      "zh": "中国語",
+      "ja": "日本語"
+    },
+    "actions": {
+      "convert": "変換",
+      "generate": "生成",
+      "download": "ダウンロード",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "close": "閉じる"
+    },
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました"
+  },
+  "header": {
+    "home": "ホーム",
+    "convert": "ファイル変換",
+    "qrcode": "QRコード",
+    "timer": "タイマー",
+    "help": "ヘルプ",
+    "contact": "お問い合わせ"
+  },
+  "footer": {
+    "about": "FileToQR",
+    "shortcuts": "ショートカット",
+    "legal": "法的情報",
+    "copyright": "© 2025 FileToQR. All rights reserved.",
+    "lastUpdate": "最終更新日: 2025年5月2日",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約"
+  },
+  "home": {
+    "hero": {
+      "title": "ファイルをQRコードに簡単に変換",
+      "subtitle": "サーバーにアップロードすることなく、ブラウザで直接ファイルを変換しQRコードを生成します",
+      "getStarted": "今すぐ始める"
+    },
+    "features": {
+      "secure": {
+        "title": "セキュリティ重視",
+        "description": "ファイルはサーバーに送信されないため、個人情報が安全です"
+      },
+      "fast": {
+        "title": "高速変換",
+        "description": "最新のウェブ技術を活用して高速に処理します"
+      },
+      "easy": {
+        "title": "使いやすさ",
+        "description": "複雑な設定なしに、わずか数回のクリックで完了します"
+      }
+    }
+  },
+  "convert": {
+    "title": "ファイル変換",
+    "dropzone": "ファイルをここにドラッグ＆ドロップまたはクリックして選択",
+    "selectFile": "ファイル選択",
+    "formats": {
+      "title": "変換形式",
+      "source": "元の形式",
+      "target": "変換後の形式",
+      "options": "変換オプション"
+    },
+    "progress": "変換進捗",
+    "result": {
+      "title": "変換結果",
+      "success": "変換成功",
+      "error": "変換失敗",
+      "download": "結果をダウンロード"
+    }
+  },
+  "qrcode": {
+    "title": "QRコード生成",
+    "input": {
+      "title": "入力",
+      "text": "テキスト",
+      "url": "URL",
+      "email": "メール",
+      "phone": "電話番号",
+      "sms": "SMS",
+      "wifi": "WiFi",
+      "location": "位置情報",
+      "event": "イベント",
+      "file": "ファイル"
+    },
+    "options": {
+      "title": "QRコードオプション",
+      "size": "サイズ",
+      "errorCorrection": "誤り訂正レベル",
+      "color": "色",
+      "background": "背景色",
+      "margin": "余白",
+      "style": "スタイル"
+    },
+    "preview": "プレビュー",
+    "download": {
+      "title": "ダウンロードオプション",
+      "png": "PNGをダウンロード",
+      "svg": "SVGをダウンロード",
+      "pdf": "PDFをダウンロード"
+    }
+  },
+  "timer": {
+    "title": "タイマー",
+    "start": "開始",
+    "pause": "一時停止",
+    "reset": "リセット",
+    "setTime": "時間設定",
+    "hours": "時間",
+    "minutes": "分",
+    "seconds": "秒"
+  },
+  "help": {
+    "title": "ヘルプ",
+    "sections": {
+      "faq": "よくある質問",
+      "howto": "使い方",
+      "troubleshooting": "トラブルシューティング",
+      "contact": "お問い合わせ"
+    }
+  },
+  "contact": {
+    "title": "お問い合わせ",
+    "form": {
+      "name": "名前",
+      "email": "メールアドレス",
+      "subject": "件名",
+      "message": "メッセージ",
+      "submit": "送信"
+    }
+  },
+  "privacy": {
+    "title": "プライバシーポリシー"
+  },
+  "terms": {
+    "title": "利用規約"
+  },
+  "errors": {
+    "fileNotSupported": "サポートされていないファイル形式です",
+    "fileTooLarge": "ファイルサイズが大きすぎます",
+    "conversionFailed": "変換中にエラーが発生しました",
+    "networkError": "ネットワークエラーが発生しました",
+    "unknownError": "不明なエラーが発生しました"
+  },
+  "nav": {
+    "home": "ホーム",
+    "convert": "ファイル変換",
+    "qrcode": "QRコード",
+    "timer": "タイマー",
+    "help": "ヘルプ"
+  },
+  "lang": {
+    "ko": "韓国語",
+    "en": "英語",
+    "zh": "中国語",
+    "ja": "日本語"
+  },
+  "main": {
+    "title": "ファイルをQRコードに変換",
+    "desc": "FileToQRは、さまざまなファイル、テキスト、URL、連絡先情報を簡単かつ迅速にQRコードに変換できる無料サービスです。",
+    "selectContent": "変換するコンテンツを選択"
+  },
+  "tab": {
+    "url": "URL",
+    "text": "テキスト",
+    "email": "メール",
+    "phone": "電話番号",
+    "vcard": "連絡先",
+    "wifi": "WiFi",
+    "file": "ファイル"
+  },
+  "form": {
+    "url": {
+      "label": "ウェブサイトアドレス",
+      "placeholder": "https://example.com",
+      "example": "例：https://filetoqr.com"
+    },
+    "text": {
+      "label": "テキスト",
+      "placeholder": "内容を入力してください",
+      "desc": "最大7,089文字の数字または4,296文字の英数字を入力できます。"
+    },
+    "email": {
+      "label": "メールアドレス",
+      "placeholder": "example@example.com",
+      "subject": "件名（任意）",
+      "subjectPlaceholder": "メール件名",
+      "body": "本文（任意）",
+      "bodyPlaceholder": "メール本文"
+    },
+    "phone": {
+      "label": "電話番号",
+      "placeholder": "+82 10-1234-5678",
+      "example": "国番号を含めて入力してください。例：+82 10-1234-5678"
+    },
+    "vcard": {
+      "name": "名前",
+      "namePlaceholder": "ホン・ギルドン",
+      "org": "会社/組織（任意）",
+      "orgPlaceholder": "ABC会社",
+      "title": "役職（任意）",
+      "titlePlaceholder": "マネージャー",
+      "phone": "電話番号",
+      "phonePlaceholder": "+82 10-1234-5678",
+      "email": "メール",
+      "emailPlaceholder": "example@example.com",
+      "website": "ウェブサイト（任意）",
+      "websitePlaceholder": "https://example.com",
+      "address": "住所（任意）",
+      "addressPlaceholder": "ソウル市江南区テヘラン路123"
+    },
+    "wifi": {
+      "ssid": "WiFi名 (SSID)",
+      "ssidPlaceholder": "WiFiネットワーク名",
+      "encryption": "暗号化タイプ",
+      "wpa": "WPA/WPA2/WPA3",
+      "wep": "WEP",
+      "nopass": "パスワードなし",
+      "password": "パスワード",
+      "passwordPlaceholder": "WiFiパスワード",
+      "hidden": "非公開ネットワーク"
+    },
+    "file": {
+      "label": "ファイルを選択",
+      "desc": "5MB以下のファイルのみQRコードに変換できます。",
+      "info": "ファイル情報",
+      "name": "ファイル名：",
+      "type": "ファイルタイプ：",
+      "size": "ファイルサイズ："
+    }
+  },
+  "tips": {
+    "title": "QRコード活用のヒント",
+    "scan": "スキャンしやすいQRコードの作り方",
+    "scan.desc": "QRコードと背景色のコントラストを十分に確保し、エラー訂正レベルを「高」に設定するとスキャン成功率が上がります。",
+    "logo": "ロゴを入れる際の注意点",
+    "logo.desc": "ロゴを追加する場合はQRコードの中央部分のみを使用し、エラー訂正レベルを「高」または「非常に高」に設定してください。",
+    "print": "印刷用QRコード",
+    "print.desc": "印刷物に使用するQRコードはSVG形式でダウンロードすると、サイズを変更しても品質が保たれます。",
+    "test": "QRコードテスト",
+    "test.desc": "使用前に複数のデバイスやスキャナーアプリでテストし、正常に認識されるか確認してください。"
+  },
+  "footer": {
+    "brand": "FileToQR",
+    "desc": "サーバーにファイルをアップロードせず、ブラウザで直接ファイルを変換しQRコードを生成します。",
+    "quick": "ショートカット",
+    "legal": "法的情報",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ",
+    "copyright": "© 2025 FileToQR. All rights reserved.",
+    "updated": "最終更新日：2025年5月2日"
+  }
+} 
