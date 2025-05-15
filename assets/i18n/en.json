@@ -293,5 +293,24 @@
       "time": "h:mm:ss A",
       "dateTime": "MMM DD, YYYY h:mm A"
     }
+  },
+  "tips": {
+    "title": "QR Code Usage Tips",
+    "scan": {
+      "label": "How to Make a Scannable QR Code",
+      "desc": "For best scan results, ensure sufficient contrast between the QR code and background, and set the error correction level to 'High'."
+    },
+    "logo": {
+      "label": "Tips for Adding a Logo",
+      "desc": "When adding a logo, use only the center area of the QR code and set the error correction level to 'High' or 'Very High'."
+    },
+    "print": {
+      "label": "QR Code for Printing",
+      "desc": "For printed materials, download the QR code as SVG to maintain quality when resizing."
+    },
+    "test": {
+      "label": "QR Code Testing",
+      "desc": "Before use, test the QR code with multiple devices and scanner apps to ensure proper recognition."
+    }
   }
 } 
