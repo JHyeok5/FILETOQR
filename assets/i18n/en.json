@@ -53,14 +53,15 @@
     "contact": "Contact"
   },
   "footer": {
-    "about": "FileToQR",
-    "description": "Convert files and generate QR codes directly in your browser without uploading to any server.",
-    "shortcuts": "Shortcuts",
+    "brand": "FileToQR",
+    "desc": "Convert files and generate QR codes directly in your browser without uploading to any server.",
+    "quick": "Quick Links",
     "legal": "Legal Information",
-    "copyright": "© 2025 FileToQR. All rights reserved.",
-    "last_updated": "Last updated: May 2, 2025",
     "privacy": "Privacy Policy",
-    "terms": "Terms of Use"
+    "terms": "Terms of Use",
+    "contact": "Contact Us",
+    "copyright": "© 2025 FileToQR. All rights reserved.",
+    "updated": "Last updated: May 2, 2025"
   },
   "home": {
     "hero": {
@@ -295,14 +296,15 @@
     }
   },
   "tips": {
-    "scan": "How to Make a Scannable QR Code",
-    "scan_desc": "For best scan results, ensure sufficient contrast between the QR code and background, and set the error correction level to 'High'.",
-    "logo": "Tips for Adding a Logo",
-    "logo_desc": "When adding a logo, use only the center area of the QR code and set the error correction level to 'High' or 'Very High'.",
-    "print": "QR Code for Printing",
+    "title": "QR Code Usage Tips",
+    "scan": "How to create easy-to-scan QR codes",
+    "scan_desc": "Ensure sufficient contrast between the QR code and background color, and set the error correction level to 'High' to increase scan success rate.",
+    "logo": "Tips for adding a logo",
+    "logo_desc": "When adding a logo, use only the center part of the QR code and set the error correction level to 'High' or 'Very High'.",
+    "print": "QR codes for printing",
     "print_desc": "For printed materials, download the QR code as SVG to maintain quality when resizing.",
-    "test": "QR Code Testing",
-    "test_desc": "Before use, test the QR code with multiple devices and scanner apps to ensure proper recognition."
+    "test": "QR code testing",
+    "test_desc": "Before use, test the QR code on multiple devices and scanner apps to ensure proper recognition."
   },
   "lang": {
     "ko": "Korean",
