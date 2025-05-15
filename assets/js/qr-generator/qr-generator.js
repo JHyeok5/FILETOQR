@@ -444,8 +444,40 @@ const QRGenerator = {
           if (logoOptions) {
             if (e.target.checked) {
               logoOptions.classList.remove('hidden');
+              // [NEW] 파일 input이 없으면 동적으로 생성
+              let fileInput = logoOptions.querySelector('input[type="file"]');
+              if (!fileInput) {
+                fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.id = 'logo-file-input';
+                fileInput.className = 'block mt-2';
+                fileInput.addEventListener('change', (ev) => {
+                  const file = ev.target.files && ev.target.files[0];
+                  if (file) {
+                    // 파일을 DataURL로 읽어 QRGenerator state에 저장
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                      QRGenerator.state.currentOptions.logo = evt.target.result;
+                      console.log('[로고 업로드] 로고 이미지가 state에 저장됨');
+                    };
+                    reader.readAsDataURL(file);
+                  } else {
+                    QRGenerator.state.currentOptions.logo = null;
+                  }
+                });
+                logoOptions.appendChild(fileInput);
+              } else {
+                fileInput.classList.remove('hidden');
+              }
             } else {
               logoOptions.classList.add('hidden');
+              // 파일 input value 초기화 및 state에서 제거
+              const fileInput = logoOptions.querySelector('input[type="file"]');
+              if (fileInput) {
+                fileInput.value = '';
+              }
+              QRGenerator.state.currentOptions.logo = null;
             }
           }
           return;
