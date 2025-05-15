@@ -18,12 +18,10 @@
 
 // QR 코드 라이브러리 URL 설정
 const QR_LIB_URLS = {
-  // [중요] 로컬 라이브러리 경로는 구버전/상대경로 문제로 인해 사용하지 않음
-  local: [], // 절대 로컬 파일을 시도하지 않도록 빈 배열로 설정
+  // [중요] 오직 toCanvas 지원 최신 QRCode.js만 사용
+  local: [],
   cdn: [
-    'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
-    'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
-    'https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js'
+    'https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js' // soldair/node-qrcode 브라우저 번들, toCanvas 지원
   ]
 };
 
@@ -588,6 +586,13 @@ const QRGenerator = {
    * @returns {{valid: boolean, message: string}}
    */
   _validateInput(type, value) {
+    // i18n 번역 헬퍼
+    const _t = (key, defaultMsg) => {
+      const i18n = window.FileToQR && window.FileToQR.i18n;
+      return i18n && typeof i18n.translate === 'function'
+        ? i18n.translate(key, {}, defaultMsg || key)
+        : (defaultMsg || key);
+    };
     if (!value || typeof value !== 'string' || value.trim() === '') {
       return { valid: false, message: _t('errors.inputEmpty', '입력값이 비어 있습니다. 내용을 입력해주세요.') };
     }
@@ -595,7 +600,7 @@ const QRGenerator = {
     switch (type) {
       case 'url': {
         // URL 정규식 (간단 버전)
-        const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[^\s]*)?$/i;
+        const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\S]*)?$/i;
         if (!urlPattern.test(value)) {
           return { valid: false, message: _t('errors.urlInvalid', '유효한 URL 형식이 아닙니다. 예: https://example.com') };
         }
