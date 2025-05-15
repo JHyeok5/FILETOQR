@@ -837,18 +837,13 @@ const QRGenerator = {
   },
   
   /**
-   * 오류 수정 레벨 반환
-   * @returns {number} QRCode.js 오류 수정 레벨
+   * 오류 수정 레벨 반환 (최신 QRCode.js는 문자열 그대로 사용)
+   * @returns {string} QRCode.js 오류 수정 레벨 ('L','M','Q','H')
    * @private
    */
   _getErrorCorrectionLevel() {
-    switch (this.state.currentOptions.errorCorrectionLevel) {
-      case 'L': return this.state.qrLibrary.CorrectLevel.L; // 약 7%
-      case 'M': return this.state.qrLibrary.CorrectLevel.M; // 약 15%
-      case 'Q': return this.state.qrLibrary.CorrectLevel.Q; // 약 25%
-      case 'H': return this.state.qrLibrary.CorrectLevel.H; // 약 30%
-      default: return this.state.qrLibrary.CorrectLevel.M;
-        }
+    // 최신 QRCode.js는 문자열('L','M','Q','H')을 직접 옵션으로 받음
+    return this.state.currentOptions.errorCorrectionLevel || 'M';
   },
   
   /**
