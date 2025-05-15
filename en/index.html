@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="FileToQR - 파일을 QR 코드로 변환하는 무료 서비스">
-  <meta name="keywords" content="QR 코드, 파일 변환, 무료, FileToQR">
-  <title>FileToQR - 파일을 QR 코드로 변환</title>
+  <meta name="description" content="FileToQR - Free service to convert files and content into QR codes.">
+  <meta name="keywords" content="QR code, file converter, free, FileToQR">
+  <title>FileToQR - Free File to QR Code Converter</title>
   <link rel="stylesheet" href="/assets/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="alternate" hreflang="ko" href="/index.html">
@@ -23,45 +23,45 @@
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
         <a href="index.html" class="flex items-center">
-          <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2">
+          <img src="/assets/images/logo.svg" alt="FileToQR logo" class="h-8 mr-2">
           <span class="text-2xl font-bold text-blue-600">FileToQR</span>
         </a>
         <nav class="flex items-center">
           <ul class="flex space-x-6">
-            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">홈</a></li>
-            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
-            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
-            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
-            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
+            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">Home</a></li>
+            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">Convert</a></li>
+            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR Code</a></li>
+            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">Timer</a></li>
+            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">Help</a></li>
           </ul>
           <div class="language-selector dropdown">
-            <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경">
-              <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
-              <span class="lang-label" data-i18n="lang.ko">한국어</span>
+            <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="Change language">
+              <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+              <span class="lang-label" data-i18n="lang.en">English</span>
               <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </button>
             <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
               <div class="lang-dropdown-header">
-                <span>언어 선택</span>
+                <span>Select Language</span>
               </div>
               <div class="lang-dropdown-list">
-                <a href="/index.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                <a href="/index.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="Korean" aria-current="false">
                   <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.ko">한국어</span>
+                  <span class="lang-name" data-i18n="lang.ko">Korean</span>
                 </a>
-                <a href="/en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
+                <a href="/en/index.html" class="lang-option active" data-lang="en" role="menuitem" aria-label="English" aria-current="true">
                   <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.en">영어</span>
+                  <span class="lang-name" data-i18n="lang.en">English</span>
                 </a>
-                <a href="/zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
+                <a href="/zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="Chinese" aria-current="false">
                   <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.zh">중국어</span>
+                  <span class="lang-name" data-i18n="lang.zh">Chinese</span>
                 </a>
-                <a href="/ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
+                <a href="/ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="Japanese" aria-current="false">
                   <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.ja">일본어</span>
+                  <span class="lang-name" data-i18n="lang.ja">Japanese</span>
                 </a>
               </div>
             </div>
