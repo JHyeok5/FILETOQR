@@ -279,7 +279,8 @@
     "fileTooLarge": "File size is too large",
     "conversionFailed": "Error occurred during conversion",
     "networkError": "Network error occurred",
-    "unknownError": "An unknown error occurred"
+    "unknownError": "An unknown error occurred",
+    "errorOccurred": "An error has occurred."
   },
   "dateTime": {
     "today": "Today",
@@ -385,5 +386,9 @@
       "type": "File type:",
       "size": "File size:"
     }
+  },
+  "ui": {
+    "missingInput": "Input element is missing.",
+    "missingForm": "Form element is missing."
   }
 } 
