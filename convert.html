@@ -16,7 +16,7 @@
   <link rel="alternate" hreflang="x-default" href="/convert.html">
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="/assets/js/core/app-core.js"></script>
-  <script defer src="/assets/js/pages/convert.js"></script>
+  <script type="module" src="/assets/js/pages/convert.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <header class="bg-white shadow-sm sticky top-0 z-50">
@@ -24,9 +24,7 @@
   </header>
   <main class="flex-grow container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">파일 변환</h1>
-    <!-- 파일 변환 UI/폼/버튼 영역 구현 (convert.js와 연동) -->
     <div id="file-convert-app">
-      <!-- 변환 유형 선택, 파일 업로드, 옵션, 결과 등 convert.js에서 동적으로 렌더링/제어 -->
       <div class="converter-type-tabs mb-4">
         <button class="converter-type-btn" data-type="image">이미지</button>
         <button class="converter-type-btn" data-type="document">문서</button>
@@ -45,16 +43,5 @@
   <footer class="bg-gray-100 mt-12">
     <!-- ... (index.html의 footer 구조 복사) ... -->
   </footer>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof init === 'function') {
-        init();
-      } else if (window.FileToQR && typeof window.FileToQR.init === 'function') {
-        window.FileToQR.init();
-      } else {
-        console.error('FileToQR 초기화 함수(init)를 찾을 수 없습니다.');
-      }
-    });
-  </script>
 </body>
 </html> 
