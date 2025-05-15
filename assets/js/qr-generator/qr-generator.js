@@ -18,12 +18,8 @@
 
 // QR 코드 라이브러리 URL 설정
 const QR_LIB_URLS = {
-  local: [
-    '/assets/js/vendor/qrcode.min.js',
-    './assets/js/vendor/qrcode.min.js',
-    '../assets/js/vendor/qrcode.min.js',
-    '../../assets/js/vendor/qrcode.min.js'
-  ],
+  // [중요] 로컬 라이브러리 경로는 구버전/상대경로 문제로 인해 사용하지 않음
+  local: [], // 절대 로컬 파일을 시도하지 않도록 빈 배열로 설정
   cdn: [
     'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js',
     'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
