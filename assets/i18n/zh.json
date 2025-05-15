@@ -34,7 +34,14 @@
     "copyright": "© 2025 FileToQR. 保留所有权利。",
     "lastUpdate": "最后更新: 2025年5月2日",
     "privacy": "隐私政策",
-    "terms": "使用条款"
+    "terms": "使用条款",
+    "links": "快捷方式",
+    "home": "首页",
+    "convert": "文件转换",
+    "qrcode": "二维码",
+    "timer": "计时器",
+    "help": "帮助",
+    "privacyPolicy": "隐私政策"
   },
   "home": {
     "hero": {
@@ -103,7 +110,48 @@
       "title": "下载选项",
       "png": "下载PNG",
       "svg": "下载SVG",
-      "pdf": "下载PDF"
+      "pdf": "下载PDF",
+      "jpeg": "JPEG"
+    },
+    "content_section": "二维码内容",
+    "settings_section": "二维码设置",
+    "preview_section": "二维码预览",
+    "download_section": "下载",
+    "generate": "生成二维码",
+    "tip": {
+      "title": "二维码使用提示",
+      "scanEasyTitle": "如何制作易于扫描的二维码",
+      "scanEasyDesc": "确保二维码与背景色有足够的对比度，并将纠错级别设置为'高'，可以提高扫描成功率。",
+      "logoTitle": "添加Logo时的注意事项",
+      "logoDesc": "添加Logo时只使用二维码中央部分，并将纠错级别设置为'高'或'非常高'。",
+      "printTitle": "用于打印的二维码",
+      "printDesc": "用于印刷品的二维码建议以SVG格式下载，这样调整大小时也能保持清晰。",
+      "testTitle": "二维码测试",
+      "testDesc": "使用前请在多台设备和扫码应用上测试二维码，确保能正常识别。"
+    },
+    "scan": {
+      "camera": "用相机扫描",
+      "image": "从图片扫描",
+      "readImage": "从图片读取二维码",
+      "resultTitle": "扫描结果",
+      "resultType": "类型:",
+      "resultTypeValue": "文本",
+      "copy": "复制到剪贴板",
+      "open": "打开"
+    },
+    "recovery": {
+      "title": "文件恢复模式",
+      "desc": "扫描二维码以恢复原始文件。请先扫描元数据二维码，然后依次扫描其余部分。",
+      "progress": "恢复进度",
+      "summary": "请先扫描元数据二维码。",
+      "preparing": "正在准备恢复...",
+      "fileInfo": "文件信息",
+      "filename": "文件名：",
+      "filesize": "大小：",
+      "filetype": "类型：",
+      "complete": "所有二维码已扫描！现在可以下载文件。",
+      "reset": "重新开始",
+      "download": "下载文件"
     }
   },
   "timer": {

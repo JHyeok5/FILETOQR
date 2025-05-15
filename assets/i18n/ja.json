@@ -104,6 +104,52 @@
       "png": "PNGをダウンロード",
       "svg": "SVGをダウンロード",
       "pdf": "PDFをダウンロード"
+    },
+    "content_section": "QRコードコンテンツ",
+    "settings_section": "QRコード設定",
+    "preview_section": "QRコードプレビュー",
+    "download_section": "ダウンロード",
+    "generate": "QRコード生成",
+    "download": {
+      "png": "PNG",
+      "svg": "SVG",
+      "jpeg": "JPEG",
+      "title": "ダウンロード"
+    },
+    "tip": {
+      "title": "QRコード活用ヒント",
+      "scanEasyTitle": "スキャンしやすいQRコードの作り方",
+      "scanEasyDesc": "QRコードと背景色のコントラストを十分に確保し、誤り訂正レベルを「高」に設定するとスキャン成功率が上がります。",
+      "logoTitle": "ロゴを入れる際の注意点",
+      "logoDesc": "ロゴを追加する場合はQRコードの中央部分のみを使用し、誤り訂正レベルを「高」または「非常に高い」に設定してください。",
+      "printTitle": "印刷用QRコード",
+      "printDesc": "印刷物に使用するQRコードはSVG形式でダウンロードすると、サイズを変更しても品質が保たれます。",
+      "testTitle": "QRコードのテスト",
+      "testDesc": "使用前に複数のデバイスやスキャナーアプリでテストし、正常に認識されるか確認してください。"
+    },
+    "scan": {
+      "camera": "カメラでスキャン",
+      "image": "画像からスキャン",
+      "readImage": "画像からQRコードを読み取る",
+      "resultTitle": "スキャン結果",
+      "resultType": "タイプ:",
+      "resultTypeValue": "テキスト",
+      "copy": "クリップボードにコピー",
+      "open": "開く"
+    },
+    "recovery": {
+      "title": "ファイル復元モード",
+      "desc": "QRコードをスキャンして元のファイルを復元します。最初にメタデータQRコードをスキャンし、その後残りのチャンクを順番にスキャンしてください。",
+      "progress": "復元進捗",
+      "summary": "最初にメタデータQRコードをスキャンしてください。",
+      "preparing": "復元準備中...",
+      "fileInfo": "ファイル情報",
+      "filename": "ファイル名:",
+      "filesize": "サイズ:",
+      "filetype": "タイプ:",
+      "complete": "すべてのQRコードがスキャンされました！ファイルをダウンロードできます。",
+      "reset": "再開",
+      "download": "ファイルをダウンロード"
     }
   },
   "timer": {
@@ -256,7 +302,15 @@
     "terms": "利用規約",
     "contact": "お問い合わせ",
     "copyright": "© 2025 FileToQR. All rights reserved.",
-    "updated": "最終更新日：2025年5月2日"
+    "updated": "最終更新日：2025年5月2日",
+    "links": "ショートカット",
+    "home": "ホーム",
+    "convert": "ファイル変換",
+    "qrcode": "QRコード",
+    "timer": "タイマー",
+    "help": "ヘルプ",
+    "privacyPolicy": "プライバシーポリシー",
+    "lastUpdate": "最終更新日: 2025年5月2日"
   },
   "ui": {
     "missingInput": "入力要素がありません。",

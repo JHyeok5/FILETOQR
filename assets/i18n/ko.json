@@ -154,6 +154,52 @@
       "png": "PNG 다운로드",
       "svg": "SVG 다운로드",
       "pdf": "PDF 다운로드"
+    },
+    "content_section": "QR 코드 콘텐츠",
+    "settings_section": "QR 코드 설정",
+    "preview_section": "QR 코드 미리보기",
+    "download_section": "다운로드",
+    "generate": "QR 코드 생성",
+    "download": {
+      "png": "PNG",
+      "svg": "SVG",
+      "jpeg": "JPEG",
+      "title": "다운로드"
+    },
+    "tip": {
+      "title": "QR 코드 활용 팁",
+      "scanEasyTitle": "스캔하기 쉬운 QR 코드 만들기",
+      "scanEasyDesc": "QR 코드와 배경색 사이에 충분한 대비를 두고, 오류 수정 수준을 '높음'으로 설정하면 스캔 성공률이 높아집니다.",
+      "logoTitle": "로고를 넣을 때 주의할 점",
+      "logoDesc": "로고를 추가할 때는 QR 코드 중앙 부분만 사용하고, 오류 수정 수준을 '높음' 또는 '매우 높음'으로 설정하세요.",
+      "printTitle": "인쇄용 QR 코드",
+      "printDesc": "인쇄물에 사용할 QR 코드는 SVG 형식으로 다운로드하면 크기를 조정해도 품질이 유지됩니다.",
+      "testTitle": "QR 코드 테스트",
+      "testDesc": "사용하기 전에 여러 기기와 스캐너 앱에서 테스트하여 정상적으로 인식되는지 확인하세요."
+    },
+    "scan": {
+      "camera": "카메라로 스캔",
+      "image": "이미지에서 스캔",
+      "readImage": "이미지에서 QR 코드 읽기",
+      "resultTitle": "스캔 결과",
+      "resultType": "타입:",
+      "resultTypeValue": "텍스트",
+      "copy": "클립보드에 복사",
+      "open": "열기"
+    },
+    "recovery": {
+      "title": "파일 복원 모드",
+      "desc": "QR 코드를 스캔하여 원본 파일을 복원하세요. 먼저 메타데이터 QR 코드를 스캔한 다음 나머지 청크를 순서대로 스캔하세요.",
+      "progress": "복원 진행 상황",
+      "summary": "메타데이터 QR 코드를 먼저 스캔하세요.",
+      "preparing": "복원 준비 중...",
+      "fileInfo": "파일 정보",
+      "filename": "파일명:",
+      "filesize": "크기:",
+      "filetype": "유형:",
+      "complete": "모든 QR 코드가 스캔되었습니다! 파일을 다운로드할 수 있습니다.",
+      "reset": "다시 시작",
+      "download": "파일 다운로드"
     }
   },
   "timer": {
@@ -320,7 +366,15 @@
     "terms": "이용약관",
     "contact": "문의하기",
     "copyright": "© 2025 FileToQR. 모든 권리 보유.",
-    "updated": "최종 업데이트: 2025년 5월 2일"
+    "updated": "최종 업데이트: 2025년 5월 2일",
+    "links": "바로가기",
+    "home": "홈",
+    "convert": "파일 변환",
+    "qrcode": "QR 코드",
+    "timer": "타이머",
+    "help": "도움말",
+    "privacyPolicy": "개인정보처리방침",
+    "lastUpdate": "최종 업데이트: 2025년 5월 2일"
   },
   "ui": {
     "missingInput": "입력 요소가 없습니다.",

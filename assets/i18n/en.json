@@ -61,7 +61,15 @@
     "terms": "Terms of Use",
     "contact": "Contact Us",
     "copyright": "© 2025 FileToQR. All rights reserved.",
-    "updated": "Last updated: May 2, 2025"
+    "updated": "Last updated: May 2, 2025",
+    "links": "Quick Links",
+    "home": "Home",
+    "convert": "Convert",
+    "qrcode": "QR Code",
+    "timer": "Timer",
+    "help": "Help",
+    "privacyPolicy": "Privacy Policy",
+    "lastUpdate": "Last updated: May 2, 2025"
   },
   "home": {
     "hero": {
@@ -139,7 +147,48 @@
     "settings_section": "QR Code Settings",
     "preview_section": "QR Code Preview",
     "download_section": "Download",
-    "generate_button": "Generate QR Code",
+    "generate": "Generate QR Code",
+    "download": {
+      "png": "PNG",
+      "svg": "SVG",
+      "jpeg": "JPEG",
+      "title": "Download"
+    },
+    "tip": {
+      "title": "QR Code Usage Tips",
+      "scanEasyTitle": "How to create easy-to-scan QR codes",
+      "scanEasyDesc": "Ensure sufficient contrast between the QR code and background color, and set the error correction level to 'High' to increase scan success rate.",
+      "logoTitle": "Tips for adding a logo",
+      "logoDesc": "When adding a logo, use only the center part of the QR code and set the error correction level to 'High' or 'Very High'.",
+      "printTitle": "QR codes for printing",
+      "printDesc": "For printed materials, download the QR code as SVG to maintain quality when resizing.",
+      "testTitle": "QR code testing",
+      "testDesc": "Before use, test the QR code on multiple devices and scanner apps to ensure proper recognition."
+    },
+    "scan": {
+      "camera": "Scan with Camera",
+      "image": "Scan from Image",
+      "readImage": "Read QR Code from Image",
+      "resultTitle": "Scan Result",
+      "resultType": "Type:",
+      "resultTypeValue": "Text",
+      "copy": "Copy to Clipboard",
+      "open": "Open"
+    },
+    "recovery": {
+      "title": "File Recovery Mode",
+      "desc": "Scan QR code to restore original file. First scan the metadata QR code, then scan the rest of the chunks in order.",
+      "progress": "Recovery Progress",
+      "summary": "Scan the metadata QR code first.",
+      "preparing": "Preparing recovery...",
+      "fileInfo": "File Info",
+      "filename": "File Name:",
+      "filesize": "Size:",
+      "filetype": "Type:",
+      "complete": "All QR codes scanned! You can download the file now.",
+      "reset": "Restart",
+      "download": "Download File"
+    },
     "content_type": {
       "url": "URL",
       "text": "Text",
@@ -215,28 +264,6 @@
     },
     "preview": {
       "placeholder": "The generated QR code will be displayed here."
-    },
-    "scanner": {
-      "title": "QR Code Scanner",
-      "camera_tab": "Scan with Camera",
-      "image_tab": "Scan from Image",
-      "camera_loading": "Loading camera...",
-      "image_select": "Select QR Code Image",
-      "scan_button": "Read QR Code from Image",
-      "result_title": "Scan Result",
-      "result_type": "Type:",
-      "copy_button": "Copy to Clipboard",
-      "open_button": "Open"
-    },
-    "file_recovery": {
-      "title": "File Recovery Mode",
-      "description": "Scan QR code to restore original file. First scan the metadata QR code, then scan the rest of the chunks in order.",
-      "progress": "Recovery Progress",
-      "metadata": "Scan the metadata QR code first.",
-      "file_info": "File Info",
-      "complete": "All QR codes scanned! You can download the file now.",
-      "restart": "Restart",
-      "download": "Download File"
     }
   },
   "timer": {

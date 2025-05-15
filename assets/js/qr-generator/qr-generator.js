@@ -398,6 +398,23 @@ const QRGenerator = {
    */
   _registerEventListeners() {
     document.addEventListener('DOMContentLoaded', () => {
+      // [탭 전환 로직 추가]
+      const tabContainer = document.querySelector('.content-type-tabs');
+      if (tabContainer) {
+        tabContainer.addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          // 모든 탭 버튼에서 .active 제거
+          tabContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          // 모든 .content-form에서 .active 제거
+          document.querySelectorAll('.content-form').forEach(f => f.classList.remove('active'));
+          // 해당 폼 id 찾기 (data-type 속성 활용)
+          const type = btn.getAttribute('data-type');
+          const form = document.getElementById(type + '-form');
+          if (form) form.classList.add('active');
+        });
+      }
       // QR 코드 생성 폼
       const qrForm = document.getElementById('qr-form');
       if (qrForm) {
