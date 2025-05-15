@@ -135,6 +135,12 @@ const FileToQRCore = {
    */
   async handleFileUpload(file) {
     if (!file) return;
+    // 입력값 검증 강화
+    const validationResult = this._validateFile(file);
+    if (!validationResult.valid) {
+      this._showError(validationResult.message);
+      return;
+    }
     this.state.file = file;
     this.state.fileType = file.type;
     this._updateUIState('fileSelected');
@@ -186,6 +192,42 @@ const FileToQRCore = {
       // 오류: 파일 크기 초과
       this._showError(this._t('errors.fileTooLarge', '파일 크기가 너무 큽니다'));
     }
+  },
+
+  /**
+   * 파일 입력값 검증 함수
+   * @param {File} file
+   * @returns {{valid: boolean, message: string}}
+   */
+  _validateFile(file) {
+    // 허용 확장자/타입 목록
+    const allowedExtensions = ['txt', 'csv', 'json', 'pdf'];
+    const allowedTypes = [
+      'text/plain', 'text/csv', 'application/json', 'application/pdf'
+    ];
+    const maxFileNameLength = 100;
+    // 확장자 추출
+    const ext = file.name.split('.').pop().toLowerCase();
+    // 파일명 길이 및 특수문자 체크
+    if (file.name.length > maxFileNameLength) {
+      return { valid: false, message: this._t('errors.fileNameTooLong', '파일명이 너무 깁니다. 100자 이하로 해주세요.') };
+    }
+    if (!/^[\w\-. ]+$/.test(file.name)) {
+      return { valid: false, message: this._t('errors.fileNameInvalid', '파일명에 허용되지 않는 문자가 포함되어 있습니다.') };
+    }
+    // 확장자/타입 체크
+    if (!allowedExtensions.includes(ext) || (file.type && !allowedTypes.includes(file.type))) {
+      return { valid: false, message: this._t('errors.fileTypeNotAllowed', '허용되지 않는 파일 형식입니다. (txt, csv, json, pdf만 지원)') };
+    }
+    // 크기 체크
+    if (file.size > this.state.maxFileSize) {
+      return { valid: false, message: this._t('errors.fileTooLarge', '파일 크기가 너무 큽니다. 5MB 이하만 업로드 가능합니다.') };
+    }
+    if (file.size === 0) {
+      return { valid: false, message: this._t('errors.fileEmpty', '빈 파일은 업로드할 수 없습니다.') };
+    }
+    // 통과
+    return { valid: true, message: '' };
   },
 
   /**
