@@ -72,6 +72,16 @@ FileToQR는 다양한 유형의 콘텐츠를 QR 코드로 쉽게 변환할 수 �
 - QRCode.js - QR 코드 생성
 - jsQR - QR 코드 스캔
 
+## 배포 및 운영 방식 (2024년 기준 최신화)
+
+- **정적 파일 직접 관리:**
+  - 모든 HTML, JS, CSS, 언어별 폴더 등은 main/(root) 폴더에 직접 위치하며, GitHub Pages에서 바로 서비스됩니다.
+- **GitHub Actions 자동화 배포:**
+  - `.github/workflows/deploy.yml` 등 워크플로우를 통해 push 시 자동으로 테스트, 파일 복사, 기타 자동화 작업을 수행하고, 결과물을 Pages에 배포합니다.
+- **혼합 운영:**
+  - 정적 파일 직접 관리와 GitHub Actions 자동화 배포를 병행합니다.
+  - webpack, dist 등 빌드 자동화는 더 이상 사용하지 않습니다.
+
 ## 주의사항
 
 - QR 코드로 변환된 파일은 크기 제한으로 인해 작은 파일에 적합합니다.

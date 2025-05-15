@@ -1,5 +1,12 @@
 # FileToQR 내부 아키텍처 및 개발 가이드
 
+## [2024-06 최신화] 운영/배포 구조 변경 안내
+
+- 기존: webpack, dist 등 빌드 자동화 산출물을 Pages에 배포
+- 변경: main/(root) 폴더에 모든 정적 파일 직접 관리 + GitHub Actions(deploy.yml) 자동화 배포 혼합 운영
+- webpack, dist 등 빌드 자동화는 더 이상 사용하지 않음
+- deploy.yml 등 워크플로우는 테스트, 파일 복사, 기타 자동화 작업에만 사용
+
 ---
 
 ## 목차

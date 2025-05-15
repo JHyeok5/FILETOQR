@@ -1,5 +1,9 @@
 # FileToQR 파일 시스템 아키텍처
 
+<!--
+[2024-06 최신화] 운영/배포 구조 변경: 빌드 자동화(webpack, dist 등) 제거, main/(root) 정적 파일 직접 관리 + GitHub Actions(deploy.yml) 자동화 배포 혼합 운영 구조로 전환됨. 자세한 내용은 내부 아키텍처 가이드(.ai-guides/structure/filetoqr-internal-architecture-guide.md) 참고.
+-->
+
 ## 개요
 이 문서는 FileToQR 프로젝트의 파일 시스템 아키텍처를 설명합니다.
 
