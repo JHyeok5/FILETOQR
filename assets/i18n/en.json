@@ -312,5 +312,85 @@
       "label": "QR Code Testing",
       "desc": "Before use, test the QR code with multiple devices and scanner apps to ensure proper recognition."
     }
+  },
+  "lang": {
+    "ko": "Korean",
+    "en": "English",
+    "zh": "Chinese",
+    "ja": "Japanese"
+  },
+  "main": {
+    "title": "Convert files to QR codes",
+    "desc": "FileToQR is a free service that quickly converts various files, text, URLs, and contact info into QR codes.",
+    "selectContent": "Select content to convert"
+  },
+  "tab": {
+    "url": "URL",
+    "text": "Text",
+    "email": "Email",
+    "phone": "Phone",
+    "vcard": "Contact",
+    "wifi": "WiFi",
+    "file": "File"
+  },
+  "form": {
+    "url": {
+      "label": "Website URL",
+      "placeholder": "https://example.com",
+      "example": "e.g. https://filetoqr.com"
+    },
+    "text": {
+      "label": "Text",
+      "placeholder": "Enter content",
+      "desc": "You can enter up to 7,089 digits or 4,296 alphanumeric characters."
+    },
+    "email": {
+      "label": "Email address",
+      "placeholder": "example@example.com",
+      "subject": "Subject (optional)",
+      "subjectPlaceholder": "Email subject",
+      "body": "Body (optional)",
+      "bodyPlaceholder": "Email body"
+    },
+    "phone": {
+      "label": "Phone number",
+      "placeholder": "+82 10-1234-5678",
+      "example": "Please include the country code. e.g. +82 10-1234-5678"
+    },
+    "vcard": {
+      "name": "Name",
+      "namePlaceholder": "John Doe",
+      "org": "Company/Organization (optional)",
+      "orgPlaceholder": "ABC Company",
+      "title": "Title (optional)",
+      "titlePlaceholder": "Manager",
+      "phone": "Phone number",
+      "phonePlaceholder": "+82 10-1234-5678",
+      "email": "Email",
+      "emailPlaceholder": "example@example.com",
+      "website": "Website (optional)",
+      "websitePlaceholder": "https://example.com",
+      "address": "Address (optional)",
+      "addressPlaceholder": "123 Teheran-ro, Gangnam-gu, Seoul"
+    },
+    "wifi": {
+      "ssid": "WiFi name (SSID)",
+      "ssidPlaceholder": "WiFi network name",
+      "encryption": "Encryption type",
+      "wpa": "WPA/WPA2/WPA3",
+      "wep": "WEP",
+      "nopass": "No password",
+      "password": "Password",
+      "passwordPlaceholder": "WiFi password",
+      "hidden": "Hidden network"
+    },
+    "file": {
+      "label": "Select file",
+      "desc": "Only files up to 5MB can be converted to QR code.",
+      "info": "File info",
+      "name": "File name:",
+      "type": "File type:",
+      "size": "File size:"
+    }
   }
 } 
