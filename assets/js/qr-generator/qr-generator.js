@@ -18,10 +18,10 @@
 
 // QR 코드 라이브러리 URL 설정
 const QR_LIB_URLS = {
-  // [중요] 오직 toCanvas 지원 최신 QRCode.js만 사용
+  // [중요] 오직 toCanvas 지원 최신 QRCode.js만 사용 (404 나는 경로 모두 제거)
   local: [],
   cdn: [
-    'https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js' // soldair/node-qrcode 브라우저 번들, toCanvas 지원
+    'https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js'
   ]
 };
 
