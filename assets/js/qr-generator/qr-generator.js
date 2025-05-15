@@ -523,6 +523,27 @@ const QRGenerator = {
     });
   }
     });
+
+    // [로고 추가 체크박스: 옵션 영역 토글]
+    const addLogoCheckbox = document.getElementById('add-logo');
+    const logoOptions = document.getElementById('logo-options');
+    if (addLogoCheckbox && logoOptions) {
+      addLogoCheckbox.addEventListener('change', () => {
+        if (addLogoCheckbox.checked) {
+          logoOptions.classList.remove('hidden');
+        } else {
+          logoOptions.classList.add('hidden');
+        }
+      });
+    }
+    // [QR 코드 생성 버튼: 직접 클릭 이벤트 바인딩]
+    const generateBtn = document.getElementById('generate-qr');
+    if (generateBtn) {
+      generateBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // 혹시 폼 submit 방지
+        QRGenerator.generateQRCode();
+      });
+    }
   },
 
 /**
