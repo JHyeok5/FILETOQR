@@ -18,6 +18,16 @@ window.FileToQR = window.FileToQR || {};
 window.FileToQR.i18n = window.FileToQR.i18n || {};
 
 /**
+ * 중첩 객체에서 dot notation(예: 'tips.scan.desc')으로 값 탐색
+ * @param {Object} obj - 탐색할 객체
+ * @param {string} path - 'a.b.c' 형태의 경로
+ * @returns {*} 탐색된 값 또는 undefined
+ */
+function getNested(obj, path) {
+  return path.split('.').reduce((o, k) => (o || {})[k], obj);
+}
+
+/**
  * 다국어 지원(i18n) 유틸리티 모듈
  */
 const I18nUtils = {
@@ -286,27 +296,18 @@ const I18nUtils = {
         console.warn(`번역 데이터가 로드되지 않음: ${this.state.currentLang}`);
         return defaultValue || key;
       }
-      
-      // 중첩 키 처리 (예: 'common.welcome')
-      const keyParts = key.split('.');
-      let result = langData;
-      
-      for (const part of keyParts) {
-        if (result && result[part] !== undefined) {
-          result = result[part];
-        } else {
-          // 번역 키를 찾을 수 없음
-          console.warn(`번역 키 없음: ${key}`);
-          return defaultValue || key;
-        }
-      }
-      
-      // 문자열이 아닌 경우 처리
-      if (typeof result !== 'string') {
-        console.warn(`번역 결과가 문자열 아님: ${key}`, result);
+
+      // dot notation 중첩 키 탐색
+      const result = getNested(langData, key);
+      if (result === undefined) {
+        console.warn(`[i18n] 번역 키 없음: ${key}`);
         return defaultValue || key;
       }
-      
+      if (typeof result !== 'string') {
+        console.warn(`[i18n] 번역 결과가 문자열 아님: ${key}`, result);
+        return defaultValue || key;
+      }
+
       // 매개변수 치환
       let translatedText = result;
       if (params && Object.keys(params).length > 0) {
@@ -317,10 +318,9 @@ const I18nUtils = {
           );
         });
       }
-      
       return translatedText;
     } catch (error) {
-      console.error('번역 중 오류:', error);
+      console.error('[i18n] 번역 중 오류:', error, '키:', key);
       return defaultValue || key;
     }
   },
