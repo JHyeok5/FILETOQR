@@ -168,6 +168,47 @@ FileToQR의 서비스 로직은 다음 6단계로 구성되어 있습니다.
 - **/ko/**, **/en/**, ...  
   → 1~6단계의 다국어 지원, 정적 페이지, 리소스 제공
 
+### 4.10 초기 진입 시 자동 언어 감지 및 리다이렉트
+
+- **의도:**
+  - 사용자가 사이트 루트(`/` 또는 `/index.html`)로 진입할 때, 브라우저 언어를 감지하여 `/ko/`, `/en/`, `/ja/`, `/zh/` 등 해당 언어 폴더로 자동 리다이렉트하여 글로벌 UX를 개선합니다.
+- **적용 위치:**
+  - 루트 `index.html`(및 필요시 기타 진입점) 최상단 스크립트
+- **동작 방식:**
+  1. 이미 언어 폴더에 있으면 리다이렉트하지 않음
+  2. 브라우저 언어(`navigator.language` 또는 `navigator.languages`)를 감지
+  3. 지원 언어 중 우선순위 매칭, 없으면 기본값(영어 `/en/`)
+  4. 해당 언어 폴더로 이동(리다이렉트)
+- **예외/고려사항:**
+  - 사용자가 직접 언어 폴더로 진입한 경우 추가 리다이렉트 없음
+  - 언어 선택 UI와 충돌 없음(수동 선택 시 해당 언어로 이동)
+  - SEO 영향은 크지 않으나, 서버 리다이렉트가 아니므로 완벽하지 않음
+  - 향후 언어 선택값을 localStorage 등에 저장해 우선 적용 가능
+- **예시 코드:**
+
+```html
+<script>
+  (function() {
+    // 이미 언어 폴더에 있으면 리다이렉트하지 않음
+    if (/^\/(en|ko|ja|zh)(\/|$)/.test(window.location.pathname)) return;
+
+    // 브라우저 언어 감지
+    var lang = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+    lang = lang.toLowerCase();
+
+    // 지원 언어 매핑
+    var supported = ['en', 'ko', 'ja', 'zh'];
+    var target = supported.find(function(l) { return lang.startsWith(l); }) || 'en';
+
+    // 리다이렉트
+    window.location.replace('/' + target + '/');
+  })();
+</script>
+```
+
+- **문서/가이드 반영:**
+  - 본 섹션 및 예시 코드는 실제 적용 시점에 맞춰 최신화하며, 향후 구조/로직 변경 시 반드시 함께 업데이트합니다.
+
 ---
 
 ## 5. 참고 및 활용 안내
