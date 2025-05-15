@@ -9,6 +9,13 @@
  * - 생성된 QR 코드 다운로드 (PNG, SVG, PDF)
  */
 
+/**
+ * [의존성 명시]
+ * - QR 코드 생성 라이브러리(QRCode.js): window.QRCode
+ * - 다국어(i18n): window.FileToQR.i18n (선택)
+ * - (필요시) 기타 유틸리티
+ */
+
 // QR 코드 라이브러리 URL 설정
 const QR_LIB_URLS = {
   local: [
@@ -25,7 +32,7 @@ const QR_LIB_URLS = {
 };
 
 // QR 코드 생성 라이브러리 임포트 (QRCode.js 사용)
-const importQRCodeLibrary = async () => {
+const importQRCodeLibrary = async (retryCount = 0) => {
   // 라이브러리가 이미 로드되었는지 확인
   if (window.QRCode) {
     console.log('QRCode 라이브러리가 이미 전역 객체에 있습니다.');
@@ -79,7 +86,6 @@ const importQRCodeLibrary = async () => {
     
     // 3. 모든 시도 실패 - 내장 기본 QR 코드 생성기 제공
     console.error('모든 QRCode 라이브러리 로드 실패, 내장 QR 생성기로 대체');
-    // 간단한 QR 코드 생성 API 제공
     window.QRCode = createFallbackQRCodeLibrary();
     // 다국어 안내 메시지 적용
     const i18n = window.FileToQR && window.FileToQR.i18n;
@@ -87,6 +93,17 @@ const importQRCodeLibrary = async () => {
       ? i18n.translate('qrcode.errors.qrLibLoadFail', {}, 'QR 코드 라이브러리를 로드할 수 없습니다. 제한된 기능으로 계속합니다.')
       : 'QR 코드 라이브러리를 로드할 수 없습니다. 제한된 기능으로 계속합니다.';
     showErrorMessage('qrcode.errors.qrLibLoadFail', msg);
+    // 재시도 버튼 제공 (최대 2회)
+    if (qrPreview && retryCount < 2) {
+      const retryBtn = document.createElement('button');
+      retryBtn.textContent = '다시 시도';
+      retryBtn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700';
+      retryBtn.onclick = () => {
+        qrPreview.innerHTML = '';
+        importQRCodeLibrary(retryCount + 1);
+      };
+      qrPreview.appendChild(retryBtn);
+    }
     return window.QRCode;
   } catch (error) {
     console.error('QRCode 라이브러리 로드 중 심각한 오류 발생:', error);
@@ -95,6 +112,17 @@ const importQRCodeLibrary = async () => {
       ? i18n.translate('qrcode.errors.qrLibInitFail', {}, 'QR 코드 생성기를 초기화할 수 없습니다. 페이지를 새로고침하거나 다시 시도해주세요.')
       : 'QR 코드 생성기를 초기화할 수 없습니다. 페이지를 새로고침하거나 다시 시도해주세요.';
     showErrorMessage('qrcode.errors.qrLibInitFail', msg);
+    // 재시도 버튼 제공 (최대 2회)
+    if (qrPreview && retryCount < 2) {
+      const retryBtn = document.createElement('button');
+      retryBtn.textContent = '다시 시도';
+      retryBtn.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700';
+      retryBtn.onclick = () => {
+        qrPreview.innerHTML = '';
+        importQRCodeLibrary(retryCount + 1);
+      };
+      qrPreview.appendChild(retryBtn);
+    }
     // 최소한의 대체 라이브러리 제공
     window.QRCode = createFallbackQRCodeLibrary();
     return window.QRCode;
@@ -211,6 +239,27 @@ const QRGenerator = {
   },
   
   /**
+   * [의존성 체크 함수]
+   * 필수 의존성(QR 코드 라이브러리 등) 존재 여부를 점검
+   * @returns {boolean} 모든 의존성 충족 시 true, 아니면 false
+   */
+  checkDependencies() {
+    let ok = true;
+    // QR 코드 라이브러리 체크
+    if (!window.QRCode && !(this.state && this.state.qrLibrary)) {
+      console.error('[의존성 오류] QR 코드 라이브러리가 로드되지 않았습니다.');
+      showErrorMessage('qrcode.errors.qrLibMissing', 'QR 코드 라이브러리가 로드되지 않았습니다. 네트워크 상태를 확인하거나 새로고침 해주세요.');
+      ok = false;
+    }
+    // i18n 체크(선택)
+    if (!window.FileToQR || !window.FileToQR.i18n) {
+      console.warn('[의존성 경고] 다국어(i18n) 모듈이 없습니다. 일부 메시지는 번역되지 않을 수 있습니다.');
+    }
+    // 기타 의존성 체크 필요시 추가
+    return ok;
+  },
+  
+  /**
    * 모듈 초기화
    * @returns {Promise<boolean>} 초기화 성공 여부
    */
@@ -228,6 +277,11 @@ const QRGenerator = {
       console.log('QR 코드 라이브러리 로드 시도');
       this.state.qrLibrary = await importQRCodeLibrary();
       console.log('QR 코드 라이브러리 로드 상태:', this.state.qrLibrary ? '성공' : '실패');
+      
+      // [의존성 체크] - 라이브러리 로드 후 반드시 점검
+      if (!this.checkDependencies()) {
+        throw new Error('필수 의존성 누락: QR 코드 라이브러리');
+      }
       
       // UI 요소 초기화
       console.log('UI 요소 초기화 시작');
@@ -301,7 +355,19 @@ const QRGenerator = {
       const qrForm = document.getElementById('qr-form');
       const contentInput = document.getElementById('qr-content');
       const qrPreview = document.getElementById('qr-preview');
-      
+      // 필수 요소 체크 및 경고/에러 안내
+      if (!qrForm) {
+        console.warn('[UI 경고] qr-form 요소가 없습니다.');
+        showErrorMessage('ui.missingForm', 'QR 코드 생성 폼(qr-form) 요소를 찾을 수 없습니다. 페이지 구조를 확인해주세요.');
+      }
+      if (!contentInput) {
+        console.warn('[UI 경고] qr-content 입력 요소가 없습니다.');
+        showErrorMessage('ui.missingInput', 'QR 코드 입력 필드(qr-content) 요소를 찾을 수 없습니다.');
+      }
+      if (!qrPreview) {
+        console.warn('[UI 경고] qr-preview 요소가 없습니다.');
+        showErrorMessage('ui.missingPreview', 'QR 코드 프리뷰(qr-preview) 요소를 찾을 수 없습니다.');
+      }
       if (!qrForm || !contentInput || !qrPreview) {
         // DOM 요소가 아직 없으면 100ms 후 다시 시도
         setTimeout(checkElements, 100);
@@ -505,12 +571,63 @@ const QRGenerator = {
   },
   
   /**
+   * 입력값 검증 함수
+   * @param {string} type - 입력 유형(url, text, email, phone, vcard 등)
+   * @param {string} value - 입력값
+   * @returns {{valid: boolean, message: string}}
+   */
+  _validateInput(type, value) {
+    if (!value || typeof value !== 'string' || value.trim() === '') {
+      return { valid: false, message: _t('errors.inputEmpty', '입력값이 비어 있습니다. 내용을 입력해주세요.') };
+    }
+    value = value.trim();
+    switch (type) {
+      case 'url': {
+        // URL 정규식 (간단 버전)
+        const urlPattern = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[^\s]*)?$/i;
+        if (!urlPattern.test(value)) {
+          return { valid: false, message: _t('errors.urlInvalid', '유효한 URL 형식이 아닙니다. 예: https://example.com') };
+        }
+        break;
+      }
+      case 'email': {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(value)) {
+          return { valid: false, message: _t('errors.emailInvalid', '유효한 이메일 주소를 입력해주세요.') };
+        }
+        break;
+      }
+      case 'phone': {
+        const phonePattern = /^[\d\-()+ ]{7,20}$/;
+        if (!phonePattern.test(value)) {
+          return { valid: false, message: _t('errors.phoneInvalid', '유효한 전화번호를 입력해주세요. 숫자, -, (, )만 허용') };
+        }
+        break;
+      }
+      case 'vcard': {
+        // vCard는 최소 이름 필수
+        if (value.length < 2) {
+          return { valid: false, message: _t('errors.vcardInvalid', '이름을 2자 이상 입력해주세요.') };
+        }
+        break;
+      }
+      default: {
+        // 텍스트: 1자 이상, 2000자 이하
+        if (value.length > 2000) {
+          return { valid: false, message: _t('errors.textTooLong', '입력값이 너무 깁니다. 2000자 이하로 입력해주세요.') };
+        }
+        break;
+      }
+    }
+    return { valid: true, message: '' };
+  },
+  
+  /**
    * 폼 제출 핸들러
    * @private
    */
   _handleFormSubmit() {
     console.log('QRGenerator._handleFormSubmit 호출됨');
-    
     // URL 또는 텍스트 입력 필드 확인
     const contentInputs = {
       'url': document.getElementById('url-input'),
@@ -519,42 +636,35 @@ const QRGenerator = {
       'phone': document.getElementById('phone-input'),
       'vcard': document.getElementById('vcard-name')
     };
-    
     // 활성화된 입력 폼 찾기
     const activeForm = document.querySelector('.content-form.active');
     console.log('활성화된 입력 폼:', activeForm?.id);
-    
     if (!activeForm) {
       console.error('활성화된 입력 폼을 찾을 수 없습니다.');
       return;
     }
-    
     // 폼 유형 결정
     const formType = activeForm.id.split('-')[0]; // 'url-form' -> 'url'
     console.log('결정된 폼 유형:', formType);
-    
     // 해당 유형의 입력 필드 확인
     const contentInput = contentInputs[formType];
-    
     if (!contentInput) {
       console.error(`폼 유형 ${formType}에 대한 입력 필드를 찾을 수 없습니다.`);
       return;
     }
-    
     const content = contentInput.value.trim();
     console.log('입력된 콘텐츠:', content);
-    
-    if (!content) {
-      console.warn('QR 코드 내용이 비어 있습니다.');
-      alert('QR 코드 내용을 입력해주세요.');
+    // 입력값 검증 추가
+    const validationResult = this._validateInput(formType, content);
+    if (!validationResult.valid) {
+      showErrorMessage('input.validation', validationResult.message);
+      contentInput.focus();
       return;
     }
-    
     // 상태 업데이트
     this.state.currentOptions.content = content;
     this.state.currentOptions.type = formType;
     console.log('QR 코드 옵션 업데이트:', this.state.currentOptions);
-    
     // QR 코드 생성
     this._generateQRCode();
   },
@@ -873,16 +983,18 @@ const QRGenerator = {
   }
 };
 
-// 글로벌 네임스페이스에 등록
+// 글로벌 네임스페이스에 등록 (최소화, 중복 방지)
 if (typeof window !== 'undefined') {
   window.FileToQR = window.FileToQR || {};
-  window.FileToQR.QRGenerator = QRGenerator;
-  
+  // QRGenerator가 이미 등록되어 있지 않은 경우에만 등록
+  if (!window.FileToQR.QRGenerator) {
+    window.FileToQR.QRGenerator = QRGenerator;
+  }
   // 브라우저 환경에서 직접 로드된 경우에 대한 처리
   if (typeof document !== 'undefined' && document.readyState !== 'loading') {
     console.log('QRGenerator 모듈이 직접 로드되었습니다. 자동 초기화를 시도합니다.');
     setTimeout(() => {
-      // 이미 DOM이 로드되었다면 초기화 시도
+      // 이미 초기화된 경우 중복 실행 방지
       if (!QRGenerator.state.initialized) {
         QRGenerator.init().then(success => {
           console.log('QRGenerator 자동 초기화 결과:', success ? '성공' : '실패');
