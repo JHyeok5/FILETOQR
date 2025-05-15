@@ -198,7 +198,7 @@ const UrlUtils = {
         const basePath = this.getBasePath();
         // 첫 슬래시 제거하여 상대 경로와 연결
         const relPath = urlPath.replace(/^\//, '');
-        return `${baseUrl}${relPath}`;
+        return `${basePath}${relPath}`;
       }
       
       return urlPath;
