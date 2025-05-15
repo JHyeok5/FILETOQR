@@ -407,12 +407,19 @@ const QRGenerator = {
           // 모든 탭 버튼에서 .active 제거
           tabContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          // 모든 .content-form에서 .active 제거
-          document.querySelectorAll('.content-form').forEach(f => f.classList.remove('active'));
+          // 모든 .content-form에서 .active 제거 + .hidden 추가 (모두 숨김)
+          document.querySelectorAll('.content-form').forEach(f => {
+            f.classList.remove('active');
+            f.classList.add('hidden');
+          });
           // 해당 폼 id 찾기 (data-type 속성 활용)
           const type = btn.getAttribute('data-type');
           const form = document.getElementById(type + '-form');
-          if (form) form.classList.add('active');
+          // 선택된 폼만 .active 추가 + .hidden 제거 (보이게)
+          if (form) {
+            form.classList.add('active');
+            form.classList.remove('hidden');
+          }
         });
       }
       // QR 코드 생성 폼
