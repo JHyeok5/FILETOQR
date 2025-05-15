@@ -393,80 +393,121 @@ const QRGenerator = {
   },
 
 /**
-   * 이벤트 리스너 등록 (이벤트 위임 방식 적용)
+   * 이벤트 리스너 등록 (이벤트 위임 + body 레벨 보완)
    * @private
    */
   _registerEventListeners() {
-    // qr-generator-app 컨테이너에 이벤트 위임 방식으로 바인딩
+    // 기존 qr-generator-app 컨테이너 이벤트 위임 유지
     const appContainer = document.getElementById('qr-generator-app');
-    if (!appContainer) {
-      console.warn('[이벤트 위임 경고] qr-generator-app 컨테이너가 없습니다.');
-      return;
+    if (appContainer) {
+      // [1] 탭 버튼 클릭 (content-type-tabs)
+      appContainer.addEventListener('click', (e) => {
+        // 탭 버튼 클릭 처리
+        const tabBtn = e.target.closest('.content-type-tabs button');
+        if (tabBtn) {
+          console.log('[Body 위임] 탭 버튼 클릭:', tabBtn.dataset.type);
+          const tabContainer = tabBtn.parentElement;
+          tabContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          tabBtn.classList.add('active');
+          // 모든 .content-form에서 .active 제거 + .hidden 추가 (모두 숨김)
+          appContainer.querySelectorAll('.content-form').forEach(f => {
+            f.classList.remove('active');
+            f.classList.add('hidden');
+          });
+          // 해당 폼 id 찾기 (data-type 속성 활용)
+          const type = tabBtn.getAttribute('data-type');
+          const form = document.getElementById(type + '-form');
+          if (form) {
+            form.classList.add('active');
+            form.classList.remove('hidden');
+          }
+          return;
+        }
+
+        // [2] QR 코드 생성 버튼 클릭
+        if (e.target && e.target.id === 'generate-qr') {
+          e.preventDefault();
+          if (window.FileToQR && window.FileToQR.QRGenerator) {
+            window.FileToQR.QRGenerator.generateQRCode();
+          }
+          return;
+        }
+
+        // [3] 기타 동적 버튼/다운로드 등 필요시 추가
+        // ...
+      });
+
+      // [4] 로고 추가 체크박스: change 이벤트 위임
+      appContainer.addEventListener('change', (e) => {
+        if (e.target && e.target.id === 'add-logo') {
+          const logoOptions = document.getElementById('logo-options');
+          if (logoOptions) {
+            if (e.target.checked) {
+              logoOptions.classList.remove('hidden');
+            } else {
+              logoOptions.classList.add('hidden');
+            }
+          }
+          return;
+        }
+        // 기타 옵션/입력 등 필요시 추가
+      });
+
+      // [5] 폼 submit 이벤트 위임 (qr-form)
+      appContainer.addEventListener('submit', (e) => {
+        if (e.target && e.target.id === 'qr-form') {
+          e.preventDefault();
+          if (window.FileToQR && window.FileToQR.QRGenerator) {
+            window.FileToQR.QRGenerator._handleFormSubmit();
+          }
+          return;
+        }
+      });
     }
 
-    // [1] 탭 버튼 클릭 (content-type-tabs)
-    appContainer.addEventListener('click', (e) => {
-      // 탭 버튼 클릭 처리
+    // [NEW] document.body 레벨에서 버튼 클릭 이벤트 위임 (동적 버튼 포함)
+    document.body.addEventListener('click', (e) => {
+      // 1. 탭 버튼 (콘텐츠 타입)
       const tabBtn = e.target.closest('.content-type-tabs button');
       if (tabBtn) {
+        console.log('[Body 위임] 탭 버튼 클릭:', tabBtn.dataset.type);
         const tabContainer = tabBtn.parentElement;
-        // 모든 탭 버튼에서 .active 제거
         tabContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         tabBtn.classList.add('active');
         // 모든 .content-form에서 .active 제거 + .hidden 추가 (모두 숨김)
-        appContainer.querySelectorAll('.content-form').forEach(f => {
+        document.querySelectorAll('.content-form').forEach(f => {
           f.classList.remove('active');
           f.classList.add('hidden');
         });
         // 해당 폼 id 찾기 (data-type 속성 활용)
         const type = tabBtn.getAttribute('data-type');
         const form = document.getElementById(type + '-form');
-        // 선택된 폼만 .active 추가 + .hidden 제거 (보이게)
         if (form) {
           form.classList.add('active');
           form.classList.remove('hidden');
         }
         return;
       }
-
-      // [2] QR 코드 생성 버튼 클릭
-      if (e.target && e.target.id === 'generate-qr') {
+      // 2. QR 코드 생성 버튼
+      const genBtn = e.target.closest('#generate-qr');
+      if (genBtn) {
+        console.log('[Body 위임] QR 생성 버튼 클릭');
         e.preventDefault();
         if (window.FileToQR && window.FileToQR.QRGenerator) {
           window.FileToQR.QRGenerator.generateQRCode();
         }
         return;
       }
-
-      // [3] 기타 동적 버튼/다운로드 등 필요시 추가
-      // ...
-    });
-
-    // [4] 로고 추가 체크박스: change 이벤트 위임
-    appContainer.addEventListener('change', (e) => {
-      if (e.target && e.target.id === 'add-logo') {
-        const logoOptions = document.getElementById('logo-options');
-        if (logoOptions) {
-          if (e.target.checked) {
-            logoOptions.classList.remove('hidden');
-          } else {
-            logoOptions.classList.add('hidden');
-          }
-        }
-        return;
-      }
-      // 기타 옵션/입력 등 필요시 추가
-    });
-
-    // [5] 폼 submit 이벤트 위임 (qr-form)
-    appContainer.addEventListener('submit', (e) => {
-      if (e.target && e.target.id === 'qr-form') {
+      // 3. 다운로드 버튼 (예시: #download-qr, .download-btn 등)
+      const dlBtn = e.target.closest('#download-qr, .download-btn');
+      if (dlBtn) {
+        console.log('[Body 위임] 다운로드 버튼 클릭');
         e.preventDefault();
-        if (window.FileToQR && window.FileToQR.QRGenerator) {
-          window.FileToQR.QRGenerator._handleFormSubmit();
-        }
+        // 실제 다운로드 함수 호출 필요시 추가
+        // window.FileToQR.QRGenerator.downloadQRCode('png'); 등
         return;
       }
+      // 4. 기타 동적 버튼 필요시 추가
     });
   },
 
