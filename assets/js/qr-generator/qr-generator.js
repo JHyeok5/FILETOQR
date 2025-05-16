@@ -435,8 +435,8 @@ const QRGenerator = {
       appContainer.addEventListener('change', (e) => {
         if (e.target && e.target.id === 'add-logo') {
           const logoOptions = document.getElementById('logo-options');
-          const fileInput = document.getElementById('logo-file-input');
-          const fileLabel = document.getElementById('logo-file-label');
+          const fileInput = document.getElementById('logo-file');
+          const fileLabel = document.querySelector('label[for="logo-file"]');
           // [디버깅] 요소 존재 및 상태 출력
           console.log('[로고 DEBUG] logoOptions:', logoOptions);
           console.log('[로고 DEBUG] fileInput:', fileInput);
@@ -446,9 +446,8 @@ const QRGenerator = {
               logoOptions.classList.remove('hidden');
               fileInput.style.display = 'block';
               fileInput.disabled = false;
-              fileInput.classList.remove('hidden');
               fileLabel.style.display = 'block';
-              fileLabel.classList.remove('hidden');
+              logoOptions.classList.remove('hidden');
               // [디버깅] 상태 출력
               console.log('[로고 DEBUG] 체크됨 - 표시/활성화');
               console.log('fileInput display:', fileInput.style.display, 'disabled:', fileInput.disabled, 'classList:', fileInput.classList.value);
@@ -458,9 +457,7 @@ const QRGenerator = {
               fileInput.value = '';
               fileInput.style.display = 'none';
               fileInput.disabled = true;
-              fileInput.classList.add('hidden');
               fileLabel.style.display = 'none';
-              fileLabel.classList.add('hidden');
               logoOptions.classList.add('hidden');
               this.state.currentOptions.logo = null;
               // [디버깅] 상태 출력
