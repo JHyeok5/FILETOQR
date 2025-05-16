@@ -431,52 +431,58 @@ const QRGenerator = {
         // ...
       });
 
-      // [4] 로고 추가 체크박스: change 이벤트 위임
+      // [4] 로고 추가 체크박스: change 이벤트 위임 (파일 input 표시/숨김)
       appContainer.addEventListener('change', (e) => {
         if (e.target && e.target.id === 'add-logo') {
           const logoOptions = document.getElementById('logo-options');
           if (logoOptions) {
+            let fileInput = logoOptions.querySelector('input[type="file"]');
+            let fileLabel = logoOptions.querySelector('label[for="logo-file-input"]');
             if (e.target.checked) {
               logoOptions.classList.remove('hidden');
-              // [NEW] 파일 input이 없으면 동적으로 생성
-              let fileInput = logoOptions.querySelector('input[type="file"]');
+              // 파일 input이 없으면 동적으로 생성
               if (!fileInput) {
+                // label 생성
+                fileLabel = document.createElement('label');
+                fileLabel.setAttribute('for', 'logo-file-input');
+                fileLabel.textContent = this._t ? this._t('logo.upload', '로고 이미지 선택') : '로고 이미지 선택';
+                fileLabel.style.display = 'block';
+                fileLabel.style.marginBottom = '4px';
+                // input 생성
                 fileInput = document.createElement('input');
                 fileInput.type = 'file';
-                fileInput.accept = 'image/*';
                 fileInput.id = 'logo-file-input';
-                fileInput.className = 'block mt-2';
+                fileInput.accept = 'image/*';
+                fileInput.style.display = 'block';
+                fileInput.style.marginBottom = '8px';
+                // 파일 선택 시 상태에 저장
                 fileInput.addEventListener('change', (ev) => {
                   const file = ev.target.files && ev.target.files[0];
                   if (file) {
-                    // 파일을 DataURL로 읽어 QRGenerator state에 저장
-                    const reader = new FileReader();
-                    reader.onload = (evt) => {
-                      QRGenerator.state.currentOptions.logo = evt.target.result;
-                      console.log('[로고 업로드] 로고 이미지가 state에 저장됨');
-                    };
-                    reader.readAsDataURL(file);
+                    this.state.currentOptions.logo = file;
                   } else {
-                    QRGenerator.state.currentOptions.logo = null;
+                    this.state.currentOptions.logo = null;
                   }
                 });
+                logoOptions.appendChild(fileLabel);
                 logoOptions.appendChild(fileInput);
               } else {
-                fileInput.classList.remove('hidden');
+                // 이미 있으면 숨김 해제
+                fileLabel && (fileLabel.style.display = 'block');
+                fileInput.style.display = 'block';
               }
             } else {
-              logoOptions.classList.add('hidden');
-              // 파일 input value 초기화 및 state에서 제거
-              const fileInput = logoOptions.querySelector('input[type="file"]');
+              // 체크 해제 시 input 숨김 및 값 초기화
               if (fileInput) {
                 fileInput.value = '';
+                fileInput.style.display = 'none';
               }
-              QRGenerator.state.currentOptions.logo = null;
+              if (fileLabel) fileLabel.style.display = 'none';
+              logoOptions.classList.add('hidden');
+              this.state.currentOptions.logo = null;
             }
           }
-          return;
         }
-        // 기타 옵션/입력 등 필요시 추가
       });
 
       // [5] 폼 submit 이벤트 위임 (qr-form)
