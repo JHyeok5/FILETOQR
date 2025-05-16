@@ -1,0 +1,14 @@
+{
+  "name": "filetoqr-tailwind-build",
+  "version": "1.0.0",
+  "description": "FileToQR Tailwind CSS 빌드/배포용 Node.js 프로젝트",
+  "scripts": {
+    "build:tailwind": "npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/tailwind-built.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.38",
+    "autoprefixer": "^10.4.16"
+  }
+}
+// [설명] build:tailwind 명령어로 Tailwind 소스(css/tailwind.css)를 빌드(css/tailwind-built.css)합니다. 실제 서비스에서는 tailwind-built.css만 사용합니다. 

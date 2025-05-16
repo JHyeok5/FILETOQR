@@ -28,6 +28,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      - name: Setup Node.js for Tailwind build
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies (Tailwind, PostCSS, etc)
+        run: npm install
+
+      - name: Build Tailwind CSS
+        run: npm run build:tailwind
+
       - name: Upload static site files (main/root)
         uses: actions/upload-pages-artifact@v3
         with:

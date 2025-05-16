@@ -444,26 +444,25 @@ const QRGenerator = {
           if (logoOptions && fileInput && fileLabel) {
             if (e.target.checked) {
               logoOptions.classList.remove('hidden');
-              fileInput.style.display = 'block';
+              fileInput.classList.remove('hidden');
+              fileLabel.classList.remove('hidden');
               fileInput.disabled = false;
-              fileLabel.style.display = 'block';
-              logoOptions.classList.remove('hidden');
               // [디버깅] 상태 출력
               console.log('[로고 DEBUG] 체크됨 - 표시/활성화');
-              console.log('fileInput display:', fileInput.style.display, 'disabled:', fileInput.disabled, 'classList:', fileInput.classList.value);
-              console.log('fileLabel display:', fileLabel.style.display, 'classList:', fileLabel.classList.value);
+              console.log('fileInput classList:', fileInput.classList.value, 'disabled:', fileInput.disabled);
+              console.log('fileLabel classList:', fileLabel.classList.value);
               console.log('logoOptions classList:', logoOptions.classList.value);
             } else {
               fileInput.value = '';
-              fileInput.style.display = 'none';
-              fileInput.disabled = true;
-              fileLabel.style.display = 'none';
+              fileInput.classList.add('hidden');
+              fileLabel.classList.add('hidden');
               logoOptions.classList.add('hidden');
+              fileInput.disabled = true;
               this.state.currentOptions.logo = null;
               // [디버깅] 상태 출력
               console.log('[로고 DEBUG] 체크 해제 - 숨김/비활성화');
-              console.log('fileInput display:', fileInput.style.display, 'disabled:', fileInput.disabled, 'classList:', fileInput.classList.value);
-              console.log('fileLabel display:', fileLabel.style.display, 'classList:', fileLabel.classList.value);
+              console.log('fileInput classList:', fileInput.classList.value, 'disabled:', fileInput.disabled);
+              console.log('fileLabel classList:', fileLabel.classList.value);
               console.log('logoOptions classList:', logoOptions.classList.value);
             }
           } else {
