@@ -435,51 +435,23 @@ const QRGenerator = {
       appContainer.addEventListener('change', (e) => {
         if (e.target && e.target.id === 'add-logo') {
           const logoOptions = document.getElementById('logo-options');
-          if (logoOptions) {
-            let fileInput = logoOptions.querySelector('input[type="file"]');
-            let fileLabel = logoOptions.querySelector('label[for="logo-file-input"]');
+          const fileInput = document.getElementById('logo-file-input');
+          const fileLabel = document.getElementById('logo-file-label');
+          if (logoOptions && fileInput && fileLabel) {
             if (e.target.checked) {
               logoOptions.classList.remove('hidden');
-              // 파일 input이 없으면 동적으로 생성
-              if (!fileInput) {
-                // label 생성
-                fileLabel = document.createElement('label');
-                fileLabel.setAttribute('for', 'logo-file-input');
-                fileLabel.textContent = this._t ? this._t('logo.upload', '로고 이미지 선택') : '로고 이미지 선택';
-                fileLabel.style.display = 'block';
-                fileLabel.style.marginBottom = '4px';
-                // input 생성
-                fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.id = 'logo-file-input';
-                fileInput.accept = 'image/*';
-                fileInput.style.display = 'block';
-                fileInput.style.marginBottom = '8px';
-                // 파일 선택 시 상태에 저장
-                fileInput.addEventListener('change', (ev) => {
-                  const file = ev.target.files && ev.target.files[0];
-                  if (file) {
-                    this.state.currentOptions.logo = file;
-                  } else {
-                    this.state.currentOptions.logo = null;
-                  }
-                });
-                logoOptions.appendChild(fileLabel);
-                logoOptions.appendChild(fileInput);
-              } else {
-                // 이미 있으면 숨김 해제
-                fileLabel && (fileLabel.style.display = 'block');
-                fileInput.style.display = 'block';
-              }
+              fileInput.style.display = 'block';
+              fileInput.disabled = false;
+              fileLabel.style.display = 'block';
+              console.log('[로고] 파일 input/label 표시 및 활성화');
             } else {
-              // 체크 해제 시 input 숨김 및 값 초기화
-              if (fileInput) {
-                fileInput.value = '';
-                fileInput.style.display = 'none';
-              }
-              if (fileLabel) fileLabel.style.display = 'none';
+              fileInput.value = '';
+              fileInput.style.display = 'none';
+              fileInput.disabled = true;
+              fileLabel.style.display = 'none';
               logoOptions.classList.add('hidden');
               this.state.currentOptions.logo = null;
+              console.log('[로고] 파일 input/label 숨김 및 비활성화');
             }
           }
         }
