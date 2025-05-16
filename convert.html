@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="FileToQR - 파일 변환 페이지">
+  <meta name="keywords" content="QR 코드, 파일 변환, 무료, FileToQR">
+  <title>FileToQR - 파일 변환</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="/convert.html">
+  <link rel="alternate" hreflang="en" href="/en/convert.html">
+  <link rel="alternate" hreflang="zh" href="/zh/convert.html">
+  <link rel="alternate" hreflang="ja" href="/ja/convert.html">
+  <link rel="alternate" hreflang="x-default" href="/convert.html">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/pages/convert.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <!-- ... (index.html의 header/nav 구조 복사) ... -->
+  </header>
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">파일 변환</h1>
+    <div id="file-convert-app">
+      <div class="converter-type-tabs mb-4">
+        <button class="converter-type-btn" data-type="image">이미지</button>
+        <button class="converter-type-btn" data-type="document">문서</button>
+        <button class="converter-type-btn" data-type="audio">오디오</button>
+        <button class="converter-type-btn" data-type="data">데이터</button>
+      </div>
+      <label for="file-upload" class="block mb-4 cursor-pointer p-4 border-2 border-dashed border-blue-300 rounded-lg text-center bg-white hover:bg-blue-50">
+        <span class="block text-lg font-medium mb-2">파일을 선택하거나 드래그하세요</span>
+        <input type="file" id="file-upload" class="hidden">
+      </label>
+      <div id="converter-options" class="mb-4"></div>
+      <div id="conversion-output" class="hidden"></div>
+      <button id="download-btn" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" disabled>변환 결과 다운로드</button>
+    </div>
+  </main>
+  <footer class="bg-gray-100 mt-12">
+    <!-- ... (index.html의 footer 구조 복사) ... -->
+  </footer>
+</body>
+</html> 

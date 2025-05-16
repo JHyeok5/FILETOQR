@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="FileToQR - 免费将文件和内容转换为二维码的服务。">
+  <meta name="keywords" content="二维码, 文件转换, 免费, FileToQR">
+  <title>FileToQR - 免费文件转二维码服务</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="/index.html">
+  <link rel="alternate" hreflang="en" href="/en/index.html">
+  <link rel="alternate" hreflang="zh" href="/zh/index.html">
+  <link rel="alternate" hreflang="ja" href="/ja/index.html">
+  <link rel="alternate" hreflang="x-default" href="/index.html">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/pages/home.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a href="index.html" class="flex items-center">
+          <img src="/assets/images/logo.svg" alt="FileToQR标志" class="h-8 mr-2">
+          <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+        </a>
+        <nav class="flex items-center">
+          <ul class="flex space-x-6">
+            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">首页</a></li>
+            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">文件转换</a></li>
+            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">二维码</a></li>
+            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">计时器</a></li>
+            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">帮助</a></li>
+          </ul>
+          <div class="language-selector dropdown">
+            <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="切换语言">
+              <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+              <span class="lang-label" data-i18n="lang.zh">中文</span>
+              <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
+              <div class="lang-dropdown-header">
+                <span>选择语言</span>
+              </div>
+              <div class="lang-dropdown-list">
+                <a href="/index.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="韩语" aria-current="false">
+                  <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ko">韩语</span>
+                </a>
+                <a href="/en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="英语" aria-current="false">
+                  <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.en">英语</span>
+                </a>
+                <a href="/zh/index.html" class="lang-option active" data-lang="zh" role="menuitem" aria-label="中文" aria-current="true">
+                  <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.zh">中文</span>
+                </a>
+                <a href="/ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="日语" aria-current="false">
+                  <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ja">日语</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <div id="ad-header" class="ad-container my-4 text-center">
+    <div class="ad-label text-xs text-gray-500">광고</div>
+    <div class="ad-slot">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6" data-i18n="main.title">免费将文件转换为二维码</h1>
+    <p class="mb-4" data-i18n="main.desc">FileToQR是一个免费的二维码转换服务，可以轻松地将各种文件和文本、URL、联系信息转换为二维码。</p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-4" data-i18n="main.selectContent">选择要转换的内容</h2>
+          <div class="content-type-tabs mb-4" id="content-type-tabs">
+            <button class="active" data-type="url" data-i18n="tab.url">URL</button>
+            <button data-type="text" data-i18n="tab.text">文本</button>
+            <button data-type="email" data-i18n="tab.email">电子邮件</button>
+            <button data-type="phone" data-i18n="tab.phone">电话号码</button>
+            <button data-type="vcard" data-i18n="tab.vcard">联系信息</button>
+            <button data-type="wifi" data-i18n="tab.wifi">WiFi</button>
+            <button data-type="file" data-i18n="tab.file">文件</button>
+          </div>
+          <div class="content-form active" id="url-form">
+            <div class="mb-4">
+              <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.url.label">网站地址</label>
+              <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.url.placeholder">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.url.example">例如: https://filetoqr.com</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="text-form">
+            <div class="mb-4">
+              <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.text.label">文本</label>
+              <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="输入内容" data-i18n-placeholder="form.text.placeholder"></textarea>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.text.desc">最多可以输入7,089个数字或4,296个字母数字。</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="email-form">
+            <div class="mb-4">
+              <label for="email-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.label">电子邮件地址</label>
+              <input type="email" id="email-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.email.placeholder">
+            </div>
+            <div class="mb-4">
+              <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.subject">主题 (可选)</label>
+              <input id="email-subject" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="电子邮件主题" data-i18n-placeholder="form.email.subjectPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="email-body" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.body">内容 (可选)</label>
+              <textarea id="email-body" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="电子邮件内容" data-i18n-placeholder="form.email.bodyPlaceholder"></textarea>
+            </div>
+          </div>
+          <div class="content-form hidden" id="phone-form">
+            <div class="mb-4">
+              <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.phone.label">电话号码</label>
+              <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.phone.placeholder">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.phone.example">请包括国家代码。例如: +82 10-1234-5678</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="vcard-form">
+            <div class="mb-4">
+              <label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.name">姓名</label>
+              <input id="vcard-name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="张三" data-i18n-placeholder="form.vcard.namePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.org">公司/组织 (可选)</label>
+              <input id="vcard-org" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ABC公司" data-i18n-placeholder="form.vcard.orgPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.title">职位 (可选)</label>
+              <input id="vcard-title" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="经理" data-i18n-placeholder="form.vcard.titlePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.phone">电话号码</label>
+              <input type="tel" id="vcard-phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.vcard.phonePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.email">电子邮件</label>
+              <input type="email" id="vcard-email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.vcard.emailPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.website">网站 (可选)</label>
+              <input type="url" id="vcard-website" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.vcard.websitePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.address">地址 (可选)</label>
+              <textarea id="vcard-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="首尔市江南区泰赫兰路123" data-i18n-placeholder="form.vcard.addressPlaceholder"></textarea>
+            </div>
+          </div>
+          <div class="content-form hidden" id="wifi-form">
+            <div class="mb-4">
+              <label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.ssid">WiFi 名称 (SSID)</label>
+              <input id="wifi-ssid" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi 网络名称" data-i18n-placeholder="form.wifi.ssidPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.encryption">加密类型</label>
+              <select id="wifi-encryption" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="WPA" data-i18n="form.wifi.wpa">WPA/WPA2/WPA3</option>
+                <option value="WEP" data-i18n="form.wifi.wep">WEP</option>
+                <option value="nopass" data-i18n="form.wifi.nopass">无密码</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.password">密码</label>
+              <input type="password" id="wifi-password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi 密码" data-i18n-placeholder="form.wifi.passwordPlaceholder">
+            </div>
+            <div class="flex items-center mb-4">
+              <input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700" data-i18n="form.wifi.hidden">隐藏网络</label>
+            </div>
+          </div>
+          <div class="content-form hidden" id="file-form">
+            <div class="mb-4">
+              <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.file.label">选择文件</label>
+              <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.file.desc">只能转换5MB以下的文件。</p>
+            </div>
+            <div class="file-info p-4 border rounded-md mb-4 hidden">
+              <h3 class="font-medium mb-2" data-i18n="form.file.info">文件信息</h3>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="text-gray-600" data-i18n="form.file.name">文件名:</div>
+                <div class="file-name font-medium"></div>
+                <div class="text-gray-600" data-i18n="form.file.type">文件类型:</div>
+                <div class="file-type font-medium"></div>
+                <div class="text-gray-600" data-i18n="form.file.size">文件大小:</div>
+                <div class="file-size font-medium"></div>
+              </div>
+            </div>
+            <div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
+              <p>转换后的文件由于大小限制，适合小文件。大文件将被分成多个二维码。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4" data-i18n="tips.title">二维码使用提示</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.scan"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.scan_desc">在二维码和背景色之间留出足够的对比度，并将错误纠正级别设置为“高”，可以提高扫描成功率。</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.logo"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.logo_desc">在添加徽标时，请只使用二维码的中心部分，并将错误纠正级别设置为“高”或“非常高”。</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.print"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.print_desc">用于打印的二维码应下载为SVG格式，这样即使调整大小，质量也能保持不变。</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.test"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.test_desc">在使用之前，请在多个设备和扫描应用程序中进行测试，以确保正常识别。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="bg-gray-100 mt-12">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.brand">FileToQR</h3>
+          <p class="text-gray-600 mb-4" data-i18n="footer.desc">无需将文件上传到服务器，即可在浏览器中直接转换文件并生成二维码。</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.quick">快速访问</h3>
+          <ul class="space-y-2">
+            <li><a href="index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">首页</a></li>
+            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">文件转换</a></li>
+            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">二维码</a></li>
+            <li><a href="timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">计时器</a></li>
+            <li><a href="help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">帮助</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">法律信息</h3>
+          <ul class="space-y-2">
+            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">隐私政策</a></li>
+            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">使用条款</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">联系我们</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+        <p data-i18n="footer.copyright">© 2025 FileToQR. 版权所有。</p>
+        <p class="mt-1" data-i18n="footer.updated">最后更新时间: 2025年5月2日</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="FileToQR - QR 코드 생성 페이지">
+  <meta name="keywords" content="QR 코드, 파일 변환, 무료, FileToQR">
+  <title>FileToQR - QR 코드 생성</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="/qrcode.html">
+  <link rel="alternate" hreflang="en" href="/en/qrcode.html">
+  <link rel="alternate" hreflang="zh" href="/zh/qrcode.html">
+  <link rel="alternate" hreflang="ja" href="/ja/qrcode.html">
+  <link rel="alternate" hreflang="x-default" href="/qrcode.html">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
+  <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <!-- ... (index.html의 header/nav 구조 복사) ... -->
+  </header>
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">QR 코드 생성</h1>
+    <!-- QR 코드 생성/파일→QR 변환 UI/폼/버튼 영역 구현 (qr-generator.js, file-to-qr-core.js와 연동) -->
+    <div id="qr-generator-app">
+      <!-- 실제 UI는 JS에서 동적으로 렌더링/제어 -->
+      <div class="content-type-tabs mb-4" id="content-type-tabs">
+        <button class="active" data-type="url">URL</button>
+        <button data-type="text">텍스트</button>
+        <button data-type="email">이메일</button>
+        <button data-type="phone">전화번호</button>
+        <button data-type="vcard">연락처</button>
+        <button data-type="wifi">WiFi</button>
+        <button data-type="file">파일</button>
+      </div>
+      <div id="qr-content-form">
+        <!-- 각 탭별 입력 폼/파일 업로드 등은 JS에서 동적으로 렌더링 -->
+      </div>
+      <div id="qr-preview-container" class="mt-6">
+        <!-- QR 코드 미리보기/다운로드 등은 JS에서 동적으로 렌더링 -->
+      </div>
+      <div id="logo-options" class="hidden">
+        <!-- [로고 업로드 input 항상 렌더링] -->
+        <label for="logo-file-input" id="logo-file-label" style="display:none; margin-bottom:4px;">로고 이미지 선택</label>
+        <input type="file" id="logo-file-input" accept="image/*" style="display:none; margin-bottom:8px;" disabled />
+      </div>
+      <div id="qr-error-msg" class="text-red-600 mt-4"></div>
+    </div>
+  </main>
+  <footer class="bg-gray-100 mt-12">
+    <!-- ... (index.html의 footer 구조 복사) ... -->
+  </footer>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof init === 'function') {
+        init();
+      } else if (window.FileToQR && typeof window.FileToQR.init === 'function') {
+        window.FileToQR.init();
+      } else {
+        console.error('FileToQR 초기화 함수(init)를 찾을 수 없습니다.');
+      }
+      // QR 생성/파일→QR 변환 모듈도 초기화
+      if (window.FileToQR && window.FileToQR.FileToQRCore && typeof window.FileToQR.FileToQRCore.init === 'function') {
+        window.FileToQR.FileToQRCore.init();
+      }
+    });
+  </script>
+</body>
+</html>

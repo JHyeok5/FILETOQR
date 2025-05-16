@@ -1,0 +1,98 @@
+<!-- 
+  푸터 컴포넌트 - FileToQR 애플리케이션 
+  버전: 1.0.0
+  최종 업데이트: 2025년 7월 15일
+-->
+<footer class="bg-gray-100 mt-12">
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold mb-4">FileToQR</h3>
+                <p class="text-gray-600 text-sm">파일 변환 및 QR 코드 생성 도구입니다. 쉽고 빠르게 파일을 변환하고 QR 코드를 생성하세요.</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">바로가기</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="index.html" class="text-gray-600 hover:text-blue-600">홈</a></li>
+                    <li><a href="convert.html" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
+                    <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600">QR 코드</a></li>
+                    <li><a href="help.html" class="text-gray-600 hover:text-blue-600">도움말</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">정책</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
+                    <li><a href="terms.html" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4">문의</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="contact.html" class="text-gray-600 hover:text-blue-600">문의하기</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+            <p>&copy; 2025 FileToQR. All rights reserved.</p>
+        </div>
+    </div>
+    
+    <script>
+        // basePath 변수가 없는 경우를 위한 폴백 스크립트
+        document.addEventListener('DOMContentLoaded', function() {
+            // basePath가 처리되지 않은 링크 확인
+            const links = document.querySelectorAll('a[href*="{{basePath}}"]');
+            
+            if (links.length > 0) {
+                console.warn('푸터: basePath 변수가 처리되지 않았습니다. 폴백 방식으로 수정합니다.');
+                
+                // 각 링크 수정
+                links.forEach(link => {
+                    const originalHref = link.getAttribute('href');
+                    // {{basePath}} 부분을 기본값(상대 경로)으로 대체
+                    const fixedHref = originalHref.replace('{{basePath}}', './');
+                    link.setAttribute('href', fixedHref);
+                    console.log(`푸터 링크 수정: ${originalHref} → ${fixedHref}`);
+                });
+            }
+            
+            // RTL 지원을 위한 푸터 그리드 조정
+            if (document.documentElement.getAttribute('dir') === 'rtl') {
+                const footerGrid = document.querySelector('footer .grid');
+                if (footerGrid) {
+                    // RTL에서는 그리드 아이템 순서 반전
+                    footerGrid.style.direction = 'rtl';
+                }
+            }
+            
+            // 마지막 업데이트 날짜 지역화
+            if (window.FileToQR && window.FileToQR.i18n) {
+                const lastUpdateElem = document.querySelector('[data-i18n="footer.lastUpdate"]');
+                if (lastUpdateElem) {
+                    try {
+                        // 원래 텍스트에서 날짜 부분만 추출
+                        const originalText = lastUpdateElem.textContent;
+                        const dateMatch = originalText.match(/\d{4}년\s*\d{1,2}월\s*\d{1,2}일/);
+                        
+                        if (dateMatch && dateMatch[0]) {
+                            // 날짜 포맷 변환 (한국어 형식에서 Date 객체로)
+                            const dateStr = dateMatch[0].replace(/년|월|일/g, '-').replace(/\s+/g, '');
+                            const date = new Date(dateStr);
+                            
+                            if (!isNaN(date.getTime())) {
+                                // 현재 언어에 맞게 날짜 포맷
+                                const formattedDate = window.FileToQR.i18n.formatDate(date);
+                                // 번역 키 + 포맷된 날짜 적용
+                                const prefix = window.FileToQR.i18n.t('footer.lastUpdate').split(':')[0] || '최종 업데이트';
+                                lastUpdateElem.textContent = `${prefix}: ${formattedDate}`;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('날짜 지역화 실패:', e);
+                    }
+                }
+            }
+        });
+    </script>
+</footer> 

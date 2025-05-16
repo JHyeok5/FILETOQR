@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileToQR - 리다이렉션 중...</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      text-align: center;
+      background-color: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+    }
+    h1 {
+      color: #3b82f6;
+      margin-bottom: 1rem;
+    }
+    p {
+      color: #4b5563;
+      margin-bottom: 1.5rem;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .language-options {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .language-options a {
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+      color: #3b82f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .language-options a:hover {
+      background-color: #eff6ff;
+    }
+    .active {
+      background-color: #eff6ff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>FileToQR</h1>
+    <div class="loader"></div>
+    <p>언어를 감지하는 중... 잠시 기다려 주세요.</p>
+    <p>Detecting language... Please wait.</p>
+    <div class="language-options">
+      <a href="#" id="ko-link" onclick="setLanguage('ko'); return false;">한국어</a>
+      <a href="#" id="en-link" onclick="setLanguage('en'); return false;">English</a>
+      <a href="#" id="zh-link" onclick="setLanguage('zh'); return false;">中文</a>
+      <a href="#" id="ja-link" onclick="setLanguage('ja'); return false;">日本語</a>
+    </div>
+  </div>
+
+  <script>
+    // 쿠키 유틸리티 함수
+    function setCookie(name, value, days) {
+      let expires = '';
+      if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = '; expires=' + date.toUTCString();
+      }
+      document.cookie = name + '=' + value + expires + '; path=/';
+    }
+
+    function getCookie(name) {
+      const nameEQ = name + '=';
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      }
+      return null;
+    }
+    
+    // 언어 설정 함수
+    function setLanguage(lang) {
+      setCookie('preferred_language', lang, 30);
+      redirectToLanguagePage(lang);
+    }
+    
+    // 현재 선택된 언어 표시
+    function highlightSelectedLanguage(lang) {
+      document.querySelectorAll('.language-options a').forEach(el => {
+        el.classList.remove('active');
+      });
+      
+      const langEl = document.getElementById(lang + '-link');
+      if (langEl) {
+        langEl.classList.add('active');
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // 현재 페이지 경로 파악
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetPage = urlParams.get('page') || 'index.html';
+      
+      // 저장된 언어 설정 확인
+      const savedLanguage = getCookie('preferred_language');
+      
+      // 언어 링크 설정
+      document.getElementById('ko-link').href = 'ko/' + targetPage;
+      document.getElementById('en-link').href = 'en/' + targetPage;
+      document.getElementById('zh-link').href = 'zh/' + targetPage;
+      document.getElementById('ja-link').href = 'ja/' + targetPage;
+      
+      // 리다이렉션 함수
+      window.redirectToLanguagePage = function(language) {
+        window.location.href = language + '/' + targetPage;
+      };
+      
+      // 자동 리다이렉션 실행
+      setTimeout(function() {
+        // 저장된 언어 설정이 있으면 사용
+        if (savedLanguage) {
+          highlightSelectedLanguage(savedLanguage);
+          redirectToLanguagePage(savedLanguage);
+        } else {
+          // 브라우저 언어 감지
+          const userLanguage = navigator.language || navigator.userLanguage;
+          const language = userLanguage.split('-')[0].toLowerCase();
+          
+          // 리다이렉션 URL 설정
+          let redirectLang = 'en'; // 기본값은 영어
+          
+          // 언어에 따라 리다이렉션 URL 설정
+          if (language === 'ko') {
+            redirectLang = 'ko';  // 한국어
+          } else if (language === 'zh') {
+            redirectLang = 'zh';  // 중국어
+          } else if (language === 'ja') {
+            redirectLang = 'ja';  // 일본어
+          }
+          
+          // 쿠키에 언어 저장
+          setCookie('preferred_language', redirectLang, 30);
+          
+          // 선택된 언어 하이라이트
+          highlightSelectedLanguage(redirectLang);
+          
+          // 리다이렉션 수행
+          redirectToLanguagePage(redirectLang);
+        }
+      }, 1500); // 1.5초 후 리다이렉션
+    });
+  </script>
+</body>
+</html> 

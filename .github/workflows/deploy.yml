@@ -1,0 +1,53 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+# GitHub Pages에 대한 권한 설정
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 하나의 동시 배포만 허용
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Setup Node.js for Tailwind build
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies (Tailwind, PostCSS, etc)
+        run: npm install
+
+      - name: Build Tailwind CSS
+        run: npm run build:tailwind
+
+      - name: Upload static site files (main/root)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./
+          # 루트(main) 폴더의 모든 정적 파일(HTML, JS, CSS, 언어 폴더 등)을 그대로 업로드
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        # 업로드된 정적 파일을 GitHub Pages에 배포
+
+# [2024-06 최신화] 빌드 자동화(webpack, dist 등) 제거, main/(root) 정적 파일 직접 배포 구조로 전환됨. 자세한 내용은 내부 아키텍처 가이드(.ai-guides/structure/filetoqr-internal-architecture-guide.md) 참고. 

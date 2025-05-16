@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="FileToQR - ファイルやコンテンツをQRコードに変換できる無料サービス。">
+  <meta name="keywords" content="QRコード, ファイル変換, 無料, FileToQR">
+  <title>FileToQR - ファイルをQRコードに変換する無料サービス</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="/index.html">
+  <link rel="alternate" hreflang="en" href="/en/index.html">
+  <link rel="alternate" hreflang="zh" href="/zh/index.html">
+  <link rel="alternate" hreflang="ja" href="/ja/index.html">
+  <link rel="alternate" hreflang="x-default" href="/index.html">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/pages/home.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a href="index.html" class="flex items-center">
+          <img src="/assets/images/logo.svg" alt="FileToQRロゴ" class="h-8 mr-2">
+          <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+        </a>
+        <nav class="flex items-center">
+          <ul class="flex space-x-6">
+            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">ホーム</a></li>
+            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">ファイル変換</a></li>
+            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QRコード</a></li>
+            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">タイマー</a></li>
+            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">ヘルプ</a></li>
+          </ul>
+          <div class="language-selector dropdown">
+            <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="言語を変更">
+              <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+              <span class="lang-label" data-i18n="lang.ja">日本語</span>
+              <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
+              <div class="lang-dropdown-header">
+                <span>言語を選択</span>
+              </div>
+              <div class="lang-dropdown-list">
+                <a href="/index.html" class="lang-option" data-lang="ko" role="menuitem" aria-label="韓国語" aria-current="false">
+                  <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ko">韓国語</span>
+                </a>
+                <a href="/en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="英語" aria-current="false">
+                  <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.en">英語</span>
+                </a>
+                <a href="/zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="中国語" aria-current="false">
+                  <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.zh">中国語</span>
+                </a>
+                <a href="/ja/index.html" class="lang-option active" data-lang="ja" role="menuitem" aria-label="日本語" aria-current="true">
+                  <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ja">日本語</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <div id="ad-header" class="ad-container my-4 text-center">
+    <div class="ad-label text-xs text-gray-500">広告</div>
+    <div class="ad-slot">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6" data-i18n="main.title">ファイルをQRコードに変換</h1>
+    <p class="mb-4" data-i18n="main.desc">FileToQRは、様々なファイルとテキスト、URL、連絡先情報を簡単かつ迅速にQRコードに変換できる無料サービスです。</p>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-4" data-i18n="main.selectContent">変換するコンテンツを選択</h2>
+          <div class="content-type-tabs mb-4" id="content-type-tabs">
+            <button class="active" data-type="url" data-i18n="tab.url">URL</button>
+            <button data-type="text" data-i18n="tab.text">テキスト</button>
+            <button data-type="email" data-i18n="tab.email">メール</button>
+            <button data-type="phone" data-i18n="tab.phone">電話番号</button>
+            <button data-type="vcard" data-i18n="tab.vcard">連絡先</button>
+            <button data-type="wifi" data-i18n="tab.wifi">WiFi</button>
+            <button data-type="file" data-i18n="tab.file">ファイル</button>
+          </div>
+          <div class="content-form active" id="url-form">
+            <div class="mb-4">
+              <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.url.label">ウェブサイトのアドレス</label>
+              <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.url.placeholder">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.url.example">例: https://filetoqr.com</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="text-form">
+            <div class="mb-4">
+              <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.text.label">テキスト</label>
+              <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="内容を入力してください" data-i18n-placeholder="form.text.placeholder"></textarea>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.text.desc">最大7,089文字または4,296文字の数字または英数字を入力できます。</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="email-form">
+            <div class="mb-4">
+              <label for="email-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.label">メールアドレス</label>
+              <input type="email" id="email-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.email.placeholder">
+            </div>
+            <div class="mb-4">
+              <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.subject">件名 (オプション)</label>
+              <input id="email-subject" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="メールの件名" data-i18n-placeholder="form.email.subjectPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="email-body" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.body">内容 (オプション)</label>
+              <textarea id="email-body" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="メールの内容" data-i18n-placeholder="form.email.bodyPlaceholder"></textarea>
+            </div>
+          </div>
+          <div class="content-form hidden" id="phone-form">
+            <div class="mb-4">
+              <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.phone.label">電話番号</label>
+              <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.phone.placeholder">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.phone.example">国コードと一緒に入力してください。例: +82 10-1234-5678</p>
+            </div>
+          </div>
+          <div class="content-form hidden" id="vcard-form">
+            <div class="mb-4">
+              <label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.name">名前</label>
+              <input id="vcard-name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="フォングトンドウ" data-i18n-placeholder="form.vcard.namePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.org">会社/組織 (オプション)</label>
+              <input id="vcard-org" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ABCカンシャ" data-i18n-placeholder="form.vcard.orgPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.title">役職 (オプション)</label>
+              <input id="vcard-title" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="マンニエタ" data-i18n-placeholder="form.vcard.titlePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.phone">電話番号</label>
+              <input type="tel" id="vcard-phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.vcard.phonePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.email">メール</label>
+              <input type="email" id="vcard-email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.vcard.emailPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.website">ウェブサイト (オプション)</label>
+              <input type="url" id="vcard-website" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.vcard.websitePlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.address">住所 (オプション)</label>
+              <textarea id="vcard-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="ソウルシカナグロテテラロ123" data-i18n-placeholder="form.vcard.addressPlaceholder"></textarea>
+            </div>
+          </div>
+          <div class="content-form hidden" id="wifi-form">
+            <div class="mb-4">
+              <label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.ssid">WiFiの名前 (SSID)</label>
+              <input id="wifi-ssid" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFiネットワークの名前" data-i18n-placeholder="form.wifi.ssidPlaceholder">
+            </div>
+            <div class="mb-4">
+              <label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.encryption">暗号化の種類</label>
+              <select id="wifi-encryption" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="WPA" data-i18n="form.wifi.wpa">WPA/WPA2/WPA3</option>
+                <option value="WEP" data-i18n="form.wifi.wep">WEP</option>
+                <option value="nopass" data-i18n="form.wifi.nopass">暗号なし</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.password">パスワード</label>
+              <input type="password" id="wifi-password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFiパスワード" data-i18n-placeholder="form.wifi.passwordPlaceholder">
+            </div>
+            <div class="flex items-center mb-4">
+              <input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+              <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700" data-i18n="form.wifi.hidden">隠されたネットワーク</label>
+            </div>
+          </div>
+          <div class="content-form hidden" id="file-form">
+            <div class="mb-4">
+              <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.file.label">ファイルを選択</label>
+              <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <p class="text-xs text-gray-500 mt-1" data-i18n="form.file.desc">5MB以下のファイルのみQRコードに変換可能です。</p>
+            </div>
+            <div class="file-info p-4 border rounded-md mb-4 hidden">
+              <h3 class="font-medium mb-2" data-i18n="form.file.info">ファイル情報</h3>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="text-gray-600" data-i18n="form.file.name">ファイル名:</div>
+                <div class="file-name font-medium"></div>
+                <div class="text-gray-600" data-i18n="form.file.type">ファイルの種類:</div>
+                <div class="file-type font-medium"></div>
+                <div class="text-gray-600" data-i18n="form.file.size">ファイルのサイズ:</div>
+                <div class="file-size font-medium"></div>
+              </div>
+            </div>
+            <div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
+              <p>QRコードに変換されたファイルはサイズの制限により小さなファイルに適しています。大きなファイルは複数のQRコードに分割されます。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4" data-i18n="tips.title">QRコードの活用ヒント</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.scan"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.scan_desc">QRコードと背景色の間に十分なコントラストを持たせ、誤り訂正レベルを'高'に設定するとスキャン成功率が高まります。</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.logo"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.logo_desc">ロゴを入れるときはQRコードの中央部分のみを使用し、誤り訂正レベルを'高'または'非常に高'に設定してください。</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.print"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.print_desc">印刷物に使用するQRコードはSVG形式でダウンロードするとサイズを調整しても品質が維持されます。</p>
+            </div>
+            <div>
+              <h3 class="font-medium text-blue-600" data-i18n="tips.test"></h3>
+              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.test_desc">使用する前に複数のデバイスとスキャナアプリでテストして正常に認識されるか確認してください。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="bg-gray-100 mt-12">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.brand">FileToQR</h3>
+          <p class="text-gray-600 mb-4" data-i18n="footer.desc">サーバーにファイルをアップロードせずに、ブラウザーから直接ファイルを変換してQRコードを生成してください。</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.quick">クイックアクセス</h3>
+          <ul class="space-y-2">
+            <li><a href="index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">ホーム</a></li>
+            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">ファイル変換</a></li>
+            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QRコード</a></li>
+            <li><a href="timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">タイマー</a></li>
+            <li><a href="help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">ヘルプ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">法的情報</h3>
+          <ul class="space-y-2">
+            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">個人情報処理方針</a></li>
+            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">利用規約</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">お問い合わせ</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+        <p data-i18n="footer.copyright">© 2025 FileToQR. 全著作権所有。</p>
+        <p class="mt-1" data-i18n="footer.updated">最終更新日: 2025年5月2日</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

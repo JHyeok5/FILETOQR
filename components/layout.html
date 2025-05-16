@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="{{lang}}" {{#if isRTL}}dir="rtl"{{/if}}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{t 'meta.description'}}">
+    <meta name="keywords" content="{{t 'meta.keywords'}}">
+    <title>{{t page.title}} - {{t 'common.title'}}</title>
+    
+    <!-- CSS 스타일시트 -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/rtl.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- hreflang 태그 -->
+    {{#each supportedLanguages}}
+    <link rel="alternate" hreflang="{{this}}" href="{{../baseUrl}}/{{#if this}}{{this}}/{{/if}}{{../currentPage}}">
+    {{/each}}
+    <link rel="alternate" hreflang="x-default" href="{{baseUrl}}/{{currentPage}}">
+    
+    <!-- 페이지별 추가 head 콘텐츠 -->
+    {{{head_content}}}
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col {{#if isRTL}}rtl{{/if}}">
+    <!-- 헤더 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="{{localizedUrl 'index.html'}}" class="flex items-center">
+                    <img src="assets/images/logo.svg" alt="{{t 'common.logoAlt'}}" class="h-8 mr-2" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjU2M0VCIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1maWxlIj48cGF0aCBkPSJNMTMgMkgxOEMyMC4yMDkxIDIgMjIgMy43OTA4NiAyMiA2VjE4QzIyIDIwLjIwOTEgMjAuMjA5MSAyMiAxOCAyMkg2QzMuNzkwODYgMjIgMiAyMC4yMDkxIDIgMThWNkMyIDMuNzkwODYgMy43OTA4NiAyIDYgMkgxMFoiPjwvcGF0aD48cGF0aCBkPSJNNyAxNkwxMSAxMkwxNSAxNiI+PC9wYXRoPjxwYXRoIGQ9Ik03IDEyTDExIDhMMTUgMTIiPjwvcGF0aD48L3N2Zz4='; this.classList.add('h-8');">
+                    <span class="text-2xl font-bold text-blue-600">{{t 'common.title'}}</span>
+                </a>
+                <nav class="flex items-center">
+                    <ul class="flex space-x-6 {{#if isRTL}}space-x-reverse{{/if}}">
+                        <li><a href="{{localizedUrl 'index.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.home'}}</a></li>
+                        <li><a href="{{localizedUrl 'convert.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.convert'}}</a></li>
+                        <li><a href="{{localizedUrl 'qrcode.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.qrcode'}}</a></li>
+                        <li><a href="{{localizedUrl 'timer.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.timer'}}</a></li>
+                        <li><a href="{{localizedUrl 'help.html'}}" class="text-gray-700 hover:text-blue-600 font-medium">{{t 'header.help'}}</a></li>
+                    </ul>
+                    
+                    <!-- 언어 선택 드롭다운 -->
+                    {{> language-selector }}
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 헤더 배너 광고 -->
+    <div id="ad-header" class="ad-container my-4 text-center">
+        <div class="ad-label text-xs text-gray-500">{{t 'common.advertisement'}}</div>
+        <div class="ad-slot">
+            <!-- Google AdSense 헤더 광고 코드 삽입 위치 -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        {{{main_content}}}
+    </main>
+
+    <!-- 푸터 광고 -->
+    <div id="ad-footer" class="ad-container my-4 text-center">
+        <div class="ad-label text-xs text-gray-500">{{t 'common.advertisement'}}</div>
+        <div class="ad-slot">
+            <!-- Google AdSense 푸터 광고 코드 삽입 위치 -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-gray-100 mt-12">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">{{t 'footer.about'}}</h3>
+                    <p class="text-gray-600 mb-4">{{t 'footer.description'}}</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">{{t 'footer.shortcuts'}}</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{{localizedUrl 'index.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.home'}}</a></li>
+                        <li><a href="{{localizedUrl 'convert.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.convert'}}</a></li>
+                        <li><a href="{{localizedUrl 'qrcode.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.qrcode'}}</a></li>
+                        <li><a href="{{localizedUrl 'timer.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.timer'}}</a></li>
+                        <li><a href="{{localizedUrl 'help.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'header.help'}}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">{{t 'footer.legal'}}</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{{localizedUrl 'privacy.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'privacy.title'}}</a></li>
+                        <li><a href="{{localizedUrl 'terms.html'}}" class="text-gray-600 hover:text-blue-600">{{t 'terms.title'}}</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+                <p>{{t 'footer.copyright'}}</p>
+                <p class="mt-1">{{t 'footer.lastUpdate'}}</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 코어 모듈 및 유틸리티 로드 -->
+    <script src="assets/js/core/app-core.js" type="module"></script>
+    <script src="assets/js/utils/adsense-manager.js" type="module"></script>
+    
+    <!-- 페이지별 스크립트 -->
+    {{{scripts}}}
+</body>
+</html> 
