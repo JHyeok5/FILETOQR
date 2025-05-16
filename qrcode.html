@@ -43,7 +43,11 @@
       <div id="qr-preview-container" class="mt-6">
         <!-- QR 코드 미리보기/다운로드 등은 JS에서 동적으로 렌더링 -->
       </div>
-      <div id="logo-options" class="hidden"></div>
+      <div id="logo-options" class="hidden">
+        <!-- [로고 업로드 input 항상 렌더링] -->
+        <label for="logo-file-input" id="logo-file-label" style="display:none; margin-bottom:4px;">로고 이미지 선택</label>
+        <input type="file" id="logo-file-input" accept="image/*" style="display:none; margin-bottom:8px;" disabled />
+      </div>
       <div id="qr-error-msg" class="text-red-600 mt-4"></div>
     </div>
   </main>
