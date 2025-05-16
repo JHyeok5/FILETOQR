@@ -141,9 +141,9 @@ function addNewTimer() {
                 <span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span>
             </div>
             <div class="timer-controls">
-                <button class="timer-start control-btn"><i class="fas fa-play"></i></button>
-                <button class="timer-pause control-btn" disabled><i class="fas fa-pause"></i></button>
-                <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button>
+                <button class="timer-start control-btn"><i class="fas fa-play"></i> 시작</button>
+                <button class="timer-pause control-btn" disabled><i class="fas fa-pause"></i> 일시정지</button>
+                <button class="timer-reset control-btn"><i class="fas fa-redo"></i> 리셋</button>
             </div>
             <div class="timer-settings">
                 <div class="time-input">
@@ -287,10 +287,10 @@ function setupTimerControls(timerElem, timerInstance) {
     pauseBtn.addEventListener('click', () => {
         if (timerInstance.isPaused) {
             timerInstance.resume();
-            pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
         } else {
             timerInstance.pause();
-            pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            pauseBtn.innerHTML = '<i class="fas fa-play"></i> 재시작';
         }
     });
     
@@ -319,7 +319,7 @@ function setupTimerControls(timerElem, timerInstance) {
     function resetTimerControls() {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
-        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
         
         hoursInput.disabled = false;
         minutesInput.disabled = false;
@@ -379,9 +379,9 @@ function loadSavedTimers() {
                 <span class="timer-seconds">${timerData.seconds.toString().padStart(2, '0')}</span>
             </div>
             <div class="timer-controls">
-                <button class="timer-start control-btn" ${timerData.isPaused ? '' : 'disabled'}><i class="fas fa-play"></i></button>
-                <button class="timer-pause control-btn" ${timerData.isPaused ? 'disabled' : ''}><i class="fas fa-pause"></i></button>
-                <button class="timer-reset control-btn"><i class="fas fa-redo"></i></button>
+                <button class="timer-start control-btn" ${timerData.isPaused ? '' : 'disabled'}><i class="fas fa-play"></i> 시작</button>
+                <button class="timer-pause control-btn" ${timerData.isPaused ? 'disabled' : ''}><i class="fas fa-pause"></i> 일시정지</button>
+                <button class="timer-reset control-btn"><i class="fas fa-redo"></i> 리셋</button>
             </div>
             <div class="timer-settings">
                 <div class="time-input">
@@ -455,10 +455,10 @@ function initializeStopwatch(stopwatch) {
     pauseBtn.addEventListener('click', () => {
         if (stopwatch.isPaused) {
             stopwatch.resume();
-            pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
         } else {
             stopwatch.pause();
-            pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            pauseBtn.innerHTML = '<i class="fas fa-play"></i> 재시작';
         }
     });
     
@@ -488,7 +488,7 @@ function initializeStopwatch(stopwatch) {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
         lapBtn.disabled = true;
-        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
     }
     
     // 시간 포맷팅 함수
@@ -605,10 +605,10 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     pauseBtn.addEventListener('click', () => {
         if (pomodoro.isPaused) {
             pomodoro.resume();
-            pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
         } else {
             pomodoro.pause();
-            pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            pauseBtn.innerHTML = '<i class="fas fa-play"></i> 재시작';
         }
     });
     
@@ -680,7 +680,7 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     function resetPomodoroControls() {
         startBtn.disabled = false;
         pauseBtn.disabled = true;
-        pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
         
         workMinutesInput.disabled = false;
         shortBreakMinutesInput.disabled = false;
