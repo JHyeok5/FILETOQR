@@ -348,6 +348,9 @@ function initConvertPageController() {
  */
 function initQRCodePage() {
   console.log('QR 코드 페이지 초기화');
+  if (window.FileToQR && window.FileToQR.QRGenerator && !window.FileToQR.QRGenerator.state.initialized) {
+    window.FileToQR.QRGenerator.init();
+  }
 }
 
 /**
