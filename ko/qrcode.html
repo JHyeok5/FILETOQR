@@ -7,19 +7,19 @@
   <meta name="description" content="무료로 다양한 콘텐츠 유형의 QR 코드를 쉽고 빠르게 생성하세요. URL, 텍스트, 연락처, 이메일 등을 QR 코드로 변환할 수 있습니다.">
   <meta name="keywords" content="QR 코드 생성, QR 코드 만들기, 무료 QR 코드, URL QR 코드, 이메일 QR 코드, 연락처 QR 코드">
   <title>QR 코드 생성 - FileToQR</title>
-  <link rel="stylesheet" href="/assets/css/styles.css">
-  <link rel="stylesheet" href="/assets/css/components/qr-generator.css">
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="alternate" hreflang="ko" href="/qrcode.html">
-  <link rel="alternate" hreflang="en" href="/en/qrcode.html">
-  <link rel="alternate" hreflang="zh" href="/zh/qrcode.html">
-  <link rel="alternate" hreflang="ja" href="/ja/qrcode.html">
-  <link rel="alternate" hreflang="x-default" href="/qrcode.html">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/components/qr-generator.css">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="qrcode.html">
+  <link rel="alternate" hreflang="en" href="../en/qrcode.html">
+  <link rel="alternate" hreflang="zh" href="../zh/qrcode.html">
+  <link rel="alternate" hreflang="ja" href="../ja/qrcode.html">
+  <link rel="alternate" hreflang="x-default" href="qrcode.html">
   <!-- Tailwind CSS (빌드 결과 사용) -->
-  <link rel="stylesheet" href="assets/css/tailwind-built.css">
-  <script type="module" src="/assets/js/core/app-core.js"></script>
-  <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
-  <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
+  <link rel="stylesheet" href="../assets/css/tailwind-built.css">
+  <script type="module" src="../assets/js/core/app-core.js"></script>
+  <script type="module" src="../assets/js/qr-generator/qr-generator.js"></script>
+  <script type="module" src="../assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <header class="bg-white shadow-sm sticky top-0 z-50">
@@ -39,7 +39,7 @@
           </ul>
           <div class="language-selector dropdown">
             <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경">
-              <img class="lang-flag-icon" src="/assets/images/flags/ko.svg" alt="한국어">
+              <img class="lang-flag-icon" src="../assets/images/flags/ko.svg" alt="한국어">
               <span class="lang-label" data-i18n="lang.ko">한국어</span>
               <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="6 9 12 15 18 9"></polyline>
@@ -51,7 +51,7 @@
               </div>
               <div class="lang-dropdown-list">
                 <a href="/qrcode.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
-                  <img class="lang-flag-icon" src="/assets/images/flags/ko.svg" alt="한국어">
+                  <img class="lang-flag-icon" src="../assets/images/flags/ko.svg" alt="한국어">
                   <span class="lang-name" data-i18n="lang.ko">한국어</span>
                 </a>
                 <a href="/en/qrcode.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
