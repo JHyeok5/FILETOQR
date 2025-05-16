@@ -391,9 +391,14 @@ const QRGenerator = {
    * @private
    */
   _registerEventListeners() {
-    // 기존 qr-generator-app 컨테이너 이벤트 위임 유지
-    const appContainer = document.getElementById('qr-generator-app');
-    if (appContainer) {
+    document.addEventListener('DOMContentLoaded', function() {
+      const appContainer = document.getElementById('qr-generator-app');
+      console.log('appContainer:', appContainer);
+      if (!appContainer) {
+        console.warn('qr-generator-app 컨테이너가 존재하지 않습니다.');
+        return;
+      }
+      // 기존 qr-generator-app 컨테이너 이벤트 위임 유지
       // [1] 탭 버튼 클릭 (content-type-tabs)
       appContainer.addEventListener('click', (e) => {
         // 탭 버튼 클릭 처리
@@ -437,7 +442,6 @@ const QRGenerator = {
           const logoOptions = document.getElementById('logo-options');
           const fileInput = document.getElementById('logo-file');
           const fileLabel = document.querySelector('label[for="logo-file"]');
-          // [디버깅] 요소 존재 및 상태 출력
           console.log('[로고 DEBUG] logoOptions:', logoOptions);
           console.log('[로고 DEBUG] fileInput:', fileInput);
           console.log('[로고 DEBUG] fileLabel:', fileLabel);
@@ -447,7 +451,6 @@ const QRGenerator = {
               fileInput.classList.remove('hidden');
               fileLabel.classList.remove('hidden');
               fileInput.disabled = false;
-              // [디버깅] 상태 출력
               console.log('[로고 DEBUG] 체크됨 - 표시/활성화');
               console.log('fileInput classList:', fileInput.classList.value, 'disabled:', fileInput.disabled);
               console.log('fileLabel classList:', fileLabel.classList.value);
@@ -459,7 +462,6 @@ const QRGenerator = {
               logoOptions.classList.add('hidden');
               fileInput.disabled = true;
               this.state.currentOptions.logo = null;
-              // [디버깅] 상태 출력
               console.log('[로고 DEBUG] 체크 해제 - 숨김/비활성화');
               console.log('fileInput classList:', fileInput.classList.value, 'disabled:', fileInput.disabled);
               console.log('fileLabel classList:', fileLabel.classList.value);
@@ -481,7 +483,7 @@ const QRGenerator = {
           return;
         }
       });
-    }
+    });
 
     // [NEW] document.body 레벨에서 버튼 클릭 이벤트 위임 (동적 버튼 포함)
     document.body.addEventListener('click', (e) => {
