@@ -437,22 +437,40 @@ const QRGenerator = {
           const logoOptions = document.getElementById('logo-options');
           const fileInput = document.getElementById('logo-file-input');
           const fileLabel = document.getElementById('logo-file-label');
+          // [디버깅] 요소 존재 및 상태 출력
+          console.log('[로고 DEBUG] logoOptions:', logoOptions);
+          console.log('[로고 DEBUG] fileInput:', fileInput);
+          console.log('[로고 DEBUG] fileLabel:', fileLabel);
           if (logoOptions && fileInput && fileLabel) {
             if (e.target.checked) {
               logoOptions.classList.remove('hidden');
               fileInput.style.display = 'block';
               fileInput.disabled = false;
+              fileInput.classList.remove('hidden');
               fileLabel.style.display = 'block';
-              console.log('[로고] 파일 input/label 표시 및 활성화');
+              fileLabel.classList.remove('hidden');
+              // [디버깅] 상태 출력
+              console.log('[로고 DEBUG] 체크됨 - 표시/활성화');
+              console.log('fileInput display:', fileInput.style.display, 'disabled:', fileInput.disabled, 'classList:', fileInput.classList.value);
+              console.log('fileLabel display:', fileLabel.style.display, 'classList:', fileLabel.classList.value);
+              console.log('logoOptions classList:', logoOptions.classList.value);
             } else {
               fileInput.value = '';
               fileInput.style.display = 'none';
               fileInput.disabled = true;
+              fileInput.classList.add('hidden');
               fileLabel.style.display = 'none';
+              fileLabel.classList.add('hidden');
               logoOptions.classList.add('hidden');
               this.state.currentOptions.logo = null;
-              console.log('[로고] 파일 input/label 숨김 및 비활성화');
+              // [디버깅] 상태 출력
+              console.log('[로고 DEBUG] 체크 해제 - 숨김/비활성화');
+              console.log('fileInput display:', fileInput.style.display, 'disabled:', fileInput.disabled, 'classList:', fileInput.classList.value);
+              console.log('fileLabel display:', fileLabel.style.display, 'classList:', fileLabel.classList.value);
+              console.log('logoOptions classList:', logoOptions.classList.value);
             }
+          } else {
+            console.warn('[로고 DEBUG] logoOptions, fileInput, fileLabel 중 일부가 존재하지 않음');
           }
         }
       });
