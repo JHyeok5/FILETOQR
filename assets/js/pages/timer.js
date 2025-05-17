@@ -93,6 +93,7 @@ function setupTabs({ notificationManager }) {
             // 포모도로 탭이 처음 활성화될 때만 plantSystem 생성/초기화 및 pomodoro 초기화
             if (tabName === 'pomodoro' && !pomodoroInitialized) {
                 plantSystem = new PlantSystem();
+                plantSystem.initialize(); // 반드시 초기화 호출 (식물 UI 렌더링)
                 pomodoroInstance = new Pomodoro();
                 initializePomodoro(pomodoroInstance, notificationManager, plantSystem);
                 pomodoroInitialized = true;
@@ -662,7 +663,8 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     
     // 포모도로 업데이트 함수
     pomodoro.onUpdate = (minutes, seconds, currentCycle, totalCycles, mode) => {
-        console.log('[DEBUG] Pomodoro onUpdate', { minutes, seconds, currentCycle, totalCycles, mode });
+        // 디버그 로그 과다 방지: 반복 로그는 주석 처리
+        // console.log('[DEBUG] Pomodoro onUpdate', { minutes, seconds, currentCycle, totalCycles, mode });
         pomodoroMinutes.textContent = minutes.toString().padStart(2, '0');
         pomodoroSeconds.textContent = seconds.toString().padStart(2, '0');
         // 사이클 정보 업데이트
