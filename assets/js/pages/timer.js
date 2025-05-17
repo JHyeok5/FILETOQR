@@ -18,17 +18,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // 모듈 인스턴스 생성
         notificationManager = new NotificationManager();
         const stopwatch = new Stopwatch();
-        const plantSystem = new PlantSystem();
         
         // 탭 전환 설정
-        setupTabs({ notificationManager, plantSystem });
+        setupTabs({ notificationManager });
         
         // 각 기능 초기화
         setupMultipleTimers();
         initializeStopwatch(stopwatch);
-        initializeSettings(notificationManager, plantSystem);
+        initializeSettings(notificationManager);
         
         // 식물 시스템 초기화
+        const plantSystem = new PlantSystem();
         plantSystem.initialize();
         
         // 타이머 추가 버튼 이벤트를 여러 방식으로 설정
@@ -74,11 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 탭 전환 설정 함수
-function setupTabs({ notificationManager, plantSystem }) {
+function setupTabs({ notificationManager }) {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     let pomodoroInitialized = false;
     let pomodoroInstance = null;
+    let plantSystem = null;
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -93,8 +94,10 @@ function setupTabs({ notificationManager, plantSystem }) {
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById(`${tabName}-tab`).classList.add('active');
 
-            // 포모도로 탭이 처음 활성화될 때만 초기화
+            // 포모도로 탭이 처음 활성화될 때만 plantSystem 생성/초기화 및 pomodoro 초기화
             if (tabName === 'pomodoro' && !pomodoroInitialized) {
+                plantSystem = new PlantSystem();
+                plantSystem.initialize();
                 pomodoroInstance = new Pomodoro();
                 initializePomodoro(pomodoroInstance, notificationManager, plantSystem);
                 pomodoroInitialized = true;
@@ -729,7 +732,7 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
 }
 
 // 설정 초기화 및 이벤트 설정 함수
-function initializeSettings(notificationManager, plantSystem) {
+function initializeSettings(notificationManager) {
     const notificationSoundSelect = document.getElementById('notification-sound');
     const notificationVolumeInput = document.getElementById('notification-volume');
     const backgroundNotificationCheckbox = document.getElementById('background-notification');
@@ -739,10 +742,11 @@ function initializeSettings(notificationManager, plantSystem) {
     notificationSoundSelect.addEventListener('change', saveSettings);
     notificationVolumeInput.addEventListener('input', saveSettings);
     backgroundNotificationCheckbox.addEventListener('change', saveSettings);
-    plantThemeSelect.addEventListener('change', () => {
-        saveSettings();
-        plantSystem.changeTheme(plantThemeSelect.value);
-    });
+    if (plantThemeSelect) {
+        plantThemeSelect.addEventListener('change', () => {
+            saveSettings();
+        });
+    }
     
     // 설정 저장 함수
     function saveSettings() {
@@ -777,9 +781,6 @@ function initializeSettings(notificationManager, plantSystem) {
             notificationManager.setSound(settings.notificationSound);
             notificationManager.setVolume(settings.notificationVolume / 100);
             notificationManager.setBackgroundNotification(settings.backgroundNotification);
-            
-            // 식물 테마 업데이트
-            plantSystem.changeTheme(settings.plantTheme);
         }
     }
     
