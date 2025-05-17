@@ -736,7 +736,7 @@ const QRGenerator = {
         // 다운로드 버튼 표시
         if (downloadBtns) {
           console.log('다운로드 버튼 표시');
-          downloadBtns.style.display = 'block';
+          downloadBtns.classList.remove('hidden');
         }
         
         // 생성된 QR 코드 저장
