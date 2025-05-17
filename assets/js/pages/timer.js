@@ -36,9 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 타이머 추가 버튼 이벤트를 여러 방식으로 설정
         // 1. 버튼에 직접 이벤트 리스너
         const addTimerBtn = document.getElementById('add-timer');
+        console.log('[DEBUG] addTimerBtn:', addTimerBtn);
         if (addTimerBtn) {
             addTimerBtn.addEventListener('click', function(e) {
-                console.log('타이머 추가 버튼 클릭 이벤트 발생');
+                console.log('[DEBUG] 타이머 추가 버튼 클릭');
                 e.preventDefault();
                 addNewTimer();
             });
@@ -55,6 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('글로벌 함수로 타이머 추가');
             addNewTimer();
         };
+        
+        // 이벤트 위임 방식도 추가 (동적으로 생성될 경우 대비)
+        const globalControls = document.querySelector('.timer-global-controls');
+        if (globalControls) {
+            globalControls.addEventListener('click', function(e) {
+                if (e.target && (e.target.id === 'add-timer' || e.target.closest('#add-timer'))) {
+                    console.log('[DEBUG] (위임) 타이머 추가 버튼 클릭');
+                    e.preventDefault();
+                    addNewTimer();
+                }
+            });
+        }
         
         console.log('타이머 페이지 초기화 완료');
     } catch (error) {
