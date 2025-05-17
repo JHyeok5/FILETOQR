@@ -551,6 +551,7 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     
     // 설정 업데이트 함수
     function updatePomodoroSettings() {
+        // 반드시 숫자값으로 변환하여 setSettings에 전달 (input.value는 문자열)
         const workMinutes = parseInt(workMinutesInput.value) || 25;
         const shortBreakMinutes = parseInt(shortBreakMinutesInput.value) || 5;
         const longBreakMinutes = parseInt(longBreakMinutesInput.value) || 15;
@@ -562,12 +563,12 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         longBreakMinutesInput.value = Math.max(1, Math.min(60, longBreakMinutes));
         pomodoroCyclesInput.value = Math.max(1, Math.min(10, totalCycles));
         
-        // 포모도로 설정 업데이트
+        // 포모도로 설정 업데이트 (숫자값으로 전달)
         pomodoro.setSettings({
-            workMinutes: workMinutesInput.value,
-            shortBreakMinutes: shortBreakMinutesInput.value,
-            longBreakMinutes: longBreakMinutesInput.value,
-            totalCycles: pomodoroCyclesInput.value
+            workMinutes: parseInt(workMinutesInput.value),
+            shortBreakMinutes: parseInt(shortBreakMinutesInput.value),
+            longBreakMinutes: parseInt(longBreakMinutesInput.value),
+            totalCycles: parseInt(pomodoroCyclesInput.value)
         });
         
         // 초기 상태 업데이트 (작업 시간 표시)
@@ -588,6 +589,13 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         if (cycleCount) {
             cycleCount.textContent = `0/${pomodoroCyclesInput.value}`;
         }
+        
+        console.log('[DEBUG] updatePomodoroSettings:', {
+            workMinutes: pomodoro.settings.workMinutes,
+            shortBreakMinutes: pomodoro.settings.shortBreakMinutes,
+            longBreakMinutes: pomodoro.settings.longBreakMinutes,
+            totalCycles: pomodoro.settings.totalCycles
+        });
     }
     
     // 시간 표시 업데이트 함수
@@ -619,13 +627,12 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     
     // 시작 버튼 클릭 이벤트
     startBtn.addEventListener('click', () => {
+        console.log('[DEBUG] Pomodoro startBtn 클릭');
         // 포모도로 시작
         pomodoro.start();
-        
         // 버튼 상태 업데이트
         startBtn.disabled = true;
         pauseBtn.disabled = false;
-        
         // 입력 필드 비활성화
         workMinutesInput.disabled = true;
         shortBreakMinutesInput.disabled = true;
@@ -636,9 +643,11 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     // 일시 정지 버튼 클릭 이벤트
     pauseBtn.addEventListener('click', () => {
         if (pomodoro.isPaused) {
+            console.log('[DEBUG] Pomodoro resume');
             pomodoro.resume();
             pauseBtn.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
         } else {
+            console.log('[DEBUG] Pomodoro pause');
             pomodoro.pause();
             pauseBtn.innerHTML = '<i class="fas fa-play"></i> 재시작';
         }
@@ -646,18 +655,18 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     
     // 리셋 버튼 클릭 이벤트
     resetBtn.addEventListener('click', () => {
+        console.log('[DEBUG] Pomodoro reset');
         pomodoro.reset();
         resetPomodoroControls();
     });
     
     // 포모도로 업데이트 함수
     pomodoro.onUpdate = (minutes, seconds, currentCycle, totalCycles, mode) => {
+        console.log('[DEBUG] Pomodoro onUpdate', { minutes, seconds, currentCycle, totalCycles, mode });
         pomodoroMinutes.textContent = minutes.toString().padStart(2, '0');
         pomodoroSeconds.textContent = seconds.toString().padStart(2, '0');
-        
         // 사이클 정보 업데이트
         cycleCount.textContent = `${currentCycle}/${totalCycles}`;
-        
         // 모드에 따른 상태 텍스트 업데이트
         if (mode === 'work') {
             statusText.textContent = '작업 시간';
@@ -693,18 +702,19 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     
     // 포모도로 완료 시 실행 함수
     pomodoro.onComplete = (completedCycles) => {
+        console.log('[DEBUG] Pomodoro onComplete', completedCycles);
         notificationManager.playNotification('포모도로 완료!', `${completedCycles}번의 포모도로 세션을 완료했습니다.`);
         resetPomodoroControls();
-        
         // 포모도로 완료 시 경험치 제공
         // 완료한 사이클 수에 따라 경험치 차등 지급
         const exp = completedCycles * 15;
+        console.log('[DEBUG] PlantSystem addExperience (onComplete)', exp);
         plantSystem.addExperience(exp);
     };
     
     // 작업 세션 완료 시 실행 함수
     pomodoro.onWorkSessionComplete = () => {
-        // 작업 세션 완료 시 경험치 제공
+        console.log('[DEBUG] PlantSystem addExperience (onWorkSessionComplete)', 10);
         plantSystem.addExperience(10);
     };
     
@@ -724,6 +734,7 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     
     // 초기 설정 적용
     updatePomodoroSettings();
+    console.log('[DEBUG] initializePomodoro 완료, 콜백 연결 및 설정 적용됨');
 }
 
 // 설정 초기화 및 이벤트 설정 함수
