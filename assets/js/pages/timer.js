@@ -566,8 +566,12 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         });
         
         // 초기 상태 업데이트 (작업 시간 표시)
-        pomodoroMinutes.textContent = workMinutesInput.value.toString().padStart(2, '0');
-        pomodoroSeconds.textContent = '00';
+        if (pomodoroMinutes) {
+            pomodoroMinutes.textContent = workMinutesInput.value.toString().padStart(2, '0');
+        }
+        if (pomodoroSeconds) {
+            pomodoroSeconds.textContent = '00';
+        }
         
         // 현재 모드 시간 표시 업데이트
         updateCurrentModeTime('work');
@@ -576,7 +580,9 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         updateTimeDisplays();
         
         // 사이클 카운트 업데이트
-        cycleCount.textContent = `0/${pomodoroCyclesInput.value}`;
+        if (cycleCount) {
+            cycleCount.textContent = `0/${pomodoroCyclesInput.value}`;
+        }
     }
     
     // 시간 표시 업데이트 함수
