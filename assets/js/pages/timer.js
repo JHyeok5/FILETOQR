@@ -18,16 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // 모듈 인스턴스 생성
         notificationManager = new NotificationManager();
         const stopwatch = new Stopwatch();
-        const pomodoro = new Pomodoro();
         const plantSystem = new PlantSystem();
         
         // 탭 전환 설정
-        setupTabs();
+        setupTabs({ notificationManager, plantSystem });
         
         // 각 기능 초기화
         setupMultipleTimers();
         initializeStopwatch(stopwatch);
-        initializePomodoro(pomodoro, notificationManager, plantSystem);
         initializeSettings(notificationManager, plantSystem);
         
         // 식물 시스템 초기화
@@ -76,23 +74,32 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 탭 전환 설정 함수
-function setupTabs() {
+function setupTabs({ notificationManager, plantSystem }) {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
-    
+    let pomodoroInitialized = false;
+    let pomodoroInstance = null;
+
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabName = button.dataset.tab;
             console.log(`탭 전환: ${tabName}`);
-            
+
             // 버튼 활성화 상태 변경
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-            
+
             // 탭 콘텐츠 전환
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById(`${tabName}-tab`).classList.add('active');
-            
+
+            // 포모도로 탭이 처음 활성화될 때만 초기화
+            if (tabName === 'pomodoro' && !pomodoroInitialized) {
+                pomodoroInstance = new Pomodoro();
+                initializePomodoro(pomodoroInstance, notificationManager, plantSystem);
+                pomodoroInitialized = true;
+            }
+
             // 포모도로 탭일 때만 식물 컨테이너 표시
             const plantContainer = document.querySelector('.plant-container');
             if (plantContainer) {
