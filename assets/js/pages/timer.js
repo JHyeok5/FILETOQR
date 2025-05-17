@@ -27,10 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeStopwatch(stopwatch);
         initializeSettings(notificationManager);
         
-        // 식물 시스템 초기화
-        const plantSystem = new PlantSystem();
-        plantSystem.initialize();
-        
         // 타이머 추가 버튼 이벤트를 여러 방식으로 설정
         // 1. 버튼에 직접 이벤트 리스너
         const addTimerBtn = document.getElementById('add-timer');
@@ -97,7 +93,6 @@ function setupTabs({ notificationManager }) {
             // 포모도로 탭이 처음 활성화될 때만 plantSystem 생성/초기화 및 pomodoro 초기화
             if (tabName === 'pomodoro' && !pomodoroInitialized) {
                 plantSystem = new PlantSystem();
-                plantSystem.initialize();
                 pomodoroInstance = new Pomodoro();
                 initializePomodoro(pomodoroInstance, notificationManager, plantSystem);
                 pomodoroInitialized = true;
