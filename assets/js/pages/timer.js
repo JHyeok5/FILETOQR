@@ -528,8 +528,16 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     const workMinutesInput = document.getElementById('work-minutes');
     const shortBreakMinutesInput = document.getElementById('short-break-minutes');
     const longBreakMinutesInput = document.getElementById('long-break-minutes');
-    const pomodoroCyclesInput = document.getElementById('pomodoro-cycles');
-    
+    const pomodoroCyclesInput = document.getElementById('cycles');
+
+    // 필수 input 요소가 모두 존재하는지 확인
+    if (!workMinutesInput || !shortBreakMinutesInput || !longBreakMinutesInput || !pomodoroCyclesInput) {
+        console.warn('[포모도로] 필수 input 요소가 누락됨:', {
+            workMinutesInput, shortBreakMinutesInput, longBreakMinutesInput, pomodoroCyclesInput
+        });
+        return;
+    }
+
     // 포모도로 설정 변경 시 이벤트
     workMinutesInput.addEventListener('change', updatePomodoroSettings);
     shortBreakMinutesInput.addEventListener('change', updatePomodoroSettings);
