@@ -439,6 +439,7 @@ const QRGenerator = {
       // [4] 로고 추가 체크박스: change 이벤트 위임 (파일 input 표시/숨김)
       appContainer.addEventListener('change', (e) => {
         if (e.target && e.target.id === 'add-logo') {
+          console.log('[DEBUG] 로고 추가 체크박스 클릭됨');
           // 로고 옵션 영역, 파일 input, label을 정확히 선택
           const logoOptions = document.getElementById('logo-options');
           const fileInput = document.getElementById('logo-file');
