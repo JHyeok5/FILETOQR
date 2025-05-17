@@ -439,33 +439,28 @@ const QRGenerator = {
       // [4] 로고 추가 체크박스: change 이벤트 위임 (파일 input 표시/숨김)
       appContainer.addEventListener('change', (e) => {
         if (e.target && e.target.id === 'add-logo') {
+          // 로고 옵션 영역, 파일 input, label을 정확히 선택
           const logoOptions = document.getElementById('logo-options');
           const fileInput = document.getElementById('logo-file');
           const fileLabel = document.querySelector('label[for="logo-file"]');
-          console.log('[로고 DEBUG] logoOptions:', logoOptions);
-          console.log('[로고 DEBUG] fileInput:', fileInput);
-          console.log('[로고 DEBUG] fileLabel:', fileLabel);
+          // 체크박스 상태에 따라 표시/숨김 처리 (classList로만 제어)
+          // - 체크 시: logoOptions, fileInput, fileLabel 모두 보이고, input 활성화
+          // - 해제 시: 모두 숨기고, input 비활성화 및 값 초기화
           if (logoOptions && fileInput && fileLabel) {
             if (e.target.checked) {
               logoOptions.classList.remove('hidden');
               fileInput.classList.remove('hidden');
               fileLabel.classList.remove('hidden');
               fileInput.disabled = false;
-              console.log('[로고 DEBUG] 체크됨 - 표시/활성화');
-              console.log('fileInput classList:', fileInput.classList.value, 'disabled:', fileInput.disabled);
-              console.log('fileLabel classList:', fileLabel.classList.value);
-              console.log('logoOptions classList:', logoOptions.classList.value);
             } else {
               fileInput.value = '';
               fileInput.classList.add('hidden');
               fileLabel.classList.add('hidden');
               logoOptions.classList.add('hidden');
               fileInput.disabled = true;
-              this.state.currentOptions.logo = null;
-              console.log('[로고 DEBUG] 체크 해제 - 숨김/비활성화');
-              console.log('fileInput classList:', fileInput.classList.value, 'disabled:', fileInput.disabled);
-              console.log('fileLabel classList:', fileLabel.classList.value);
-              console.log('logoOptions classList:', logoOptions.classList.value);
+              if (this.state && this.state.currentOptions) {
+                this.state.currentOptions.logo = null;
+              }
             }
           } else {
             console.warn('[로고 DEBUG] logoOptions, fileInput, fileLabel 중 일부가 존재하지 않음');
