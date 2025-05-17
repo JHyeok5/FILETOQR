@@ -523,7 +523,7 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
     const cycleCount = document.getElementById('cycle-count');
     const currentModeTime = document.getElementById('current-mode-time');
     const workTime = document.getElementById('work-time');
-    const breakTime = document.getElementById('break-time');
+    const breakTime = document.getElementById('short-break-time');
     
     const workMinutesInput = document.getElementById('work-minutes');
     const shortBreakMinutesInput = document.getElementById('short-break-minutes');
