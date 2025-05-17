@@ -205,17 +205,17 @@ export class PlantSystem {
         // 기존 내용 비우기
         plantContainer.innerHTML = '';
 
-        // 성장 단계별 클래스 (예: plant-stage-0 ~ plant-stage-5)
+        // 성장 단계별 이모지 배열 (예시)
+        const plantEmojis = ['🌱', '🌿', '🌳', '🎋', '🌲', '🌴'];
         const stageClass = `plant-stage-${this.currentPlant.stage}`;
+        const emoji = plantEmojis[this.currentPlant.stage] || '🌱';
 
-        // 식물 이미지(또는 아이콘) 생성
-        // 실제 이미지가 있다면 src 경로를 맞춰서 사용, 없으면 CSS/텍스트로 대체
+        // 식물 이미지(이모지) 생성
         const plantImageDiv = document.createElement('div');
         plantImageDiv.className = `plant-image plant-growth ${stageClass}`;
-        // 예시: <img src="../assets/images/plants/${this.currentPlant.id}_${this.currentPlant.stage}.png" ... >
-        // 실제 이미지가 없으면 아래처럼 텍스트로 대체
-        // plantImageDiv.textContent = `🌱`;
-        // (실제 프로젝트에서는 이미지 리소스에 맞게 수정)
+        plantImageDiv.style.fontSize = '3rem';
+        plantImageDiv.style.textAlign = 'center';
+        plantImageDiv.textContent = emoji;
 
         // 식물 이름/레벨/경험치 바 등 정보 표시
         const infoDiv = document.createElement('div');
@@ -259,6 +259,7 @@ export class PlantSystem {
      */
     _updateCollection() {
         const collectionGrid = document.getElementById('plant-collection-grid');
+        if (!collectionGrid) return; // 컬렉션 UI가 없는 경우 에러 방지
         collectionGrid.innerHTML = '';
         
         // 현재 테마의 식물만 표시
