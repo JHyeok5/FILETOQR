@@ -198,15 +198,40 @@ export class PlantSystem {
      * @private
      */
     _updatePlantDisplay() {
-        const plantImage = document.getElementById('plant-image');
-        
-        // 모든 성장 단계 클래스 제거
-        for (let i = 0; i <= this.currentPlant.maxStage; i++) {
-            plantImage.querySelector('.plant-growth').classList.remove(`plant-stage-${i}`);
-        }
-        
-        // 현재 성장 단계 클래스 추가
-        plantImage.querySelector('.plant-growth').classList.add(`plant-stage-${this.currentPlant.stage}`);
+        // plant-container를 기준으로 렌더링
+        const plantContainer = document.querySelector('.plant-container');
+        if (!plantContainer) return;
+
+        // 기존 내용 비우기
+        plantContainer.innerHTML = '';
+
+        // 성장 단계별 클래스 (예: plant-stage-0 ~ plant-stage-5)
+        const stageClass = `plant-stage-${this.currentPlant.stage}`;
+
+        // 식물 이미지(또는 아이콘) 생성
+        // 실제 이미지가 있다면 src 경로를 맞춰서 사용, 없으면 CSS/텍스트로 대체
+        const plantImageDiv = document.createElement('div');
+        plantImageDiv.className = `plant-image plant-growth ${stageClass}`;
+        // 예시: <img src="../assets/images/plants/${this.currentPlant.id}_${this.currentPlant.stage}.png" ... >
+        // 실제 이미지가 없으면 아래처럼 텍스트로 대체
+        // plantImageDiv.textContent = `🌱`;
+        // (실제 프로젝트에서는 이미지 리소스에 맞게 수정)
+
+        // 식물 이름/레벨/경험치 바 등 정보 표시
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'plant-info mt-2';
+        infoDiv.innerHTML = `
+            <div id="plant-name" class="font-bold text-lg mb-1">${this.currentPlant.name}</div>
+            <div id="plant-level" class="text-sm text-gray-600 mb-1">레벨: ${this.currentPlant.level}</div>
+            <div id="plant-exp" class="text-xs text-gray-500 mb-1">경험치: ${this.currentPlant.experience} / ${this.currentPlant.maxExperience}</div>
+            <div class="plant-exp-bar bg-gray-200 rounded h-2 w-full mb-1">
+                <div id="plant-exp-progress" class="bg-green-400 h-2 rounded" style="width: ${(this.currentPlant.experience / this.currentPlant.maxExperience) * 100}%"></div>
+            </div>
+        `;
+
+        // plantContainer에 요소 추가
+        plantContainer.appendChild(plantImageDiv);
+        plantContainer.appendChild(infoDiv);
     }
     
     /**
