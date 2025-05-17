@@ -435,17 +435,14 @@ const QRGenerator = {
       // ...
     });
 
-    // [4] 로고 추가 체크박스: change 이벤트 위임 (파일 input 표시/숨김)
-    appContainer.addEventListener('change', (e) => {
-      if (e.target && e.target.id === 'add-logo') {
-        console.log('[DEBUG] 로고 추가 체크박스 클릭됨');
-        // 로고 옵션 영역, 파일 input, label을 정확히 선택
+    // [4] 로고 추가 체크박스: 직접 바인딩 (이벤트 위임 대신)
+    const logoCheckbox = document.getElementById('add-logo');
+    if (logoCheckbox) {
+      logoCheckbox.addEventListener('change', (e) => {
+        console.log('[DEBUG] 직접 바인딩: 체크박스 클릭됨');
         const logoOptions = document.getElementById('logo-options');
         const fileInput = document.getElementById('logo-file');
         const fileLabel = document.querySelector('label[for="logo-file"]');
-        // 체크박스 상태에 따라 표시/숨김 처리 (classList로만 제어)
-        // - 체크 시: logoOptions, fileInput, fileLabel 모두 보이고, input 활성화
-        // - 해제 시: 모두 숨기고, input 비활성화 및 값 초기화
         if (logoOptions && fileInput && fileLabel) {
           if (e.target.checked) {
             logoOptions.classList.remove('hidden');
@@ -465,8 +462,10 @@ const QRGenerator = {
         } else {
           console.warn('[로고 DEBUG] logoOptions, fileInput, fileLabel 중 일부가 존재하지 않음');
         }
-      }
-    });
+      });
+    } else {
+      console.warn('[DEBUG] add-logo 체크박스가 존재하지 않음');
+    }
 
     // [5] 폼 submit 이벤트 위임 (qr-form)
     appContainer.addEventListener('submit', (e) => {
