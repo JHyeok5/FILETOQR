@@ -733,10 +733,11 @@ const QRGenerator = {
         qrPreview.innerHTML = '';
         qrPreview.appendChild(canvas);
         
-        // 다운로드 버튼 표시
+        // 다운로드 버튼 표시 (커스텀 CSS visible/hidden 전환)
         if (downloadBtns) {
-          console.log('다운로드 버튼 표시');
+          // hidden 제거, visible 추가 (애니메이션/표시)
           downloadBtns.classList.remove('hidden');
+          downloadBtns.classList.add('visible');
         }
         
         // 생성된 QR 코드 저장
