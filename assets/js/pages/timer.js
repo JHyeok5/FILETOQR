@@ -2,7 +2,6 @@
 import { Timer } from '../core/Timer.js';
 import { Stopwatch } from '../core/Stopwatch.js';
 import { Pomodoro } from '../core/Pomodoro.js';
-import { PlantSystem } from '../core/PlantSystem.js';
 import { NotificationManager } from '../utils/NotificationManager.js';
 
 // 전역 변수
@@ -75,7 +74,6 @@ function setupTabs({ notificationManager }) {
     const tabContents = document.querySelectorAll('.tab-content');
     let pomodoroInitialized = false;
     let pomodoroInstance = null;
-    let plantSystem = null;
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -90,22 +88,13 @@ function setupTabs({ notificationManager }) {
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById(`${tabName}-tab`).classList.add('active');
 
-            // 포모도로 탭이 처음 활성화될 때만 plantSystem 생성/초기화 및 pomodoro 초기화
+            // 포모도로 탭이 처음 활성화될 때만 pomodoro 초기화
             if (tabName === 'pomodoro' && !pomodoroInitialized) {
-                // plant-container가 DOM에 렌더링된 후에 초기화가 이뤄지도록 setTimeout 사용
                 setTimeout(() => {
-                    plantSystem = new PlantSystem();
-                    plantSystem.initialize(); // plant-container가 DOM에 보인 후에 실행
                     pomodoroInstance = new Pomodoro();
-                    initializePomodoro(pomodoroInstance, notificationManager, plantSystem);
+                    initializePomodoro(pomodoroInstance, notificationManager);
                     pomodoroInitialized = true;
                 }, 0);
-            }
-
-            // 포모도로 탭일 때만 식물 컨테이너 표시
-            const plantContainer = document.querySelector('.plant-container');
-            if (plantContainer) {
-                plantContainer.style.display = tabName === 'pomodoro' ? 'block' : 'none';
             }
         });
     });
@@ -521,7 +510,7 @@ function initializeStopwatch(stopwatch) {
 }
 
 // 포모도로 초기화 및 이벤트 설정 함수
-function initializePomodoro(pomodoro, notificationManager, plantSystem) {
+function initializePomodoro(pomodoro, notificationManager) {
     const startBtn = document.getElementById('pomodoro-start');
     const pauseBtn = document.getElementById('pomodoro-pause');
     const resetBtn = document.getElementById('pomodoro-reset');
@@ -710,17 +699,6 @@ function initializePomodoro(pomodoro, notificationManager, plantSystem) {
         console.log('[DEBUG] Pomodoro onComplete', completedCycles);
         notificationManager.playNotification('포모도로 완료!', `${completedCycles}번의 포모도로 세션을 완료했습니다.`);
         resetPomodoroControls();
-        // 포모도로 완료 시 경험치 제공
-        // 완료한 사이클 수에 따라 경험치 차등 지급
-        const exp = completedCycles * 15;
-        console.log('[DEBUG] PlantSystem addExperience (onComplete)', exp);
-        plantSystem.addExperience(exp);
-    };
-    
-    // 작업 세션 완료 시 실행 함수
-    pomodoro.onWorkSessionComplete = () => {
-        console.log('[DEBUG] PlantSystem addExperience (onWorkSessionComplete)', 10);
-        plantSystem.addExperience(10);
     };
     
     // 포모도로 컨트롤 리셋 함수
@@ -747,25 +725,18 @@ function initializeSettings(notificationManager) {
     const notificationSoundSelect = document.getElementById('notification-sound');
     const notificationVolumeInput = document.getElementById('notification-volume');
     const backgroundNotificationCheckbox = document.getElementById('background-notification');
-    const plantThemeSelect = document.getElementById('plant-theme');
     
     // 설정 변경 시 이벤트
     notificationSoundSelect.addEventListener('change', saveSettings);
     notificationVolumeInput.addEventListener('input', saveSettings);
     backgroundNotificationCheckbox.addEventListener('change', saveSettings);
-    if (plantThemeSelect) {
-        plantThemeSelect.addEventListener('change', () => {
-            saveSettings();
-        });
-    }
     
     // 설정 저장 함수
     function saveSettings() {
         const settings = {
             notificationSound: notificationSoundSelect.value,
             notificationVolume: notificationVolumeInput.value,
-            backgroundNotification: backgroundNotificationCheckbox.checked,
-            plantTheme: plantThemeSelect.value
+            backgroundNotification: backgroundNotificationCheckbox.checked
         };
         
         localStorage.setItem('timerSettings', JSON.stringify(settings));
@@ -786,7 +757,6 @@ function initializeSettings(notificationManager) {
             notificationSoundSelect.value = settings.notificationSound || 'bell';
             notificationVolumeInput.value = settings.notificationVolume || 80;
             backgroundNotificationCheckbox.checked = settings.backgroundNotification !== undefined ? settings.backgroundNotification : true;
-            plantThemeSelect.value = settings.plantTheme || 'indoor';
             
             // 알림 설정 업데이트
             notificationManager.setSound(settings.notificationSound);
