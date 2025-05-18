@@ -36,10 +36,17 @@ export class Pomodoro {
             ...this.settings,
             ...newSettings
         };
-        
-        // 활성 상태가 아닐 때 최초 타이머 시간 설정
+        // 현재 모드에 따라 타이머 시간 재설정
         if (!this.isActive) {
-            this.totalSeconds = this.settings.workMinutes * 60;
+            if (this.currentMode === 'work') {
+                this.totalSeconds = this.settings.workMinutes * 60;
+            } else if (this.currentMode === 'shortBreak') {
+                this.totalSeconds = this.settings.shortBreakMinutes * 60;
+            } else if (this.currentMode === 'longBreak') {
+                this.totalSeconds = this.settings.longBreakMinutes * 60;
+            } else {
+                this.totalSeconds = this.settings.workMinutes * 60;
+            }
         }
     }
     
@@ -55,6 +62,9 @@ export class Pomodoro {
             this.totalSeconds = this.settings.workMinutes * 60;
             this.currentCycle = 0;
         }
+        
+        // totalSeconds가 0 이하일 경우 1로 보정
+        if (this.totalSeconds <= 0) this.totalSeconds = 1;
         
         this.isActive = true;
         this.isPaused = false;
@@ -208,6 +218,7 @@ export class Pomodoro {
         
         // 업데이트 콜백 호출
         if (typeof this.onUpdate === 'function') {
+            console.log('[Pomodoro.js] onUpdate', minutes, seconds, this.currentCycle, this.currentMode);
             this.onUpdate(minutes, seconds, this.currentCycle, this.settings.totalCycles, this.currentMode);
         }
     }
