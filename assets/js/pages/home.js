@@ -18,6 +18,7 @@ const HomePage = {
     console.log('홈페이지 모듈 초기화');
     
     this.initFeatureAnimation();
+    this.animateServiceFlow();
     this.initExampleSlider();
     this.initCallToAction();
     
@@ -53,6 +54,84 @@ const HomePage = {
 
     features.forEach(feature => {
       observer.observe(feature);
+    });
+  },
+  
+  /**
+   * 서비스 플로우 SVG 오브젝트 체험형 애니메이션
+   * - 각 단계 등장 시, 이전 SVG가 fade/slide로 사라지고 다음 SVG가 자연스럽게 이동/변환/강조됨
+   */
+  animateServiceFlow() {
+    // 각 SVG 오브젝트
+    const svgFile = document.getElementById('svg-file');
+    const svgQR = document.getElementById('svg-qr');
+    const svgShare = document.getElementById('svg-share');
+    const svgMobile = document.getElementById('svg-mobile');
+
+    // 각 feature 영역
+    const featureUpload = document.getElementById('feature-upload');
+    const featureQR = document.getElementById('feature-qrcode');
+    const featureShare = document.getElementById('feature-share');
+    const featureMobile = document.getElementById('feature-mobile');
+
+    // 초기 상태: 파일만 보임
+    svgFile.style.opacity = '1';
+    svgQR.style.opacity = '0';
+    svgShare.style.opacity = '0';
+    svgMobile.style.opacity = '0';
+    svgFile.style.transform = 'none';
+    svgQR.style.transform = 'none';
+    svgShare.style.transform = 'none';
+    svgMobile.style.transform = 'none';
+
+    // Intersection Observer로 각 단계별 SVG 애니메이션 트리거
+    const stepObservers = [
+      { elem: featureUpload, onEnter: () => {
+          svgFile.style.transition = 'opacity 0.7s, transform 0.7s';
+          svgFile.style.opacity = '1';
+          svgFile.style.transform = 'none';
+        } },
+      { elem: featureQR, onEnter: () => {
+          // 파일 → QR로 이동/변환
+          svgFile.style.transition = 'opacity 0.7s, transform 0.7s';
+          svgFile.style.opacity = '0';
+          svgFile.style.transform = 'translateX(80px) scale(0.7)';
+          svgQR.style.transition = 'opacity 0.7s, transform 0.7s';
+          svgQR.style.opacity = '1';
+          svgQR.style.transform = 'none';
+        } },
+      { elem: featureShare, onEnter: () => {
+          // QR → 공유로 이동
+          svgQR.style.transition = 'opacity 0.7s, transform 0.7s';
+          svgQR.style.opacity = '0';
+          svgQR.style.transform = 'translateY(-40px) scale(0.7)';
+          svgShare.style.transition = 'opacity 0.7s, transform 0.7s';
+          svgShare.style.opacity = '1';
+          svgShare.style.transform = 'none';
+        } },
+      { elem: featureMobile, onEnter: () => {
+          // 공유 → 모바일로 이동, 모바일 강조
+          svgShare.style.transition = 'opacity 0.7s, transform 0.7s';
+          svgShare.style.opacity = '0';
+          svgShare.style.transform = 'translateX(-80px) scale(0.7)';
+          svgMobile.style.transition = 'opacity 0.7s, transform 0.7s, box-shadow 0.7s';
+          svgMobile.style.opacity = '1';
+          svgMobile.style.transform = 'none';
+          svgMobile.classList.add('scan-glow');
+        } },
+    ];
+
+    stepObservers.forEach(({ elem, onEnter }) => {
+      if (!elem) return;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            onEnter();
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      obs.observe(elem);
     });
   },
   
