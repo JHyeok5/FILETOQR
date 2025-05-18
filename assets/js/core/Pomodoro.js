@@ -55,20 +55,18 @@ export class Pomodoro {
      */
     start() {
         if (this.isActive && !this.isPaused) return;
-        
         if (!this.isActive) {
             // 새로 시작하는 경우 작업 단계로 시작
             this.currentMode = 'work';
             this.totalSeconds = this.settings.workMinutes * 60;
             this.currentCycle = 0;
         }
-        
         // totalSeconds가 0 이하일 경우 1로 보정
         if (this.totalSeconds <= 0) this.totalSeconds = 1;
-        
         this.isActive = true;
         this.isPaused = false;
-        
+        // 최초 1회 UI 갱신
+        this._updateTimerDisplay();
         // 타이머 시작
         this._startCountdown();
     }
@@ -121,7 +119,7 @@ export class Pomodoro {
         this.timer = setInterval(() => {
             if (this.isPaused || !this.isActive) return;
             this.totalSeconds--;
-            if (this.totalSeconds <= 0) {
+            if (this.totalSeconds < 0) {
                 clearInterval(this.timer);
                 this.timer = null;
                 this._handleModeComplete();
