@@ -655,13 +655,18 @@ function initializePomodoro(pomodoro, notificationManager) {
     
     // 포모도로 업데이트 함수
     pomodoro.onUpdate = (minutes, seconds, currentCycle, totalCycles, mode) => {
-        if (pomodoroMinutes) pomodoroMinutes.textContent = minutes.toString().padStart(2, '0');
-        if (pomodoroSeconds) pomodoroSeconds.textContent = seconds.toString().padStart(2, '0');
-        if (cycleCount) cycleCount.textContent = `${currentCycle}/${totalCycles}`;
-        if (statusText) {
-            if (mode === 'work') statusText.textContent = '작업 시간';
-            else if (mode === 'shortBreak') statusText.textContent = '짧은 휴식';
-            else if (mode === 'longBreak') statusText.textContent = '긴 휴식';
+        // 항상 최신 DOM을 참조하여 UI 갱신
+        const currentModeTime = document.getElementById('current-mode-time');
+        const cycleCountElem = document.getElementById('cycle-count');
+        const statusTextElem = document.getElementById('status-text');
+        if (currentModeTime) {
+            currentModeTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        if (cycleCountElem) cycleCountElem.textContent = `${currentCycle}/${totalCycles}`;
+        if (statusTextElem) {
+            if (mode === 'work') statusTextElem.textContent = '작업 시간';
+            else if (mode === 'shortBreak') statusTextElem.textContent = '짧은 휴식';
+            else if (mode === 'longBreak') statusTextElem.textContent = '긴 휴식';
         }
     };
     
