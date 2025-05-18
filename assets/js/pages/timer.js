@@ -92,11 +92,14 @@ function setupTabs({ notificationManager }) {
 
             // 포모도로 탭이 처음 활성화될 때만 plantSystem 생성/초기화 및 pomodoro 초기화
             if (tabName === 'pomodoro' && !pomodoroInitialized) {
-                plantSystem = new PlantSystem();
-                plantSystem.initialize(); // 반드시 초기화 호출 (식물 UI 렌더링)
-                pomodoroInstance = new Pomodoro();
-                initializePomodoro(pomodoroInstance, notificationManager, plantSystem);
-                pomodoroInitialized = true;
+                // plant-container가 DOM에 렌더링된 후에 초기화가 이뤄지도록 setTimeout 사용
+                setTimeout(() => {
+                    plantSystem = new PlantSystem();
+                    plantSystem.initialize(); // plant-container가 DOM에 보인 후에 실행
+                    pomodoroInstance = new Pomodoro();
+                    initializePomodoro(pomodoroInstance, notificationManager, plantSystem);
+                    pomodoroInitialized = true;
+                }, 0);
             }
 
             // 포모도로 탭일 때만 식물 컨테이너 표시
