@@ -118,25 +118,17 @@ export class Pomodoro {
         if (this.timer !== null) {
             clearInterval(this.timer);
         }
-        
-        const startTime = Date.now();
-        const initialTotalSeconds = this.totalSeconds;
-        
         this.timer = setInterval(() => {
-            // 경과 시간 계산
-            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-            this.totalSeconds = initialTotalSeconds - elapsedSeconds;
-            
+            if (this.isPaused || !this.isActive) return;
+            this.totalSeconds--;
             if (this.totalSeconds <= 0) {
-                // 현재 단계 완료
                 clearInterval(this.timer);
                 this.timer = null;
                 this._handleModeComplete();
                 return;
             }
-            
             this._updateTimerDisplay();
-        }, 100); // 더 부드러운 업데이트를 위해 100ms 간격으로 설정
+        }, 1000); // 1초마다 감소
     }
     
     /**
