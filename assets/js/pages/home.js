@@ -25,23 +25,32 @@ const HomePage = {
   },
   
   /**
-   * 기능 애니메이션 초기화
+   * 기능 애니메이션 초기화 (체험형 플로우)
    */
   initFeatureAnimation() {
     const features = document.querySelectorAll('.feature');
-    
     if (features.length === 0) return;
-    
-    // 기능 요소가 화면에 나타날 때 애니메이션 적용
+
+    // 단계별 애니메이션 클래스 매핑
+    const stepToClass = {
+      1: 'slide-in-left',
+      2: 'slide-in-right',
+      3: 'slide-up-scale',
+      4: 'scan-glow',
+    };
+
+    // Intersection Observer로 각 단계별 애니메이션 적용
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('animated');
+          const step = entry.target.dataset.step;
+          const animClass = stepToClass[step] || 'slide-up';
+          entry.target.classList.add(animClass);
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.1 });
-    
+    }, { threshold: 0.2 });
+
     features.forEach(feature => {
       observer.observe(feature);
     });
