@@ -90,8 +90,8 @@
     <!-- 서비스 플로우: 스크롤 애니메이션/일러스트/텍스트 -->
     <section class="service-flow-section space-y-24">
       <!-- Step 1: 파일 업로드 -->
-      <div class="feature flex flex-col md:flex-row items-center gap-8" data-step="1" id="feature-upload">
-        <div class="flex-1 flex justify-center">
+      <div class="feature flex flex-col md:flex-row items-center gap-8 min-h-[80vh] py-24 justify-center" data-step="1" id="feature-upload">
+        <div class="flex-1 flex justify-center items-center">
           <!-- 파일 아이콘 SVG -->
           <svg id="svg-file" width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="16" y="16" width="64" height="80" rx="12" fill="#3B82F6"/>
@@ -101,14 +101,14 @@
             <rect x="24" y="80" width="24" height="8" rx="2" fill="#fff"/>
           </svg>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 flex flex-col items-center justify-center text-center">
           <h2 class="text-2xl font-bold mb-2 text-blue-600">1. 파일을 드래그하거나 선택</h2>
           <p class="text-gray-600 text-lg">이미지, 문서, 오디오, 비디오 등 다양한 파일을 간편하게 업로드하세요.</p>
         </div>
       </div>
       <!-- Step 2: QR코드 생성 -->
-      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8" data-step="2" id="feature-qrcode">
-        <div class="flex-1 flex justify-center">
+      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8 min-h-[80vh] py-24 justify-center" data-step="2" id="feature-qrcode">
+        <div class="flex-1 flex justify-center items-center">
           <!-- QR 코드 SVG -->
           <svg id="svg-qr" width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="8" y="8" width="80" height="80" rx="16" fill="#6366F1"/>
@@ -121,14 +121,14 @@
             <rect x="60" y="36" width="4" height="4" fill="#fff"/>
           </svg>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 flex flex-col items-center justify-center text-center">
           <h2 class="text-2xl font-bold mb-2 text-purple-600">2. QR 코드로 변환</h2>
           <p class="text-gray-600 text-lg">파일이 안전하게 QR 코드로 변환됩니다. 커스터마이징도 지원!</p>
         </div>
       </div>
       <!-- Step 3: 다운로드/공유 -->
-      <div class="feature flex flex-col md:flex-row items-center gap-8" data-step="3" id="feature-share">
-        <div class="flex-1 flex justify-center">
+      <div class="feature flex flex-col md:flex-row items-center gap-8 min-h-[80vh] py-24 justify-center" data-step="3" id="feature-share">
+        <div class="flex-1 flex justify-center items-center">
           <!-- 공유 아이콘 SVG -->
           <svg id="svg-share" width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="48" cy="48" r="40" fill="#F472B6"/>
@@ -137,14 +137,14 @@
             <path d="M48 32L36 44" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
           </svg>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 flex flex-col items-center justify-center text-center">
           <h2 class="text-2xl font-bold mb-2 text-pink-600">3. 다운로드 & 공유</h2>
           <p class="text-gray-600 text-lg">생성된 QR 코드를 다운로드하거나, 친구/동료와 바로 공유하세요.</p>
         </div>
       </div>
       <!-- Step 4: 모바일 스캔 -->
-      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8" data-step="4" id="feature-mobile">
-        <div class="flex-1 flex justify-center">
+      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8 min-h-[80vh] py-24 justify-center" data-step="4" id="feature-mobile">
+        <div class="flex-1 flex justify-center items-center">
           <!-- 모바일 기기 SVG -->
           <svg id="svg-mobile" width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="24" y="12" width="48" height="72" rx="10" fill="#34D399"/>
@@ -152,7 +152,7 @@
             <circle cx="48" cy="72" r="4" fill="#10B981"/>
           </svg>
         </div>
-        <div class="flex-1">
+        <div class="flex-1 flex flex-col items-center justify-center text-center">
           <h2 class="text-2xl font-bold mb-2 text-green-600">4. 모바일에서 스캔</h2>
           <p class="text-gray-600 text-lg">스마트폰으로 QR 코드를 스캔해 파일을 바로 확인할 수 있습니다.</p>
         </div>
