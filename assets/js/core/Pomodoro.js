@@ -215,10 +215,8 @@ export class Pomodoro {
         // 분, 초 계산
         const minutes = Math.floor(this.totalSeconds / 60);
         const seconds = this.totalSeconds % 60;
-        
         // 업데이트 콜백 호출
         if (typeof this.onUpdate === 'function') {
-            console.log('[Pomodoro.js] onUpdate', minutes, seconds, this.currentCycle, this.currentMode);
             this.onUpdate(minutes, seconds, this.currentCycle, this.settings.totalCycles, this.currentMode);
         }
     }
