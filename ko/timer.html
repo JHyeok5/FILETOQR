@@ -7,33 +7,33 @@
   <meta name="description" content="타이머, 스톱워치 및 포모도로 타이머 - 여러 타이머를 동시에 관리하고 작업 효율성을 높이세요.">
   <meta name="keywords" content="타이머, 스톱워치, 포모도로, 시간 관리, 생산성">
   <title>타이머 & 스톱워치 | 포모도로 - FileToQR</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
-  <link rel="stylesheet" href="../assets/css/timer.css">
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
-  <link rel="alternate" hreflang="ko" href="timer.html">
-  <link rel="alternate" hreflang="en" href="../en/timer.html">
-  <link rel="alternate" hreflang="zh" href="../zh/timer.html">
-  <link rel="alternate" hreflang="ja" href="../ja/timer.html">
-  <link rel="alternate" hreflang="x-default" href="timer.html">
-  <link rel="stylesheet" href="../assets/css/tailwind-built.css">
-  <script type="module" src="../assets/js/core/app-core.js"></script>
-  <script type="module" src="../assets/js/pages/timer.js"></script>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/timer.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="/ko/timer.html">
+  <link rel="alternate" hreflang="en" href="/en/timer.html">
+  <link rel="alternate" hreflang="zh" href="/zh/timer.html">
+  <link rel="alternate" hreflang="ja" href="/ja/timer.html">
+  <link rel="alternate" hreflang="x-default" href="/ko/timer.html">
+  <link rel="stylesheet" href="/assets/css/tailwind-built.css">
+  <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/pages/timer.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
-        <a href="index.html" class="flex items-center">
-          <img src="../assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2">
+        <a href="/ko/index.html" class="flex items-center">
+          <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2">
           <span class="text-2xl font-bold text-blue-600">FileToQR</span>
         </a>
         <nav class="flex items-center">
           <ul class="flex space-x-6">
-            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">홈</a></li>
-            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
-            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
-            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
-            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
+            <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">홈</a></li>
+            <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="/ko/qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="/ko/timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="/ko/help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
           </ul>
           <div class="language-selector dropdown">
             <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경">
@@ -48,19 +48,19 @@
                 <span>언어 선택</span>
               </div>
               <div class="lang-dropdown-list">
-                <a href="timer.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                <a href="/ko/timer.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
                   <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.ko">한국어</span>
                 </a>
-                <a href="../en/timer.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
+                <a href="/en/timer.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
                   <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.en">영어</span>
                 </a>
-                <a href="../zh/timer.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
+                <a href="/zh/timer.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
                   <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.zh">중국어</span>
                 </a>
-                <a href="../ja/timer.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
+                <a href="/ja/timer.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
                   <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.ja">일본어</span>
                 </a>
@@ -115,19 +115,19 @@
         <div>
           <h3 class="text-lg font-bold mb-4" data-i18n="footer.quick">바로가기</h3>
           <ul class="space-y-2">
-            <li><a href="index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">홈</a></li>
-            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">파일 변환</a></li>
-            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QR 코드</a></li>
-            <li><a href="timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">타이머</a></li>
-            <li><a href="help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">도움말</a></li>
+            <li><a href="/ko/index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">홈</a></li>
+            <li><a href="/ko/convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="/ko/qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="/ko/timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="/ko/help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">도움말</a></li>
           </ul>
         </div>
         <div>
           <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">법적 정보</h3>
           <ul class="space-y-2">
-            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">개인정보처리방침</a></li>
-            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">이용약관</a></li>
-            <li><a href="contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">문의하기</a></li>
+            <li><a href="/ko/privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">개인정보처리방침</a></li>
+            <li><a href="/ko/terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">이용약관</a></li>
+            <li><a href="/ko/contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">문의하기</a></li>
           </ul>
         </div>
       </div>
