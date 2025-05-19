@@ -25,7 +25,8 @@ body {
     background-color: var(--bg-gray);
 }
 
-/* 헤더 스타일 */
+/* 헤더/네비/컨테이너에 영향을 주는 스타일은 Tailwind와 충돌하므로 주석 처리 */
+/*
 header {
     background-color: var(--bg-light);
     box-shadow: var(--shadow);
@@ -70,7 +71,6 @@ nav {
     color: var(--primary-color);
 }
 
-/* 메인 컨테이너 */
 .container {
     max-width: 1000px;
     margin: 2rem auto;
@@ -79,6 +79,7 @@ nav {
     grid-template-columns: 1fr;
     gap: 1.5rem;
 }
+*/
 
 /* 탭 스타일 */
 .tabs {
