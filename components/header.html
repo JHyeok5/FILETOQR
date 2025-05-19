@@ -1,49 +1,92 @@
 <!-- 
   헤더 컴포넌트 - FileToQR 애플리케이션 
-  버전: 1.0.0
+  버전: 1.0.1 (반응형/접근성 개선)
   최종 업데이트: 2025년 7월 15일
 -->
 <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4">
-        <div class="flex justify-between items-center">
-            <a href="index.html" class="flex items-center">
-                <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+        <div class="flex items-center justify-between">
+            <a href="/ko/index.html" class="flex items-center min-w-0">
+                <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2 shrink-0">
+                <span class="text-2xl font-bold text-blue-600 truncate whitespace-nowrap">FileToQR</span>
             </a>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">홈</a></li>
-                    <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium">파일 변환</a></li>
-                    <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium">QR 코드</a></li>
-                    <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium">도움말</a></li>
+            <!-- 모바일 햄버거 버튼 -->
+            <button class="md:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="mobile-menu-toggle" aria-label="메뉴 열기">
+                <svg class="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <!-- 데스크탑 네비게이션 -->
+            <nav class="hidden md:flex items-center flex-1 justify-center min-w-0 overflow-x-auto">
+                <ul class="flex space-x-4 md:space-x-6 min-w-0 overflow-x-auto">
+                    <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
+                    <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
+                    <li><a href="/ko/qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
+                    <li><a href="/ko/timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
+                    <li><a href="/ko/help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
                 </ul>
             </nav>
-            <div class="relative" id="lang-selector">
-                <button id="lang-selector-toggle" class="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
-                    <span>한국어</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <div id="lang-dropdown-menu" class="absolute right-0 mt-2 py-2 w-48 bg-white rounded-md shadow-lg hidden">
-                    <a href="#" data-lang="ko" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">한국어</a>
-                    <a href="#" data-lang="en" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">English</a>
-                    <a href="#" data-lang="zh" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">中文</a>
-                    <a href="#" data-lang="ja" class="lang-option block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white">日本語</a>
+            <!-- 언어 선택기 -->
+            <div class="ml-2 flex-shrink-0">
+                <div class="language-selector dropdown">
+                    <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경" aria-haspopup="listbox" aria-controls="lang-dropdown-menu" aria-expanded="false">
+                        <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                        <span class="lang-label" data-i18n="lang.ko">한국어</span>
+                        <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu" aria-hidden="true">
+                        <div class="lang-dropdown-header">
+                            <span>언어 선택</span>
+                        </div>
+                        <div class="lang-dropdown-list">
+                            <a href="/ko/index.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                                <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                                <span class="lang-name" data-i18n="lang.ko">한국어</span>
+                            </a>
+                            <a href="/en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
+                                <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+                                <span class="lang-name" data-i18n="lang.en">영어</span>
+                            </a>
+                            <a href="/zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
+                                <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+                                <span class="lang-name" data-i18n="lang.zh">중국어</span>
+                            </a>
+                            <a href="/ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
+                                <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+                                <span class="lang-name" data-i18n="lang.ja">일본어</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- 모바일 메뉴: 햄버거 클릭 시 표시 -->
+        <nav class="md:hidden mt-2" id="mobile-menu" style="display:none;">
+            <ul class="flex flex-col space-y-2 bg-white rounded-lg shadow-md p-4">
+                <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
+                <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
+                <li><a href="/ko/qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
+                <li><a href="/ko/timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
+                <li><a href="/ko/help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
+            </ul>
+        </nav>
     </div>
 </header>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // 모바일 메뉴 토글
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
-        
-        if (mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
+        if (mobileMenuToggle && mobileMenu) {
+            mobileMenuToggle.addEventListener('click', function() {
+                if (mobileMenu.style.display === 'none' || !mobileMenu.style.display) {
+                    mobileMenu.style.display = 'block';
+                } else {
+                    mobileMenu.style.display = 'none';
+                }
             });
         }
         

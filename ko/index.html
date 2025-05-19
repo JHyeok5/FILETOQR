@@ -21,84 +21,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <header class="bg-white shadow-sm sticky top-0 z-50">
-    <div class="container mx-auto px-4 py-4">
-      <div class="flex items-center justify-between">
-        <a href="/ko/index.html" class="flex items-center min-w-0">
-          <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2 shrink-0">
-          <span class="text-2xl font-bold text-blue-600 truncate whitespace-nowrap">FileToQR</span>
-        </a>
-        <!-- 모바일 햄버거 버튼 -->
-        <button class="md:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="mobile-menu-toggle" aria-label="메뉴 열기">
-          <svg class="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <!-- 데스크탑 네비게이션 -->
-        <nav class="hidden md:flex items-center flex-1 justify-center min-w-0 overflow-x-auto">
-          <ul class="flex space-x-4 md:space-x-6 min-w-0 overflow-x-auto">
-            <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">홈</a></li>
-            <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
-            <li><a href="/ko/qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
-            <li><a href="/ko/timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
-            <li><a href="/ko/help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
-          </ul>
-        </nav>
-        <!-- 언어 선택기 -->
-        <div class="ml-2 flex-shrink-0">
-          <div class="language-selector dropdown">
-            <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경" aria-haspopup="listbox" aria-controls="lang-dropdown-menu" aria-expanded="false">
-              <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
-              <span class="lang-label" data-i18n="lang.ko">한국어</span>
-              <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-            <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu" aria-hidden="true">
-              <div class="lang-dropdown-header">
-                <span>언어 선택</span>
-              </div>
-              <div class="lang-dropdown-list">
-                <a href="/ko/index.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
-                  <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.ko">한국어</span>
-                </a>
-                <a href="/en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
-                  <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.en">영어</span>
-                </a>
-                <a href="/zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
-                  <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.zh">중국어</span>
-                </a>
-                <a href="/ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
-                  <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
-                  <span class="lang-name" data-i18n="lang.ja">일본어</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- 모바일 메뉴: 햄버거 클릭 시 표시 -->
-      <nav class="md:hidden mt-2" id="mobile-menu" style="display:none;">
-        <ul class="flex flex-col space-y-2 bg-white rounded-lg shadow-md p-4">
-          <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.home">홈</a></li>
-          <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
-          <li><a href="/ko/qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
-          <li><a href="/ko/timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
-          <li><a href="/ko/help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-  <div id="ad-header" class="ad-container my-4 text-center">
-    <div class="ad-label text-xs text-gray-500">광고</div>
-    <div class="ad-slot">
-      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-  </div>
+  <header></header>
   <main class="flex-grow w-full mx-auto px-4 py-8 max-w-5xl">
     <!-- Hero Section: 브랜드/슬로건/CTA -->
     <section class="hero-section flex flex-col items-center justify-center text-center py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-3xl shadow-md mb-16">
@@ -179,38 +102,7 @@
     </section>
     <!-- 이후: 주요 기능/특장점, FAQ, 푸터 등 추가 예정 -->
   </main>
-  <footer class="bg-gray-100 mt-12">
-    <div class="container mx-auto px-4 py-8">
-      <div class="grid md:grid-cols-3 gap-8">
-        <div>
-          <h3 class="text-lg font-bold mb-4" data-i18n="footer.brand">FileToQR</h3>
-          <p class="text-gray-600 mb-4" data-i18n="footer.desc">서버에 파일을 업로드하지 않고, 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
-        </div>
-        <div>
-          <h3 class="text-lg font-bold mb-4" data-i18n="footer.quick">바로가기</h3>
-          <ul class="space-y-2">
-            <li><a href="/ko/index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">홈</a></li>
-            <li><a href="/ko/convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">파일 변환</a></li>
-            <li><a href="/ko/qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QR 코드</a></li>
-            <li><a href="/ko/timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">타이머</a></li>
-            <li><a href="/ko/help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">도움말</a></li>
-          </ul>
-        </div>
-        <div>
-          <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">법적 정보</h3>
-          <ul class="space-y-2">
-            <li><a href="/ko/privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">개인정보처리방침</a></li>
-            <li><a href="/ko/terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">이용약관</a></li>
-            <li><a href="/ko/contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">문의하기</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
-        <p data-i18n="footer.copyright">© 2025 FileToQR. 모든 권리 보유.</p>
-        <p class="mt-1" data-i18n="footer.updated">최종 업데이트: 2025년 5월 2일</p>
-      </div>
-    </div>
-  </footer>
+  <footer></footer>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       if (typeof init === 'function') {
