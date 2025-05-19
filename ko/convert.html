@@ -421,51 +421,6 @@
     }
   </style>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const langSelector = document.querySelector('.language-selector');
-      const langToggle = document.getElementById('lang-selector-toggle');
-      const langDropdown = document.getElementById('lang-dropdown-menu');
-      const langOptions = document.querySelectorAll('.lang-option');
-      
-      // 드롭다운 토글
-      if (langToggle) {
-        langToggle.addEventListener('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          langSelector.classList.toggle('open');
-          
-          // WAI-ARIA 지원
-          const expanded = langSelector.classList.contains('open');
-          langToggle.setAttribute('aria-expanded', expanded);
-          
-          if (expanded) {
-            // 첫 번째 항목에 포커스
-            const firstOption = langDropdown.querySelector('.lang-option');
-            if (firstOption) {
-              firstOption.focus();
-            }
-          }
-        });
-      }
-      
-      // 외부 클릭 시 드롭다운 닫기
-      document.addEventListener('click', function(e) {
-        if (!langSelector.contains(e.target)) {
-          langSelector.classList.remove('open');
-          if (langToggle) {
-            langToggle.setAttribute('aria-expanded', 'false');
-          }
-        }
-      });
-      
-      // 초기 WAI-ARIA 상태 설정
-      if (langToggle) {
-        langToggle.setAttribute('aria-expanded', 'false');
-        langToggle.setAttribute('aria-haspopup', 'true');
-      }
-    });
-  </script>
-  <script>
     // 페이지 로딩 상태 표시
     document.addEventListener('DOMContentLoaded', function() {
       // 컨트롤러 초기화 전 로딩 메시지 표시
