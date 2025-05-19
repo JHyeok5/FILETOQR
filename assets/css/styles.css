@@ -399,9 +399,18 @@ body {
   margin-left: 0.5rem;
 }
 
-/* 아래 클래스들은 더 이상 background-image를 사용하지 않음. 유지보수 참고용 주석만 남김 */
-.ko-flag, .en-flag, .zh-flag, .ja-flag {
-  /* 플래그 이미지는 JS에서 <img> src로 동적 할당 */
+/* === 언어 선택기 국기 아이콘 공통 스타일 === */
+.ko-flag {
+  background-image: url('../assets/images/flags/ko.svg');
+}
+.en-flag {
+  background-image: url('../assets/images/flags/en.svg');
+}
+.zh-flag {
+  background-image: url('../assets/images/flags/zh.svg');
+}
+.ja-flag {
+  background-image: url('../assets/images/flags/ja.svg');
 }
 
 .lang-label {
