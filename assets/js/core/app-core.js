@@ -442,9 +442,12 @@ function initLanguageSelector() {
     // 외부 클릭 시 드롭다운 닫기
     document.addEventListener('click', function(e) {
       if (!langSelector.contains(e.target)) {
-        // 1. 포커스 이동 먼저!
+        // 1. 포커스 해제 및 비동기 포커스 이동
         if (langDropdown.contains(document.activeElement)) {
-          langToggle.focus();
+          document.activeElement.blur();
+          setTimeout(() => {
+            langToggle.focus();
+          }, 0);
         }
         // 2. aria 속성 및 클래스 변경
         langSelector.classList.remove('open');
@@ -477,8 +480,11 @@ function initLanguageSelector() {
         const prevIndex = (currentIndex - 1 + langOptions.length) % langOptions.length;
         langOptions[prevIndex].focus();
       } else if (e.key === 'Escape') {
-        // 1. 포커스 이동 먼저!
-        langToggle.focus(); // ESC로 닫을 때도 토글 버튼으로 포커스 이동
+        // 1. 포커스 해제 및 비동기 포커스 이동
+        document.activeElement.blur();
+        setTimeout(() => {
+          langToggle.focus();
+        }, 0);
         // 2. aria 속성 및 클래스 변경
         langSelector.classList.remove('open');
         langToggle.setAttribute('aria-expanded', 'false');
