@@ -297,12 +297,12 @@ async function initHomePage() {
  */
 function initConvertPage() {
   console.log('변환 페이지 초기화');
-  if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
-    window.FileToQR.ConvertPageController.init();
-  } else {
-    console.warn('ConvertPageController.init을 찾을 수 없습니다. convert.js가 로드되었는지 확인하세요.');
-    // 필요시 동적 로드 로직 추가
-  }
+  // convert.js가 자체적으로 DOMContentLoaded에서 초기화하므로 별도 호출 불필요
+  // if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
+  //   window.FileToQR.ConvertPageController.init();
+  // } else {
+  //   console.warn('ConvertPageController.init을 찾을 수 없습니다. convert.js가 로드되었는지 확인하세요.');
+  // }
 }
 
 /**
