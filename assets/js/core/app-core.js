@@ -442,13 +442,14 @@ function initLanguageSelector() {
     // 외부 클릭 시 드롭다운 닫기
     document.addEventListener('click', function(e) {
       if (!langSelector.contains(e.target)) {
-        langSelector.classList.remove('open');
-        langToggle.setAttribute('aria-expanded', 'false');
-        langDropdown.setAttribute('aria-hidden', 'true');
-        // 접근성: 드롭다운 내부에 포커스가 남아있으면 토글 버튼으로 이동
+        // 1. 포커스 이동 먼저!
         if (langDropdown.contains(document.activeElement)) {
           langToggle.focus();
         }
+        // 2. aria 속성 및 클래스 변경
+        langSelector.classList.remove('open');
+        langToggle.setAttribute('aria-expanded', 'false');
+        langDropdown.setAttribute('aria-hidden', 'true');
       }
     });
     
@@ -476,10 +477,12 @@ function initLanguageSelector() {
         const prevIndex = (currentIndex - 1 + langOptions.length) % langOptions.length;
         langOptions[prevIndex].focus();
       } else if (e.key === 'Escape') {
+        // 1. 포커스 이동 먼저!
+        langToggle.focus(); // ESC로 닫을 때도 토글 버튼으로 포커스 이동
+        // 2. aria 속성 및 클래스 변경
         langSelector.classList.remove('open');
         langToggle.setAttribute('aria-expanded', 'false');
         langDropdown.setAttribute('aria-hidden', 'true');
-        langToggle.focus(); // ESC로 닫을 때도 토글 버튼으로 포커스 이동
       } else if (e.key === 'Tab') {
         // 드롭다운 내에서만 순환
         if (e.shiftKey && currentIndex === 0) {
