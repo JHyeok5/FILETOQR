@@ -25,21 +25,21 @@
   <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
-        <a href="index.html" class="flex items-center">
+        <a href="/ko/index.html" class="flex items-center">
           <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2">
           <span class="text-2xl font-bold text-blue-600">FileToQR</span>
         </a>
         <nav class="flex items-center">
           <ul class="flex space-x-6">
-            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
-            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
-            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.qrcode">QR 코드</a></li>
-            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
-            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
+            <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
+            <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="/ko/qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="/ko/timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="/ko/help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
           </ul>
           <div class="language-selector dropdown">
             <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경">
-              <img class="lang-flag-icon" src="../assets/images/flags/ko.svg" alt="한국어">
+              <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
               <span class="lang-label" data-i18n="lang.ko">한국어</span>
               <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="6 9 12 15 18 9"></polyline>
@@ -50,20 +50,20 @@
                 <span>언어 선택</span>
               </div>
               <div class="lang-dropdown-list">
-                <a href="/qrcode.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
-                  <img class="lang-flag-icon" src="../assets/images/flags/ko.svg" alt="한국어">
+                <a href="/ko/qrcode.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                  <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.ko">한국어</span>
                 </a>
                 <a href="/en/qrcode.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
-                  <img class="lang-flag-icon" src="/assets/images/flags/en.svg" alt="영어">
+                  <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.en">영어</span>
                 </a>
                 <a href="/zh/qrcode.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
-                  <img class="lang-flag-icon" src="/assets/images/flags/zh.svg" alt="중국어">
+                  <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.zh">중국어</span>
                 </a>
                 <a href="/ja/qrcode.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
-                  <img class="lang-flag-icon" src="/assets/images/flags/ja.svg" alt="일본어">
+                  <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
                   <span class="lang-name" data-i18n="lang.ja">일본어</span>
                 </a>
               </div>
@@ -428,30 +428,30 @@
       <div class="grid md:grid-cols-3 gap-8">
         <div>
           <h3 class="text-lg font-bold mb-4" data-i18n="footer.brand">FileToQR</h3>
-          <p class="text-gray-600 mb-4" data-i18n="footer.privacy">서버에 파일을 업로드하지 않고, 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+          <p class="text-gray-600 mb-4" data-i18n="footer.desc">서버에 파일을 업로드하지 않고, 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
         </div>
         <div>
-          <h3 class="text-lg font-bold mb-4" data-i18n="footer.links">바로가기</h3>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.quick">바로가기</h3>
           <ul class="space-y-2">
-            <li><a href="index.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.home">홈</a></li>
-            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.convert">파일 변환</a></li>
-            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.qrcode">QR 코드</a></li>
-            <li><a href="timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.timer">타이머</a></li>
-            <li><a href="help.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.help">도움말</a></li>
+            <li><a href="/ko/index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">홈</a></li>
+            <li><a href="/ko/convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="/ko/qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="/ko/timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="/ko/help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">도움말</a></li>
           </ul>
         </div>
         <div>
           <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">법적 정보</h3>
           <ul class="space-y-2">
-            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacyPolicy">개인정보처리방침</a></li>
-            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">이용약관</a></li>
-            <li><a href="contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">문의하기</a></li>
+            <li><a href="/ko/privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">개인정보처리방침</a></li>
+            <li><a href="/ko/terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">이용약관</a></li>
+            <li><a href="/ko/contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">문의하기</a></li>
           </ul>
         </div>
       </div>
       <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
         <p data-i18n="footer.copyright">© 2025 FileToQR. 모든 권리 보유.</p>
-        <p class="mt-1" data-i18n="footer.lastUpdate">최종 업데이트: 2025년 5월 2일</p>
+        <p class="mt-1" data-i18n="footer.updated">최종 업데이트: 2025년 5월 2일</p>
       </div>
     </div>
   </footer>
