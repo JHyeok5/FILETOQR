@@ -1,7 +1,7 @@
 /* 
 * FileToQR 커스텀 스타일시트
-* 버전: 1.0.0
-* 최종 업데이트: 2025-04-28
+* 버전: 1.0.1 (애니메이션 추가)
+* 최종 업데이트: 2025-05-19
 * 참조: ../.ai-guides/code/style-guide.md
 */
 
@@ -16,11 +16,77 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* 커스텀 요소 스타일 */
+/* 히어로 섹션용 애니메이션 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-logo-animation {
+  opacity: 0; /* 초기 상태 */
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+}
+
+.hero-title-animation {
+  opacity: 0; /* 초기 상태 */
+  animation: fadeInUp 0.6s ease-out 0.5s forwards; /* 로고 후 0.3초 뒤 */
+}
+
+.hero-subtitle-animation {
+  opacity: 0; /* 초기 상태 */
+  animation: fadeInUp 0.6s ease-out 0.8s forwards; /* 타이틀 후 0.3초 뒤 */
+}
+
+/* 기존 Intersection Observer용 애니메이션 (assets/js/pages/home.js에서 사용) */
+@keyframes slideInLeft {
+  from { transform: translateX(-60px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.slide-in-left {
+  animation: slideInLeft 0.9s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(60px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.slide-in-right {
+  animation: slideInRight 0.9s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes slideUpScale {
+  from { transform: translateY(40px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.slide-up-scale {
+  animation: slideUpScale 0.9s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+/* scan-glow 애니메이션: SVG에 직접 box-shadow 적용은 어렵습니다.
+   SVG를 감싸는 div에 이 클래스를 적용하거나, SVG filter를 사용해야 합니다. */
+@keyframes scanGlow {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.3); } /* tailwind green-400 with opacity */
+  50% { box-shadow: 0 0 20px 10px rgba(52, 211, 153, 0.5); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.3); }
+}
+/* .scan-glow 클래스는 SVG 자체보다는 감싸는 div에 적용하는 것을 권장합니다. */
+/* 예: #svg-mobile-wrapper.scan-glow { animation: scanGlow 1.2s ease-in-out 1; } */
+.scan-glow {
+  animation: scanGlow 1.2s ease-in-out 1;
+}
+
+/* 기타 커스텀 요소 스타일 */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+/* .slide-up은 fadeInUp과 유사하므로, 필요에 따라 통합 또는 구분하여 사용 */
 .slide-up {
   animation: slideUp 0.5s ease-in-out;
 }

@@ -1,7 +1,7 @@
 /**
  * home.js - FileToQR 홈페이지 모듈
- * 버전: 1.0.0
- * 최종 업데이트: 2025-06-15
+ * 버전: 1.0.1 (초기화 로직 app-core.js로 이전)
+ * 최종 업데이트: 2025-05-19
  * 
  * 이 모듈은 홈페이지 관련 기능을 관리합니다:
  * - 홈페이지 UI 이벤트 처리
@@ -14,13 +14,22 @@ const HomePage = {
   /**
    * 초기화 함수
    */
-  init() {
-    console.log('홈페이지 모듈 초기화');
+  async init() {
+    console.log('HomePage.init() 호출됨 (pages/home.js)');
     
     this.initFeatureAnimation();
-    this.animateServiceFlowGSAP();
-    this.initExampleSlider();
-    this.initCallToAction();
+    
+    // GSAP 및 ScrollTrigger 라이브러리 로드 확인 후 애니메이션 실행
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger); // ScrollTrigger 플러그인 등록
+      this.animateServiceFlowGSAP();
+    } else {
+      console.warn('GSAP 또는 ScrollTrigger 라이브러리가 로드되지 않았습니다. 서비스 흐름 애니메이션을 건너뜁니다.');
+    }
+    
+    // 기타 홈페이지 초기화 로직 (예: 슬라이더, CTA 버튼 이벤트 등)
+    // this.initExampleSlider(); // 필요시 주석 해제
+    // this.initCallToAction(); // 필요시 주석 해제
     
     return this;
   },
@@ -30,23 +39,27 @@ const HomePage = {
    */
   initFeatureAnimation() {
     const features = document.querySelectorAll('.feature');
-    if (features.length === 0) return;
+    if (features.length === 0) {
+      console.log('애니메이션 대상 (.feature) 없음');
+      return;
+    }
+    console.log(`.feature 요소 ${features.length}개 발견`);
 
-    // 단계별 애니메이션 클래스 매핑
     const stepToClass = {
       1: 'slide-in-left',
       2: 'slide-in-right',
       3: 'slide-up-scale',
-      4: 'scan-glow',
+      4: 'scan-glow', // SVG에 box-shadow 직접 적용 불가. 래퍼 div 사용 또는 SVG 필터 고려.
     };
 
-    // Intersection Observer로 각 단계별 애니메이션 적용
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
+          console.log('요소 교차:', entry.target);
           const step = entry.target.dataset.step;
-          const animClass = stepToClass[step] || 'slide-up';
+          const animClass = stepToClass[step] || 'slide-up'; // 기본값 slide-up
           entry.target.classList.add(animClass);
+          console.log(`${entry.target.id || 'element'}에 ${animClass} 클래스 추가`);
           observer.unobserve(entry.target);
         }
       });
@@ -55,24 +68,32 @@ const HomePage = {
     features.forEach(feature => {
       observer.observe(feature);
     });
+    console.log('기능 애니메이션(IntersectionObserver) 초기화 완료');
   },
   
   /**
    * Apple 스타일 GSAP+ScrollTrigger 기반 고급 스크롤 플로우 애니메이션
    */
   animateServiceFlowGSAP() {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    // SVG 오브젝트
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+        console.warn('GSAP 또는 ScrollTrigger를 찾을 수 없습니다.');
+        return;
+    }
+    console.log('서비스 흐름 GSAP 애니메이션 초기화 시작');
+
     const svgFile = document.getElementById('svg-file');
     const svgQR = document.getElementById('svg-qr');
     const svgShare = document.getElementById('svg-share');
     const svgMobile = document.getElementById('svg-mobile');
 
-    // 초기 상태: 파일만 보임
+    if (!svgFile || !svgQR || !svgShare || !svgMobile) {
+        console.warn('하나 이상의 SVG 요소를 찾을 수 없습니다. 애니메이션을 건너뜁니다.');
+        return;
+    }
+
     gsap.set([svgFile, svgQR, svgShare, svgMobile], { opacity: 0, scale: 0.8, y: 40 });
     gsap.set(svgFile, { opacity: 1, scale: 1, y: 0 });
 
-    // 타임라인 생성
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '.service-flow-section',
@@ -80,6 +101,7 @@ const HomePage = {
         end: 'bottom 10%',
         scrub: 1,
         pin: false,
+        markers: false // 디버깅 완료 후 false 또는 제거
       }
     });
 
@@ -93,9 +115,20 @@ const HomePage = {
     tl.to(svgShare, { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.7, ease: 'power2.out' }, '<');
     // Step 4: 공유 → 모바일로 이동/강조
     tl.to(svgShare, { opacity: 0, scale: 0.7, x: 60, y: 40, duration: 0.6, ease: 'power2.in' }, '+=0.7');
-    tl.to(svgMobile, { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.7, ease: 'power2.out', onStart: () => {
-      svgMobile.classList.add('scan-glow');
-    } }, '<');
+    tl.to(svgMobile, { 
+        opacity: 1, 
+        scale: 1, 
+        x: 0, 
+        y: 0, 
+        duration: 0.7, 
+        ease: 'power2.out', 
+        onStart: () => {
+            // svgMobile.classList.add('scan-glow'); // scan-glow는 SVG에 직접 적용 시 box-shadow 문제 발생 가능
+            // SVG 필터 또는 래퍼 div에 적용 고려
+            console.log('모바일 SVG 등장, scan-glow 적용 시도');
+        } 
+    }, '<');
+    console.log('서비스 흐름 GSAP 애니메이션 초기화 완료');
   },
   
   /**
@@ -260,20 +293,21 @@ const HomePage = {
   }
 };
 
-// 글로벌 네임스페이스에 등록
+// 글로벌 네임스페이스에 등록 (app-core.js에서 호출할 수 있도록)
 if (typeof window !== 'undefined') {
   window.FileToQR = window.FileToQR || {};
   window.FileToQR.pages = window.FileToQR.pages || {};
   window.FileToQR.pages.home = HomePage;
+  console.log('HomePage 모듈이 window.FileToQR.pages.home에 등록됨');
 }
 
-// Registry에 등록
-if (typeof window !== 'undefined' && window.FileToQR && window.FileToQR.registry) {
-  try {
-    window.FileToQR.registry.register('pages', 'home', HomePage);
-  } catch (error) {
-    console.warn('홈페이지 모듈을 레지스트리에 등록하는 중 오류 발생:', error);
-  }
-}
+// 기존의 DOMContentLoaded 리스너는 app-core.js에서 HomePage.init()을 호출하므로 주석 처리 또는 삭제
+/*
+document.addEventListener('DOMContentLoaded', () => {
+  HomePage.init().catch(error => {
+    console.error('HomePage 직접 초기화 실패:', error);
+  });
+});
+*/
 
 export default HomePage; 

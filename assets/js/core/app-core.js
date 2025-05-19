@@ -1,7 +1,7 @@
 /**
  * app-core.js - FileToQR 애플리케이션 코어 모듈
- * 버전: 1.2.0
- * 최종 업데이트: 2025-07-26
+ * 버전: 1.2.1 (애니메이션 초기화 로직 개선)
+ * 최종 업데이트: 2025-05-19
  * 참조: ../../docs/architecture/module-registry.md
  * 
  * 이 모듈은 애플리케이션의 핵심 기능을 관리합니다:
@@ -31,6 +31,10 @@ console.log('app-core.js 로딩 시작');
 import Config from './config.js';
 import UrlUtils from '../utils/url-utils.js';
 import I18n from '../utils/i18n-utils.js';
+// 홈페이지 스크립트를 명시적으로 임포트하여 HomePage 객체를 사용 가능하도록 합니다.
+// 만약 HomePage가 전역 window.FileToQR.pages.home에 이미 할당된다면 이 import는 생략 가능합니다.
+// 하지만 명시적 임포트가 더 나은 모듈 관리 방식입니다.
+// import HomePage from '../pages/home.js'; // 주석 처리: home.js가 HomePage를 전역으로 노출하므로
 
 // 글로벌 네임스페이스 설정
 window.FileToQR = window.FileToQR || {};
@@ -83,79 +87,70 @@ function getBasePath() {
  */
 async function init() {
   console.log(`FileToQR 애플리케이션 초기화 시작 (v${APP_VERSION})`);
-  
+
   try {
     // 1. 로딩 인디케이터 표시
     showLoadingIndicator();
-    
+
     // 2. 유틸리티 모듈 초기화 (순서 중요)
     console.log('기본 유틸리티 모듈 초기화 시작');
-    
+
     // a. URL 유틸리티 초기화
     console.log('URL 유틸리티 초기화');
     // URL 유틸리티는 자체 초기화 함수가 없으므로 넘어감
-    
+
     // b. 다국어 지원 초기화
     console.log('다국어 지원 초기화');
     await I18n.init({
       useSavedLang: true,
       detectBrowserLang: true
     });
-    
+
     // 3. 템플릿 유틸리티 초기화 (필요한 경우)
     try {
-      // 템플릿 유틸리티가 로드되었는지 확인
-      if (typeof window.FileToQR.TemplateUtils !== 'undefined') {
+      if (typeof window.FileToQR !== 'undefined' && typeof window.FileToQR.TemplateUtils !== 'undefined') {
         console.log('템플릿 유틸리티 발견, 초기화 시작');
-        
-        // 동적으로 Handlebars 로드 시도
         if (!window.Handlebars) {
           const handlebarsScript = document.createElement('script');
           handlebarsScript.src = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
-          
-          // Handlebars 로드 대기
           await new Promise((resolve, reject) => {
             handlebarsScript.onload = resolve;
             handlebarsScript.onerror = reject;
             document.head.appendChild(handlebarsScript);
           });
-          
           console.log('Handlebars 라이브러리 동적 로드 완료');
         }
-        
         await window.FileToQR.TemplateUtils.init();
         console.log('템플릿 유틸리티 초기화 완료');
-        
-        // 템플릿 처리
-        await window.FileToQR.TemplateUtils.processTemplates();
+        // 템플릿 처리 함수가 processTemplates -> loadComponent 등으로 변경되었을 수 있으니 확인 필요
+        // await window.FileToQR.TemplateUtils.processTemplates();
+      } else {
+        console.log('템플릿 유틸리티(TemplateUtils)가 로드되지 않았습니다.');
       }
     } catch (error) {
       console.error('템플릿 유틸리티 초기화 실패:', error);
-      // 계속 진행 - 템플릿 없이도 기본 기능은 작동할 수 있도록
     }
-    
+
     // 4. 페이지별 초기화
     await initCurrentPage();
-    
+
     // 5. 페이지 내 링크 업데이트
     updateInternalLinks();
-    
+
     // 6. 언어 선택기 설정
     initLanguageSelector();
-    
+
     // 7. 로딩 인디케이터 숨기기
     console.log('초기화 완료 - 로딩 인디케이터 숨김');
     hideLoadingIndicator();
-    
+
     // 8. 초기화 완료 후 추가 작업 실행
     onAppInitialized();
-    
+
     console.log('애플리케이션 초기화 완료');
   } catch (error) {
     console.error('애플리케이션 초기화 실패:', error);
-    // 로딩 인디케이터 숨기기
     hideLoadingIndicator();
-    // 오류 메시지 표시
     showErrorMessage('애플리케이션 초기화 중 오류가 발생했습니다.');
   }
 }
@@ -164,10 +159,7 @@ async function init() {
  * 로딩 인디케이터 표시
  */
 function showLoadingIndicator() {
-  // 이미 존재하는 로딩 인디케이터 확인
   let loadingIndicator = document.getElementById('loading-indicator');
-  
-  // 없는 경우만 생성
   if (!loadingIndicator) {
     loadingIndicator = document.createElement('div');
     loadingIndicator.id = 'loading-indicator';
@@ -175,11 +167,9 @@ function showLoadingIndicator() {
     loadingIndicator.innerHTML = `
       <div class="loading-container">
         <div class="loading-spinner"></div>
-        <p class="loading-text">로딩 중... 페이지가 로드되지 않으면 새로고침하세요.</p>
+        <p class="loading-text">로딩 중...</p>
       </div>
     `;
-    
-    // 스타일 추가
     const style = document.createElement('style');
     style.textContent = `
       .loading-overlay {
@@ -224,10 +214,10 @@ function showLoadingIndicator() {
         margin: 0;
       }
     `;
-    
     document.head.appendChild(style);
     document.body.appendChild(loadingIndicator);
   }
+  loadingIndicator.style.display = 'flex';
 }
 
 /**
@@ -236,12 +226,7 @@ function showLoadingIndicator() {
 function hideLoadingIndicator() {
   const loadingIndicator = document.getElementById('loading-indicator');
   if (loadingIndicator) {
-    console.log('로딩 인디케이터 숨기기 실행');
-    // 즉시 제거로 변경
-    if (loadingIndicator.parentNode) {
-      loadingIndicator.parentNode.removeChild(loadingIndicator);
-      console.log('로딩 인디케이터 제거 완료');
-    }
+    loadingIndicator.style.display = 'none';
   }
 }
 
@@ -252,12 +237,9 @@ function hideLoadingIndicator() {
  */
 async function initCurrentPage() {
   try {
-    // 현재 페이지 ID 가져오기
     const pageId = getCurrentPage();
-    
     console.log(`페이지별 초기화 시작: ${pageId}`);
-    
-    // 페이지별 초기화 함수 매핑
+
     const pageInitializers = {
       'home': initHomePage,
       'convert': initConvertPage,
@@ -268,14 +250,12 @@ async function initCurrentPage() {
       'privacy': initPrivacyPage,
       'terms': initTermsPage
     };
-    
-    // 초기화 함수 실행
+
     if (pageInitializers[pageId] && typeof pageInitializers[pageId] === 'function') {
       await pageInitializers[pageId]();
     } else {
       console.log(`${pageId} 페이지에 대한 별도 초기화 함수 없음`);
     }
-    
     console.log(`${pageId} 페이지 초기화 완료`);
   } catch (error) {
     console.error('페이지 초기화 실패:', error);
@@ -286,14 +266,27 @@ async function initCurrentPage() {
  * 홈 페이지 초기화
  * @private
  */
-function initHomePage() {
-  console.log('홈페이지 초기화');
-  
-  // 시작하기 버튼 이벤트만 남겨둠
+async function initHomePage() {
+  console.log('홈페이지 초기화 (app-core.js)');
+  // HomePage 모듈이 전역 FileToQR.pages.home으로 노출된다고 가정
+  if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home && typeof window.FileToQR.pages.home.init === 'function') {
+    console.log('FileToQR.pages.home.init() 호출 시도');
+    try {
+      await window.FileToQR.pages.home.init(); // pages/home.js의 HomePage.init() 호출
+      console.log('HomePage 초기화 성공 (애니메이션 포함)');
+    } catch (err) {
+      console.error("HomePage.init() 호출 중 오류:", err);
+    }
+  } else {
+    console.error('FileToQR.pages.home.init 함수를 찾을 수 없습니다. assets/js/pages/home.js가 제대로 로드되고 HomePage 객체가 전역으로 노출되었는지 확인하세요.');
+  }
+
+  // 기존의 CTA 버튼 로직 등은 유지하거나 pages/home.js로 이전 고려
   const getStartedBtns = document.querySelectorAll('.get-started-btn');
   getStartedBtns.forEach(btn => {
     btn.addEventListener('click', function() {
-      navigateTo('convert.html');
+      // navigateTo 함수는 app-core.js 내에 정의되어 있어야 함
+      navigateTo(UrlUtils.getI18nUrl('convert.html'));
     });
   });
 }
@@ -304,41 +297,11 @@ function initHomePage() {
  */
 function initConvertPage() {
   console.log('변환 페이지 초기화');
-  
-  // convert.js 스크립트 로드 상태 확인
-  const convertScripts = Array.from(document.scripts).filter(script => 
-    script.src && (script.src.includes('/convert.js') || script.src.includes('convert.bundle.js'))
-  );
-  
-  if (convertScripts.length === 0) {
-    console.warn('convert.js 스크립트를 찾을 수 없습니다. 동적으로 로드합니다.');
-    
-    // 필요시 동적으로 스크립트 로드
-    const script = document.createElement('script');
-    script.src = 'assets/js/pages/convert.js';
-    script.type = 'module';
-    document.head.appendChild(script);
-    
-    // 스크립트 로드 완료 후 컨트롤러 초기화
-    script.onload = function() {
-      initConvertPageController();
-    };
-  } else {
-    // 스크립트가 이미 로드된 경우 컨트롤러 초기화
-    setTimeout(initConvertPageController, 100);
-  }
-}
-
-/**
- * 변환 페이지 컨트롤러 초기화 헬퍼 함수
- */
-function initConvertPageController() {
-  if (window.FileToQR && window.FileToQR.ConvertPageController) {
-    console.log('변환 페이지 컨트롤러 초기화 시작');
+  if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
     window.FileToQR.ConvertPageController.init();
-    console.log('변환 페이지 컨트롤러 초기화 완료');
   } else {
-    console.error('ConvertPageController를 찾을 수 없습니다');
+    console.warn('ConvertPageController.init을 찾을 수 없습니다. convert.js가 로드되었는지 확인하세요.');
+    // 필요시 동적 로드 로직 추가
   }
 }
 
@@ -348,8 +311,12 @@ function initConvertPageController() {
  */
 function initQRCodePage() {
   console.log('QR 코드 페이지 초기화');
-  if (window.FileToQR && window.FileToQR.QRGenerator && !window.FileToQR.QRGenerator.state.initialized) {
-    window.FileToQR.QRGenerator.init();
+  if (window.FileToQR && window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.init === 'function') {
+    if (!window.FileToQR.QRGenerator.state || !window.FileToQR.QRGenerator.state.initialized) {
+      window.FileToQR.QRGenerator.init();
+    }
+  } else {
+    console.warn('QRGenerator.init을 찾을 수 없습니다. qr-generator.js가 로드되었는지 확인하세요.');
   }
 }
 
@@ -359,6 +326,9 @@ function initQRCodePage() {
  */
 function initTimerPage() {
   console.log('타이머 페이지 초기화');
+  // timer.js는 자체적으로 DOMContentLoaded에서 초기화 로직을 가질 수 있음
+  // 또는 여기서 명시적으로 해당 페이지의 초기화 함수 호출
+  // 예: if (window.FileToQR && window.FileToQR.TimerPage) { window.FileToQR.TimerPage.init(); }
 }
 
 /**
@@ -367,6 +337,9 @@ function initTimerPage() {
  */
 function initHelpPage() {
   console.log('도움말 페이지 초기화');
+  if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
+    window.FileToQR.controllers.content.init();
+  }
 }
 
 /**
@@ -375,6 +348,9 @@ function initHelpPage() {
  */
 function initContactPage() {
   console.log('문의하기 페이지 초기화');
+   if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
+    window.FileToQR.controllers.content.init();
+  }
 }
 
 /**
@@ -383,6 +359,9 @@ function initContactPage() {
  */
 function initPrivacyPage() {
   console.log('개인정보 처리방침 페이지 초기화');
+   if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
+    window.FileToQR.controllers.content.init();
+  }
 }
 
 /**
@@ -391,93 +370,8 @@ function initPrivacyPage() {
  */
 function initTermsPage() {
   console.log('이용약관 페이지 초기화');
-}
-
-/**
- * 템플릿 처리 및 렌더링
- */
-function processTemplates() {
-  try {
-    if (window.Handlebars && window.FileToQR.TemplateUtils) {
-      // 템플릿 요소 검색
-      const templateElements = document.querySelectorAll('[data-template]');
-      console.log(`템플릿 요소 발견: ${templateElements.length}개`);
-      
-      // 각 템플릿 요소 처리
-      templateElements.forEach(element => {
-        const templateName = element.getAttribute('data-template');
-        const templateData = element.getAttribute('data-template-data');
-        
-        if (templateName) {
-          console.log(`템플릿 렌더링 시도: ${templateName}`);
-          
-          let data = {};
-          
-          // 템플릿 데이터 파싱 시도
-          if (templateData) {
-            try {
-              data = JSON.parse(templateData);
-            } catch (err) {
-              console.error(`템플릿 데이터 JSON 파싱 오류: ${templateName}`, err);
-            }
-          }
-          
-          // 현재 페이지 및 언어 정보 추가
-          const currentLang = getCurrentLanguage();
-          data.pageId = getCurrentPage();
-          data.currentLang = currentLang;
-          data.basePath = getBasePath();
-          
-          // 템플릿 렌더링
-          window.FileToQR.TemplateUtils.loadComponent(templateName, element, data.basePath, data)
-            .then(() => {
-              console.log(`템플릿 렌더링 성공: ${templateName}`);
-              
-              // 렌더링 후 이벤트 발생
-              const event = new CustomEvent('template:rendered', {
-                detail: { templateName, element }
-              });
-              document.dispatchEvent(event);
-            })
-            .catch(err => {
-              console.error(`템플릿 렌더링 실패: ${templateName}`, err);
-            });
-        }
-      });
-      
-      // 인라인 파티셜 처리
-      const partialElements = document.querySelectorAll('[data-partial]');
-      partialElements.forEach(element => {
-        const partialName = element.getAttribute('data-partial');
-        const partialData = element.getAttribute('data-partial-data');
-        
-        if (partialName && window.Handlebars.partials[partialName]) {
-          let data = {};
-          
-          // 파티셜 데이터 파싱 시도
-          if (partialData) {
-            try {
-              data = JSON.parse(partialData);
-            } catch (err) {
-              console.error(`파티셜 데이터 JSON 파싱 오류: ${partialName}`, err);
-            }
-          }
-          
-          // 기본 데이터 추가
-          data.currentLang = getCurrentLanguage();
-          data.basePath = getBasePath();
-          
-          // 파티셜 렌더링
-          const template = window.Handlebars.partials[partialName];
-          const compiledTemplate = typeof template === 'function' ? template : window.Handlebars.compile(template);
-          element.innerHTML = compiledTemplate(data);
-          
-          console.log(`파티셜 렌더링 완료: ${partialName}`);
-        }
-      });
-    }
-  } catch (error) {
-    console.error('템플릿 처리 중 오류:', error);
+  if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
+    window.FileToQR.controllers.content.init();
   }
 }
 
@@ -493,42 +387,24 @@ function getCurrentLanguage() {
  * 페이지 내 모든 내부 링크 업데이트
  */
 function updateInternalLinks() {
-  // 모든 앵커 태그 가져오기
   const links = document.querySelectorAll('a');
-  
   for (const link of links) {
     const href = link.getAttribute('href');
-    
-    // href 속성이 없거나 외부 링크, 앵커 링크, 자바스크립트 링크인 경우 건너뛰기
     if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
       continue;
     }
-    
-    // 특수 data-i18n-url 속성이 있는 경우 (다국어 URL)
     if (link.hasAttribute('data-i18n-url')) {
       const urlKey = link.getAttribute('data-i18n-url');
-      const newHref = I18n.getUrlFromKey(urlKey);
-      
-      if (newHref) {
-        link.setAttribute('href', newHref);
-      }
-      
+      const newHref = I18n.getUrlFromKey(urlKey); // I18n 유틸리티에 이 함수가 있다고 가정
+      if (newHref) link.setAttribute('href', newHref);
       continue;
     }
-    
-    // 일반 내부 링크인 경우, 현재 언어 설정에 맞게 URL 업데이트
     if (!UrlUtils.isExternalUrl(href)) {
-      const currentLang = I18n.getCurrentLang();
-      const defaultLang = Config.LANGUAGE_CONFIG.defaultLanguage;
-      
-      // 기본 언어가 아닌 경우에만 변경
-      if (currentLang !== defaultLang) {
-        try {
-          const newHref = UrlUtils.getI18nUrl(href, currentLang);
-          link.setAttribute('href', newHref);
-    } catch (error) {
-          console.warn(`링크 ${href} 처리 실패:`, error);
-        }
+      try {
+        const newHref = UrlUtils.getI18nUrl(href); // 현재 언어에 맞게 URL 조정
+        link.setAttribute('href', newHref);
+      } catch (error) {
+        console.warn(`링크 ${href} 처리 실패:`, error);
       }
     }
   }
@@ -542,104 +418,97 @@ function initLanguageSelector() {
     const langSelector = document.querySelector('.language-selector');
     const langToggle = document.getElementById('lang-selector-toggle');
     const langDropdown = document.getElementById('lang-dropdown-menu');
-    const langOptions = document.querySelectorAll('.lang-option');
+    
     if (!langSelector || !langToggle || !langDropdown) {
-      console.warn('언어 선택기 요소를 찾을 수 없음');
+      console.warn('언어 선택기 요소를 찾을 수 없음. 전체 페이지 로딩 또는 템플릿 로딩 지연 문제일 수 있습니다.');
       return;
     }
-    // 현재 언어 표시 업데이트
-    updateLanguageDisplay();
-    // 드롭다운 열기/닫기 함수
-    function openDropdown() {
-      langSelector.classList.add('open');
-      langToggle.setAttribute('aria-expanded', 'true');
-      langDropdown.setAttribute('aria-hidden', 'false');
-      // 첫 번째 옵션에 포커스
-      if (langOptions.length > 0) langOptions[0].focus();
-    }
-    function closeDropdown() {
-      langSelector.classList.remove('open');
-      langToggle.setAttribute('aria-expanded', 'false');
-      langDropdown.setAttribute('aria-hidden', 'true');
-    }
-    // 토글 버튼 클릭
+    
+    updateLanguageDisplay(); // 현재 언어 표시
+
+    // 드롭다운 토글
     langToggle.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      if (langSelector.classList.contains('open')) {
-        closeDropdown();
-      } else {
-        openDropdown();
+      const isOpen = langSelector.classList.toggle('open');
+      langToggle.setAttribute('aria-expanded', isOpen.toString());
+      langDropdown.setAttribute('aria-hidden', (!isOpen).toString());
+      if (isOpen) {
+        const firstOption = langDropdown.querySelector('.lang-option');
+        if (firstOption) firstOption.focus();
       }
     });
-    // 외부 클릭 시 닫기
-    document.addEventListener('mousedown', function(e) {
+
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', function(e) {
       if (!langSelector.contains(e.target)) {
-        closeDropdown();
+        langSelector.classList.remove('open');
+        langToggle.setAttribute('aria-expanded', 'false');
+        langDropdown.setAttribute('aria-hidden', 'true');
       }
     });
+    
     // ESC 키로 닫기 및 키보드 접근성
     langToggle.addEventListener('keydown', function(e) {
       if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        openDropdown();
+        langSelector.classList.add('open');
+        langToggle.setAttribute('aria-expanded', 'true');
+        const firstOption = langDropdown.querySelector('.lang-option');
+        if (firstOption) firstOption.focus();
       }
     });
+
     langDropdown.addEventListener('keydown', function(e) {
-      const focusable = Array.from(langOptions);
-      const idx = focusable.indexOf(document.activeElement);
+      const langOptions = Array.from(langDropdown.querySelectorAll('.lang-option'));
+      const currentIndex = langOptions.indexOf(document.activeElement);
+
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        const next = (idx + 1) % focusable.length;
-        focusable[next].focus();
+        const nextIndex = (currentIndex + 1) % langOptions.length;
+        langOptions[nextIndex].focus();
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        const prev = (idx - 1 + focusable.length) % focusable.length;
-        focusable[prev].focus();
+        const prevIndex = (currentIndex - 1 + langOptions.length) % langOptions.length;
+        langOptions[prevIndex].focus();
       } else if (e.key === 'Escape') {
-        e.preventDefault();
-        closeDropdown();
+        langSelector.classList.remove('open');
+        langToggle.setAttribute('aria-expanded', 'false');
         langToggle.focus();
       } else if (e.key === 'Tab') {
         // 드롭다운 내에서만 순환
-        if (e.shiftKey && idx === 0) {
-          e.preventDefault();
-          focusable[focusable.length - 1].focus();
-        } else if (!e.shiftKey && idx === focusable.length - 1) {
-          e.preventDefault();
-          focusable[0].focus();
+        if (e.shiftKey && currentIndex === 0) {
+            e.preventDefault();
+            langOptions[langOptions.length - 1].focus();
+        } else if (!e.shiftKey && currentIndex === langOptions.length - 1) {
+            e.preventDefault();
+            langOptions[0].focus();
         }
       }
     });
-    // 언어 옵션 클릭 처리
+    
+    // 언어 옵션 클릭/선택
+    const langOptions = langDropdown.querySelectorAll('.lang-option');
     langOptions.forEach(option => {
-      option.setAttribute('tabindex', '0');
+      option.setAttribute('tabindex', '0'); // 키보드 포커스 가능하게
       option.addEventListener('click', function(e) {
         e.preventDefault();
-        const lang = this.getAttribute('data-lang');
-        if (lang) {
-          langOptions.forEach(opt => opt.classList.remove('active'));
-          this.classList.add('active');
-          if (window.FileToQR && window.FileToQR.i18n) {
-            window.FileToQR.i18n.navigateToLanguage(lang);
-          } else {
-            const currentPath = window.location.pathname;
-            let newPath;
-            if (currentPath.match(/^\/(ko|en|zh|ja)\//)) {
-              newPath = currentPath.replace(/^\/(ko|en|zh|ja)\//, `/${lang}/`);
-            } else {
-              const pageName = currentPath.split('/').pop() || 'index.html';
-              newPath = `/${lang}/${pageName}`;
-            }
-            window.location.href = newPath;
-          }
+        const lang = this.dataset.lang;
+        if (window.FileToQR.i18n && typeof window.FileToQR.i18n.navigateToLanguage === 'function') {
+          window.FileToQR.i18n.navigateToLanguage(lang);
+        } else {
+          console.error('I18n.navigateToLanguage 함수를 찾을 수 없습니다.');
+          // 폴백: 직접 URL 변경
+          const currentPath = window.location.pathname;
+          const pageName = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'index.html';
+          window.location.href = `/${lang}/${pageName}`;
         }
       });
       // 키보드 엔터/스페이스로 선택
       option.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.click();
+            e.preventDefault();
+            this.click();
         }
       });
     });
@@ -649,9 +518,10 @@ function initLanguageSelector() {
     langDropdown.setAttribute('role', 'listbox');
     langDropdown.setAttribute('aria-hidden', 'true');
     langOptions.forEach(option => {
-      option.setAttribute('role', 'option');
+        option.setAttribute('role', 'option');
     });
-    console.log('언어 선택기 접근성 및 일관성 개선 완료');
+
+    console.log('언어 선택기 초기화 완료');
   } catch (error) {
     console.error('언어 선택기 초기화 오류:', error);
   }
@@ -662,66 +532,41 @@ function initLanguageSelector() {
  */
 function updateLanguageDisplay() {
   try {
-    const langSelector = document.getElementById('lang-selector-toggle');
-    if (!langSelector) return;
-    
-    // 언어별 표시 이름
-    const langNames = {
+    const langToggle = document.getElementById('lang-selector-toggle');
+    if (!langToggle) return;
+
+    const currentLang = getCurrentLanguage();
+    const langNames = Config.LANGUAGE_CONFIG.names || { // Config에서 언어 이름 가져오도록 수정
       'ko': '한국어',
       'en': 'English',
       'zh': '中文',
       'ja': '日本語'
     };
-    
-    // 현재 언어 감지
-    let currentLang = 'ko'; // 기본값
-    
-    // FileToQR i18n 객체 사용
-    if (window.FileToQR && window.FileToQR.i18n) {
-      currentLang = window.FileToQR.i18n.getCurrentLang();
-    } else {
-      // URL에서 언어 추출
-      const pathMatch = window.location.pathname.match(/^\/(ko|en|zh|ja)\//);
-      if (pathMatch) {
-        currentLang = pathMatch[1];
-      }
-    }
-    
-    // 언어 선택기 텍스트 업데이트
-    const langLabel = langSelector.querySelector('.lang-label');
+
+    const langLabel = langToggle.querySelector('.lang-label');
     if (langLabel) {
-      langLabel.textContent = langNames[currentLang] || langNames['ko'];
+      langLabel.textContent = langNames[currentLang] || currentLang.toUpperCase();
     }
-    
-    // 언어 플래그 아이콘 업데이트
-    const flagIcon = langSelector.querySelector('.lang-flag-icon');
+
+    const flagIcon = langToggle.querySelector('.lang-flag-icon');
     if (flagIcon) {
-      // 모든 플래그 클래스 제거
-      flagIcon.classList.remove('ko-flag', 'en-flag', 'zh-flag', 'ja-flag');
-      // 현재 언어에 맞는 플래그 클래스 추가
-      flagIcon.classList.add(`${currentLang}-flag`);
-      // 플래그 이미지 경로를 JS에서 동적으로 할당
-      let basePath = './';
-      if (typeof getBasePath === 'function') {
-        basePath = getBasePath();
-      }
-      // basePath가 '/'로 끝나지 않도록 보정
-      if (basePath.endsWith('/')) basePath = basePath;
-      const flagPath = `${basePath}assets/images/flags/${currentLang}.svg`;
-      flagIcon.style.backgroundImage = `url('${flagPath}')`;
+      flagIcon.className = `lang-flag-icon ${currentLang}-flag`;
+      // 이미지가 CSS 배경으로 설정되어 있다면 이 부분은 필요 없을 수 있습니다.
+      // 만약 JS로 직접 이미지 경로를 설정한다면 다음을 사용:
+      // flagIcon.src = `${getBasePath()}assets/images/flags/${currentLang}.svg`;
     }
-    
-    // 현재 선택된 언어 옵션 강조
-    const langOptions = document.querySelectorAll('.lang-option');
+
+    const langOptions = document.querySelectorAll('#lang-dropdown-menu .lang-option');
     langOptions.forEach(option => {
-      const optionLang = option.getAttribute('data-lang');
       option.classList.remove('active');
-      if (optionLang === currentLang) {
+      option.removeAttribute('aria-selected');
+      if (option.dataset.lang === currentLang) {
         option.classList.add('active');
+        option.setAttribute('aria-selected', 'true');
       }
     });
   } catch (error) {
-    console.error('언어 표시 업데이트 오류:', error);
+    console.error('언어 표시 업데이트 중 오류:', error);
   }
 }
 
@@ -729,18 +574,26 @@ function updateLanguageDisplay() {
  * 애플리케이션 초기화 이후 추가 작업
  */
 function onAppInitialized() {
-  // 언어 변경 이벤트 리스너 추가
   window.addEventListener('languageChanged', (event) => {
     const lang = event.detail.language;
     updateInternalLinks();
-    console.log(`언어 변경 감지: ${lang}`);
+    updateLanguageDisplay(); // 언어 변경 시 표시 업데이트
+    console.log(`언어 변경 감지: ${lang}. 내부 링크 및 언어 선택기 표시 업데이트됨.`);
   });
-  
-  // 기타 전역 이벤트 리스너 설정
-  // ...
 }
 
-// 전역 객체에 등록
+/**
+ * 에러 메시지 표시 함수 (간단 버전)
+ */
+function showErrorMessage(message) {
+    // 기존에 만들어둔 토스트 메시지나 알림 컴포넌트 활용 가능
+    // 여기서는 간단히 alert으로 대체
+    console.error("오류 발생:", message);
+    // alert(message); // 실제 서비스에서는 더 나은 UI로 대체
+}
+
+// 전역 FileToQR 객체 및 app 네임스페이스 확인 및 생성
+window.FileToQR = window.FileToQR || {};
 window.FileToQR.app = {
   init,
   getCurrentPage,
@@ -750,15 +603,15 @@ window.FileToQR.app = {
 };
 
 // DOMContentLoaded 이벤트 시 앱 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  window.FileToQR.app.init();
-});
+// 이 리스너는 app-core.js가 HTML에 직접 포함될 때 유효합니다.
+// 모듈 번들러(webpack 등)를 사용하고 app-core.js가 다른 모듈에 의해 임포트된다면,
+// 최상위 진입점(예: main.js 또는 index.js)에서 init()을 호출해야 합니다.
+// 현재 프로젝트 구조에서는 각 HTML 파일에서 app-core.js를 직접 로드하고,
+// 그 안에서 DOMContentLoaded를 기다렸다가 init()을 호출하는 것이 안전합니다.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.FileToQR.app.init);
+} else {
+  window.FileToQR.app.init(); // 이미 로드된 경우 바로 실행
+}
 
-// Export for ES modules
-export default {
-  init,
-  getCurrentPage,
-  navigateTo,
-  getBasePath,
-  getCurrentLanguage
-}; 
+export default window.FileToQR.app; 
