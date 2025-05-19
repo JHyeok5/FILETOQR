@@ -445,6 +445,10 @@ function initLanguageSelector() {
         langSelector.classList.remove('open');
         langToggle.setAttribute('aria-expanded', 'false');
         langDropdown.setAttribute('aria-hidden', 'true');
+        // 접근성: 드롭다운 내부에 포커스가 남아있으면 토글 버튼으로 이동
+        if (langDropdown.contains(document.activeElement)) {
+          langToggle.focus();
+        }
       }
     });
     
@@ -474,7 +478,8 @@ function initLanguageSelector() {
       } else if (e.key === 'Escape') {
         langSelector.classList.remove('open');
         langToggle.setAttribute('aria-expanded', 'false');
-        langToggle.focus();
+        langDropdown.setAttribute('aria-hidden', 'true');
+        langToggle.focus(); // ESC로 닫을 때도 토글 버튼으로 포커스 이동
       } else if (e.key === 'Tab') {
         // 드롭다운 내에서만 순환
         if (e.shiftKey && currentIndex === 0) {
