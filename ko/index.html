@@ -103,16 +103,6 @@
     <!-- 이후: 주요 기능/특장점, FAQ, 푸터 등 추가 예정 -->
   </main>
   <footer></footer>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof init === 'function') {
-        init();
-      } else if (window.FileToQR && typeof window.FileToQR.init === 'function') {
-        window.FileToQR.init();
-      } else {
-        console.error('FileToQR 초기화 함수(init)를 찾을 수 없습니다.');
-      }
-    });
-  </script>
+  <script type="module" src="/assets/js/core/app-core.js"></script>
 </body>
 </html>
