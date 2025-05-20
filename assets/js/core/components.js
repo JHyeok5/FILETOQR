@@ -412,9 +412,10 @@ function register(name, component) {
    * @returns {Promise<boolean>} 삽입 성공 여부
    */
   async function insertComponent(selector, url, position = 'replace') {
+    console.log('[insertComponent] selector:', selector, 'url:', url);
     const targetElement = document.querySelector(selector);
     if (!targetElement) {
-      console.error(`선택자와 일치하는 요소를 찾을 수 없습니다: ${selector}`);
+      console.error(`[insertComponent] 선택자와 일치하는 요소를 찾을 수 없습니다: ${selector}`);
       return false;
     }
     
@@ -471,6 +472,7 @@ function register(name, component) {
    * @returns {Promise<void>}
    */
   async function loadDefaultComponents() {
+    console.log('[loadDefaultComponents] 실행');
     await insertComponent('#header-container', '/components/header.html', 'replace');
     await insertComponent('#footer-container', '/components/footer.html', 'replace');
   }
@@ -495,6 +497,9 @@ function register(name, component) {
     loadDefault: loadDefaultComponents,
     init
   };
+  // 명시적으로 window에 할당
+  window.FileToQR = FileToQR;
+  window.FileToQR.components = FileToQR.components;
   if (
     typeof window !== 'undefined' &&
     window.FileToQR &&
