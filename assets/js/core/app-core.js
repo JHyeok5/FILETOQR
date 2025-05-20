@@ -109,8 +109,9 @@ async function init() {
 
     // 3. 헤더/푸터 동적 치환 (components.js)
     if (window.FileToQR && window.FileToQR.components && typeof window.FileToQR.components.loadDefault === 'function') {
+      console.log('loadDefault 함수 호출 전');
       await window.FileToQR.components.loadDefault();
-      console.log('공통 헤더/푸터 동적 치환 완료');
+      console.log('loadDefault 함수 호출 후');
     } else {
       console.warn('FileToQR.components.loadDefault()를 찾을 수 없습니다. components.js가 올바르게 로드되었는지 확인하세요.');
     }
