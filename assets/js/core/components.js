@@ -16,17 +16,19 @@ const componentEvents = new EventEmitter();
 // 컴포넌트 레지스트리
 const components = new Map();
 
-// 컴포넌트 시스템 API
+// (IIFE 내부, 모든 함수 선언 후)
 const ComponentSystem = {
-  register,
+  register: registerComponent,
   init,
-  mount,
-  unmount,
-  update,
+  mount: undefined, // 필요시 실제 함수로 대체
+  unmount: undefined, // 필요시 실제 함수로 대체
+  update: undefined, // 필요시 실제 함수로 대체
   on: componentEvents.on.bind(componentEvents),
   off: componentEvents.off.bind(componentEvents),
   emit: componentEvents.emit.bind(componentEvents)
 };
+// 필요하다면 window에 노출
+window.ComponentSystem = ComponentSystem;
 
 /**
  * 컴포넌트 등록
