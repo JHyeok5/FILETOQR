@@ -664,11 +664,22 @@ const ConvertPageController = {
   }
 };
 
-// DOM 로드 완료 후 컨트롤러 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM 로드 완료, 변환 페이지 컨트롤러 초기화 시작');
-  ConvertPageController.init();
-});
+// 기존 DOMContentLoaded 또는 즉시 실행 부분을 아래로 대체
+function waitForHeaderFooterAndInit() {
+  const header = document.getElementById('header-container');
+  const footer = document.getElementById('footer-container');
+  if (header && footer && header.innerHTML && footer.innerHTML) {
+    // 헤더/푸터가 실제로 삽입된 후에만 초기화
+    if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
+      window.FileToQR.ConvertPageController.init();
+    } else {
+      ConvertPageController.init();
+    }
+  } else {
+    setTimeout(waitForHeaderFooterAndInit, 50);
+  }
+}
+waitForHeaderFooterAndInit();
 
 // 전역 객체에 컨트롤러 추가
 window.FileToQR.ConvertPageController = ConvertPageController;
