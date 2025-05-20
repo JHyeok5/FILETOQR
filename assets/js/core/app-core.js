@@ -107,7 +107,15 @@ async function init() {
       detectBrowserLang: true
     });
 
-    // 3. 템플릿 유틸리티 초기화 (필요한 경우)
+    // 3. 헤더/푸터 동적 치환 (components.js)
+    if (window.FileToQR && window.FileToQR.components && typeof window.FileToQR.components.loadDefault === 'function') {
+      await window.FileToQR.components.loadDefault();
+      console.log('공통 헤더/푸터 동적 치환 완료');
+    } else {
+      console.warn('FileToQR.components.loadDefault()를 찾을 수 없습니다. components.js가 올바르게 로드되었는지 확인하세요.');
+    }
+
+    // 4. 템플릿 유틸리티 초기화 (필요한 경우)
     try {
       if (typeof window.FileToQR !== 'undefined' && typeof window.FileToQR.TemplateUtils !== 'undefined') {
         console.log('템플릿 유틸리티 발견, 초기화 시작');
