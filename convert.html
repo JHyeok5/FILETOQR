@@ -19,9 +19,8 @@
   <script type="module" src="/assets/js/pages/convert.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <header class="bg-white shadow-sm sticky top-0 z-50">
-    <!-- ... (index.html의 header/nav 구조 복사) ... -->
-  </header>
+  <!-- 동적 헤더 컴포넌트 삽입 영역 -->
+  <div id="header-container"></div>
   <main class="flex-grow container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">파일 변환</h1>
     <div id="file-convert-app">
@@ -40,8 +39,7 @@
       <button id="download-btn" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" disabled>변환 결과 다운로드</button>
     </div>
   </main>
-  <footer class="bg-gray-100 mt-12">
-    <!-- ... (index.html의 footer 구조 복사) ... -->
-  </footer>
+  <!-- 동적 푸터 컴포넌트 삽입 영역 -->
+  <div id="footer-container"></div>
 </body>
 </html> 

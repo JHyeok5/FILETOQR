@@ -1,6 +1,6 @@
 <!-- 
   헤더 컴포넌트 - FileToQR 애플리케이션 
-  버전: 1.0.1 (반응형/접근성 개선)
+  버전: 1.0.2 (반응형 햄버거 메뉴 UX 표준 적용)
   최종 업데이트: 2025년 7월 15일
 -->
 <header class="bg-white shadow-sm sticky top-0 z-50">
@@ -10,14 +10,14 @@
                 <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2 shrink-0">
                 <span class="text-2xl font-bold text-blue-600 truncate whitespace-nowrap">FileToQR</span>
             </a>
-            <!-- 모바일 햄버거 버튼 -->
-            <button class="md:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="mobile-menu-toggle" aria-label="메뉴 열기">
+            <!-- 햄버거 메뉴 버튼: 모바일/좁은 화면에서만 보임 -->
+            <button class="md:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="mobile-menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu">
                 <svg class="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-            <!-- 데스크탑 네비게이션 -->
-            <nav class="hidden md:flex items-center flex-1 justify-center min-w-0 overflow-x-auto">
+            <!-- PC 네비게이션: 넓은 화면에서만 보임 -->
+            <nav class="hidden md:flex items-center flex-1 justify-center min-w-0 overflow-x-auto" aria-label="주요 메뉴">
                 <ul class="flex space-x-4 md:space-x-6 min-w-0 overflow-x-auto">
                     <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
                     <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
@@ -34,8 +34,8 @@
                         <span class="lang-label" data-i18n="lang.ko">한국어</span>
                         <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
+                        </svg>
+                    </button>
                     <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu" aria-hidden="true">
                         <div class="lang-dropdown-header">
                             <span>언어 선택</span>
@@ -62,8 +62,8 @@
                 </div>
             </div>
         </div>
-        <!-- 모바일 메뉴: 햄버거 클릭 시 표시 -->
-        <nav class="md:hidden mt-2" id="mobile-menu" style="display:none;">
+        <!-- 모바일 메뉴: 햄버거 클릭 시 아래로 드롭다운 -->
+        <nav class="md:hidden mt-2" id="mobile-menu" style="display:none;" aria-label="모바일 메뉴">
             <ul class="flex flex-col space-y-2 bg-white rounded-lg shadow-md p-4">
                 <li><a href="/ko/index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
                 <li><a href="/ko/convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
@@ -82,14 +82,18 @@
         const mobileMenu = document.getElementById('mobile-menu');
         if (mobileMenuToggle && mobileMenu) {
             mobileMenuToggle.addEventListener('click', function() {
-                if (mobileMenu.style.display === 'none' || !mobileMenu.style.display) {
-                    mobileMenu.style.display = 'block';
-                } else {
+                const isOpen = mobileMenu.style.display === 'block';
+                mobileMenu.style.display = isOpen ? 'none' : 'block';
+                mobileMenuToggle.setAttribute('aria-expanded', !isOpen);
+            });
+            // 화면 크기 변경 시 메뉴 자동 닫힘
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 768) {
                     mobileMenu.style.display = 'none';
+                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
                 }
             });
         }
-        
         // 현재 페이지 메뉴 항목 활성화
         const currentPath = window.location.pathname;
         const navLinks = document.querySelectorAll('header nav a');

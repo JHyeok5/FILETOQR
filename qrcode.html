@@ -20,9 +20,8 @@
   <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <header class="bg-white shadow-sm sticky top-0 z-50">
-    <!-- ... (index.html의 header/nav 구조 복사) ... -->
-  </header>
+  <!-- 동적 헤더 컴포넌트 삽입 영역 -->
+  <div id="header-container"></div>
   <main class="flex-grow container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">QR 코드 생성</h1>
     <!-- QR 코드 생성/파일→QR 변환 UI/폼/버튼 영역 구현 (qr-generator.js, file-to-qr-core.js와 연동) -->
@@ -51,9 +50,8 @@
       <div id="qr-error-msg" class="text-red-600 mt-4"></div>
     </div>
   </main>
-  <footer class="bg-gray-100 mt-12">
-    <!-- ... (index.html의 footer 구조 복사) ... -->
-  </footer>
+  <!-- 동적 푸터 컴포넌트 삽입 영역 -->
+  <div id="footer-container"></div>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       if (typeof init === 'function') {
