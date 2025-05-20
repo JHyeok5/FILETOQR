@@ -31,6 +31,7 @@ console.log('app-core.js 로딩 시작');
 import Config from './config.js';
 import UrlUtils from '../utils/url-utils.js';
 import I18n from '../utils/i18n-utils.js';
+import '/assets/js/core/components.js';
 // 홈페이지 스크립트를 명시적으로 임포트하여 HomePage 객체를 사용 가능하도록 합니다.
 // 만약 HomePage가 전역 window.FileToQR.pages.home에 이미 할당된다면 이 import는 생략 가능합니다.
 // 하지만 명시적 임포트가 더 나은 모듈 관리 방식입니다.
