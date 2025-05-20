@@ -471,8 +471,8 @@ function register(name, component) {
    * @returns {Promise<void>}
    */
   async function loadDefaultComponents() {
-    await insertComponent('header', '/components/header.html', 'replace');
-    await insertComponent('footer', '/components/footer.html', 'replace');
+    await insertComponent('#header-container', '/components/header.html', 'replace');
+    await insertComponent('#footer-container', '/components/footer.html', 'replace');
   }
   
   /**
