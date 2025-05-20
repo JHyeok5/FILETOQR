@@ -18,7 +18,7 @@ const components = new Map();
 
 // (IIFE 내부, 모든 함수 선언 후에만 아래 코드가 존재해야 함)
 const ComponentSystem = {
-  register: registerComponent,
+  register: register,
   init,
   mount: undefined, // 필요시 실제 함수로 대체
   unmount: undefined, // 필요시 실제 함수로 대체
