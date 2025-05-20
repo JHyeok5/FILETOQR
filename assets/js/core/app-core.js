@@ -632,10 +632,8 @@ window.FileToQR.app = {
 // 최상위 진입점(예: main.js 또는 index.js)에서 init()을 호출해야 합니다.
 // 현재 프로젝트 구조에서는 각 HTML 파일에서 app-core.js를 직접 로드하고,
 // 그 안에서 DOMContentLoaded를 기다렸다가 init()을 호출하는 것이 안전합니다.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', window.FileToQR.app.init);
-} else {
-  window.FileToQR.app.init(); // 이미 로드된 경우 바로 실행
-}
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+});
 
 export default window.FileToQR.app; 
