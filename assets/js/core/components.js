@@ -502,7 +502,4 @@ function register(name, component) {
   } else {
     init();
   }
-})();
-
-export default FileToQR.components;
-export { Component } from FileToQR.components; 
+})(); 
