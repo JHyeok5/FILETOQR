@@ -495,11 +495,4 @@ function register(name, component) {
     loadDefault: loadDefaultComponents,
     init
   };
-  
-  // 컴포넌트 시스템 초기화
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
 })(); 
