@@ -16,7 +16,7 @@ const componentEvents = new EventEmitter();
 // 컴포넌트 레지스트리
 const components = new Map();
 
-// (IIFE 내부, 모든 함수 선언 후)
+// (IIFE 내부, 모든 함수 선언 후에만 아래 코드가 존재해야 함)
 const ComponentSystem = {
   register: registerComponent,
   init,
