@@ -27,7 +27,6 @@ const ComponentSystem = {
   off: componentEvents.off.bind(componentEvents),
   emit: componentEvents.emit.bind(componentEvents)
 };
-// 필요하다면 window에 노출
 window.ComponentSystem = ComponentSystem;
 
 /**
