@@ -495,9 +495,18 @@ function register(name, component) {
     loadDefault: loadDefaultComponents,
     init
   };
-  // 전역(window)에 명시적으로 노출
-  if (typeof window !== 'undefined') {
-    window.FileToQR = window.FileToQR || {};
-    window.FileToQR.components = FileToQR.components;
+  if (
+    typeof window !== 'undefined' &&
+    window.FileToQR &&
+    window.FileToQR.components &&
+    typeof window.FileToQR.components.init === 'function'
+  ) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', window.FileToQR.components.init);
+    } else {
+      window.FileToQR.components.init();
+    }
+  } else {
+    console.error('FileToQR.components.init 함수를 찾을 수 없습니다. components.js 로드 순서 또는 네임스페이스 할당을 확인하세요.');
   }
 })(); 
