@@ -391,91 +391,91 @@ const QRGenerator = {
    * @private
    */
   _registerEventListeners() {
-    const appContainer = document.getElementById('qr-generator-app');
+      const appContainer = document.getElementById('qr-generator-app');
     console.log('[DEBUG] appContainer:', appContainer);
-    if (!appContainer) {
-      console.warn('qr-generator-app 컨테이너가 존재하지 않습니다.');
-      return;
-    }
-    // 기존 qr-generator-app 컨테이너 이벤트 위임 유지
-    // [1] 탭 버튼 클릭 (content-type-tabs)
-    appContainer.addEventListener('click', (e) => {
-      // 탭 버튼 클릭 처리
-      const tabBtn = e.target.closest('.content-type-tabs button');
-      if (tabBtn) {
-        console.log('[Body 위임] 탭 버튼 클릭:', tabBtn.dataset.type);
-        const tabContainer = tabBtn.parentElement;
-        tabContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        tabBtn.classList.add('active');
-        // 모든 .content-form에서 .active 제거 + .hidden 추가 (모두 숨김)
-        appContainer.querySelectorAll('.content-form').forEach(f => {
-          f.classList.remove('active');
-          f.classList.add('hidden');
-        });
-        // 해당 폼 id 찾기 (data-type 속성 활용)
-        const type = tabBtn.getAttribute('data-type');
-        const form = document.getElementById(type + '-form');
-        if (form) {
-          form.classList.add('active');
-          form.classList.remove('hidden');
-        }
+      if (!appContainer) {
+        console.warn('qr-generator-app 컨테이너가 존재하지 않습니다.');
         return;
       }
-
-      // [2] QR 코드 생성 버튼 클릭
-      if (e.target && e.target.id === 'generate-qr') {
-        e.preventDefault();
-        if (window.FileToQR && window.FileToQR.QRGenerator) {
-          window.FileToQR.QRGenerator.generateQRCode();
+      // 기존 qr-generator-app 컨테이너 이벤트 위임 유지
+      // [1] 탭 버튼 클릭 (content-type-tabs)
+      appContainer.addEventListener('click', (e) => {
+        // 탭 버튼 클릭 처리
+        const tabBtn = e.target.closest('.content-type-tabs button');
+        if (tabBtn) {
+          console.log('[Body 위임] 탭 버튼 클릭:', tabBtn.dataset.type);
+          const tabContainer = tabBtn.parentElement;
+          tabContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+          tabBtn.classList.add('active');
+          // 모든 .content-form에서 .active 제거 + .hidden 추가 (모두 숨김)
+          appContainer.querySelectorAll('.content-form').forEach(f => {
+            f.classList.remove('active');
+            f.classList.add('hidden');
+          });
+          // 해당 폼 id 찾기 (data-type 속성 활용)
+          const type = tabBtn.getAttribute('data-type');
+          const form = document.getElementById(type + '-form');
+          if (form) {
+            form.classList.add('active');
+            form.classList.remove('hidden');
+          }
+          return;
         }
-        return;
-      }
 
-      // [3] 기타 동적 버튼/다운로드 등 필요시 추가
-      // ...
-    });
+        // [2] QR 코드 생성 버튼 클릭
+        if (e.target && e.target.id === 'generate-qr') {
+          e.preventDefault();
+          if (window.FileToQR && window.FileToQR.QRGenerator) {
+            window.FileToQR.QRGenerator.generateQRCode();
+          }
+          return;
+        }
+
+        // [3] 기타 동적 버튼/다운로드 등 필요시 추가
+        // ...
+      });
 
     // [4] 로고 추가 체크박스: 직접 바인딩 (이벤트 위임 대신)
     const logoCheckbox = document.getElementById('add-logo');
     if (logoCheckbox) {
       logoCheckbox.addEventListener('change', (e) => {
         console.log('[DEBUG] 직접 바인딩: 체크박스 클릭됨');
-        const logoOptions = document.getElementById('logo-options');
-        const fileInput = document.getElementById('logo-file');
-        const fileLabel = document.querySelector('label[for="logo-file"]');
-        if (logoOptions && fileInput && fileLabel) {
-          if (e.target.checked) {
-            logoOptions.classList.remove('hidden');
-            fileInput.classList.remove('hidden');
-            fileLabel.classList.remove('hidden');
-            fileInput.disabled = false;
-          } else {
-            fileInput.value = '';
-            fileInput.classList.add('hidden');
-            fileLabel.classList.add('hidden');
-            logoOptions.classList.add('hidden');
-            fileInput.disabled = true;
+          const logoOptions = document.getElementById('logo-options');
+          const fileInput = document.getElementById('logo-file');
+          const fileLabel = document.querySelector('label[for="logo-file"]');
+          if (logoOptions && fileInput && fileLabel) {
+            if (e.target.checked) {
+              logoOptions.classList.remove('hidden');
+              fileInput.classList.remove('hidden');
+              fileLabel.classList.remove('hidden');
+              fileInput.disabled = false;
+            } else {
+              fileInput.value = '';
+              fileInput.classList.add('hidden');
+              fileLabel.classList.add('hidden');
+              logoOptions.classList.add('hidden');
+              fileInput.disabled = true;
             if (this.state && this.state.currentOptions) {
               this.state.currentOptions.logo = null;
             }
-          }
-        } else {
-          console.warn('[로고 DEBUG] logoOptions, fileInput, fileLabel 중 일부가 존재하지 않음');
+            }
+          } else {
+            console.warn('[로고 DEBUG] logoOptions, fileInput, fileLabel 중 일부가 존재하지 않음');
         }
       });
     } else {
       console.warn('[DEBUG] add-logo 체크박스가 존재하지 않음');
     }
 
-    // [5] 폼 submit 이벤트 위임 (qr-form)
-    appContainer.addEventListener('submit', (e) => {
-      if (e.target && e.target.id === 'qr-form') {
-        e.preventDefault();
-        if (window.FileToQR && window.FileToQR.QRGenerator) {
-          window.FileToQR.QRGenerator._handleFormSubmit();
+      // [5] 폼 submit 이벤트 위임 (qr-form)
+      appContainer.addEventListener('submit', (e) => {
+        if (e.target && e.target.id === 'qr-form') {
+          e.preventDefault();
+          if (window.FileToQR && window.FileToQR.QRGenerator) {
+            window.FileToQR.QRGenerator._handleFormSubmit();
+          }
+          return;
         }
-        return;
-      }
     });
 
     // [NEW] document.body 레벨에서 버튼 클릭 이벤트 위임 (동적 버튼 포함)
