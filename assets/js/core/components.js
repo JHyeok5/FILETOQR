@@ -18,7 +18,14 @@ const components = new Map();
 
 // (IIFE 내부, 모든 함수 선언 후에만 아래 코드가 존재해야 함)
 const ComponentSystem = {
-  register: register,
+  // FileToQR.components.register를 안전하게 호출하는 래퍼 함수로 수정
+  register: function(name, component) {
+    if (typeof window.FileToQR !== 'undefined' && window.FileToQR.components && typeof window.FileToQR.components.register === 'function') {
+      return window.FileToQR.components.register(name, component);
+    }
+    console.error("FileToQR.components.register 함수를 찾을 수 없습니다.");
+    return false;
+  },
   init,
   mount: undefined, // 필요시 실제 함수로 대체
   unmount: undefined, // 필요시 실제 함수로 대체
