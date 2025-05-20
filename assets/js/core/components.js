@@ -495,4 +495,9 @@ function register(name, component) {
     loadDefault: loadDefaultComponents,
     init
   };
+  // 전역(window)에 명시적으로 노출
+  if (typeof window !== 'undefined') {
+    window.FileToQR = window.FileToQR || {};
+    window.FileToQR.components = FileToQR.components;
+  }
 })(); 
