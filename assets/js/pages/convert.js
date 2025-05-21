@@ -43,22 +43,47 @@ const ConvertPageController = {
   },
 
   /**
-   * 초기화 함수
+   * 초기화 함수 (SPA 구조 대응)
+   * @param {boolean} force - true면 무조건 재초기화(이벤트 바인딩 포함)
    */
-  async init() {
-    if (this.state && this.state.initialized) return;
+  async init(force = false) {
+    // force=true면 무조건 재초기화, 아니면 기존 state.initialized로 중복 방지
+    if (this.state && this.state.initialized && !force) return;
     if (!this.state) this.state = {};
     this.state.initialized = true;
     try {
-      console.log('파일 변환 페이지 초기화 중...');
-      
-      // UI 요소 초기화
+      console.log('파일 변환 페이지 초기화 중... (force:', force, ")");
+      // 기존 이벤트 바인딩 해제(중복 방지)
+      // 주요 바인딩 대상: .converter-type-btn, #file-upload, label[for="file-upload"], #download-btn 등
+      // 1. 변환 유형 버튼: 새로 cloneNode로 교체
+      const conversionTypeBtns = document.querySelectorAll('.converter-type-btn');
+      conversionTypeBtns.forEach(btn => {
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+      });
+      // 2. 파일 업로드 input
+      const fileUpload = document.getElementById('file-upload');
+      if (fileUpload) {
+        const newInput = fileUpload.cloneNode(true);
+        fileUpload.parentNode.replaceChild(newInput, fileUpload);
+      }
+      // 3. 드롭 영역
+      const dropArea = document.querySelector('label[for="file-upload"]');
+      if (dropArea) {
+        const newDrop = dropArea.cloneNode(true);
+        dropArea.parentNode.replaceChild(newDrop, dropArea);
+      }
+      // 4. 다운로드 버튼
+      const downloadBtn = document.getElementById('download-btn');
+      if (downloadBtn) {
+        const newBtn = downloadBtn.cloneNode(true);
+        downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+      }
+      // 5. 기타 동적 생성 버튼(예: #convert-new-btn, #try-again-btn)은 동적으로 바인딩하므로 별도 처리 불필요
+      // UI 요소 초기화 및 이벤트 리스너 재등록
       this._initUI();
-      
-      // 이벤트 리스너 등록
       this._registerEventListeners();
-      
-      console.log('파일 변환 페이지 초기화 완료');
+      console.log('파일 변환 페이지 초기화 완료 (force:', force, ")");
     } catch (error) {
       console.error('파일 변환 페이지 초기화 실패:', error);
     }
