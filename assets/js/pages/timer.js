@@ -9,64 +9,73 @@ let timers = new Map();
 let timerIdCounter = 1;
 let notificationManager;
 
-// DOM 요소
-document.addEventListener('DOMContentLoaded', () => {
+// SPA 및 type="module" 환경에서 접근 가능하도록 window에 명시적으로 할당
+const TimerPage = {
+  init: () => {
+    // 중복 초기화 방지
+    if (TimerPage.state && TimerPage.state.initialized) return;
+    if (!TimerPage.state) TimerPage.state = {};
+    TimerPage.state.initialized = true;
     console.log('타이머 페이지 초기화');
     
     try {
-        // 모듈 인스턴스 생성
-        notificationManager = new NotificationManager();
-        const stopwatch = new Stopwatch();
-        
-        // 탭 전환 설정
-        setupTabs({ notificationManager });
-        
-        // 각 기능 초기화
-        setupMultipleTimers();
-        initializeStopwatch(stopwatch);
-        initializeSettings(notificationManager);
-        
-        // 타이머 추가 버튼 이벤트를 여러 방식으로 설정
-        // 1. 버튼에 직접 이벤트 리스너
-        const addTimerBtn = document.getElementById('add-timer');
-        console.log('[DEBUG] addTimerBtn:', addTimerBtn);
-        if (addTimerBtn) {
-            addTimerBtn.addEventListener('click', function(e) {
-                console.log('[DEBUG] 타이머 추가 버튼 클릭');
-                e.preventDefault();
-                addNewTimer();
-            });
-        }
-        
-        // 2. 커스텀 이벤트 리스너
-        document.addEventListener('add-new-timer', function() {
-            console.log('커스텀 이벤트로 타이머 추가');
-            addNewTimer();
+      // 모듈 인스턴스 생성
+      notificationManager = new NotificationManager();
+      const stopwatch = new Stopwatch();
+      
+      // 탭 전환 설정
+      setupTabs({ notificationManager });
+      
+      // 각 기능 초기화
+      setupMultipleTimers();
+      initializeStopwatch(stopwatch);
+      initializeSettings(notificationManager);
+      
+      // 타이머 추가 버튼 이벤트를 여러 방식으로 설정
+      // 1. 버튼에 직접 이벤트 리스너
+      const addTimerBtn = document.getElementById('add-timer');
+      console.log('[DEBUG] addTimerBtn:', addTimerBtn);
+      if (addTimerBtn) {
+        addTimerBtn.addEventListener('click', function(e) {
+          console.log('[DEBUG] 타이머 추가 버튼 클릭');
+          e.preventDefault();
+          addNewTimer();
         });
-        
-        // 3. 글로벌 함수 설정
-        window.addNewTimerGlobal = function() {
-            console.log('글로벌 함수로 타이머 추가');
+      }
+      
+      // 2. 커스텀 이벤트 리스너
+      document.addEventListener('add-new-timer', function() {
+        console.log('커스텀 이벤트로 타이머 추가');
+        addNewTimer();
+      });
+      
+      // 3. 글로벌 함수 설정
+      window.addNewTimerGlobal = function() {
+        console.log('글로벌 함수로 타이머 추가');
+        addNewTimer();
+      };
+      
+      // 이벤트 위임 방식도 추가 (동적으로 생성될 경우 대비)
+      const globalControls = document.querySelector('.timer-global-controls');
+      if (globalControls) {
+        globalControls.addEventListener('click', function(e) {
+          if (e.target && (e.target.id === 'add-timer' || e.target.closest('#add-timer'))) {
+            console.log('[DEBUG] (위임) 타이머 추가 버튼 클릭');
+            e.preventDefault();
             addNewTimer();
-        };
-        
-        // 이벤트 위임 방식도 추가 (동적으로 생성될 경우 대비)
-        const globalControls = document.querySelector('.timer-global-controls');
-        if (globalControls) {
-            globalControls.addEventListener('click', function(e) {
-                if (e.target && (e.target.id === 'add-timer' || e.target.closest('#add-timer'))) {
-                    console.log('[DEBUG] (위임) 타이머 추가 버튼 클릭');
-                    e.preventDefault();
-                    addNewTimer();
-                }
-            });
-        }
-        
-        console.log('타이머 페이지 초기화 완료');
+          }
+        });
+      }
+      
+      console.log('타이머 페이지 초기화 완료');
     } catch (error) {
-        console.error('타이머 페이지 초기화 오류:', error);
+      console.error('타이머 페이지 초기화 오류:', error);
     }
-});
+  }
+};
+window.FileToQR = window.FileToQR || {};
+window.FileToQR.TimerPage = TimerPage;
+export default TimerPage;
 
 // 탭 전환 설정 함수
 function setupTabs({ notificationManager }) {
