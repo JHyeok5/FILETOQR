@@ -258,14 +258,11 @@ const QRGenerator = {
    * @returns {Promise<boolean>} 초기화 성공 여부
    */
   async init() {
+    if (this.state && this.state.initialized) return;
+    if (!this.state) this.state = {};
+    this.state.initialized = true;
     try {
       console.log('QR 코드 생성기 초기화 시작...');
-      
-      // 이미 초기화된 경우 중복 실행 방지
-      if (this.state.initialized) {
-        console.log('QRGenerator가 이미 초기화되어 있습니다.');
-        return true;
-      }
       
       // QR 코드 라이브러리 로드
       console.log('QR 코드 라이브러리 로드 시도');
@@ -285,7 +282,6 @@ const QRGenerator = {
       console.log('이벤트 리스너 등록 시작');
       this._registerEventListeners();
       
-      this.state.initialized = true;
       console.log('QR 코드 생성기 초기화 완료. 상태:', this.state);
       return true;
     } catch (error) {
@@ -981,7 +977,7 @@ if (typeof window !== 'undefined') {
   }
 }
 
-export default QRGenerator;
+export default QRGenerator; 
 
 // 기존 DOMContentLoaded 또는 즉시 실행 부분을 아래로 대체
 function waitForHeaderFooterAndInit() {
