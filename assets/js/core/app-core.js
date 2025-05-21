@@ -708,19 +708,17 @@ function showErrorMessage(message) {
 }
 
 /**
- * 페이지별 JS 파일 동적 로드 및 초기화 함수 호출
+ * 페이지별 JS 파일 동적 로드 및 초기화 함수 호출 (SPA 개선)
  * @param {string} pageId - 페이지 식별자 (예: 'convert', 'timer', 'qrcode')
  * @returns {Promise<void>}
  *
- * - 이미 로드된 경우 중복 로딩 방지
- * - 로드 후 전역 객체의 초기화 함수(init 등) 호출
- * - 에러 발생 시 콘솔에 상세 로그
+ * - 항상 새 script로 동적 삽입(캐시 무력화)
+ * - 기존 컨트롤러 객체 및 script 태그 삭제
+ * - onload 시 init(force)로 강제 재초기화
  */
 async function loadPageScript(pageIdRaw) {
-  // --- pageId 보정 ---
   let pageId = pageIdRaw;
   if (!pageId || pageId === '' || pageId === 'index') pageId = 'home';
-  // 페이지별 JS 파일 경로 매핑
   const pageScriptMap = {
     'home': 'assets/js/pages/home.js',
     'convert': 'assets/js/pages/convert.js',
@@ -736,44 +734,75 @@ async function loadPageScript(pageIdRaw) {
     console.warn(`[loadPageScript] pageId(${pageId})에 대한 스크립트 경로가 없습니다.`);
     return;
   }
-  // 이미 로드된 경우 중복 방지 (window에 네임스페이스가 있으면 로드된 것으로 간주)
-  let alreadyLoaded = false;
-  switch (pageId) {
-    case 'convert':
-      alreadyLoaded = window.FileToQR && window.FileToQR.ConvertPageController;
-      break;
-    case 'qrcode':
-      alreadyLoaded = window.FileToQR && window.FileToQR.QRGenerator;
-      break;
-    case 'timer':
-      alreadyLoaded = window.FileToQR && window.FileToQR.TimerPage;
-      break;
-    case 'home':
-      alreadyLoaded = window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home;
-      break;
-    case 'help':
-    case 'contact':
-    case 'privacy':
-    case 'terms':
-      alreadyLoaded = window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content;
-      break;
-    default:
-      alreadyLoaded = false;
+  // 1. 기존 컨트롤러 객체 및 script 태그 삭제
+  try {
+    switch (pageId) {
+      case 'convert':
+        if (window.FileToQR && window.FileToQR.ConvertPageController) delete window.FileToQR.ConvertPageController;
+        break;
+      case 'qrcode':
+        if (window.FileToQR && window.FileToQR.QRGenerator) delete window.FileToQR.QRGenerator;
+        break;
+      case 'timer':
+        if (window.FileToQR && window.FileToQR.TimerPage) delete window.FileToQR.TimerPage;
+        break;
+      case 'home':
+        if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home) delete window.FileToQR.pages.home;
+        break;
+      case 'help':
+      case 'contact':
+      case 'privacy':
+      case 'terms':
+        if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) delete window.FileToQR.controllers.content;
+        break;
+    }
+    // 기존 script 태그 삭제 (data-page-script 속성 활용)
+    document.querySelectorAll('script[data-page-script]').forEach(s => s.remove());
+  } catch (e) {
+    console.warn('[loadPageScript] 기존 컨트롤러/스크립트 삭제 중 오류:', e);
   }
-  if (alreadyLoaded) {
-    console.log(`[loadPageScript] ${pageId} JS는 이미 로드됨. 초기화 함수만 호출.`);
-    await initCurrentPage();
-    return;
-  }
-  // 동적 script 태그 생성 및 로드
+  // 2. 새 script 동적 삽입(캐시 무력화)
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = scriptUrl;
+    script.src = `${scriptUrl}?ts=${Date.now()}`;
     script.async = true;
-    script.type = 'module'; // 모든 페이지 JS를 모듈로 로드
+    script.type = 'module';
+    script.setAttribute('data-page-script', 'true');
     script.onload = async () => {
-      console.log(`[loadPageScript] ${pageId} JS 동적 로드 완료. 초기화 함수 호출.`);
-      await initCurrentPage();
+      console.log(`[loadPageScript] ${pageId} JS 동적 로드 완료. 강제 재초기화(init(true)) 호출.`);
+      // 3. onload 시 강제 재초기화
+      if (window.FileToQR) {
+        switch (pageId) {
+          case 'convert':
+            if (window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
+              await window.FileToQR.ConvertPageController.init(true);
+            }
+            break;
+          case 'qrcode':
+            if (window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.init === 'function') {
+              await window.FileToQR.QRGenerator.init(true);
+            }
+            break;
+          case 'timer':
+            if (window.FileToQR.TimerPage && typeof window.FileToQR.TimerPage.init === 'function') {
+              await window.FileToQR.TimerPage.init(true);
+            }
+            break;
+          case 'home':
+            if (window.FileToQR.pages && window.FileToQR.pages.home && typeof window.FileToQR.pages.home.init === 'function') {
+              await window.FileToQR.pages.home.init(true);
+            }
+            break;
+          case 'help':
+          case 'contact':
+          case 'privacy':
+          case 'terms':
+            if (window.FileToQR.controllers && window.FileToQR.controllers.content && typeof window.FileToQR.controllers.content.init === 'function') {
+              await window.FileToQR.controllers.content.init(true);
+            }
+            break;
+        }
+      }
       resolve();
     };
     script.onerror = (e) => {
