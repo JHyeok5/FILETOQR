@@ -158,63 +158,41 @@ const UrlUtils = {
         defaultLang: Config.LANGUAGE_CONFIG.defaultLanguage,
         useBaseUrl: true
       };
-      
       const opts = { ...defaultOptions, ...options };
-      
-      // 현재 언어 확인 - 우선순위에 따라 결정
+      // 현재 언어 확인
       let currentLang;
-      
       if (lang) {
-        // 1. 명시적 언어 코드가 제공된 경우
         currentLang = lang;
       } else if (window.FileToQR && window.FileToQR.i18n && typeof window.FileToQR.i18n.getCurrentLang === 'function') {
-        // 2. i18n 모듈에서 현재 언어를 가져올 수 있는 경우
         currentLang = window.FileToQR.i18n.getCurrentLang();
       } else {
-        // 3. URL에서 언어를 추출하거나 기본값 사용
         currentLang = this.getLanguageFromUrl() || opts.defaultLang;
       }
-      
       // 시작 및 끝 슬래시 제거
       let cleanPath = path.replace(/^\/|\/$/g, '');
-      
-      // --- 중복 언어 코드 방지 로직 추가 ---
-      // cleanPath가 이미 'ko/convert.html' 등 언어 코드로 시작하면 중복 방지
+      // 중복 언어 코드 방지
       const supportedLangs = Config.LANGUAGE_CONFIG.supportedLanguages || ['ko','en','zh','ja'];
       const pathParts = cleanPath.split('/');
       if (pathParts.length > 1 && supportedLangs.includes(pathParts[0])) {
-        // 이미 언어 코드가 붙어 있으면 그대로 사용
         cleanPath = pathParts.slice(1).join('/');
       }
-      // --- 중복 언어 코드 방지 끝 ---
-      
-      let urlPath;
-      
-      // 기본 언어인 경우 언어 경로 없음 (선택적으로 설정 가능)
-      if (currentLang === opts.defaultLang && !opts.alwaysIncludeLang) {
-        urlPath = `/${cleanPath}`;
-      } else {
-        urlPath = `/${currentLang}/${cleanPath}`;
-      }
-      
+      // 항상 언어 코드 포함 (기본 언어도 예외 없이)
+      let urlPath = `/${currentLang}/${cleanPath}`;
       // 절대 URL 요청 시
       if (opts.absolute) {
         const baseUrl = window.location.origin;
         return `${baseUrl}${urlPath}`;
       }
-      
       // 기본 URL 사용 여부
       if (opts.useBaseUrl) {
         const basePath = this.getBasePath();
-        // 첫 슬래시 제거하여 상대 경로와 연결
         const relPath = urlPath.replace(/^\//, '');
         return `${basePath}${relPath}`;
       }
-      
       return urlPath;
     } catch (error) {
       console.error('i18n URL 생성 중 오류:', error, { path, lang, options });
-      return path; // 오류 발생 시 원래 경로 반환
+      return path;
     }
   },
   
