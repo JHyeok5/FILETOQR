@@ -19,6 +19,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script type="module" src="/assets/js/core/app-core.js"></script>
   <script type="module" src="/assets/js/pages/home.js"></script>
+  <!-- [다국어 자동 리다이렉트 스크립트] -->
+  <script>
+    (function() {
+      // 이미 언어 폴더에 있으면 리다이렉트하지 않음
+      if (/^\/(en|ko|ja|zh)(\/|$)/.test(window.location.pathname)) return;
+      // 브라우저 언어 감지
+      var lang = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+      lang = lang.toLowerCase();
+      // 지원 언어 매핑
+      var supported = ['en', 'ko', 'ja', 'zh'];
+      var target = supported.find(function(l) { return lang.startsWith(l); }) || 'en';
+      // 리다이렉트
+      window.location.replace('/' + target + '/');
+    })();
+  </script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
