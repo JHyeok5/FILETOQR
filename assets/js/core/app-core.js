@@ -426,14 +426,19 @@ function updateInternalLinks() {
       const href = link.getAttribute('href');
       if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
       e.preventDefault();
-      // pageId 추출 (예: /ko/convert.html → convert)
+      // --- pageId 추출 보정 ---
       let pageId = null;
       try {
         const urlParts = href.split('/');
         let fileName = urlParts[urlParts.length - 1] || 'index.html';
-        if (fileName.indexOf('.html') === -1) fileName = 'index.html';
-        pageId = fileName.replace('.html', '');
-        if (!pageId) pageId = 'home';
+        // index.html → home, 나머지는 .html 제거
+        if (fileName === '' || fileName === 'index.html') {
+          pageId = 'home';
+        } else if (fileName.endsWith('.html')) {
+          pageId = fileName.replace('.html', '');
+        } else {
+          pageId = 'home';
+        }
       } catch (err) {
         pageId = 'home';
       }
@@ -452,7 +457,43 @@ function updateInternalLinks() {
           mainContainer.innerHTML = newMain.innerHTML;
           // 주소 변경 (pushState)
           window.history.pushState({}, '', href);
-          // 페이지별 JS 동적 로드 및 초기화
+          // --- [SPA 개선] 페이지별 JS 동적 삽입 ---
+          // 이미 script가 head에 존재하는지 확인 (src 기준)
+          const pageScriptMap = {
+            'home': 'assets/js/pages/home.js',
+            'convert': 'assets/js/pages/convert.js',
+            'qrcode': 'assets/js/qr-generator/qr-generator.js',
+            'timer': 'assets/js/pages/timer.js',
+            'help': 'assets/js/pages/content.js',
+            'contact': 'assets/js/pages/content.js',
+            'privacy': 'assets/js/pages/content.js',
+            'terms': 'assets/js/pages/content.js'
+          };
+          const scriptUrl = pageScriptMap[pageId];
+          let scriptAlready = false;
+          if (scriptUrl) {
+            const scripts = Array.from(document.head.querySelectorAll('script[type="module"]'));
+            scriptAlready = scripts.some(s => s.src && s.src.includes(scriptUrl));
+            if (!scriptAlready) {
+              await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = scriptUrl;
+                script.async = true;
+                script.type = 'module';
+                script.onload = () => {
+                  console.log(`[SPA] ${pageId} JS 동적 로드 완료. 초기화 함수 호출.`);
+                  resolve();
+                };
+                script.onerror = (e) => {
+                  console.error(`[SPA] ${pageId} JS 동적 로드 실패:`, e);
+                  reject(e);
+                };
+                document.head.appendChild(script);
+              });
+            }
+          }
+          // --- [SPA 개선 끝] ---
+          // 페이지별 JS 동적 로드 및 초기화 (이미 로드된 경우도 포함)
           await loadPageScript(pageId);
           // 내부 링크 재바인딩
           updateInternalLinks();
@@ -675,7 +716,10 @@ function showErrorMessage(message) {
  * - 로드 후 전역 객체의 초기화 함수(init 등) 호출
  * - 에러 발생 시 콘솔에 상세 로그
  */
-async function loadPageScript(pageId) {
+async function loadPageScript(pageIdRaw) {
+  // --- pageId 보정 ---
+  let pageId = pageIdRaw;
+  if (!pageId || pageId === '' || pageId === 'index') pageId = 'home';
   // 페이지별 JS 파일 경로 매핑
   const pageScriptMap = {
     'home': 'assets/js/pages/home.js',
