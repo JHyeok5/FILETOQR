@@ -395,6 +395,30 @@ const I18nUtils = {
       console.error('언어 페이지 이동 중 오류:', error);
       return false;
     }
+  },
+  
+  /**
+   * 페이지 키(data-i18n-url)로 언어별 경로 반환
+   * @param {string} key - 페이지 키(예: 'convert', 'home', 'help' 등)
+   * @param {string} [lang=null] - 언어 코드(생략 시 현재 언어)
+   * @returns {string|null} 언어별 경로 (예: '/ko/convert.html')
+   *
+   * 예시: getUrlFromKey('convert') → '/ko/convert.html' (한국어), '/en/convert.html' (영어)
+   */
+  getUrlFromKey(key, lang = null) {
+    try {
+      // 페이지 ID → 실제 파일명 매핑
+      const pagePath = Config.PAGE_CONFIG.pages[key];
+      if (!pagePath) {
+        console.warn(`[i18n] 알 수 없는 페이지 키: ${key}`);
+        return null;
+      }
+      // 언어별 경로 생성
+      return UrlUtils.getI18nUrl(pagePath, lang);
+    } catch (error) {
+      console.error('[i18n] getUrlFromKey 오류:', error, key, lang);
+      return null;
+    }
   }
 };
 
