@@ -46,8 +46,9 @@ const ConvertPageController = {
    * 초기화 함수
    */
   async init() {
-    if (this.state.initialized) return;
-
+    if (this.state && this.state.initialized) return;
+    if (!this.state) this.state = {};
+    this.state.initialized = true;
     try {
       console.log('파일 변환 페이지 초기화 중...');
       
@@ -57,7 +58,6 @@ const ConvertPageController = {
       // 이벤트 리스너 등록
       this._registerEventListeners();
       
-      this.state.initialized = true;
       console.log('파일 변환 페이지 초기화 완료');
     } catch (error) {
       console.error('파일 변환 페이지 초기화 실패:', error);
