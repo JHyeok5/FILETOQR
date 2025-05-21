@@ -417,6 +417,56 @@ function updateInternalLinks() {
         console.warn(`링크 ${href} 처리 실패:`, error);
       }
     }
+
+    // --- SPA 내부 링크 동적 처리 ---
+    link.addEventListener('click', async function(e) {
+      // Ctrl/Shift/Meta 클릭, 새 탭 등은 기본 동작 허용
+      if (e.ctrlKey || e.shiftKey || e.metaKey || e.altKey || link.target === '_blank') return;
+      // 외부 링크, 해시, 메일 등은 무시
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+      e.preventDefault();
+      // pageId 추출 (예: /ko/convert.html → convert)
+      let pageId = null;
+      try {
+        const urlParts = href.split('/');
+        let fileName = urlParts[urlParts.length - 1] || 'index.html';
+        if (fileName.indexOf('.html') === -1) fileName = 'index.html';
+        pageId = fileName.replace('.html', '');
+        if (!pageId) pageId = 'home';
+      } catch (err) {
+        pageId = 'home';
+      }
+      // 메인 컨테이너(예: #main-container) 동적 교체 (실제 프로젝트 구조에 맞게 수정 필요)
+      const mainContainer = document.getElementById('main-container') || document.querySelector('main');
+      if (mainContainer) {
+        try {
+          // HTML 동적 로드
+          const response = await fetch(href);
+          if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + href);
+          const html = await response.text();
+          // main 태그만 추출 (불필요한 경우 전체 삽입)
+          let tempDiv = document.createElement('div');
+          tempDiv.innerHTML = html;
+          let newMain = tempDiv.querySelector('main') || tempDiv;
+          mainContainer.innerHTML = newMain.innerHTML;
+          // 주소 변경 (pushState)
+          window.history.pushState({}, '', href);
+          // 페이지별 JS 동적 로드 및 초기화
+          await loadPageScript(pageId);
+          // 내부 링크 재바인딩
+          updateInternalLinks();
+        } catch (err) {
+          console.error('SPA 내부 링크 처리 중 오류:', err);
+          // Fallback: 전체 페이지 이동
+          window.location.href = href;
+        }
+      } else {
+        // Fallback: 전체 페이지 이동
+        window.location.href = href;
+      }
+    });
+    // --- SPA 내부 링크 동적 처리 끝 ---
   }
 }
 
@@ -614,6 +664,79 @@ function showErrorMessage(message) {
     // 여기서는 간단히 alert으로 대체
     console.error("오류 발생:", message);
     // alert(message); // 실제 서비스에서는 더 나은 UI로 대체
+}
+
+/**
+ * 페이지별 JS 파일 동적 로드 및 초기화 함수 호출
+ * @param {string} pageId - 페이지 식별자 (예: 'convert', 'timer', 'qrcode')
+ * @returns {Promise<void>}
+ *
+ * - 이미 로드된 경우 중복 로딩 방지
+ * - 로드 후 전역 객체의 초기화 함수(init 등) 호출
+ * - 에러 발생 시 콘솔에 상세 로그
+ */
+async function loadPageScript(pageId) {
+  // 페이지별 JS 파일 경로 매핑
+  const pageScriptMap = {
+    'home': 'assets/js/pages/home.js',
+    'convert': 'assets/js/pages/convert.js',
+    'qrcode': 'assets/js/qr-generator/qr-generator.js',
+    'timer': 'assets/js/pages/timer.js',
+    'help': 'assets/js/pages/content.js',
+    'contact': 'assets/js/pages/content.js',
+    'privacy': 'assets/js/pages/content.js',
+    'terms': 'assets/js/pages/content.js'
+  };
+  const scriptUrl = pageScriptMap[pageId];
+  if (!scriptUrl) {
+    console.warn(`[loadPageScript] pageId(${pageId})에 대한 스크립트 경로가 없습니다.`);
+    return;
+  }
+  // 이미 로드된 경우 중복 방지 (window에 네임스페이스가 있으면 로드된 것으로 간주)
+  let alreadyLoaded = false;
+  switch (pageId) {
+    case 'convert':
+      alreadyLoaded = window.FileToQR && window.FileToQR.ConvertPageController;
+      break;
+    case 'qrcode':
+      alreadyLoaded = window.FileToQR && window.FileToQR.QRGenerator;
+      break;
+    case 'timer':
+      alreadyLoaded = window.FileToQR && window.FileToQR.TimerPage;
+      break;
+    case 'home':
+      alreadyLoaded = window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home;
+      break;
+    case 'help':
+    case 'contact':
+    case 'privacy':
+    case 'terms':
+      alreadyLoaded = window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content;
+      break;
+    default:
+      alreadyLoaded = false;
+  }
+  if (alreadyLoaded) {
+    console.log(`[loadPageScript] ${pageId} JS는 이미 로드됨. 초기화 함수만 호출.`);
+    await initCurrentPage();
+    return;
+  }
+  // 동적 script 태그 생성 및 로드
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = scriptUrl;
+    script.async = true;
+    script.onload = async () => {
+      console.log(`[loadPageScript] ${pageId} JS 동적 로드 완료. 초기화 함수 호출.`);
+      await initCurrentPage();
+      resolve();
+    };
+    script.onerror = (e) => {
+      console.error(`[loadPageScript] ${pageId} JS 동적 로드 실패:`, e);
+      reject(e);
+    };
+    document.head.appendChild(script);
+  });
 }
 
 // 전역 FileToQR 객체 및 app 네임스페이스 확인 및 생성
