@@ -397,47 +397,36 @@ function getCurrentLanguage() {
  * 페이지 내 모든 내부 링크 업데이트
  */
 function updateInternalLinks() {
-  const links = document.querySelectorAll('a');
-  for (const link of links) {
-    const href = link.getAttribute('href');
-    if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
-      continue;
+  // 1. data-i18n-url이 있는 a 태그의 href를 실제 경로로 변환하고, 기존 이벤트 제거(복제/교체)
+  const links = document.querySelectorAll('a[data-i18n-url]');
+  links.forEach(link => {
+    const urlKey = link.getAttribute('data-i18n-url');
+    let newHref = null;
+    if (typeof I18n.getUrlFromKey === 'function') {
+      newHref = I18n.getUrlFromKey(urlKey);
+    } else if (window.FileToQR && window.FileToQR.i18n && typeof window.FileToQR.i18n.getUrlFromKey === 'function') {
+      newHref = window.FileToQR.i18n.getUrlFromKey(urlKey);
     }
-    if (link.hasAttribute('data-i18n-url')) {
-      const urlKey = link.getAttribute('data-i18n-url');
-      // 실제 I18n.getUrlFromKey 함수 호출 (window.FileToQR.i18n 폴백 포함)
-      let newHref = null;
-      if (typeof I18n.getUrlFromKey === 'function') {
-        newHref = I18n.getUrlFromKey(urlKey);
-      } else if (window.FileToQR && window.FileToQR.i18n && typeof window.FileToQR.i18n.getUrlFromKey === 'function') {
-        newHref = window.FileToQR.i18n.getUrlFromKey(urlKey);
-      }
-      if (newHref) link.setAttribute('href', newHref);
-      continue;
-    }
-    if (!UrlUtils.isExternalUrl(href)) {
-      try {
-        const newHref = UrlUtils.getI18nUrl(href); // 현재 언어에 맞게 URL 조정
-        link.setAttribute('href', newHref);
-      } catch (error) {
-        console.warn(`링크 ${href} 처리 실패:`, error);
-      }
-    }
+    if (newHref) link.setAttribute('href', newHref);
+    // 기존 이벤트 제거: 복제/교체 방식
+    const newLink = link.cloneNode(true);
+    link.parentNode.replaceChild(newLink, link);
+  });
 
-    // --- SPA 내부 링크 동적 처리 ---
+  // 2. 다시 선택해서 SPA 라우팅 이벤트 바인딩 (내부 경로에만)
+  const newLinks = document.querySelectorAll('a[data-i18n-url]');
+  newLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
     link.addEventListener('click', async function(e) {
       // Ctrl/Shift/Meta 클릭, 새 탭 등은 기본 동작 허용
       if (e.ctrlKey || e.shiftKey || e.metaKey || e.altKey || link.target === '_blank') return;
-      // 외부 링크, 해시, 메일 등은 무시
-      const href = link.getAttribute('href');
-      if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
       e.preventDefault();
       // --- pageId 추출 보정 ---
       let pageId = null;
       try {
         const urlParts = href.split('/');
         let fileName = urlParts[urlParts.length - 1] || 'index.html';
-        // index.html → home, 나머지는 .html 제거
         if (fileName === '' || fileName === 'index.html') {
           pageId = 'home';
         } else if (fileName.endsWith('.html')) {
@@ -448,73 +437,45 @@ function updateInternalLinks() {
       } catch (err) {
         pageId = 'home';
       }
-      // 메인 컨테이너(예: #main-container) 동적 교체 (실제 프로젝트 구조에 맞게 수정 필요)
       const mainContainer = document.getElementById('main-container') || document.querySelector('main');
       if (mainContainer) {
         try {
-          // HTML 동적 로드
           const response = await fetch(href);
           if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + href);
           const html = await response.text();
-          // main 태그만 추출 (불필요한 경우 전체 삽입)
           let tempDiv = document.createElement('div');
           tempDiv.innerHTML = html;
           let newMain = tempDiv.querySelector('main') || tempDiv;
           mainContainer.innerHTML = newMain.innerHTML;
-          // 주소 변경 (pushState)
           window.history.pushState({}, '', href);
-          // --- [SPA 개선] 페이지별 JS 동적 삽입 ---
-          // 이미 script가 head에 존재하는지 확인 (src 기준)
-          const pageScriptMap = {
-            'home': 'assets/js/pages/home.js',
-            'convert': 'assets/js/pages/convert.js',
-            'qrcode': 'assets/js/qr-generator/qr-generator.js',
-            'timer': 'assets/js/pages/timer.js',
-            'help': 'assets/js/pages/content.js',
-            'contact': 'assets/js/pages/content.js',
-            'privacy': 'assets/js/pages/content.js',
-            'terms': 'assets/js/pages/content.js'
-          };
-          const scriptUrl = pageScriptMap[pageId];
-          let scriptAlready = false;
-          if (scriptUrl) {
-            const scripts = Array.from(document.head.querySelectorAll('script[type="module"]'));
-            scriptAlready = scripts.some(s => s.src && s.src.includes(scriptUrl));
-            if (!scriptAlready) {
-              await new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = scriptUrl;
-                script.async = true;
-                script.type = 'module';
-                script.onload = () => {
-                  console.log(`[SPA] ${pageId} JS 동적 로드 완료. 초기화 함수 호출.`);
-                  resolve();
-                };
-                script.onerror = (e) => {
-                  console.error(`[SPA] ${pageId} JS 동적 로드 실패:`, e);
-                  reject(e);
-                };
-                document.head.appendChild(script);
-              });
-            }
-          }
-          // --- [SPA 개선 끝] ---
-          // 페이지별 JS 동적 로드 및 초기화 (이미 로드된 경우도 포함)
           await loadPageScript(pageId);
-          // 내부 링크 재바인딩
           updateInternalLinks();
         } catch (err) {
           console.error('SPA 내부 링크 처리 중 오류:', err);
-          // Fallback: 전체 페이지 이동
           window.location.href = href;
         }
       } else {
-        // Fallback: 전체 페이지 이동
         window.location.href = href;
       }
     });
-    // --- SPA 내부 링크 동적 처리 끝 ---
-  }
+  });
+
+  // 3. 기존 방식의 외부/상대 경로 a 태그도 동일하게 처리 (필요시)
+  const externalLinks = document.querySelectorAll('a');
+  externalLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+      return;
+    }
+    if (!UrlUtils.isExternalUrl(href)) {
+      try {
+        const newHref = UrlUtils.getI18nUrl(href); // 현재 언어에 맞게 URL 조정
+        link.setAttribute('href', newHref);
+      } catch (error) {
+        console.warn(`링크 ${href} 처리 실패:`, error);
+      }
+    }
+  });
 }
 
 /**
