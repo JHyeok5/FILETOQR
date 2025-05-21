@@ -23,6 +23,18 @@
   <!-- 동적 헤더 컴포넌트 삽입 영역 -->
   <div id="header-container"></div>
   <main class="flex-grow container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">파일 변환</h1>
+    <!-- 파일 변환 UI/폼/버튼 영역 구현 (convert.js와 연동) -->
+    <div id="convert-app">
+      <form id="convert-form" class="space-y-4">
+        <div>
+          <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1">변환할 파일 선택</label>
+          <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label for="convert-type" class="block text-sm font-medium text-gray-700 mb-1">변환 유형</label>
+          <select id="convert-type" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="image2qr">이미지 → QR 코드</option>
     <section class="mb-12">
       <h1 class="text-3xl font-bold mb-4 text-center">파일 변환</h1>
       <p class="text-lg text-gray-600 mb-8 text-center">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하세요.</p>

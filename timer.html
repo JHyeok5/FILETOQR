@@ -52,15 +52,23 @@
   <!-- 동적 푸터 컴포넌트 삽입 영역 -->
   <div id="footer-container"></div>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof init === 'function') {
-        init();
-      } else if (window.FileToQR && typeof window.FileToQR.init === 'function') {
-        window.FileToQR.init();
+    // 헤더/푸터가 삽입된 후에만 timer.js 초기화
+    function waitForHeaderFooterAndInit() {
+      const header = document.getElementById('header-container');
+      const footer = document.getElementById('footer-container');
+      if (header && footer && header.innerHTML && footer.innerHTML) {
+        if (window.FileToQR && window.FileToQR.TimerPage && typeof window.FileToQR.TimerPage.init === 'function') {
+          window.FileToQR.TimerPage.init();
+        } else if (typeof init === 'function') {
+          init();
+        } else {
+          console.error('FileToQR 초기화 함수(init)를 찾을 수 없습니다.');
+        }
       } else {
-        console.error('FileToQR 초기화 함수(init)를 찾을 수 없습니다.');
+        setTimeout(waitForHeaderFooterAndInit, 50);
       }
-    });
+    }
+    waitForHeaderFooterAndInit();
   </script>
 </body>
 </html>

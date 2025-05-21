@@ -25,13 +25,26 @@
   <!-- 동적 헤더 컴포넌트 삽입 영역 -->
   <div id="header-container"></div>
   <main class="flex-grow container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">문의</h1>
-    <div class="bg-white rounded-lg shadow-md p-6 space-y-6">
-      <p class="text-sm text-gray-600 mb-6"><strong>최종 업데이트:</strong> 2025년 5월 2일</p>
-      <div><h2 class="text-xl font-semibold mb-3">1. 문의 안내</h2><p>FileToQR 서비스 관련 문의, 피드백, 버그 신고, 제휴 제안 등은 아래 이메일로 보내주시면 신속하게 답변드리겠습니다.</p><ul class="list-disc pl-6 mt-2 mb-4"><li>서비스 이용 방법 문의</li><li>기능 개선 및 버그 신고</li><li>비즈니스/제휴 제안</li><li>기타 일반 문의</li></ul></div>
-      <div><h2 class="text-xl font-semibold mb-3">2. 이메일</h2><p class="mt-2">이메일: <a href="mailto:contact@filetoqr.com" class="text-blue-600 hover:underline">contact@filetoqr.com</a></p></div>
-      <div><h2 class="text-xl font-semibold mb-3">3. 개인정보 보호</h2><p>문의 시 제공하신 개인정보(이메일 등)는 문의 응대 및 서비스 개선 목적으로만 사용되며, 관련 법령에 따라 안전하게 보호됩니다. 자세한 내용은 <a href="privacy.html" class="text-blue-600 hover:underline">개인정보처리방침</a>을 참고해 주세요.</p></div>
-    </div>
+    <h1 class="text-3xl font-bold mb-6">문의하기</h1>
+    <!-- 문의/연락 폼 영역 (contact.js와 연동) -->
+    <section id="contact-section" class="mb-8">
+      <form id="contact-form" class="space-y-4 max-w-lg mx-auto">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+          <input type="text" id="name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+          <input type="email" id="email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-medium text-gray-700 mb-1">문의 내용</label>
+          <textarea id="message" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">문의 보내기</button>
+      </form>
+      <div id="contact-success" class="hidden mt-6 text-green-600 font-medium text-center">문의가 정상적으로 접수되었습니다. 빠른 시일 내에 답변드리겠습니다.</div>
+    </section>
   </main>
   <!-- 동적 푸터 컴포넌트 삽입 영역 -->
   <div id="footer-container"></div>
