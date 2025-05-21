@@ -726,6 +726,7 @@ async function loadPageScript(pageId) {
     const script = document.createElement('script');
     script.src = scriptUrl;
     script.async = true;
+    script.type = 'module'; // 모든 페이지 JS를 모듈로 로드
     script.onload = async () => {
       console.log(`[loadPageScript] ${pageId} JS 동적 로드 완료. 초기화 함수 호출.`);
       await initCurrentPage();
