@@ -25,6 +25,9 @@ const ContentPageController = {
    * @returns {Promise<boolean>} 초기화 성공 여부
    */
   async init() {
+    if (this.state && this.state.initialized) return true;
+    if (!this.state) this.state = {};
+    this.state.initialized = true;
     try {
       console.log('ContentPageController 초기화 시작');
       
@@ -42,7 +45,6 @@ const ContentPageController = {
       // 필요한 경우 외부 링크 처리
       this._processExternalLinks();
       
-      this.state.initialized = true;
       console.log('ContentPageController 초기화 완료');
       return true;
     } catch (error) {
@@ -295,17 +297,24 @@ const ContentPageController = {
   }
 };
 
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  ContentPageController.init();
-});
+// 기존 DOMContentLoaded 초기화 제거 및 SPA/동적 진입 대응
+function waitForHeaderFooterAndInit() {
+  const header = document.getElementById('header-container');
+  const footer = document.getElementById('footer-container');
+  if (header && footer && header.innerHTML && footer.innerHTML) {
+    if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content && typeof window.FileToQR.controllers.content.init === 'function') {
+      window.FileToQR.controllers.content.init();
+    } else {
+      ContentPageController.init();
+    }
+  } else {
+    setTimeout(waitForHeaderFooterAndInit, 50);
+  }
+}
+waitForHeaderFooterAndInit();
 
 // 하위 호환성을 위한 전역 참조
-if (typeof window !== 'undefined') {
-  window.FileToQR = window.FileToQR || {};
-  window.FileToQR.controllers = window.FileToQR.controllers || {};
-  window.FileToQR.controllers.content = ContentPageController;
-}
-
-// 모듈 내보내기
+window.FileToQR = window.FileToQR || {};
+window.FileToQR.controllers = window.FileToQR.controllers || {};
+window.FileToQR.controllers.content = ContentPageController;
 export default ContentPageController; 
