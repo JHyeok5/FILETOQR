@@ -176,7 +176,17 @@ const UrlUtils = {
       }
       
       // 시작 및 끝 슬래시 제거
-      const cleanPath = path.replace(/^\/|\/$/g, '');
+      let cleanPath = path.replace(/^\/|\/$/g, '');
+      
+      // --- 중복 언어 코드 방지 로직 추가 ---
+      // cleanPath가 이미 'ko/convert.html' 등 언어 코드로 시작하면 중복 방지
+      const supportedLangs = Config.LANGUAGE_CONFIG.supportedLanguages || ['ko','en','zh','ja'];
+      const pathParts = cleanPath.split('/');
+      if (pathParts.length > 1 && supportedLangs.includes(pathParts[0])) {
+        // 이미 언어 코드가 붙어 있으면 그대로 사용
+        cleanPath = pathParts.slice(1).join('/');
+      }
+      // --- 중복 언어 코드 방지 끝 ---
       
       let urlPath;
       
