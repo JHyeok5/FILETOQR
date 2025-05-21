@@ -405,7 +405,13 @@ function updateInternalLinks() {
     }
     if (link.hasAttribute('data-i18n-url')) {
       const urlKey = link.getAttribute('data-i18n-url');
-      const newHref = I18n.getUrlFromKey(urlKey); // I18n 유틸리티에 이 함수가 있다고 가정
+      // 실제 I18n.getUrlFromKey 함수 호출 (window.FileToQR.i18n 폴백 포함)
+      let newHref = null;
+      if (typeof I18n.getUrlFromKey === 'function') {
+        newHref = I18n.getUrlFromKey(urlKey);
+      } else if (window.FileToQR && window.FileToQR.i18n && typeof window.FileToQR.i18n.getUrlFromKey === 'function') {
+        newHref = window.FileToQR.i18n.getUrlFromKey(urlKey);
+      }
       if (newHref) link.setAttribute('href', newHref);
       continue;
     }
