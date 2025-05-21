@@ -32,8 +32,47 @@
         </div>
         <div>
           <label for="convert-type" class="block text-sm font-medium text-gray-700 mb-1">변환 유형</label>
-          <select id="convert-type" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="image2qr">이미지 → QR 코드</option>
+          <div class="converter-type-tabs mb-4">
+            <button class="converter-type-btn" data-type="image">이미지</button>
+            <button class="converter-type-btn" data-type="document">문서</button>
+            <button class="converter-type-btn" data-type="audio">오디오</button>
+            <button class="converter-type-btn" data-type="data">데이터</button>
+          </div>
+        </div>
+        <div id="converter-options" class="mb-8 hidden"></div>
+        <div id="file-upload-section" class="mb-8">
+          <h2 class="text-xl font-semibold mb-4">파일 업로드</h2>
+          <div class="flex items-center justify-center w-full">
+            <label for="file-upload" class="flex flex-col items-center justify-center w-full h-64 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors">
+              <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                <svg class="w-10 h-10 mb-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                </svg>
+                <p class="mb-2 text-sm text-gray-500">
+                  <span class="font-semibold">파일을 클릭하여 선택</span> 또는 여기로 드래그 앤 드롭
+                </p>
+                <p class="text-xs text-gray-500 mb-2">PNG, JPG, PDF, DOCX, MP3, CSV 등 파일 지원</p>
+                <p class="text-xs text-gray-500">최대 파일 크기: 50MB</p>
+              </div>
+              <input id="file-upload" type="file" class="hidden">
+            </label>
+          </div>
+          <div id="file-info" class="mt-4 p-3 bg-blue-50 rounded-md hidden"></div>
+        </div>
+        <div id="conversion-output" class="mb-8 hidden">
+          <h2 class="text-xl font-semibold mb-4">변환 결과</h2>
+          <div class="mb-4">
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div id="conversion-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <p id="conversion-progress-text" class="text-sm text-gray-600 mt-1 text-right">0% 완료</p>
+          </div>
+          <div id="conversion-result" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div class="text-center text-gray-500 py-8">파일을 업로드하고 변환 옵션을 선택하면 결과가 여기에 표시됩니다.</div>
+          </div>
+        </div>
+      </form>
+    </div>
     <section class="mb-12">
       <h1 class="text-3xl font-bold mb-4 text-center">파일 변환</h1>
       <p class="text-lg text-gray-600 mb-8 text-center">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하세요.</p>
