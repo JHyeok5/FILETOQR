@@ -37,19 +37,22 @@ export const LANGUAGE_CONFIG = {
  * 페이지 관련 설정
  */
 export const PAGE_CONFIG = {
-  // 기본 페이지 목록 및 HTML 파일명
+  // 페이지 ID를 키로 사용, 값은 HTML 파일명과 페이지별 JS 스크립트 경로를 포함하는 객체
+  // 스크립트 경로는 app-core.js에서의 상대 경로로 작성 (동적 import 용)
   pages: {
-    home: 'index.html',
-    convert: 'convert.html',
-    qrcode: 'qrcode.html',
-    timer: 'timer.html',
-    help: 'help.html',
-    contact: 'contact.html',
-    privacy: 'privacy.html',
-    terms: 'terms.html'
+    'home': { html: 'index.html', script: '../pages/home.js' },
+    'index': { html: 'index.html', script: '../pages/home.js' }, // 'index'는 'home'과 동일한 스크립트를 사용한다고 가정
+    'convert': { html: 'convert.html', script: '../pages/convert.js' },
+    'qrcode': { html: 'qrcode.html', script: '../qr-generator/qr-generator.js' },
+    'timer': { html: 'timer.html', script: '../pages/timer.js' },
+    // content.js를 사용하는 정적 페이지들 (예시)
+    'help': { html: 'help.html', script: '../pages/content.js', isContentPage: true, contentKey: 'help' },
+    'contact': { html: 'contact.html', script: '../pages/content.js', isContentPage: true, contentKey: 'contact' },
+    'privacy': { html: 'privacy.html', script: '../pages/content.js', isContentPage: true, contentKey: 'privacy' },
+    'terms': { html: 'terms.html', script: '../pages/content.js', isContentPage: true, contentKey: 'terms' }
   },
   
-  // i18n 경로 키와 페이지 매핑
+  // i18n 경로 키와 페이지 매핑 (이 부분은 기존 구조 유지 또는 페이지 ID 직접 사용 고려)
   i18nKeys: {
     'home': 'urls.home',
     'convert': 'urls.convert',
@@ -104,7 +107,7 @@ export const STORAGE_CONFIG = {
 const Config = {
   APP_VERSION,
   LANGUAGE_CONFIG,
-  PAGE_CONFIG,
+  PAGE_CONFIG, // PAGE_CONFIG.pages는 새 구조를 가짐
   UI_CONFIG,
   PATH_CONFIG,
   STORAGE_CONFIG,
@@ -130,10 +133,21 @@ const Config = {
   /**
    * 페이지 ID로 HTML 파일 경로 가져오기
    * @param {string} pageId - 페이지 ID
-   * @returns {string} HTML 파일 경로
+   * @returns {string|null} HTML 파일 경로 또는 찾지 못한 경우 null
    */
-  getPagePath(pageId) {
-    return PAGE_CONFIG.pages[pageId] || null;
+  getPageHtmlPath(pageId) {
+    const pageInfo = PAGE_CONFIG.pages[pageId];
+    return pageInfo ? pageInfo.html : null;
+  },
+
+  /**
+   * 페이지 ID로 스크립트 파일 경로 가져오기
+   * @param {string} pageId - 페이지 ID
+   * @returns {string|null} 스크립트 파일 경로 또는 찾지 못한 경우 null
+   */
+  getPageScriptPath(pageId) {
+    const pageInfo = PAGE_CONFIG.pages[pageId];
+    return pageInfo ? pageInfo.script : null;
   },
   
   /**
@@ -153,13 +167,14 @@ const Config = {
   getPageIdFromPath(path) {
     const cleanPath = path.endsWith('.html') ? path.slice(0, -5) : path;
     
-    for (const [id, pagePath] of Object.entries(PAGE_CONFIG.pages)) {
-      const pageCleanPath = pagePath.endsWith('.html') ? pagePath.slice(0, -5) : pagePath;
-      if (cleanPath === pageCleanPath) {
-        return id;
+    for (const [id, pageInfo] of Object.entries(PAGE_CONFIG.pages)) {
+      if (pageInfo.html) {
+        const pageHtmlCleanPath = pageInfo.html.endsWith('.html') ? pageInfo.html.slice(0, -5) : pageInfo.html;
+        if (cleanPath === pageHtmlCleanPath) {
+          return id;
+        }
       }
     }
-    
     return null;
   }
 };
