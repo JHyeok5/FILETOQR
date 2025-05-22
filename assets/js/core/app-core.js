@@ -439,34 +439,30 @@ function updateInternalLinks() {
       }
       const mainContainer = document.getElementById('main-container') || document.querySelector('main');
       if (mainContainer) {
-        try {
-          // [SPA 개선] 기존 main 컨테이너 내용 완전히 비움 (중복 UI 방지)
-          mainContainer.innerHTML = '';
-          // HTML 동적 로드
-          const response = await fetch(href);
-          if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + href);
-          const html = await response.text();
-          let tempDiv = document.createElement('div');
-          tempDiv.innerHTML = html;
-          let newMain = tempDiv.querySelector('main') || tempDiv;
-          mainContainer.innerHTML = newMain.innerHTML;
-          // [SPA 개선] main 내부에 main 태그가 중첩되어 있으면 첫 번째 main만 남기고 나머지 제거 (중복 UI 방지)
-          const nestedMains = mainContainer.querySelectorAll('main');
-          if (nestedMains.length > 1) {
-            for (let i = 1; i < nestedMains.length; i++) {
-              nestedMains[i].remove();
-            }
+        // [SPA 중복 UI 방지] 기존 main 내용 완전히 비움
+        mainContainer.innerHTML = '';
+        // HTML 동적 로드
+        const response = await fetch(href);
+        if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + href);
+        const html = await response.text();
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        // 새 main 태그가 있으면 그 innerHTML만 삽입, 없으면 전체 삽입
+        let newMain = tempDiv.querySelector('main') || tempDiv;
+        mainContainer.innerHTML = newMain.innerHTML;
+        // [SPA 중복 UI 방지] main 내부에 main 태그가 중첩되어 있으면 첫 번째 main만 남기고 나머지 제거
+        const nestedMains = mainContainer.querySelectorAll('main');
+        if (nestedMains.length > 1) {
+          for (let i = 1; i < nestedMains.length; i++) {
+            nestedMains[i].remove();
           }
-          // 주소 변경 (pushState)
-          window.history.pushState({}, '', href);
-          // 페이지별 JS 동적 로드 및 초기화
-          await loadPageScript(pageId);
-          // 내부 링크 재바인딩
-          updateInternalLinks();
-        } catch (err) {
-          console.error('SPA 내부 링크 처리 중 오류:', err);
-          window.location.href = href;
         }
+        // 주소 변경 (pushState)
+        window.history.pushState({}, '', href);
+        // 페이지별 JS 동적 로드 및 초기화
+        await loadPageScript(pageId);
+        // 내부 링크 재바인딩
+        updateInternalLinks();
       } else {
         window.location.href = href;
       }
