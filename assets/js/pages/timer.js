@@ -107,29 +107,61 @@ export default TimerPage;
 
 // 탭 전환 설정 함수
 function setupTabs({ notificationManager }) {
-    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabButtons = document.querySelectorAll('.timer-tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     let pomodoroInitialized = false;
     let pomodoroInstance = null;
 
+    // 초기 활성 탭 설정 (예: 첫 번째 탭)
+    if (tabButtons.length > 0 && tabContents.length > 0) {
+        // 기존 active 클래스 모두 제거
+        tabButtons.forEach(btn => btn.classList.remove('bg-blue-500', 'text-white', 'hover:bg-blue-600'));
+        tabContents.forEach(content => content.classList.add('hidden'));
+
+        // 첫번째 버튼 활성화 및 해당 콘텐츠 표시
+        tabButtons[0].classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+        const firstTabName = tabButtons[0].dataset.type;
+        const firstTabContent = document.getElementById(`${firstTabName}-tab-content`);
+        if (firstTabContent) {
+            firstTabContent.classList.remove('hidden');
+        }
+        // 만약 첫 탭이 포모도로라면 초기화
+        if (firstTabName === 'pomodoro' && !pomodoroInitialized) {
+            setTimeout(() => {
+                if (!pomodoroInstance) {
+                    pomodoroInstance = new Pomodoro();
+                    console.log('Pomodoro 모듈 인스턴스 생성됨 (첫 탭 활성화)');
+                }
+                pomodoroInitialized = true;
+            }, 0);
+        }
+    }
+
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const tabName = button.dataset.tab;
+            const tabName = button.dataset.type;
             console.log(`탭 전환: ${tabName}`);
 
-            // 버튼 활성화 상태 변경
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+            // 모든 버튼에서 active 스타일 클래스 제거
+            tabButtons.forEach(btn => btn.classList.remove('bg-blue-500', 'text-white', 'hover:bg-blue-600'));
+            // 현재 버튼에 active 스타일 클래스 추가
+            button.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
 
-            // 탭 콘텐츠 전환
-            tabContents.forEach(content => content.classList.remove('active'));
-            document.getElementById(`${tabName}-tab`).classList.add('active');
+            // 모든 콘텐츠 숨기기
+            tabContents.forEach(content => content.classList.add('hidden'));
+            // 선택된 탭 콘텐츠 표시
+            const activeContent = document.getElementById(`${tabName}-tab-content`);
+            if (activeContent) {
+                activeContent.classList.remove('hidden');
+            }
 
-            // 포모도로 탭이 처음 활성화될 때만 pomodoro 초기화
+            // 포모도로 탭이 활성화될 때만 pomodoro 초기화
             if (tabName === 'pomodoro' && !pomodoroInitialized) {
-                setTimeout(() => {
-                    pomodoroInstance = new Pomodoro();
-                    initializePomodoro(pomodoroInstance, notificationManager);
+                setTimeout(() => { 
+                    if (!pomodoroInstance) { 
+                        pomodoroInstance = new Pomodoro(); 
+                        console.log('Pomodoro 모듈 인스턴스 생성됨 (탭 클릭)');
+                    }
                     pomodoroInitialized = true;
                 }, 0);
             }

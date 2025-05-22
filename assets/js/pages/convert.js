@@ -533,147 +533,110 @@ const ConvertPageController = {
    * @private
    */
   _updateConversionUI(status, data = {}) {
-    // 결과 영역 표시
     const outputElement = document.getElementById('conversion-output');
-    if (outputElement) {
-      outputElement.classList.remove('hidden');
-    }
-    
-    // 진행 표시줄 요소
+    const downloadBtn = document.getElementById('download-btn');
+    const startConversionBtn = document.getElementById('start-conversion-btn');
+    const fileInput = document.getElementById('file-upload');
+    const fileInputLabel = document.querySelector('label[for="file-upload"]');
+
+    // 새로 추가된 진행 표시 요소들
+    const progressContainer = document.getElementById('conversion-progress-container');
     const progressBar = document.getElementById('conversion-progress-bar');
     const progressText = document.getElementById('conversion-progress-text');
-    const resultElement = document.getElementById('conversion-result');
-    
-    // 진행 상태에 따른 UI 업데이트
+    const progressPercentage = document.getElementById('conversion-progress-percentage');
+
+    if (!outputElement || !progressContainer || !progressBar || !progressText || !progressPercentage) {
+      console.error('Conversion UI elements not found!');
+      return;
+    }
+
+    // 초기화: 모든 관련 UI 숨기기
+    outputElement.classList.add('hidden');
+    progressContainer.classList.add('hidden');
+    if (downloadBtn) downloadBtn.classList.add('hidden');
+    outputElement.innerHTML = ''; // 이전 내용 초기화
+
     switch (status) {
-      case 'loading':
-        if (progressBar) progressBar.style.width = '5%';
-        if (progressText) progressText.textContent = '준비 중...';
-        if (resultElement) {
-          resultElement.innerHTML = `
-            <div class="flex justify-center items-center py-12">
-              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          `;
-        }
+      case 'idle': // 파일 업로드 전 또는 변환 완료 후 새 파일 대기
+        if (fileInputLabel) fileInputLabel.classList.remove('hidden');
+        if (startConversionBtn) startConversionBtn.disabled = true;
+        this.state.conversionInProgress = false;
         break;
-        
-      case 'processing':
-        const progress = data.progress || 0;
-        if (progressBar) progressBar.style.width = `${progress}%`;
-        if (progressText) progressText.textContent = `${progress}% 완료`;
-        if (resultElement && progress < 100) {
-          resultElement.innerHTML = `
-            <div class="text-center py-12">
-              <p class="text-gray-600 mb-2">파일 변환 중입니다. 잠시만 기다려주세요.</p>
-              <p class="text-sm text-gray-500">파일 크기에 따라 시간이 더 걸릴 수 있습니다.</p>
-            </div>
-          `;
-        }
-        break;
-        
-      case 'success':
-        if (progressBar) progressBar.style.width = '100%';
-        if (progressText) progressText.textContent = '변환 완료!';
-        
-        if (resultElement && data.result) {
-          const { url, filename, size, mimeType } = data.result;
-          const isImage = mimeType.startsWith('image/');
-          
-          // 결과 표시 HTML
-          let resultHTML = `
-            <div class="flex flex-col items-center py-6">
-              <div class="text-center mb-6">
-                <div class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full mb-4">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span>변환 완료</span>
+
+      case 'file_selected': // 파일이 선택되었지만 아직 변환 시작 전
+        if (fileInputLabel) fileInputLabel.classList.remove('hidden'); // 파일 선택 영역은 계속 표시
+        if (outputElement && data.fileInfo) {
+            outputElement.innerHTML = `
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h3 class="text-lg font-semibold text-blue-700">파일 선택됨:</h3>
+                    <p class="text-sm text-gray-600">${data.fileInfo.name} (${data.fileInfo.size})</p>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900">${filename}</h3>
-                <p class="text-sm text-gray-600">${this._formatFileSize(size)} - ${mimeType}</p>
-              </div>
-          `;
-          
-          // 결과가 이미지인 경우 미리보기 표시
-          if (isImage) {
-            resultHTML += `
-              <div class="mb-6 p-4 border rounded-lg w-full max-w-md">
-                <img src="${url}" alt="변환된 이미지" class="max-w-full h-auto max-h-64 mx-auto">
-              </div>
             `;
-          }
-          
-          // 다운로드 버튼
-          resultHTML += `
-              <div class="flex space-x-4">
-                <a href="${url}" download="${filename}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
-                  다운로드
-                </a>
-                <button id="convert-new-btn" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md">
-                  새 파일 변환
-                </button>
-              </div>
-            </div>
-          `;
-          
-          resultElement.innerHTML = resultHTML;
-          
-          // 새 파일 변환 버튼 이벤트 리스너
-          const convertNewBtn = document.getElementById('convert-new-btn');
-          if (convertNewBtn) {
-            convertNewBtn.addEventListener('click', () => {
-              // 파일 업로드 인풋 초기화
-              const fileInput = document.getElementById('file-upload');
-              if (fileInput) fileInput.value = '';
-              
-              // 출력 영역 숨기기
-              if (outputElement) outputElement.classList.add('hidden');
-              
-              // 상태 초기화
-              this.state.uploadedFile = null;
-              this.state.conversionInProgress = false;
-            });
-          }
+            outputElement.classList.remove('hidden');
         }
+        if (startConversionBtn) {
+            const outputFormatSelect = document.getElementById('output-format');
+            startConversionBtn.disabled = !(outputFormatSelect && outputFormatSelect.value);
+        }
+        this.state.conversionInProgress = false;
         break;
+
+      case 'progress':
+        this.state.conversionInProgress = true;
+        if (fileInputLabel) fileInputLabel.classList.add('hidden'); // 변환 중에는 파일 선택 영역 숨김
+        progressContainer.classList.remove('hidden');
+        outputElement.classList.add('hidden'); // 이전 결과나 메시지 숨김
+
+        const percentage = data.percentage || 0;
+        progressBar.style.width = `${percentage}%`;
+        progressText.textContent = data.message || `변환 진행 중... (${percentage}%)`;
+        progressPercentage.textContent = `${percentage}%`;
         
+        if (startConversionBtn) startConversionBtn.disabled = true;
+        if (downloadBtn) downloadBtn.classList.add('hidden');
+        break;
+
+      case 'success':
+        this.state.conversionInProgress = false;
+        if (fileInputLabel) fileInputLabel.classList.remove('hidden'); // 변환 완료 후 파일 선택 영역 다시 표시
+        progressContainer.classList.add('hidden');
+        outputElement.classList.remove('hidden');
+
+        outputElement.innerHTML = `
+          <div class="p-4 bg-green-50 rounded-lg text-center">
+            <h3 class="text-xl font-semibold text-green-700 mb-2">${data.message || '파일 변환 성공!'}</h3>
+            ${data.downloadUrl ? `<a href="${data.downloadUrl}" download="${data.filename}" id="generated-download-link" class="btn btn-success">결과 다운로드</a>` : ''}
+            <button id="convert-new-btn" class="btn btn-secondary ml-2">새 파일 변환</button>
+          </div>
+        `;
+        // 다운로드 버튼 로직은 필요시 a 태그를 직접 사용하거나, 별도 downloadBtn 요소로 처리
+        if (downloadBtn && data.downloadUrl) {
+            // downloadBtn.href = data.downloadUrl; // 만약 downloadBtn이 a 태그라면
+            // downloadBtn.download = data.filename;
+            // downloadBtn.classList.remove('hidden');
+        }
+        if (startConversionBtn) startConversionBtn.disabled = true;
+        break;
+
       case 'error':
-        if (progressBar) progressBar.style.width = '0%';
-        if (progressText) progressText.textContent = '변환 실패';
-        
-        if (resultElement) {
-          resultElement.innerHTML = `
-            <div class="text-center py-8 px-4 bg-red-50 rounded-lg">
-              <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <h3 class="text-lg font-medium text-red-800 mb-2">변환 실패</h3>
-              <p class="text-sm text-red-600">${data.message || '파일 변환 중 오류가 발생했습니다.'}</p>
-              <button id="try-again-btn" class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md">
-                다시 시도
-              </button>
-            </div>
-          `;
-          
-          // 다시 시도 버튼 이벤트 리스너
-          const tryAgainBtn = document.getElementById('try-again-btn');
-          if (tryAgainBtn) {
-            tryAgainBtn.addEventListener('click', () => {
-              // 파일 업로드 인풋 초기화
-              const fileInput = document.getElementById('file-upload');
-              if (fileInput) fileInput.value = '';
-              
-              // 출력 영역 숨기기
-              if (outputElement) outputElement.classList.add('hidden');
-              
-              // 상태 초기화
-              this.state.uploadedFile = null;
-              this.state.conversionInProgress = false;
-            });
-          }
-        }
+        this.state.conversionInProgress = false;
+        if (fileInputLabel) fileInputLabel.classList.remove('hidden');
+        progressContainer.classList.add('hidden');
+        outputElement.classList.remove('hidden');
+        outputElement.innerHTML = `
+          <div class="p-4 bg-red-50 rounded-lg text-center">
+            <h3 class="text-xl font-semibold text-red-700 mb-2">변환 오류</h3>
+            <p class="text-gray-700 mb-4">${data.message || '파일 변환 중 오류가 발생했습니다.'}</p>
+            <button id="try-again-btn" class="btn btn-danger">다시 시도</button>
+          </div>
+        `;
+        if (startConversionBtn) startConversionBtn.disabled = true; // 오류 발생 시 비활성화 또는 상태에 따라 처리
         break;
+        
+      default:
+        this.state.conversionInProgress = false;
+        if (fileInputLabel) fileInputLabel.classList.remove('hidden');
+        console.warn('Unhandled conversion UI status:', status);
     }
   },
 

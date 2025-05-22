@@ -24,8 +24,19 @@
       <input type="file" id="file-upload" class="hidden">
     </label>
     <div id="converter-options" class="mb-4"></div>
-    <div id="conversion-output" class="hidden"></div>
-    <button id="download-btn" class="hidden">Download Result</button>
+    <div id="conversion-output" class="hidden">
+      <!-- Conversion result can be displayed here, e.g., image preview or download link -->
+    </div>
+    <div id="conversion-progress-container" class="my-4 hidden">
+      <div class="flex justify-between mb-1">
+        <span id="conversion-progress-text" class="text-sm font-medium text-gray-700 dark:text-white">Converting file...</span>
+        <span id="conversion-progress-percentage" class="text-sm font-medium text-gray-700 dark:text-white">0%</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+        <div id="conversion-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+      </div>
+    </div>
+    <button id="download-btn" class="hidden">Download Converted File</button>
   </main>
   <div id="footer-container"></div>
 </body>
