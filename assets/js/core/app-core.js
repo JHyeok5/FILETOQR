@@ -248,27 +248,15 @@ function hideLoadingIndicator() {
 async function initCurrentPage() {
   try {
     const pageId = getCurrentPage();
-    console.log(`페이지별 초기화 시작: ${pageId}`);
+    console.log(`페이지별 초기화 시작 (app-core.js 통합): ${pageId}`);
 
-    const pageInitializers = {
-      'home': initHomePage,
-      'convert': initConvertPage,
-      'qrcode': initQRCodePage,
-      'timer': initTimerPage,
-      'help': initHelpPage,
-      'contact': initContactPage,
-      'privacy': initPrivacyPage,
-      'terms': initTermsPage
-    };
+    // pageInitializers 객체 및 관련 로직 제거
+    // 대신 loadPageScript를 직접 호출
+    await loadPageScript(pageId);
 
-    if (pageInitializers[pageId] && typeof pageInitializers[pageId] === 'function') {
-      await pageInitializers[pageId]();
-    } else {
-      console.log(`${pageId} 페이지에 대한 별도 초기화 함수 없음`);
-    }
-    console.log(`${pageId} 페이지 초기화 완료`);
+    console.log(`${pageId} 페이지 초기화 완료 (app-core.js 통합)`);
   } catch (error) {
-    console.error('페이지 초기화 실패:', error);
+    console.error('페이지 초기화 실패 (app-core.js 통합):', error);
   }
 }
 
@@ -276,114 +264,49 @@ async function initCurrentPage() {
  * 홈 페이지 초기화
  * @private
  */
-async function initHomePage() {
-  console.log('홈페이지 초기화 (app-core.js)');
-  // HomePage 모듈이 전역 FileToQR.pages.home으로 노출된다고 가정
-  if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home && typeof window.FileToQR.pages.home.init === 'function') {
-    console.log('FileToQR.pages.home.init() 호출 시도');
-    try {
-      await window.FileToQR.pages.home.init(); // pages/home.js의 HomePage.init() 호출
-      console.log('HomePage 초기화 성공 (애니메이션 포함)');
-    } catch (err) {
-      console.error("HomePage.init() 호출 중 오류:", err);
-    }
-  } else {
-    console.error('FileToQR.pages.home.init 함수를 찾을 수 없습니다. assets/js/pages/home.js가 제대로 로드되고 HomePage 객체가 전역으로 노출되었는지 확인하세요.');
-  }
-
-  // 기존의 CTA 버튼 로직 등은 유지하거나 pages/home.js로 이전 고려
-  const getStartedBtns = document.querySelectorAll('.get-started-btn');
-  getStartedBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      // navigateTo 함수는 app-core.js 내에 정의되어 있어야 함
-      navigateTo(UrlUtils.getI18nUrl('convert.html'));
-    });
-  });
-}
+// async function initHomePage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 변환 페이지 초기화
  * @private
  */
-function initConvertPage() {
-  console.log('변환 페이지 초기화');
-  // convert.js가 자체적으로 DOMContentLoaded에서 초기화하므로 별도 호출 불필요
-  // if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
-  //   window.FileToQR.ConvertPageController.init();
-  // } else {
-  //   console.warn('ConvertPageController.init을 찾을 수 없습니다. convert.js가 로드되었는지 확인하세요.');
-  // }
-}
+// function initConvertPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * QR 코드 페이지 초기화
  * @private
  */
-function initQRCodePage() {
-  console.log('QR 코드 페이지 초기화');
-  if (window.FileToQR && window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.init === 'function') {
-    if (!window.FileToQR.QRGenerator.state || !window.FileToQR.QRGenerator.state.initialized) {
-      window.FileToQR.QRGenerator.init();
-    }
-  } else {
-    console.warn('QRGenerator.init을 찾을 수 없습니다. qr-generator.js가 로드되었는지 확인하세요.');
-  }
-}
+// function initQRCodePage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 타이머 페이지 초기화
  * @private
  */
-function initTimerPage() {
-  console.log('타이머 페이지 초기화');
-  // timer.js는 자체적으로 DOMContentLoaded에서 초기화 로직을 가질 수 있음
-  // 또는 여기서 명시적으로 해당 페이지의 초기화 함수 호출
-  // 예: if (window.FileToQR && window.FileToQR.TimerPage) { window.FileToQR.TimerPage.init(); }
-}
+// function initTimerPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 도움말 페이지 초기화
  * @private
  */
-function initHelpPage() {
-  console.log('도움말 페이지 초기화');
-  if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
-    window.FileToQR.controllers.content.init();
-  }
-}
+// function initHelpPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 문의하기 페이지 초기화
  * @private
  */
-function initContactPage() {
-  console.log('문의하기 페이지 초기화');
-   if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
-    window.FileToQR.controllers.content.init();
-  }
-}
+// function initContactPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 개인정보 처리방침 페이지 초기화
  * @private
  */
-function initPrivacyPage() {
-  console.log('개인정보 처리방침 페이지 초기화');
-   if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
-    window.FileToQR.controllers.content.init();
-  }
-}
+// function initPrivacyPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 이용약관 페이지 초기화
  * @private
  */
-function initTermsPage() {
-  console.log('이용약관 페이지 초기화');
-  if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) {
-    window.FileToQR.controllers.content.init();
-  }
-}
+// function initTermsPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 현재 언어 코드 가져오기

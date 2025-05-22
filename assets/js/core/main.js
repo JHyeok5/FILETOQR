@@ -212,11 +212,13 @@ const Main = {
 };
 
 // DOMContentLoaded 이벤트 시 초기화 실행
+/*
 document.addEventListener('DOMContentLoaded', () => {
   Main.init().catch(error => {
     console.error('메인 애플리케이션 초기화 실패:', error);
   });
 });
+*/
 
 // 전역 객체에 등록
 window.FileToQR = window.FileToQR || {};

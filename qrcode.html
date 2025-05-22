@@ -16,8 +16,6 @@
   <link rel="alternate" hreflang="x-default" href="/qrcode.html">
   <link rel="stylesheet" href="/assets/css/tailwind-built.css">
   <script type="module" src="/assets/js/core/app-core.js"></script>
-  <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
-  <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
@@ -33,7 +31,7 @@
     <div id="qr-output" class="mt-4"></div>
   </main>
   <div id="footer-container"></div>
-  <script>
+  <!-- <script>
     document.addEventListener('DOMContentLoaded', function() {
       if (typeof init === 'function') {
         init();
@@ -47,6 +45,6 @@
         window.FileToQR.FileToQRCore.init();
       }
     });
-  </script>
+  </script> -->
 </body>
 </html>
