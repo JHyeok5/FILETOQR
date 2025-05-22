@@ -95,12 +95,8 @@ async function init() {
 
     // 2. 유틸리티 모듈 초기화 (순서 중요)
     console.log('기본 유틸리티 모듈 초기화 시작');
-
-    // a. URL 유틸리티 초기화
     console.log('URL 유틸리티 초기화');
     // URL 유틸리티는 자체 초기화 함수가 없으므로 넘어감
-
-    // b. 다국어 지원 초기화
     console.log('다국어 지원 초기화');
     await I18n.init({
       useSavedLang: true,
@@ -108,71 +104,71 @@ async function init() {
     });
     console.log('다국어 지원 초기화 완료.');
 
-    // 3. 헤더/푸터 동적 치환 및 내부 스크립트 실행 대기 (components.js)
+    // 3. 템플릿 유틸리티 초기화 (공통 컴포넌트 로드 전에 필요할 수 있음)
+    if (typeof window.FileToQR !== 'undefined' && typeof window.FileToQR.TemplateUtils !== 'undefined' && typeof window.FileToQR.TemplateUtils.init === 'function') {
+      console.log('템플릿 유틸리티(TemplateUtils) 발견, 초기화 시작...');
+      try {
+        await window.FileToQR.TemplateUtils.init();
+        console.log('템플릿 유틸리티(TemplateUtils) 초기화 완료.');
+      } catch (error) {
+        console.error('템플릿 유틸리티(TemplateUtils) 초기화 중 심각한 오류 발생:', error);
+        throw new Error('필수 UI 라이브러리(TemplateUtils) 로드에 실패했습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
+      }
+    } else {
+      console.warn('템플릿 유틸리티(TemplateUtils) 또는 초기화 함수(init)를 찾을 수 없습니다. template-utils.js가 올바르게 로드되었는지 확인하세요.');
+      throw new Error('필수 UI 라이브러리(TemplateUtils)를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
+    }
+    
+    // 4. 헤더/푸터 동적 치환 및 내부 스크립트 실행 대기 (components.js)
+    // 이 단계에서 헤더/푸터의 DOM이 준비되고 내부 스크립트가 실행 완료됨
     if (window.FileToQR && window.FileToQR.components && typeof window.FileToQR.components.loadDefault === 'function') {
       console.log('기본 컴포넌트(헤더/푸터) 로드 시작...');
-      await window.FileToQR.components.loadDefault(); // 이 함수는 이제 내부 스크립트 완료를 기다림
+      await window.FileToQR.components.loadDefault(); 
       console.log('기본 컴포넌트(헤더/푸터) 로드 및 초기화 완료.');
-
-      // 헤더 네비게이션 링크 활성화 (헤더 로드 후, 페이지 컨텐츠 로드 전)
+      
+      // 4.1 헤더 네비게이션 링크 활성화 (헤더 로드 및 초기화 완료 후)
       if (window.FileToQR && window.FileToQR.Header && typeof window.FileToQR.Header.activateNavLinks === 'function') {
         console.log('헤더 네비게이션 링크 활성화 시도...');
         window.FileToQR.Header.activateNavLinks();
         console.log('헤더 네비게이션 링크 활성화 완료.');
+      } else {
+        console.warn('FileToQR.Header.activateNavLinks 함수를 찾을 수 없습니다.');
       }
+
+      // 4.2 언어 선택기 설정 (헤더/푸터 로드 및 초기화 완료 후)
+      // initLanguageSelector는 내부적으로 헤더의 DOM 요소를 참조하므로, 헤더가 준비된 후 호출
+      console.log('언어 선택기 초기화 시도...');
+      initLanguageSelector(); 
+      console.log('언어 선택기 초기화 완료.');
+
+      // 4.3 페이지 내 내부 링크 업데이트 (헤더/푸터 로드 및 초기화 완료 후)
+      // updateInternalLinks는 헤더/푸터 내의 링크도 처리할 수 있으므로 이 시점에 호출
+      console.log('내부 링크 업데이트 시도...');
+      updateInternalLinks();
+      console.log('내부 링크 업데이트 완료.');
 
     } else {
       console.warn('FileToQR.components.loadDefault()를 찾을 수 없습니다. components.js가 올바르게 로드되었는지 확인하세요.');
-      // 이 경우, 앱의 핵심 기능이 제대로 동작하지 않을 수 있으므로 오류를 던지거나 처리가 필요합니다.
-      throw new Error('Default component loader not found.');
+      throw new Error('필수 공통 컴포넌트 로더(components.js)를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
     }
 
-    // 4. 템플릿 유틸리티 초기화 (필요한 경우)
-    try {
-      if (typeof window.FileToQR !== 'undefined' && typeof window.FileToQR.TemplateUtils !== 'undefined') {
-        console.log('템플릿 유틸리티 발견, 초기화 시작');
-        if (!window.Handlebars) {
-          const handlebarsScript = document.createElement('script');
-          handlebarsScript.src = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
-          await new Promise((resolve, reject) => {
-            handlebarsScript.onload = resolve;
-            handlebarsScript.onerror = reject;
-            document.head.appendChild(handlebarsScript);
-          });
-          console.log('Handlebars 라이브러리 동적 로드 완료');
-        }
-        await window.FileToQR.TemplateUtils.init();
-        console.log('템플릿 유틸리티 초기화 완료');
-        // 템플릿 처리 함수가 processTemplates -> loadComponent 등으로 변경되었을 수 있으니 확인 필요
-        // await window.FileToQR.TemplateUtils.processTemplates();
-      } else {
-        console.log('템플릿 유틸리티(TemplateUtils)가 로드되지 않았습니다.');
-      }
-    } catch (error) {
-      console.error('템플릿 유틸리티 초기화 실패:', error);
-    }
-
-    // 4. 페이지별 초기화
+    // 5. 페이지별 초기화 (공통 컴포넌트 및 관련 기능 초기화 완료 후)
+    console.log('페이지별 모듈 초기화 단계 진입...');
     await initCurrentPage();
 
-    // 5. 페이지 내 링크 업데이트
-    updateInternalLinks();
-
-    // 6. 언어 선택기 설정
-    initLanguageSelector();
-
-    // 7. 로딩 인디케이터 숨기기
-    console.log('초기화 완료 - 로딩 인디케이터 숨김');
+    // 6. 로딩 인디케이터 숨기기 (모든 주요 초기화 완료 후)
+    console.log('모든 초기화 완료 - 로딩 인디케이터 숨김');
     hideLoadingIndicator();
 
-    // 8. 초기화 완료 후 추가 작업 실행
+    // 7. 초기화 완료 후 추가 작업 실행 (예: 이벤트 리스너 등록 등)
     onAppInitialized();
 
-    console.log('애플리케이션 초기화 완료');
+    console.log('애플리케이션 초기화 성공적으로 완료');
+
   } catch (error) {
-    console.error('애플리케이션 초기화 실패:', error);
+    console.error('애플리케이션 초기화 중 심각한 오류 발생:', error);
     hideLoadingIndicator();
-    showErrorMessage('애플리케이션 초기화 중 오류가 발생했습니다.');
+    showErrorMessage(error.message || '애플리케이션 초기화 중 오류가 발생했습니다. 페이지를 새로고침하거나 문제가 지속되면 관리자에게 문의하세요.');
   }
 }
 
@@ -259,65 +255,16 @@ function hideLoadingIndicator() {
 async function initCurrentPage() {
   try {
     const pageId = getCurrentPage();
-    console.log(`페이지별 초기화 시작 (app-core.js 통합): ${pageId}`);
-
-    // pageInitializers 객체 및 관련 로직 제거
-    // 대신 loadPageScript를 직접 호출
+    console.log(`페이지별 초기화 시작 (app-core.js): ${pageId}`);
+    // loadPageScript는 pageId에 해당하는 스크립트를 로드하고 초기화 함수를 호출
     await loadPageScript(pageId);
-
-    console.log(`${pageId} 페이지 초기화 완료 (app-core.js 통합)`);
+    console.log(`${pageId} 페이지 초기화 완료 (app-core.js)`);
   } catch (error) {
-    console.error('페이지 초기화 실패 (app-core.js 통합):', error);
+    console.error(`페이지 초기화 실패 (app-core.js, 페이지 ID: ${getCurrentPage()}):`, error);
+    // 페이지별 초기화 실패 시 사용자에게 알릴 수 있지만, 앱 전체를 중단시키지는 않을 수 있음
+    // showErrorMessage(`페이지 '${getCurrentPage()}' 로딩 중 문제가 발생했습니다.`);
   }
 }
-
-/**
- * 홈 페이지 초기화
- * @private
- */
-// async function initHomePage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
-
-/**
- * 변환 페이지 초기화
- * @private
- */
-// function initConvertPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
-
-/**
- * QR 코드 페이지 초기화
- * @private
- */
-// function initQRCodePage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
-
-/**
- * 타이머 페이지 초기화
- * @private
- */
-// function initTimerPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
-
-/**
- * 도움말 페이지 초기화
- * @private
- */
-// function initHelpPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
-
-/**
- * 문의하기 페이지 초기화
- * @private
- */
-// function initContactPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
-
-/**
- * 개인정보 처리방침 페이지 초기화
- * @private
- */
-// function initPrivacyPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
-
-/**
- * 이용약관 페이지 초기화
- * @private
- */
-// function initTermsPage() { ... } // loadPageScript로 통합되므로 주석 처리 또는 삭제 가능
 
 /**
  * 현재 언어 코드 가져오기
@@ -613,10 +560,58 @@ function onAppInitialized() {
  * 에러 메시지 표시 함수 (간단 버전)
  */
 function showErrorMessage(message) {
-    // 기존에 만들어둔 토스트 메시지나 알림 컴포넌트 활용 가능
-    // 여기서는 간단히 alert으로 대체
-    console.error("오류 발생:", message);
-    // alert(message); // 실제 서비스에서는 더 나은 UI로 대체
+  try {
+    const existingModal = document.getElementById('error-modal-container');
+    if (existingModal) {
+      existingModal.remove(); // 이전 오류 메시지 제거
+    }
+
+    const modalContainer = document.createElement('div');
+    modalContainer.id = 'error-modal-container';
+    modalContainer.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.6); display: flex;
+      justify-content: center; align-items: center; z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    `;
+
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+      background-color: white; padding: 30px; border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center;
+      max-width: 400px; width: 90%;
+    `;
+
+    const errorTitle = document.createElement('h2');
+    errorTitle.textContent = '오류 발생';
+    errorTitle.style.cssText = 'color: #dc3545; margin-top: 0; margin-bottom: 15px; font-size: 1.5em;';
+
+    const errorMessage = document.createElement('p');
+    errorMessage.textContent = message;
+    errorMessage.style.cssText = 'margin-bottom: 20px; font-size: 1em; color: #333; line-height: 1.6;';
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = '닫기';
+    closeButton.style.cssText = `
+      background-color: #007bff; color: white; border: none;
+      padding: 10px 20px; border-radius: 5px; cursor: pointer;
+      font-size: 1em; transition: background-color 0.2s;
+    `;
+    closeButton.onmouseover = () => closeButton.style.backgroundColor = '#0056b3';
+    closeButton.onmouseout = () => closeButton.style.backgroundColor = '#007bff';
+    closeButton.onclick = () => modalContainer.remove();
+
+    modalContent.appendChild(errorTitle);
+    modalContent.appendChild(errorMessage);
+    modalContent.appendChild(closeButton);
+    modalContainer.appendChild(modalContent);
+    document.body.appendChild(modalContainer);
+
+  } catch (e) {
+    console.error('오류 메시지 표시 중 추가 오류 발생:', e);
+    // 최후의 수단으로 alert 사용
+    alert(message);
+  }
 }
 
 /**
@@ -629,38 +624,54 @@ function showErrorMessage(message) {
  * - main/header/footer가 모두 렌더링된 후에만 script 삽입 및 init(force) 실행
  */
 async function loadPageScript(pageIdRaw) {
+  if (!pageIdRaw || typeof pageIdRaw !== 'string') {
+    console.warn('loadPageScript: 유효하지 않은 pageIdRaw입니다.', pageIdRaw);
+    return; 
+  }
   const pageId = pageIdRaw.toLowerCase();
   console.log(`페이지 스크립트 로드 시도: ${pageId}`);
 
-  const pageConfig = Config.pages[pageId] || Config.pages[pageId.split('/').pop()];
+  // Config.pages에서 페이지 설정 가져오기. pageId가 'ko/index' 같은 형태일 수 있으므로 마지막 부분 사용
+  const pageKey = pageId.includes('/') ? pageId.split('/').pop() : pageId;
+  const pageConfig = Config.pages[pageKey];
 
   if (pageConfig && pageConfig.script) {
     try {
-      // 페이지 스크립트 동적 임포트
-      console.log(`페이지 스크립트 가져오기: ${pageConfig.script}`);
+      console.log(`페이지 스크립트 동적 import 시도: ${pageConfig.script}`);
       const pageModule = await import(pageConfig.script);
-      console.log(`페이지 스크립트 로드 완료: ${pageId}`);
+      console.log(`페이지 스크립트(${pageConfig.script}) 로드 완료: ${pageId}`);
 
+      // 1. 모듈 직접 export (ES6 모듈 스타일)
       if (pageModule && typeof pageModule.init === 'function') {
-        console.log(`페이지 모듈 초기화 시작: ${pageId}`);
-        // isAllRendered() 폴링 로직 제거. 공통 컴포넌트는 이미 init()에서 로드 완료됨.
-        await pageModule.init(true); // true는 forceFullInit을 의미할 수 있음 (기존 로직 유지)
-        console.log(`페이지 모듈 초기화 완료: ${pageId}`);
-      } else if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages[pageId] && typeof window.FileToQR.pages[pageId].init === 'function') {
-        // 전역으로 노출된 페이지 객체 초기화 (예: HomePage)
-        console.log(`전역 페이지 객체 초기화 시작: ${pageId}`);
-        // isAllRendered() 폴링 로직 제거.
-        await window.FileToQR.pages[pageId].init(true);
-        console.log(`전역 페이지 객체 초기화 완료: ${pageId}`);
-      } else {
-        console.warn(`페이지 초기화 함수(init)를 찾을 수 없습니다: ${pageId}`);
+        console.log(`페이지 모듈(${pageId})의 init 함수 직접 호출 시도...`);
+        await pageModule.init(true); 
+        console.log(`페이지 모듈(${pageId})의 init 함수 직접 호출 완료.`);
+      } 
+      // 2. 전역 네임스페이스에 할당된 페이지 객체 (기존 방식 호환)
+      // window.FileToQR.pages.home 또는 window.FileToQR.HomePage 등 다양한 형태 고려
+      else if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages[pageKey] && typeof window.FileToQR.pages[pageKey].init === 'function') {
+        console.log(`전역 페이지 객체(window.FileToQR.pages.${pageKey})의 init 함수 호출 시도...`);
+        await window.FileToQR.pages[pageKey].init(true);
+        console.log(`전역 페이지 객체(window.FileToQR.pages.${pageKey})의 init 함수 호출 완료.`);
+      } 
+      // 3. 페이지 ID를 이름으로 하는 전역 컨트롤러 객체 (예: window.FileToQR.Home)
+      // pageKey에서 첫 글자를 대문자로 변경하여 컨트롤러 이름 생성 (e.g., 'home' -> 'Home')
+      else {
+        const controllerName = pageKey.charAt(0).toUpperCase() + pageKey.slice(1);
+        if (window.FileToQR && window.FileToQR[controllerName] && typeof window.FileToQR[controllerName].init === 'function') {
+          console.log(`전역 컨트롤러 객체(window.FileToQR.${controllerName})의 init 함수 호출 시도...`);
+          await window.FileToQR[controllerName].init(true);
+          console.log(`전역 컨트롤러 객체(window.FileToQR.${controllerName})의 init 함수 호출 완료.`);
+        } else {
+          console.warn(`페이지(${pageId})에 대한 초기화 함수(init)를 찾을 수 없습니다. 스크립트(${pageConfig.script})가 올바르게 init 함수를 export하거나 전역(window.FileToQR.pages.${pageKey} 또는 window.FileToQR.${controllerName})에 할당하는지 확인하세요.`);
+        }
       }
     } catch (error) {
-      console.error(`페이지 스크립트 로드 또는 초기화 실패 ${pageId}:`, error);
-      showErrorMessage(`페이지 '${pageId}'의 스크립트를 로드하거나 실행하는 중 오류가 발생했습니다.`);
+      console.error(`페이지 스크립트(${pageConfig.script}) 로드 또는 초기화 실패 (페이지 ID: ${pageId}):`, error);
+      showErrorMessage(`페이지 '${pageId}'의 내용을 로드하거나 초기화하는 중 오류가 발생했습니다. 콘솔을 확인해주세요.`);
     }
   } else {
-    console.log(`페이지에 대한 스크립트가 정의되지 않았습니다: ${pageId}`);
+    console.log(`페이지(${pageId})에 대한 스크립트가 Config에 정의되지 않았습니다.`);
   }
 }
 

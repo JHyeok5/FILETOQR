@@ -651,6 +651,6 @@ const ConvertPageController = {
 };
 
 // 전역 객체에 컨트롤러 추가
-window.FileToQR.ConvertPageController = ConvertPageController;
+// window.FileToQR.ConvertPageController = ConvertPageController; // 이 줄 주석 처리 또는 삭제
 
 export default ConvertPageController; 

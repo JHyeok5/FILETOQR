@@ -101,8 +101,8 @@ const TimerPage = {
     console.log('TimerPage.destroy() 호출: 상태만 초기화');
   }
 };
-window.FileToQR = window.FileToQR || {};
-window.FileToQR.TimerPage = TimerPage;
+// window.FileToQR = window.FileToQR || {}; // 이 줄과 다음 줄 주석 처리 또는 삭제
+// window.FileToQR.TimerPage = TimerPage;
 export default TimerPage;
 
 // 탭 전환 설정 함수

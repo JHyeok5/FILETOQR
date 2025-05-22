@@ -54,11 +54,9 @@ const TemplateUtils = {
       }
       
       console.log('템플릿 유틸리티 초기화 완료');
-      
-      return Promise.resolve();
     } catch (error) {
       console.error('템플릿 유틸리티 초기화 실패:', error);
-      return Promise.reject(error);
+      throw error;
     }
   },
 
@@ -68,40 +66,38 @@ const TemplateUtils = {
    * @private
    */
   async loadHandlebars() {
-    if (Handlebars !== null) {
-      return Promise.resolve(Handlebars);
+    if (Handlebars !== null && typeof window.Handlebars !== 'undefined') {
+      console.log('Handlebars는 이미 로드되어 있습니다.');
+      return;
     }
     
+    console.log('Handlebars 라이브러리 로드 시도...');
+    const handlebarsUrl = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
+    
     try {
-      // CDN에서 Handlebars 로드 시도
-      const HandlebarsScript = document.createElement('script');
-      HandlebarsScript.src = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
-      
-      // 스크립트 로드 Promise
-      const loadPromise = new Promise((resolve, reject) => {
-        HandlebarsScript.onload = () => {
+      const script = document.createElement('script');
+      script.src = handlebarsUrl;
+      script.async = true;
+
+      await new Promise((resolve, reject) => {
+        script.onload = () => {
           if (typeof window.Handlebars !== 'undefined') {
             Handlebars = window.Handlebars;
-            console.log('Handlebars 로드 성공');
-            resolve(Handlebars);
+            console.log('Handlebars 로드 성공 (CDN)');
+            resolve();
           } else {
-            reject(new Error('Handlebars 로드 실패: window.Handlebars가 정의되지 않음'));
+            console.error('Handlebars 로드 실패: window.Handlebars가 정의되지 않음 (CDN)');
+            reject(new Error('Handlebars 로드 후 window.Handlebars를 찾을 수 없습니다.'));
           }
         };
-        HandlebarsScript.onerror = () => {
-          reject(new Error('Handlebars 스크립트 로드 오류'));
+        script.onerror = (event) => {
+          console.error(`Handlebars 스크립트 로드 오류 (CDN: ${handlebarsUrl}):`, event);
+          reject(new Error(`Handlebars CDN (${handlebarsUrl}) 로드에 실패했습니다.`));
         };
+        document.head.appendChild(script);
       });
-      
-      // DOM에 스크립트 추가
-      document.head.appendChild(HandlebarsScript);
-      
-      // 로드 완료까지 대기
-      await loadPromise;
-      
-      return Handlebars;
     } catch (error) {
-      console.error('Handlebars 로드 실패:', error);
+      console.error('Handlebars 동적 로드 중 오류 발생:', error);
       throw error;
     }
   },
@@ -501,7 +497,11 @@ const TemplateUtils = {
 };
 
 // 템플릿 유틸리티를 전역 객체에 등록
-window.FileToQR = window.FileToQR || {};
-window.FileToQR.TemplateUtils = TemplateUtils;
+if (window.FileToQR) {
+  window.FileToQR.TemplateUtils = TemplateUtils;
+} else {
+  console.warn('FileToQR 전역 객체가 없어 TemplateUtils를 할당할 수 없습니다. app-core.js가 먼저 로드되어야 합니다.');
+  // 이 경우 app-core.js에서 직접 모듈을 사용해야 함
+}
 
 export default TemplateUtils; 

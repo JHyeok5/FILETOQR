@@ -294,12 +294,12 @@ const HomePage = {
 };
 
 // 글로벌 네임스페이스에 등록 (app-core.js에서 호출할 수 있도록)
-if (typeof window !== 'undefined') {
-  window.FileToQR = window.FileToQR || {};
-  window.FileToQR.pages = window.FileToQR.pages || {};
-  window.FileToQR.pages.home = HomePage;
-  console.log('HomePage 모듈이 window.FileToQR.pages.home에 등록됨');
-}
+// if (typeof window !== 'undefined') { // 이 블록 전체 주석 처리 또는 삭제
+//   window.FileToQR = window.FileToQR || {};
+//   window.FileToQR.pages = window.FileToQR.pages || {};
+//   window.FileToQR.pages.home = HomePage;
+//   console.log('HomePage 모듈이 window.FileToQR.pages.home에 등록됨');
+// }
 
 // 기존의 DOMContentLoaded 리스너는 app-core.js에서 HomePage.init()을 호출하므로 주석 처리 또는 삭제
 /*

@@ -1236,19 +1236,3 @@ if (typeof window !== 'undefined') {
 }
 
 export default QRGenerator; 
-
-// 기존 DOMContentLoaded 또는 즉시 실행 부분을 아래로 대체
-function waitForHeaderFooterAndInit() {
-  const header = document.getElementById('header-container');
-  const footer = document.getElementById('footer-container');
-  if (header && footer && header.innerHTML && footer.innerHTML) {
-    if (window.FileToQR && window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.init === 'function') {
-      window.FileToQR.QRGenerator.init();
-    } else if (typeof QRGenerator !== 'undefined' && typeof QRGenerator.init === 'function') {
-      QRGenerator.init();
-    }
-  } else {
-    setTimeout(waitForHeaderFooterAndInit, 50);
-  }
-}
-waitForHeaderFooterAndInit(); 

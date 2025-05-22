@@ -298,23 +298,23 @@ const ContentPageController = {
 };
 
 // 기존 DOMContentLoaded 초기화 제거 및 SPA/동적 진입 대응
-function waitForHeaderFooterAndInit() {
-  const header = document.getElementById('header-container');
-  const footer = document.getElementById('footer-container');
-  if (header && footer && header.innerHTML && footer.innerHTML) {
-    if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content && typeof window.FileToQR.controllers.content.init === 'function') {
-      window.FileToQR.controllers.content.init();
-    } else {
-      ContentPageController.init();
-    }
-  } else {
-    setTimeout(waitForHeaderFooterAndInit, 50);
-  }
-}
-waitForHeaderFooterAndInit();
+// function waitForHeaderFooterAndInit() { // 이 함수 전체 삭제
+//   const header = document.getElementById('header-container');
+//   const footer = document.getElementById('footer-container');
+//   if (header && footer && header.innerHTML && footer.innerHTML) {
+//     if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content && typeof window.FileToQR.controllers.content.init === 'function') {
+//       window.FileToQR.controllers.content.init();
+//     } else {
+//       ContentPageController.init();
+//     }
+//   } else {
+//     setTimeout(waitForHeaderFooterAndInit, 50);
+//   }
+// }
+// waitForHeaderFooterAndInit(); // 이 호출문 삭제
 
 // 하위 호환성을 위한 전역 참조
-window.FileToQR = window.FileToQR || {};
-window.FileToQR.controllers = window.FileToQR.controllers || {};
-window.FileToQR.controllers.content = ContentPageController;
+// window.FileToQR = window.FileToQR || {}; // 이 블록 전체 삭제 또는 주석 처리
+// window.FileToQR.controllers = window.FileToQR.controllers || {};
+// window.FileToQR.controllers.content = ContentPageController;
 export default ContentPageController; 
