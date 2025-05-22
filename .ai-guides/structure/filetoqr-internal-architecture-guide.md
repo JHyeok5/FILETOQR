@@ -211,25 +211,38 @@ FileToQR의 서비스 로직은 다음 6단계로 구성되어 있습니다.
 
 ---
 
-## [공통 헤더/푸터 컴포넌트 동적 치환 구조 및 관리 원칙]
+## 문제 해결 원칙 (SPA/파일 변환 페이지)
 
-### 1. 구조 원칙
-- ko/ 등 각 페이지의 HTML에는 `<header></header>`, `<footer></footer>`만 남기고, 본문(main)만 관리한다.
-- 실제 헤더/푸터 UI(네비게이션, 언어 선택기, 반응형 구조 등)는 `/components/header.html`, `/components/footer.html`에서만 관리/수정한다.
-- 각 페이지의 header/footer를 아무리 수정해도, JS(app-core.js, components.js 등)가 실행되면 해당 컴포넌트 파일의 내용으로 동적으로 치환된다.
+### 1. 마크업-스크립트 매핑 일치
+- 각 페이지(main 내부) 마크업은 해당 JS 컨트롤러가 기대하는 id/class 구조와 100% 일치해야 함
+- 예: `.converter-type-btn`, `#file-upload`, `#download-btn` 등은 convert.js가 정상 동작하는 데 필수
+- 불필요한 래퍼(div#convert-app 등)는 제거
 
-### 2. 관리/수정 원칙
-- 공통 UI(헤더/푸터/네비/언어선택기/반응형 등)는 반드시 `/components/header.html`, `/components/footer.html`에서만 관리한다.
-- ko/ 등 각 페이지는 본문(main)과 페이지별 스크립트만 관리한다.
-- 공통 UI 수정 시, 반드시 컴포넌트 파일을 최신 상태로 유지하고, 필요시 구조/역할 변경 사항을 본 가이드에도 즉시 반영한다.
+### 2. main-container 중복/불필요 UI 완전 제거
+- SPA 라우팅 시 main-container의 innerHTML을 완전히 비우고, 새 main만 삽입
+- main 내부에 main 태그가 중첩되면 첫 번째 main만 남기고 나머지는 모두 제거
+- convert-app 등 불필요한 래퍼도 자동 제거
 
-### 3. 동작 흐름
-- 사용자가 페이지에 접근하면, JS(app-core.js, components.js 등)가 실행되어 각 페이지의 `<header>`, `<footer>`를 `/components/header.html`, `/components/footer.html`의 내용으로 동적으로 치환한다.
-- 이로써 모든 페이지에서 헤더/푸터/네비/언어선택기/반응형 구조가 100% 일관되게 유지된다.
+### 3. 이벤트 바인딩/초기화 일관성
+- convert.js 등 컨트롤러는 항상 init(force)로 강제 재초기화
+- 이벤트 바인딩 전 cloneNode 등으로 기존 바인딩 해제 후, 새로 바인딩
+- SPA 이동 시에도 main/header/footer가 모두 렌더링된 후에만 script 삽입 및 init(force) 실행
 
-### 4. 유지보수/확장성
-- 공통 UI/네비/언어선택기/반응형 구조 등은 반드시 컴포넌트 파일에서만 관리하며, 각 페이지에서 중복/직접 작성하지 않는다.
-- 구조/역할 변경 시, 본 가이드와 컴포넌트 파일을 반드시 동기화한다.
+### 4. 네임스페이스/모듈 연결 구조
+- 모든 컨트롤러/유틸리티는 window.FileToQR 네임스페이스에 정확히 할당
+- app-core.js에서 동적으로 접근/초기화 가능해야 함
+- ES 모듈 import/export 구조와 전역 네임스페이스 할당이 일관되게 유지되어야 함
+
+### 5. 점검/수정 단계별 체크리스트
+- [ ] main 내부 마크업 구조가 컨트롤러 기대와 일치하는가?
+- [ ] main-container 교체 시 중복/불필요 UI가 완전히 제거되는가?
+- [ ] SPA 이동 후에도 이벤트 바인딩이 정상 동작하는가?
+- [ ] 컨트롤러/유틸리티가 window.FileToQR에 정확히 할당되는가?
+- [ ] 헤더/푸터 등 공통 컴포넌트가 SPA 이동 시에도 정상 동작하는가?
+
+### 6. 예시
+- 잘못된 예: main 내부에 <div id="convert-app">...</div> 래퍼가 남아있음 → 이벤트 바인딩 실패/중복 UI
+- 올바른 예: main 내부에 .converter-type-btn, #file-upload 등만 존재, 불필요 래퍼 없음
 
 ---
 

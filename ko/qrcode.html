@@ -23,56 +23,11 @@
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
-  <main id="main-container" class="flex-grow container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">QR 코드 생성</h1>
-    <!-- QR 코드 생성/파일→QR 변환 UI/폼/버튼 영역 구현 (qr-generator.js, file-to-qr-core.js와 연동) -->
-      <div id="qr-generator-app">
-          <div class="content-type-tabs mb-4" id="content-type-tabs">
-        <button class="active" data-type="url">URL</button>
-        <button data-type="text">텍스트</button>
-        <button data-type="email">이메일</button>
-        <button data-type="phone">전화번호</button>
-        <button data-type="vcard">연락처</button>
-        <button data-type="wifi">WiFi</button>
-        <button data-type="file">파일</button>
-      </div>
-      <!-- 각 탭별 입력 폼 -->
-      <form class="content-form active" id="url-form">
-        <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1">웹사이트 주소</label>
-        <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com">
-      </form>
-      <form class="content-form hidden" id="text-form">
-        <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1">텍스트</label>
-        <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="내용을 입력하세요"></textarea>
-      </form>
-      <form class="content-form hidden" id="email-form">
-        <label for="email-input" class="block text-sm font-medium text-gray-700 mb-1">이메일 주소</label>
-        <input type="email" id="email-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com">
-      </form>
-      <form class="content-form hidden" id="phone-form">
-        <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
-        <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678">
-      </form>
-      <form class="content-form hidden" id="vcard-form">
-        <label for="vcard-input" class="block text-sm font-medium text-gray-700 mb-1">연락처 정보</label>
-        <textarea id="vcard-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="BEGIN:VCARD...END:VCARD"></textarea>
-      </form>
-      <form class="content-form hidden" id="wifi-form">
-        <label for="wifi-input" class="block text-sm font-medium text-gray-700 mb-1">WiFi 정보</label>
-        <input id="wifi-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WIFI:S:Network;T:WPA;P:Password;;">
-      </form>
-      <form class="content-form hidden" id="file-form">
-        <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1">파일 선택</label>
-        <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-      </form>
-      <!-- QR 코드 미리보기 -->
-      <div id="qr-preview" class="mt-6"></div>
-      <!-- 다운로드 옵션 영역 -->
-      <div id="download-options" class="hidden mt-4 flex space-x-2">
-        <button id="download-qr-png" class="px-4 py-2 bg-blue-600 text-white rounded">PNG 다운로드</button>
-        <button id="download-qr-svg" class="px-4 py-2 bg-gray-600 text-white rounded">SVG 다운로드</button>
-      </div>
-    </div>
+  <main id="main-container">
+    <!-- [SPA/컨트롤러 구조 일치화] 불필요 래퍼 제거, 필수 요소만 남김 -->
+    <input id="qr-input" type="text" placeholder="QR로 변환할 텍스트 또는 URL 입력" class="w-full mb-4 p-2 border rounded">
+    <button id="generate-btn" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">QR 코드 생성</button>
+    <div id="qr-output" class="mt-4"></div>
   </main>
   <div id="footer-container"></div>
 </body>

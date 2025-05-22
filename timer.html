@@ -20,33 +20,11 @@
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
-  <main id="main-container" class="flex-grow container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">타이머</h1>
-    <!-- 타이머 UI/폼/버튼 영역 구현 (timer.js와 연동) -->
-    <div id="timer-app">
-      <!-- 실제 타이머, 스톱워치, 포모도로, 식물 시스템 등 timer.js에서 동적으로 렌더링/제어 -->
-      <div class="tab-buttons mb-4">
-        <button class="tab-btn active" data-tab="timer">타이머</button>
-        <button class="tab-btn" data-tab="stopwatch">스톱워치</button>
-        <button class="tab-btn" data-tab="pomodoro">포모도로</button>
-      </div>
-      <div id="timer-tab" class="tab-content active">
-        <!-- 타이머 UI가 timer.js에서 동적으로 렌더링됨 -->
-        <div id="timers-list">
-          <div class="timer-item" data-timer-id="1">
-            <!-- 타이머 컨트롤/디스플레이 영역 (timer.js에서 제어) -->
-          </div>
-        </div>
-        <button id="add-timer" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">타이머 추가</button>
-      </div>
-      <div id="stopwatch-tab" class="tab-content hidden">
-        <!-- 스톱워치 UI가 timer.js에서 동적으로 렌더링됨 -->
-      </div>
-      <div id="pomodoro-tab" class="tab-content hidden">
-        <!-- 포모도로 UI/식물 시스템이 timer.js에서 동적으로 렌더링됨 -->
-        <div class="plant-container" style="display:none;"></div>
-      </div>
-    </div>
+  <main id="main-container">
+    <!-- [SPA/컨트롤러 구조 일치화] 불필요 래퍼/설명 제거, 필수 요소만 남김 -->
+    <div id="timer-display" class="text-4xl font-bold mb-4">00:00</div>
+    <button id="start-btn" class="px-4 py-2 bg-blue-600 text-white rounded mr-2">시작</button>
+    <button id="reset-btn" class="px-4 py-2 bg-gray-400 text-white rounded">초기화</button>
   </main>
   <div id="footer-container"></div>
   <script>

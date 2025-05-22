@@ -21,34 +21,11 @@
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
-  <main id="main-container" class="flex-grow container mx-auto px-4 py-8">
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="timer">타이머</button> 
-      <button class="tab-btn" data-tab="stopwatch">스톱워치</button> 
-      <button class="tab-btn" data-tab="pomodoro">포모도로</button>
-    </div>
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6 mt-8" id="timer-settings">
-      <h2 class="text-xl font-semibold mb-4">타이머 설정</h2>
-      <div class="grid md:grid-cols-2 gap-4">
-        <div>
-          <label for="notification-sound" class="block text-sm font-medium text-gray-700 mb-1">알림음</label>
-          <select id="notification-sound" class="w-full px-4 py-2 border rounded-md">
-            <option value="bell">종소리</option>
-            <option value="chime">차임벨</option>
-            <option value="beep">삐 소리</option>
-          </select>
-        </div>
-        <div>
-          <label for="notification-volume" class="block text-sm font-medium text-gray-700 mb-1">알림음 볼륨</label>
-          <input id="notification-volume" type="range" min="0" max="100" value="80" class="w-full">
-        </div>
-        <div>
-          <label for="background-notification" class="block text-sm font-medium text-gray-700 mb-1">백그라운드 알림</label>
-          <input id="background-notification" type="checkbox" checked class="ml-2">
-        </div>
-      </div>
-    </div>
-    <div class="tab-content active" id="timer-tab"><div class="timer-container"><div class="timer-controls timer-global-controls"><button id="add-timer" class="action-btn"><i class="fas fa-plus"></i> 타이머 추가</button></div><div id="timers-list"><div class="timer-item" data-timer-id="0"><div class="timer-header"><input class="timer-label" placeholder="타이머 이름"> <button class="close-timer"><i class="fas fa-times"></i></button></div><div class="timer-display"><span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span></div><div class="timer-controls"><button class="timer-start control-btn"><i class="fas fa-play"></i> 시작</button> <button class="timer-pause control-btn" disabled="disabled"><i class="fas fa-pause"></i> 일시정지</button> <button class="timer-reset control-btn"><i class="fas fa-redo"></i> 리셋</button></div><div class="timer-settings"><div class="time-input"><label>시간:</label> <input type="number" class="hours-input" min="0" max="23" value="0"></div><div class="time-input"><label>분:</label> <input type="number" class="minutes-input" min="0" max="59" value="0"></div><div class="time-input"><label>초:</label> <input type="number" class="seconds-input" min="0" max="59" value="0"></div></div><div class="preset-buttons"><button class="preset-btn" data-minutes="5">5분</button> <button class="preset-btn" data-minutes="10">10분</button> <button class="preset-btn" data-minutes="15">15분</button> <button class="preset-btn" data-minutes="30">30분</button></div></div></div></div></div><div class="tab-content" id="stopwatch-tab"><div class="stopwatch-container"><div class="timer-display"><span id="stopwatch-hours">00</span>:<span id="stopwatch-minutes">00</span>:<span id="stopwatch-seconds">00</span>.<span id="stopwatch-milliseconds">00</span></div><div class="timer-controls"><button id="stopwatch-start" class="control-btn"><i class="fas fa-play"></i> 시작</button> <button id="stopwatch-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i> 일시정지</button> <button id="stopwatch-reset" class="control-btn"><i class="fas fa-redo"></i> 리셋</button> <button id="stopwatch-lap" class="control-btn" disabled="disabled"><i class="fas fa-flag"></i> 랩</button></div><div class="laps-container"><h3>기록</h3><ul id="laps-list"></ul></div></div></div><div class="tab-content" id="pomodoro-tab"><div class="pomodoro-container"><div class="pomodoro-status"><div class="status-box"><span>현재</span> <span id="status-text">작업 시간</span> <span id="current-mode-time">25:00</span></div><div class="status-box"><span>작업 시간</span> <span id="work-time">25:00</span></div><div class="status-box"><span>짧은 휴식</span> <span id="short-break-time">05:00</span></div><div class="status-box"><span>긴 휴식</span> <span id="long-break-time">15:00</span></div><div class="status-box"><span>세션</span> <span id="cycle-count">0/4</span></div><span id="pomodoro-minutes" style="display:none"></span><span id="pomodoro-seconds" style="display:none"></span></div><div class="timer-controls"><button id="pomodoro-start" class="control-btn"><i class="fas fa-play"></i> 시작</button> <button id="pomodoro-pause" class="control-btn" disabled="disabled"><i class="fas fa-pause"></i> 일시정지</button> <button id="pomodoro-reset" class="control-btn"><i class="fas fa-redo"></i> 리셋</button></div><div class="pomodoro-settings"><div class="time-input"><label for="work-minutes">작업 시간(분):</label> <input type="number" id="work-minutes" min="1" max="60" value="25"></div><div class="time-input"><label for="short-break-minutes">짧은 휴식(분):</label> <input type="number" id="short-break-minutes" min="1" max="30" value="5"></div><div class="time-input"><label for="long-break-minutes">긴 휴식(분):</label> <input type="number" id="long-break-minutes" min="1" max="60" value="15"></div><div class="time-input"><label for="cycles">작업 세션 수:</label> <input type="number" id="cycles" min="1" max="10" value="4"></div><div class="time-input"><label for="auto-start">자동 시작:</label> <input type="checkbox" id="auto-start" checked="checked"></div></div></div></div></div></main>
+  <main id="main-container">
+    <div id="timer-display" class="text-4xl font-bold mb-4">00:00</div>
+    <button id="start-btn" class="px-4 py-2 bg-blue-600 text-white rounded mr-2">시작</button>
+    <button id="reset-btn" class="px-4 py-2 bg-gray-400 text-white rounded">초기화</button>
+  </main>
   <div id="footer-container"></div>
   <script>
     // 헤더/푸터가 삽입된 후에만 timer.js 초기화

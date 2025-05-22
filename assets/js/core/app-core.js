@@ -450,6 +450,13 @@ function updateInternalLinks() {
           tempDiv.innerHTML = html;
           let newMain = tempDiv.querySelector('main') || tempDiv;
           mainContainer.innerHTML = newMain.innerHTML;
+          // [SPA 개선] main 내부에 main 태그가 중첩되어 있으면 첫 번째 main만 남기고 나머지 제거 (중복 UI 방지)
+          const nestedMains = mainContainer.querySelectorAll('main');
+          if (nestedMains.length > 1) {
+            for (let i = 1; i < nestedMains.length; i++) {
+              nestedMains[i].remove();
+            }
+          }
           // 주소 변경 (pushState)
           window.history.pushState({}, '', href);
           // 페이지별 JS 동적 로드 및 초기화
