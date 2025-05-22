@@ -396,100 +396,169 @@ function register(name, component) {
    * @returns {Promise<string>} 로드된 HTML 문자열
    */
   async function loadComponentHtml(url) {
-    // 캐시된 컴포넌트 있는지 확인
     if (componentCache.has(url)) {
       return componentCache.get(url);
     }
-    
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`컴포넌트를 불러올 수 없습니다: ${url}`);
+        throw new Error(`Failed to load component HTML: ${url} (${response.status} ${response.statusText})`);
       }
-      
       const html = await response.text();
-      
-      // 캐시에 저장
       componentCache.set(url, html);
-      
       return html;
     } catch (error) {
-      console.error('컴포넌트 로드 오류:', error);
-      throw error;
+      console.error(`Error loading component from ${url}:`, error);
+      throw error; // Re-throw to be caught by caller
     }
   }
   
   /**
-   * 컴포넌트 삽입
-   * @param {string} selector - 대상 요소 선택자
-   * @param {string} url - 컴포넌트 URL
-   * @param {string} position - 삽입 위치 ('replace', 'append', 'prepend', 'before', 'after')
-   * @returns {Promise<boolean>} 삽입 성공 여부
+   * 지정된 셀렉터에 HTML 컴포넌트를 삽입하고 내부 스크립트를 실행합니다.
+   * @param {string} selector - 컴포넌트를 삽입할 DOM 셀렉터
+   * @param {string} url - 컴포넌트 HTML 파일의 URL
+   * @param {string} [position='replace'] - 삽입 위치 ('replace', 'beforeend', 'afterbegin', 'beforebegin')
+   * @returns {Promise<void>} 스크립트 실행 완료 후 resolve되는 Promise
    */
   async function insertComponent(selector, url, position = 'replace') {
-    console.log('[insertComponent] selector:', selector, 'url:', url);
     const targetElement = document.querySelector(selector);
     if (!targetElement) {
-      console.error(`[insertComponent] 선택자와 일치하는 요소를 찾을 수 없습니다: ${selector}`);
-      return false;
+      console.error(`Target element not found for selector: ${selector}`);
+      return Promise.reject(new Error(`Target element not found: ${selector}`));
     }
-    
+
     try {
       const html = await loadComponentHtml(url);
       
       // HTML 삽입
       switch (position) {
-        case 'replace':
-          targetElement.innerHTML = html;
-          break;
-        case 'append':
+        case 'beforeend':
           targetElement.insertAdjacentHTML('beforeend', html);
           break;
-        case 'prepend':
+        case 'afterbegin':
           targetElement.insertAdjacentHTML('afterbegin', html);
           break;
-        case 'before':
+        case 'beforebegin':
           targetElement.insertAdjacentHTML('beforebegin', html);
           break;
-        case 'after':
-          targetElement.insertAdjacentHTML('afterend', html);
-          break;
+        case 'replace':
         default:
           targetElement.innerHTML = html;
+          break;
       }
       
-      // 스크립트 실행
-      const scripts = targetElement.querySelectorAll('script');
-      scripts.forEach(oldScript => {
-        const newScript = document.createElement('script');
-        
-        // 속성 복사
-        Array.from(oldScript.attributes).forEach(attr => 
-          newScript.setAttribute(attr.name, attr.value)
-        );
-        
-        // 내용 복사
-        newScript.textContent = oldScript.textContent;
-        
-        // 교체
-        oldScript.parentNode.replaceChild(newScript, oldScript);
+      // 삽입된 HTML 내의 스크립트 실행
+      // innerHTML로 삽입된 스크립트는 자동 실행되지 않으므로, 새로운 script 엘리먼트를 만들어 교체합니다.
+      const scripts = Array.from(targetElement.querySelectorAll("script"));
+      const scriptPromises = scripts.map(script => {
+        return new Promise((resolve, reject) => {
+          const newScript = document.createElement("script");
+          // Copy attributes (async, defer, type, etc.)
+          Array.from(script.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+
+          if (script.src) {
+            newScript.src = script.src; // Ensure src is set before onload/onerror
+            newScript.onload = () => {
+              console.log(`Script loaded: ${script.src}`);
+              resolve();
+            };
+            newScript.onerror = (e) => {
+              console.error(`Script failed to load: ${script.src}`, e);
+              reject(new Error(`Script failed to load: ${script.src}`));
+            };
+          } else {
+            newScript.textContent = script.textContent;
+            // Inline scripts are executed when appended, but for consistency and potential async init inside them:
+            // We consider them "loaded" immediately after appending,
+            // unless they signal completion (e.g. via a custom event or global flag).
+            // For this iteration, we assume inline scripts execute synchronously or manage their own async.
+            // For header.html, we'll call its init functions explicitly later.
+            resolve(); 
+          }
+          
+          // Replace the old script tag with the new one to execute it
+          script.parentNode.replaceChild(newScript, script);
+          if (!script.src) {
+             // For inline scripts, ensure they are executed. 
+             // If they were already resolved, this doesn't re-resolve but ensures execution.
+          }
+        });
       });
-      
-      return true;
+
+      await Promise.all(scriptPromises);
+      console.log(`All scripts in ${url} processed for selector ${selector}.`);
+
     } catch (error) {
-      console.error('컴포넌트 삽입 오류:', error);
-      return false;
+      console.error(`Failed to insert component from ${url} into ${selector}:`, error);
+      // 오류를 다시 던져서 호출자가 처리할 수 있도록 함
+      throw error;
     }
   }
   
   /**
-   * 기본 컴포넌트 로드 (헤더, 푸터 등)
-   * @returns {Promise<void>}
+   * 기본 공통 컴포넌트(헤더, 푸터 등)를 로드하고 초기화합니다.
+   * @returns {Promise<void>} 모든 컴포넌트 로드 및 초기화 완료 후 resolve
    */
   async function loadDefaultComponents() {
-    console.log('[loadDefaultComponents] 실행');
-    await insertComponent('#header-container', '/components/header.html', 'replace');
-    await insertComponent('#footer-container', '/components/footer.html', 'replace');
+    console.log('기본 컴포넌트(헤더/푸터) 로드 시작 (components.js)');
+    const headerSelector = 'body > header'; // 헤더 컴포넌트가 삽입될 기본 셀렉터
+    const footerSelector = 'body > footer'; // 푸터 컴포넌트가 삽입될 기본 셀렉터
+    const headerUrl = '/components/header.html';
+    const footerUrl = '/components/footer.html';
+
+    try {
+      const headerTarget = document.querySelector(headerSelector);
+      const footerTarget = document.querySelector(footerSelector);
+
+      if (!headerTarget) {
+        console.warn(`기본 헤더를 삽입할 위치(${headerSelector})를 찾을 수 없습니다. 건너<0xEB><0x9C><0x85>니다.`);
+      }
+      if (!footerTarget) {
+        console.warn(`기본 푸터를 삽입할 위치(${footerSelector})를 찾을 수 없습니다. 건너<0xEB><0x9C><0x85>니다.`);
+      }
+
+      const loadPromises = [];
+
+      if (headerTarget) {
+        loadPromises.push(
+          insertComponent(headerSelector, headerUrl, 'replace').then(() => {
+            if (window.FileToQR && window.FileToQR.Header) {
+              if (typeof window.FileToQR.Header.initializeMobileMenuToggle === 'function') {
+                window.FileToQR.Header.initializeMobileMenuToggle();
+                console.log('헤더 모바일 메뉴 초기화 완료.');
+              }
+              // activateNavLinks는 app-core.js의 i18n 초기화 이후에 호출되어야 올바른 링크가 활성화됨
+              // 따라서 여기서는 호출하지 않음.
+            }
+          })
+        );
+      }
+
+      if (footerTarget) {
+        loadPromises.push(
+          insertComponent(footerSelector, footerUrl, 'replace').then(() => {
+            if (window.FileToQR && window.FileToQR.Footer && typeof window.FileToQR.Footer.initializeFooter === 'function') {
+              window.FileToQR.Footer.initializeFooter();
+              console.log('푸터 초기화 완료.');
+            }
+          })
+        );
+      }
+
+      if (loadPromises.length > 0) {
+        await Promise.all(loadPromises);
+        console.log('모든 기본 컴포넌트(헤더/푸터) 로드 및 내부 스크립트 실행 완료 (components.js)');
+      } else {
+        console.log('로드할 기본 컴포넌트가 없거나, 대상 위치를 찾을 수 없습니다.');
+      }
+
+    } catch (error) {
+      console.error('기본 컴포넌트 로드 중 심각한 오류 발생:', error);
+      // UI에 오류 메시지를 표시하거나, 사용자에게 알리는 로직 추가 가능
+      // throw error; // 필요에 따라 에러를 다시 던져 상위 호출자에게 전파
+    }
   }
   
   /**

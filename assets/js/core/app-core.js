@@ -106,14 +106,25 @@ async function init() {
       useSavedLang: true,
       detectBrowserLang: true
     });
+    console.log('다국어 지원 초기화 완료.');
 
-    // 3. 헤더/푸터 동적 치환 (components.js)
+    // 3. 헤더/푸터 동적 치환 및 내부 스크립트 실행 대기 (components.js)
     if (window.FileToQR && window.FileToQR.components && typeof window.FileToQR.components.loadDefault === 'function') {
-      console.log('loadDefault 함수 호출 전');
-      await window.FileToQR.components.loadDefault();
-      console.log('loadDefault 함수 호출 후');
+      console.log('기본 컴포넌트(헤더/푸터) 로드 시작...');
+      await window.FileToQR.components.loadDefault(); // 이 함수는 이제 내부 스크립트 완료를 기다림
+      console.log('기본 컴포넌트(헤더/푸터) 로드 및 초기화 완료.');
+
+      // 헤더 네비게이션 링크 활성화 (헤더 로드 후, 페이지 컨텐츠 로드 전)
+      if (window.FileToQR && window.FileToQR.Header && typeof window.FileToQR.Header.activateNavLinks === 'function') {
+        console.log('헤더 네비게이션 링크 활성화 시도...');
+        window.FileToQR.Header.activateNavLinks();
+        console.log('헤더 네비게이션 링크 활성화 완료.');
+      }
+
     } else {
       console.warn('FileToQR.components.loadDefault()를 찾을 수 없습니다. components.js가 올바르게 로드되었는지 확인하세요.');
+      // 이 경우, 앱의 핵심 기능이 제대로 동작하지 않을 수 있으므로 오류를 던지거나 처리가 필요합니다.
+      throw new Error('Default component loader not found.');
     }
 
     // 4. 템플릿 유틸리티 초기화 (필요한 경우)
@@ -618,126 +629,39 @@ function showErrorMessage(message) {
  * - main/header/footer가 모두 렌더링된 후에만 script 삽입 및 init(force) 실행
  */
 async function loadPageScript(pageIdRaw) {
-  let pageId = pageIdRaw;
-  if (!pageId || pageId === '' || pageId === 'index') pageId = 'home';
-  const pageScriptMap = {
-    'home': '/assets/js/pages/home.js',
-    'convert': '/assets/js/pages/convert.js',
-    'qrcode': '/assets/js/qr-generator/qr-generator.js',
-    'timer': '/assets/js/pages/timer.js',
-    'help': '/assets/js/pages/content.js',
-    'contact': '/assets/js/pages/content.js',
-    'privacy': '/assets/js/pages/content.js',
-    'terms': '/assets/js/pages/content.js'
-  };
-  const scriptUrl = pageScriptMap[pageId];
-  if (!scriptUrl) {
-    console.warn(`[loadPageScript] pageId(${pageId})에 대한 스크립트 경로가 없습니다.`);
-    return;
-  }
-  // 1. 기존 컨트롤러 객체 및 script 태그 삭제
-  try {
-    switch (pageId) {
-      case 'convert':
-        if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.destroy === 'function') {
-          window.FileToQR.ConvertPageController.destroy();
-        }
-        if (window.FileToQR && window.FileToQR.ConvertPageController) delete window.FileToQR.ConvertPageController;
-        break;
-      case 'qrcode':
-        if (window.FileToQR && window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.destroy === 'function') {
-          window.FileToQR.QRGenerator.destroy();
-        }
-        if (window.FileToQR && window.FileToQR.QRGenerator) delete window.FileToQR.QRGenerator;
-        break;
-      case 'timer':
-        if (window.FileToQR && window.FileToQR.TimerPage && typeof window.FileToQR.TimerPage.destroy === 'function') {
-          window.FileToQR.TimerPage.destroy();
-        }
-        if (window.FileToQR && window.FileToQR.TimerPage) delete window.FileToQR.TimerPage;
-        break;
-      case 'home':
-        if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home && typeof window.FileToQR.pages.home.destroy === 'function') {
-          window.FileToQR.pages.home.destroy();
-        }
-        if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home) delete window.FileToQR.pages.home;
-        break;
-      case 'help':
-      case 'contact':
-      case 'privacy':
-      case 'terms':
-        if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content && typeof window.FileToQR.controllers.content.destroy === 'function') {
-          window.FileToQR.controllers.content.destroy();
-        }
-        if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) delete window.FileToQR.controllers.content;
-        break;
-    }
-    document.querySelectorAll('script[data-page-script]').forEach(s => s.remove());
-  } catch (e) {
-    console.warn('[loadPageScript] 기존 컨트롤러/스크립트 삭제 중 오류:', e);
-  }
-  // 2. main/header/footer 렌더링 완료 후 script 삽입 및 init(force) 실행
-  function isAllRendered() {
-    const main = document.getElementById('main-container') || document.querySelector('main');
-    const header = document.getElementById('header-container');
-    const footer = document.getElementById('footer-container');
-    return main && header && footer && main.innerHTML && header.innerHTML && footer.innerHTML;
-  }
-  return new Promise((resolve, reject) => {
-    function waitAndInsertScript() {
-      if (isAllRendered()) {
-        const script = document.createElement('script');
-        script.src = `${scriptUrl}?ts=${Date.now()}`;
-        script.async = true;
-        script.type = 'module';
-        script.setAttribute('data-page-script', 'true');
-        script.onload = async () => {
-          console.log(`[loadPageScript] ${pageId} JS 동적 로드 완료. 강제 재초기화(init(true)) 호출.`);
-          if (window.FileToQR) {
-            switch (pageId) {
-              case 'convert':
-                if (window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
-                  await window.FileToQR.ConvertPageController.init(true);
-                }
-                break;
-              case 'qrcode':
-                if (window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.init === 'function') {
-                  await window.FileToQR.QRGenerator.init(true);
-                }
-                break;
-              case 'timer':
-                if (window.FileToQR.TimerPage && typeof window.FileToQR.TimerPage.init === 'function') {
-                  await window.FileToQR.TimerPage.init(true);
-                }
-                break;
-              case 'home':
-                if (window.FileToQR.pages && window.FileToQR.pages.home && typeof window.FileToQR.pages.home.init === 'function') {
-                  await window.FileToQR.pages.home.init(true);
-                }
-                break;
-              case 'help':
-              case 'contact':
-              case 'privacy':
-              case 'terms':
-                if (window.FileToQR.controllers && window.FileToQR.controllers.content && typeof window.FileToQR.controllers.content.init === 'function') {
-                  await window.FileToQR.controllers.content.init(true);
-                }
-                break;
-            }
-          }
-          resolve();
-        };
-        script.onerror = (e) => {
-          console.error(`[loadPageScript] ${pageId} JS 동적 로드 실패:`, e);
-          reject(e);
-        };
-        document.head.appendChild(script);
+  const pageId = pageIdRaw.toLowerCase();
+  console.log(`페이지 스크립트 로드 시도: ${pageId}`);
+
+  const pageConfig = Config.pages[pageId] || Config.pages[pageId.split('/').pop()];
+
+  if (pageConfig && pageConfig.script) {
+    try {
+      // 페이지 스크립트 동적 임포트
+      console.log(`페이지 스크립트 가져오기: ${pageConfig.script}`);
+      const pageModule = await import(pageConfig.script);
+      console.log(`페이지 스크립트 로드 완료: ${pageId}`);
+
+      if (pageModule && typeof pageModule.init === 'function') {
+        console.log(`페이지 모듈 초기화 시작: ${pageId}`);
+        // isAllRendered() 폴링 로직 제거. 공통 컴포넌트는 이미 init()에서 로드 완료됨.
+        await pageModule.init(true); // true는 forceFullInit을 의미할 수 있음 (기존 로직 유지)
+        console.log(`페이지 모듈 초기화 완료: ${pageId}`);
+      } else if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages[pageId] && typeof window.FileToQR.pages[pageId].init === 'function') {
+        // 전역으로 노출된 페이지 객체 초기화 (예: HomePage)
+        console.log(`전역 페이지 객체 초기화 시작: ${pageId}`);
+        // isAllRendered() 폴링 로직 제거.
+        await window.FileToQR.pages[pageId].init(true);
+        console.log(`전역 페이지 객체 초기화 완료: ${pageId}`);
       } else {
-        setTimeout(waitAndInsertScript, 30); // 30ms 간격으로 polling
+        console.warn(`페이지 초기화 함수(init)를 찾을 수 없습니다: ${pageId}`);
       }
+    } catch (error) {
+      console.error(`페이지 스크립트 로드 또는 초기화 실패 ${pageId}:`, error);
+      showErrorMessage(`페이지 '${pageId}'의 스크립트를 로드하거나 실행하는 중 오류가 발생했습니다.`);
     }
-    waitAndInsertScript();
-  });
+  } else {
+    console.log(`페이지에 대한 스크립트가 정의되지 않았습니다: ${pageId}`);
+  }
 }
 
 // 전역 FileToQR 객체 및 app 네임스페이스 확인 및 생성

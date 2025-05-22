@@ -481,7 +481,7 @@ const QRGenerator = {
           <label for="qr-url" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.url.label', '웹사이트 URL')}</label>
           <input type="url" id="qr-url" name="qr-url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="${t('qrcode.forms.url.placeholder', 'https://example.com')}">
         </div>
-        <button type="submit" class="btn btn-primary w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },
@@ -494,7 +494,7 @@ const QRGenerator = {
           <label for="qr-text" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.text.label', '텍스트')}</label>
           <textarea id="qr-text" name="qr-text" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="${t('qrcode.forms.text.placeholder', '여기에 텍스트를 입력하세요...')}"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },
@@ -534,7 +534,7 @@ const QRGenerator = {
           <label for="vcard-note" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.vcard.note', '메모')}</label>
           <textarea id="vcard-note" name="vcard-note" rows="2" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.vcard.notePlaceholder', '추가 정보')}"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary w-full mt-6">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full mt-6">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },
@@ -564,7 +564,7 @@ const QRGenerator = {
           <input type="checkbox" id="wifi-hidden" name="wifi-hidden" class="form-checkbox">
           <label for="wifi-hidden" class="ml-2 text-sm font-medium text-gray-700">${t('qrcode.forms.wifi.hiddenNetwork', '숨겨진 네트워크')}</label>
         </div>
-        <button type="submit" class="btn btn-primary w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },
@@ -585,7 +585,7 @@ const QRGenerator = {
           <label for="qr-email-body" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.email.body', '내용')}</label>
           <textarea id="qr-email-body" name="qr-email-body" rows="3" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.email.bodyPlaceholder', '이메일 내용을 입력하세요...')}"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },
@@ -598,7 +598,7 @@ const QRGenerator = {
           <label for="qr-tel" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.tel.label', '전화번호')}</label>
           <input type="tel" id="qr-tel" name="qr-tel" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.tel.placeholder', '+821012345678')}">
         </div>
-        <button type="submit" class="btn btn-primary w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },
@@ -615,7 +615,7 @@ const QRGenerator = {
           <label for="qr-sms-body" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.sms.body', '메시지 내용')}</label>
           <textarea id="qr-sms-body" name="qr-sms-body" rows="3" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.sms.bodyPlaceholder', '문자 메시지 내용을 입력하세요...')}"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },
@@ -632,7 +632,7 @@ const QRGenerator = {
           <label for="qr-geo-longitude" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.geo.longitude', '경도')}</label>
           <input type="text" id="qr-geo-longitude" name="qr-geo-longitude" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.geo.longitudePlaceholder', '126.9780')}">
         </div>
-        <button type="submit" class="btn btn-primary w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
+        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
       </form>
     `;
   },

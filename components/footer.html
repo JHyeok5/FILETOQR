@@ -40,19 +40,19 @@
     </div>
     
     <script>
-        // basePath 변수가 없는 경우를 위한 폴백 스크립트
-        document.addEventListener('DOMContentLoaded', function() {
-            // basePath가 처리되지 않은 링크 확인
-            const links = document.querySelectorAll('a[href*="{{basePath}}"]');
+        window.FileToQR = window.FileToQR || {};
+        window.FileToQR.Footer = window.FileToQR.Footer || {};
+
+        window.FileToQR.Footer.initializeFooter = function() {
+            // basePath 변수가 없는 경우를 위한 폴백 스크립트
+            const links = document.querySelectorAll('footer a[href*="{{basePath}}"]'); // footer 내부의 링크만 선택하도록 수정
             
             if (links.length > 0) {
                 console.warn('푸터: basePath 변수가 처리되지 않았습니다. 폴백 방식으로 수정합니다.');
                 
-                // 각 링크 수정
                 links.forEach(link => {
                     const originalHref = link.getAttribute('href');
-                    // {{basePath}} 부분을 기본값(상대 경로)으로 대체
-                    const fixedHref = originalHref.replace('{{basePath}}', './');
+                    const fixedHref = originalHref.replace('{{basePath}}', '.'); // 상대 경로로 수정
                     link.setAttribute('href', fixedHref);
                     console.log(`푸터 링크 수정: ${originalHref} → ${fixedHref}`);
                 });
@@ -62,7 +62,6 @@
             if (document.documentElement.getAttribute('dir') === 'rtl') {
                 const footerGrid = document.querySelector('footer .grid');
                 if (footerGrid) {
-                    // RTL에서는 그리드 아이템 순서 반전
                     footerGrid.style.direction = 'rtl';
                 }
             }
@@ -72,19 +71,15 @@
                 const lastUpdateElem = document.querySelector('[data-i18n="footer.lastUpdate"]');
                 if (lastUpdateElem) {
                     try {
-                        // 원래 텍스트에서 날짜 부분만 추출
                         const originalText = lastUpdateElem.textContent;
                         const dateMatch = originalText.match(/\d{4}년\s*\d{1,2}월\s*\d{1,2}일/);
                         
                         if (dateMatch && dateMatch[0]) {
-                            // 날짜 포맷 변환 (한국어 형식에서 Date 객체로)
                             const dateStr = dateMatch[0].replace(/년|월|일/g, '-').replace(/\s+/g, '');
                             const date = new Date(dateStr);
                             
                             if (!isNaN(date.getTime())) {
-                                // 현재 언어에 맞게 날짜 포맷
                                 const formattedDate = window.FileToQR.i18n.formatDate(date);
-                                // 번역 키 + 포맷된 날짜 적용
                                 const prefix = window.FileToQR.i18n.t('footer.lastUpdate').split(':')[0] || '최종 업데이트';
                                 lastUpdateElem.textContent = `${prefix}: ${formattedDate}`;
                             }
@@ -94,6 +89,6 @@
                     }
                 }
             }
-        });
+        };
     </script>
 </footer> 

@@ -76,8 +76,10 @@
 </header>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 모바일 메뉴 토글
+    window.FileToQR = window.FileToQR || {};
+    window.FileToQR.Header = window.FileToQR.Header || {};
+
+    window.FileToQR.Header.initializeMobileMenuToggle = function() {
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
         if (mobileMenuToggle && mobileMenu) {
@@ -94,22 +96,45 @@
                 }
             });
         }
-        // 현재 페이지 메뉴 항목 활성화
+    };
+
+    window.FileToQR.Header.activateNavLinks = function() {
         const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('header nav a');
+        // header 태그 내의 모든 nav a (PC 및 모바일 메뉴 모두 포함)
+        const navLinks = document.querySelectorAll('header nav a'); 
         
         navLinks.forEach(link => {
             const href = link.getAttribute('href');
-            if (href) {
-                const linkPath = href.includes('://') ? new URL(href).pathname : href;
-                const fileName = linkPath.split('/').pop();
-                
-                // 현재 페이지 경로에 링크 파일명이 포함되어 있으면 활성화
-                if (currentPath.endsWith(fileName) || 
-                    (fileName === 'index.html' && (currentPath === '/' || currentPath.endsWith('/')))) {
-                    link.classList.add('font-medium', 'text-blue-600', 'bg-blue-50');
+            // data-i18n-url 속성이 있는 링크에 대해서만 href를 사용합니다.
+            // 없는 경우 (예: 단순 # 링크)는 건너뜁니다.
+            const i18nUrlKey = link.dataset.i18nUrl;
+
+            if (href && href !== '#' && i18nUrlKey) { // href가 실제 경로를 가리키는지, i18nUrlKey가 있는지 확인
+                // app-core.js에서 i18n 기반으로 실제 URL을 가져와서 비교해야 합니다.
+                // 여기서는 임시로 파일명 기반으로 비교, app-core.js에서 최종 처리
+                const pageMapEntry = window.FileToQR.PageManager.getPageMapEntryByI18nKey(i18nUrlKey);
+                let targetPath = pageMapEntry ? pageMapEntry.path : null;
+
+                if (targetPath) {
+                    // targetPath가 상대 경로이므로, 현재 경로와 비교하기 쉽게 만듭니다.
+                    // 예: /ko/index.html -> index.html
+                    const targetFileName = targetPath.substring(targetPath.lastIndexOf('/') + 1);
+                    const currentFileName = currentPath.substring(currentPath.lastIndexOf('/') + 1);
+
+                    if (currentPath.endsWith(targetPath) || (currentFileName === targetFileName)) {
+                        link.classList.add('font-medium', 'text-blue-600', 'bg-blue-50', 'active');
+                         // 부모 li에도 active 클래스 추가 (선택적)
+                        if (link.parentElement && link.parentElement.tagName === 'LI') {
+                            link.parentElement.classList.add('active');
+                        }
+                    } else {
+                        link.classList.remove('font-medium', 'text-blue-600', 'bg-blue-50', 'active');
+                        if (link.parentElement && link.parentElement.tagName === 'LI') {
+                            link.parentElement.classList.remove('active');
+                        }
+                    }
                 }
             }
         });
-    });
+    };
 </script> 

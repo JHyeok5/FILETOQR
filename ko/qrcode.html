@@ -85,15 +85,73 @@
           <h1 class="text-3xl font-bold text-center mb-6 text-gray-800" data-i18n="page.qrcode.title">QR 코드 생성기</h1>
           <p class="text-center text-gray-600 mb-8" data-i18n="page.qrcode.description">텍스트, URL, 연락처 정보, WiFi 설정 등 다양한 정보를 QR 코드로 변환하세요. 아래 탭에서 유형을 선택하고 정보를 입력하세요.</p>
           <div class="qr-type-tabs mb-4 flex flex-wrap justify-center space-x-2">
-            <button class="qr-type-btn active" data-type="url" data-i18n="tab.url">URL</button>
-            <button class="qr-type-btn" data-type="text" data-i18n="tab.text">텍스트</button>
-            <button class="qr-type-btn" data-type="email" data-i18n="tab.email">이메일</button>
-            <button class="qr-type-btn" data-type="tel" data-i18n="tab.phone">전화번호</button>
-            <button class="qr-type-btn" data-type="vcard" data-i18n="tab.vcard">연락처 (vCard)</button>
-            <button class="qr-type-btn" data-type="wifi" data-i18n="tab.wifi">WiFi</button>
-            <button class="qr-type-btn" data-type="file" data-i18n="tab.file">파일</button>
-            <button class="qr-type-btn" data-type="sms" data-i18n="tab.sms">SMS</button>
-            <button class="qr-type-btn" data-type="geo" data-i18n="tab.location">위치</button>
+            <button class="qr-type-btn active flex flex-col items-center justify-center p-2" data-type="url" data-i18n="tab.url">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.71"></path>
+              </svg>
+              URL
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="text" data-i18n="tab.text">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              텍스트
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="email" data-i18n="tab.email">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              이메일
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="tel" data-i18n="tab.phone">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              전화번호
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="vcard" data-i18n="tab.vcard">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7.5" r="4.5"></circle>
+                <polyline points="17 11 22 6 17 1"></polyline>
+              </svg>
+              연락처 (vCard)
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="wifi" data-i18n="tab.wifi">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+              </svg>
+              WiFi
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="file" data-i18n="tab.file">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                <polyline points="13 2 13 9 20 9"></polyline>
+              </svg>
+              파일
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="sms" data-i18n="tab.sms">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              SMS
+            </button>
+            <button class="qr-type-btn flex flex-col items-center justify-center p-2" data-type="geo" data-i18n="tab.location">
+              <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              위치
+            </button>
           </div>
 
           <div id="qr-generator-app" class="mt-4">
