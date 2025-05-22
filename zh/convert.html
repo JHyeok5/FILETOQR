@@ -10,9 +10,23 @@
   <script type="module" src="/assets/js/core/app-core.js"></script>
   <script type="module" src="/assets/js/pages/convert.js"></script>
 </head>
-<body>
-  <h1>FileToQR - 文件转换 (中文)</h1>
-  <p>本页面提供文件转二维码功能。<br>完整服务界面即将上线。</p>
-  <p><a href="/zh/index.html">返回首页</a></p>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <div id="header-container"></div>
+  <main id="main-container">
+    <div class="converter-type-tabs mb-4">
+      <button class="converter-type-btn" data-type="image">图片</button>
+      <button class="converter-type-btn" data-type="document">文档</button>
+      <button class="converter-type-btn" data-type="audio">音频</button>
+      <button class="converter-type-btn" data-type="data">数据</button>
+    </div>
+    <label for="file-upload" class="block w-full cursor-pointer p-4 border-2 border-dashed border-blue-300 rounded-lg text-center bg-white hover:bg-blue-50">
+      <span class="block text-lg font-medium mb-2">请选择或拖拽文件</span>
+      <input type="file" id="file-upload" class="hidden">
+    </label>
+    <div id="converter-options" class="mb-4"></div>
+    <div id="conversion-output" class="hidden"></div>
+    <button id="download-btn" class="hidden">下载结果</button>
+  </main>
+  <div id="footer-container"></div>
 </body>
 </html>

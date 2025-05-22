@@ -10,9 +10,16 @@
   <script type="module" src="/assets/js/core/app-core.js"></script>
   <script type="module" src="/assets/js/pages/timer.js"></script>
 </head>
-<body>
-  <h1>FileToQR - 计时器 (中文)</h1>
-  <p>本页面提供计时器功能。<br>完整服务界面即将上线。</p>
-  <p><a href="/zh/index.html">返回首页</a></p>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <div id="header-container"></div>
+  <main id="main-container">
+    <div class="timer-tabs mb-4">
+      <button class="timer-tab-btn" data-type="timer">计时器</button>
+      <button class="timer-tab-btn" data-type="stopwatch">秒表</button>
+      <button class="timer-tab-btn" data-type="pomodoro">番茄钟</button>
+    </div>
+    <div id="timer-app"></div>
+  </main>
+  <div id="footer-container"></div>
 </body>
 </html>

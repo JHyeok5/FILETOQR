@@ -11,12 +11,15 @@
   <script type="module" src="/assets/js/pages/timer.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <!-- 동적 헤더 컴포넌트 삽입 영역 -->
   <div id="header-container"></div>
-  <h1>FileToQR - Timer (English)</h1>
-  <p>This page provides timer features.<br>The full service UI will be added soon.</p>
-  <p><a href="/en/index.html">Back to Home</a></p>
-  <!-- 동적 푸터 컴포넌트 삽입 영역 -->
+  <main id="main-container">
+    <div class="timer-tabs mb-4">
+      <button class="timer-tab-btn" data-type="timer">Timer</button>
+      <button class="timer-tab-btn" data-type="stopwatch">Stopwatch</button>
+      <button class="timer-tab-btn" data-type="pomodoro">Pomodoro</button>
+    </div>
+    <div id="timer-app"></div>
+  </main>
   <div id="footer-container"></div>
 </body>
 </html>

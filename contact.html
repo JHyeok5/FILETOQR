@@ -1,14 +1,21 @@
-<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="FileToQR 문의하기 - 연락처 정보 및 문의 안내"><meta name="keywords" content="FileToQR, 문의, 연락처, Contact"><title>문의하기 - FileToQR</title><link rel="stylesheet" href="/assets/css/styles.css"><link rel="stylesheet" href="/assets/css/tailwind-built.css"><link rel="icon" href="favicon.ico" type="image/x-icon"><script defer="defer" src="./assets/js/runtime.6f2dc29026f3291faf67.js"></script><script defer="defer" src="./assets/js/app-core.8c0d45125339ca8785cf.js"></script><script defer="defer" src="./assets/js/shared-modules.9efbb6d973514dbaaca0.js"></script><script defer="defer" src="./assets/js/common-utils.91cc098f37078468f162.js"></script><script defer="defer" src="./assets/js/template-utils.364aa19228ee322888fd.js"></script><script defer="defer" src="./assets/js/content.1616298e43890db3d175.js"></script><script type="module" src="/assets/js/core/app-core.js"></script></head><body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <!-- 동적 헤더 컴포넌트 삽입 영역 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileToQR - 문의하기</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/tailwind-built.css">
+  <script type="module" src="/assets/js/core/app-core.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
   <main id="main-container">
-    <!-- [SPA/컨트롤러 구조 일치화] 불필요 래퍼/설명 제거, 필수 요소만 남김 -->
-    <div id="contact-content"></div>
+    <div class="contact-content">
+      <!-- 실제 문의/연락 내용 삽입 (기존 내용 유지) -->
+    </div>
   </main>
-  <!-- 동적 푸터 컴포넌트 삽입 영역 -->
   <div id="footer-container"></div>
-  <script>document.getElementById('contact-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert('메시지를 보내주셔서 감사합니다. 최대한 빨리 답변 드리겠습니다.');
-    this.reset();
-  });</script></body></html>
+</body>
+</html>

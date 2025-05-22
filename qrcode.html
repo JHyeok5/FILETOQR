@@ -22,6 +22,11 @@
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
   <main id="main-container">
+    <!-- QR 컨트롤러가 기대하는 UI만 남기고, 불필요한 안내문구/중복 섹션 등은 모두 제거 -->
+    <div class="qr-type-tabs mb-4">
+      <button class="qr-type-btn" data-type="text">텍스트</button>
+      <button class="qr-type-btn" data-type="url">URL</button>
+      <button class="qr-type-btn" data-type="vcard">명함</button>
     <!-- [SPA/컨트롤러 구조 일치화] 불필요 래퍼 제거, 필수 요소만 남김 -->
     <input id="qr-input" type="text" placeholder="QR로 변환할 텍스트 또는 URL 입력" class="w-full mb-4 p-2 border rounded">
     <button id="generate-btn" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">QR 코드 생성</button>

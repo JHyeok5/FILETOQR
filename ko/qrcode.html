@@ -24,10 +24,14 @@
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
   <main id="main-container">
-    <!-- [SPA/컨트롤러 구조 일치화] 불필요 래퍼 제거, 필수 요소만 남김 -->
-    <input id="qr-input" type="text" placeholder="QR로 변환할 텍스트 또는 URL 입력" class="w-full mb-4 p-2 border rounded">
-    <button id="generate-btn" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">QR 코드 생성</button>
-    <div id="qr-output" class="mt-4"></div>
+    <div class="qr-type-tabs mb-4">
+      <button class="qr-type-btn" data-type="text">텍스트</button>
+      <button class="qr-type-btn" data-type="url">URL</button>
+      <button class="qr-type-btn" data-type="vcard">명함</button>
+      <button class="qr-type-btn" data-type="wifi">WiFi</button>
+      <button class="qr-type-btn" data-type="file">파일</button>
+    </div>
+    <div id="qr-generator-app"></div>
   </main>
   <div id="footer-container"></div>
 </body>

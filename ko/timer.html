@@ -22,9 +22,12 @@
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
   <main id="main-container">
-    <div id="timer-display" class="text-4xl font-bold mb-4">00:00</div>
-    <button id="start-btn" class="px-4 py-2 bg-blue-600 text-white rounded mr-2">시작</button>
-    <button id="reset-btn" class="px-4 py-2 bg-gray-400 text-white rounded">초기화</button>
+    <div class="timer-tabs mb-4">
+      <button class="timer-tab-btn" data-type="timer">타이머</button>
+      <button class="timer-tab-btn" data-type="stopwatch">스톱워치</button>
+      <button class="timer-tab-btn" data-type="pomodoro">포모도로</button>
+    </div>
+    <div id="timer-app"></div>
   </main>
   <div id="footer-container"></div>
   <script>

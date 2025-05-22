@@ -10,9 +10,23 @@
   <script type="module" src="/assets/js/core/app-core.js"></script>
   <script type="module" src="/assets/js/pages/convert.js"></script>
 </head>
-<body>
-  <h1>FileToQR - ファイル変換 (日本語)</h1>
-  <p>このページはファイルをQRコードに変換する機能を提供します。<br>本サービスのUIは近日中に追加予定です。</p>
-  <p><a href="/ja/index.html">ホームに戻る</a></p>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <div id="header-container"></div>
+  <main id="main-container">
+    <div class="converter-type-tabs mb-4">
+      <button class="converter-type-btn" data-type="image">画像</button>
+      <button class="converter-type-btn" data-type="document">ドキュメント</button>
+      <button class="converter-type-btn" data-type="audio">オーディオ</button>
+      <button class="converter-type-btn" data-type="data">データ</button>
+    </div>
+    <label for="file-upload" class="block w-full cursor-pointer p-4 border-2 border-dashed border-blue-300 rounded-lg text-center bg-white hover:bg-blue-50">
+      <span class="block text-lg font-medium mb-2">ファイルを選択またはドラッグしてください</span>
+      <input type="file" id="file-upload" class="hidden">
+    </label>
+    <div id="converter-options" class="mb-4"></div>
+    <div id="conversion-output" class="hidden"></div>
+    <button id="download-btn" class="hidden">結果をダウンロード</button>
+  </main>
+  <div id="footer-container"></div>
 </body>
 </html>

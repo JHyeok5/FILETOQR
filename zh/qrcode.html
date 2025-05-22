@@ -11,9 +11,18 @@
   <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
   <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
-<body>
-  <h1>FileToQR - 二维码 (中文)</h1>
-  <p>本页面提供二维码生成功能。<br>完整服务界面即将上线。</p>
-  <p><a href="/zh/index.html">返回首页</a></p>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+  <div id="header-container"></div>
+  <main id="main-container">
+    <div class="qr-type-tabs mb-4">
+      <button class="qr-type-btn" data-type="text">文本</button>
+      <button class="qr-type-btn" data-type="url">URL</button>
+      <button class="qr-type-btn" data-type="vcard">名片</button>
+      <button class="qr-type-btn" data-type="wifi">WiFi</button>
+      <button class="qr-type-btn" data-type="file">文件</button>
+    </div>
+    <div id="qr-generator-app"></div>
+  </main>
+  <div id="footer-container"></div>
 </body>
 </html>
