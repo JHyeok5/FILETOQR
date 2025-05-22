@@ -39,24 +39,24 @@ const TemplateUtils = {
    * @returns {Promise<void>} 초기화 완료 Promise
    */
   async init(options = {}) {
+    console.log('[TemplateUtils] Initialization started.');
     try {
-      console.log('템플릿 유틸리티 초기화 중...');
+      console.log('[TemplateUtils] Attempting to load Handlebars...');
+      await this.loadHandlebars(); // loadHandlebars will throw on error
+      console.log('[TemplateUtils] Handlebars loaded successfully.');
       
-      // Handlebars 로드
-      await this.loadHandlebars();
-      
-      // Handlebars 헬퍼 등록
       this.registerHelpers();
       
-      // 기본 파티셜 로드 (있는 경우)
       if (options.loadPartials !== false) {
         await this.loadCommonPartials();
       }
       
-      console.log('템플릿 유틸리티 초기화 완료');
+      console.log('[TemplateUtils] Initialization completed successfully.');
     } catch (error) {
-      console.error('템플릿 유틸리티 초기화 실패:', error);
-      throw error;
+      // Log the specific error from loadHandlebars or other init steps
+      console.error('[TemplateUtils] Initialization failed.', error);
+      // Re-throw the error so the caller (app-core.js) can catch it
+      throw error; 
     }
   },
 
@@ -67,12 +67,12 @@ const TemplateUtils = {
    */
   async loadHandlebars() {
     if (Handlebars !== null && typeof window.Handlebars !== 'undefined') {
-      console.log('Handlebars는 이미 로드되어 있습니다.');
+      console.log('[TemplateUtils] Handlebars already loaded.');
       return;
     }
     
-    console.log('Handlebars 라이브러리 로드 시도...');
     const handlebarsUrl = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
+    console.log(`[TemplateUtils] Attempting to load Handlebars from: ${handlebarsUrl}`);
     
     try {
       const script = document.createElement('script');
@@ -83,22 +83,28 @@ const TemplateUtils = {
         script.onload = () => {
           if (typeof window.Handlebars !== 'undefined') {
             Handlebars = window.Handlebars;
-            console.log('Handlebars 로드 성공 (CDN)');
+            console.log('[TemplateUtils] Handlebars loaded successfully via CDN.');
             resolve();
           } else {
-            console.error('Handlebars 로드 실패: window.Handlebars가 정의되지 않음 (CDN)');
-            reject(new Error('Handlebars 로드 후 window.Handlebars를 찾을 수 없습니다.'));
+            const errorMsg = '[TemplateUtils] Handlebars loaded but window.Handlebars is undefined.';
+            console.error(errorMsg);
+            reject(new Error('Handlebars 로드 성공했으나 window.Handlebars가 정의되지 않음'));
           }
         };
         script.onerror = (event) => {
-          console.error(`Handlebars 스크립트 로드 오류 (CDN: ${handlebarsUrl}):`, event);
-          reject(new Error(`Handlebars CDN (${handlebarsUrl}) 로드에 실패했습니다.`));
+          // Try to get a more specific message if available
+          const specificError = event && event.message ? event.message : 'Unknown error during script loading';
+          const errorMsg = `[TemplateUtils] Failed to load Handlebars script from ${handlebarsUrl}. Error: ${specificError}`;
+          console.error(errorMsg, event);
+          reject(new Error(`Handlebars 스크립트 로드 오류 (${handlebarsUrl}): ${specificError}`));
         };
         document.head.appendChild(script);
       });
     } catch (error) {
-      console.error('Handlebars 동적 로드 중 오류 발생:', error);
-      throw error;
+      // This catch block handles errors from the new Promise constructor itself or if appendChild fails,
+      // though most errors should be caught by script.onerror.
+      console.error(`[TemplateUtils] Critical error during Handlebars dynamic loading from ${handlebarsUrl}:`, error);
+      throw error; // Re-throw to be caught by init()
     }
   },
 
