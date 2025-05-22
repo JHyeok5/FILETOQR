@@ -441,6 +441,7 @@ function updateInternalLinks() {
       if (mainContainer) {
         // [SPA 중복 UI 방지] 기존 main 내용 완전히 비움
         mainContainer.innerHTML = '';
+        console.log('[SPA] main-container cleared for navigation to', href, 'at', new Date().toISOString());
         // HTML 동적 로드
         const response = await fetch(href);
         if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + href);
@@ -450,6 +451,7 @@ function updateInternalLinks() {
         // 새 main 태그가 있으면 그 innerHTML만 삽입, 없으면 전체 삽입
         let newMain = tempDiv.querySelector('main') || tempDiv;
         mainContainer.innerHTML = newMain.innerHTML;
+        console.log('[SPA] main-container innerHTML set for', href, 'at', new Date().toISOString());
         // [SPA 중복 UI 방지] main 내부에 main 태그가 중첩되어 있으면 첫 번째 main만 남기고 나머지 제거
         const nestedMains = mainContainer.querySelectorAll('main');
         if (nestedMains.length > 1) {
@@ -714,21 +716,36 @@ async function loadPageScript(pageIdRaw) {
   try {
     switch (pageId) {
       case 'convert':
+        if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.destroy === 'function') {
+          window.FileToQR.ConvertPageController.destroy();
+        }
         if (window.FileToQR && window.FileToQR.ConvertPageController) delete window.FileToQR.ConvertPageController;
         break;
       case 'qrcode':
+        if (window.FileToQR && window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.destroy === 'function') {
+          window.FileToQR.QRGenerator.destroy();
+        }
         if (window.FileToQR && window.FileToQR.QRGenerator) delete window.FileToQR.QRGenerator;
         break;
       case 'timer':
+        if (window.FileToQR && window.FileToQR.TimerPage && typeof window.FileToQR.TimerPage.destroy === 'function') {
+          window.FileToQR.TimerPage.destroy();
+        }
         if (window.FileToQR && window.FileToQR.TimerPage) delete window.FileToQR.TimerPage;
         break;
       case 'home':
+        if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home && typeof window.FileToQR.pages.home.destroy === 'function') {
+          window.FileToQR.pages.home.destroy();
+        }
         if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home) delete window.FileToQR.pages.home;
         break;
       case 'help':
       case 'contact':
       case 'privacy':
       case 'terms':
+        if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content && typeof window.FileToQR.controllers.content.destroy === 'function') {
+          window.FileToQR.controllers.content.destroy();
+        }
         if (window.FileToQR && window.FileToQR.controllers && window.FileToQR.controllers.content) delete window.FileToQR.controllers.content;
         break;
     }
@@ -818,6 +835,53 @@ window.FileToQR.app = {
 // 그 안에서 DOMContentLoaded를 기다렸다가 init()을 호출하는 것이 안전합니다.
 document.addEventListener('DOMContentLoaded', () => {
   init();
+});
+
+// [SPA popstate 지원] 뒤로가기/앞으로가기 시 SPA 라우팅 재실행
+window.addEventListener('popstate', async function(event) {
+  try {
+    const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+    // pageId 추출 로직 재사용
+    let pageId = null;
+    try {
+      const urlParts = currentUrl.split('/');
+      let fileName = urlParts[urlParts.length - 1] || 'index.html';
+      if (fileName === '' || fileName === 'index.html') {
+        pageId = 'home';
+      } else if (fileName.endsWith('.html')) {
+        pageId = fileName.replace('.html', '');
+      } else {
+        pageId = 'home';
+      }
+    } catch (err) {
+      pageId = 'home';
+    }
+    const mainContainer = document.getElementById('main-container') || document.querySelector('main');
+    if (mainContainer) {
+      mainContainer.innerHTML = '';
+      console.log('[SPA][popstate] main-container cleared for navigation to', currentUrl, 'at', new Date().toISOString());
+      const response = await fetch(currentUrl);
+      if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + currentUrl);
+      const html = await response.text();
+      let tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      let newMain = tempDiv.querySelector('main') || tempDiv;
+      mainContainer.innerHTML = newMain.innerHTML;
+      console.log('[SPA][popstate] main-container innerHTML set for', currentUrl, 'at', new Date().toISOString());
+      const nestedMains = mainContainer.querySelectorAll('main');
+      if (nestedMains.length > 1) {
+        for (let i = 1; i < nestedMains.length; i++) {
+          nestedMains[i].remove();
+        }
+      }
+      await loadPageScript(pageId);
+      updateInternalLinks();
+    } else {
+      window.location.href = currentUrl;
+    }
+  } catch (e) {
+    console.error('[SPA][popstate] 처리 중 오류:', e);
+  }
 });
 
 export default window.FileToQR.app; 
