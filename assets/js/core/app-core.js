@@ -628,63 +628,79 @@ function showErrorMessage(message) {
 }
 
 /**
- * 페이지별 JS 파일 동적 로드 및 초기화 함수 호출 (SPA 개선, 렌더링 타이밍 보장)
- * @param {string} pageId - 페이지 식별자 (예: 'convert', 'timer', 'qrcode')
+ * 페이지별 스크립트 로드 및 초기화
+ * @param {string} pageIdRaw - 페이지 ID (예: 'home', 'convert')
  * @returns {Promise<void>}
- *
- * - 항상 새 script로 동적 삽입(캐시 무력화)
- * - 기존 컨트롤러 객체 및 script 태그 삭제
- * - main/header/footer가 모두 렌더링된 후에만 script 삽입 및 init(force) 실행
  */
 async function loadPageScript(pageIdRaw) {
-  if (!pageIdRaw || typeof pageIdRaw !== 'string') {
-    console.warn('loadPageScript: 유효하지 않은 pageIdRaw입니다.', pageIdRaw);
-    return; 
+  if (!pageIdRaw) {
+    console.warn('[AppCore] loadPageScript: pageIdRaw가 제공되지 않았습니다.');
+    return;
   }
   const pageId = pageIdRaw.toLowerCase();
-  console.log(`페이지 스크립트 로드 시도: ${pageId}`);
+  console.log(`[AppCore] 페이지 스크립트 로드 시도: ${pageId}`);
 
-  // Config.pages에서 페이지 설정 가져오기. pageId가 'ko/index' 같은 형태일 수 있으므로 마지막 부분 사용
-  const pageKey = pageId.includes('/') ? pageId.split('/').pop() : pageId;
-  const pageConfig = Config.pages[pageKey];
+  const scriptPath = Config.getPageScriptPath(pageId);
+  if (!scriptPath) {
+    console.warn(`[AppCore] 페이지 ID '${pageId}'에 대한 스크립트 경로를 찾을 수 없습니다.`);
+    return;
+  }
 
-  if (pageConfig && pageConfig.script) {
-    try {
-      console.log(`페이지 스크립트 동적 import 시도: ${pageConfig.script}`);
-      const pageModule = await import(pageConfig.script);
-      console.log(`페이지 스크립트(${pageConfig.script}) 로드 완료: ${pageId}`);
+  try {
+    const pageModule = await import(scriptPath);
+    console.log(`[AppCore] 모듈 로드 성공: ${scriptPath}`, pageModule);
 
-      // 1. 모듈 직접 export (ES6 모듈 스타일)
-      if (pageModule && typeof pageModule.init === 'function') {
-        console.log(`페이지 모듈(${pageId})의 init 함수 직접 호출 시도...`);
-        await pageModule.init(true); 
-        console.log(`페이지 모듈(${pageId})의 init 함수 직접 호출 완료.`);
-      } 
-      // 2. 전역 네임스페이스에 할당된 페이지 객체 (기존 방식 호환)
-      // window.FileToQR.pages.home 또는 window.FileToQR.HomePage 등 다양한 형태 고려
-      else if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages[pageKey] && typeof window.FileToQR.pages[pageKey].init === 'function') {
-        console.log(`전역 페이지 객체(window.FileToQR.pages.${pageKey})의 init 함수 호출 시도...`);
-        await window.FileToQR.pages[pageKey].init(true);
-        console.log(`전역 페이지 객체(window.FileToQR.pages.${pageKey})의 init 함수 호출 완료.`);
-      } 
-      // 3. 페이지 ID를 이름으로 하는 전역 컨트롤러 객체 (예: window.FileToQR.Home)
-      // pageKey에서 첫 글자를 대문자로 변경하여 컨트롤러 이름 생성 (e.g., 'home' -> 'Home')
-      else {
-        const controllerName = pageKey.charAt(0).toUpperCase() + pageKey.slice(1);
-        if (window.FileToQR && window.FileToQR[controllerName] && typeof window.FileToQR[controllerName].init === 'function') {
-          console.log(`전역 컨트롤러 객체(window.FileToQR.${controllerName})의 init 함수 호출 시도...`);
-          await window.FileToQR[controllerName].init(true);
-          console.log(`전역 컨트롤러 객체(window.FileToQR.${controllerName})의 init 함수 호출 완료.`);
-        } else {
-          console.warn(`페이지(${pageId})에 대한 초기화 함수(init)를 찾을 수 없습니다. 스크립트(${pageConfig.script})가 올바르게 init 함수를 export하거나 전역(window.FileToQR.pages.${pageKey} 또는 window.FileToQR.${controllerName})에 할당하는지 확인하세요.`);
-        }
+    let pageObject = null;
+
+    // 1. pageId가 'index'인 경우 'home.js'가 로드되므로 HomePage.init() 시도
+    if (pageId === 'index' && pageModule.HomePage && typeof pageModule.HomePage.init === 'function') {
+      pageObject = pageModule.HomePage;
+      console.log(`[AppCore] 'index' 페이지(${scriptPath})에 대해 HomePage.init() 사용`);
+    } 
+    // 2. 일반적인 경우: 모듈의 default export에 init이 있는지 확인
+    else if (pageModule.default && typeof pageModule.default.init === 'function') {
+      pageObject = pageModule.default;
+      console.log(`[AppCore] ${pageId} 페이지(${scriptPath})에 대해 default.init() 사용`);
+    } 
+    // 3. pageId와 일치하는 이름의 export된 객체에 init이 있는지 확인 (예: pageId 'convert' -> pageModule.ConvertPage.init)
+    //    또는 모듈 자체에 init 함수가 export 되었는지 확인 (예: export function init() {...})
+    else {
+      // PascalCase로 변환 (e.g., convert -> Convert, qrcode -> Qrcode)
+      const expectedObjectName = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+      const expectedPageObjectName = expectedObjectName + 'Page'; // e.g., ConvertPage
+
+      if (pageModule[expectedPageObjectName] && typeof pageModule[expectedPageObjectName].init === 'function') {
+        pageObject = pageModule[expectedPageObjectName];
+        console.log(`[AppCore] ${pageId} 페이지(${scriptPath})에 대해 ${expectedPageObjectName}.init() 사용`);
+      } else if (pageModule[expectedObjectName] && typeof pageModule[expectedObjectName].init === 'function') {
+        pageObject = pageModule[expectedObjectName];
+        console.log(`[AppCore] ${pageId} 페이지(${scriptPath})에 대해 ${expectedObjectName}.init() 사용`);
+      } else if (typeof pageModule.init === 'function') {
+        // 이 경우는 pageModule 자체가 init 함수를 가진 객체이거나, init 함수가 직접 export 된 경우
+        // await import(scriptPath)가 반환하는 pageModule이 init 함수를 가진 객체인지, 아니면 함수 자체인지 확인 필요.
+        // 보통 const Page = { init: () => {} }; export default Page; 또는 export const Page = { init: ... }
+        // export function init() {} 는 pageModule.init으로 접근.
+        pageObject = pageModule; // pageModule에 직접 init이 있는 경우
+        console.log(`[AppCore] ${pageId} 페이지(${scriptPath})에 대해 pageModule.init() 직접 사용 시도`);
+      } else if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages[pageId] && typeof window.FileToQR.pages[pageId].init === 'function') {
+        // 전역 네임스페이스에 등록된 경우 (레거시 또는 특정 모듈 로딩 방식)
+        pageObject = window.FileToQR.pages[pageId];
+        console.log(`[AppCore] ${pageId} 페이지(${scriptPath})에 대해 window.FileToQR.pages.${pageId}.init() 사용`);
       }
-    } catch (error) {
-      console.error(`페이지 스크립트(${pageConfig.script}) 로드 또는 초기화 실패 (페이지 ID: ${pageId}):`, error);
-      showErrorMessage(`페이지 '${pageId}'의 내용을 로드하거나 초기화하는 중 오류가 발생했습니다. 콘솔을 확인해주세요.`);
     }
-  } else {
-    console.log(`페이지(${pageId})에 대한 스크립트가 Config에 정의되지 않았습니다.`);
+
+    if (pageObject && typeof pageObject.init === 'function') {
+      console.log(`[AppCore] ${pageId} 페이지(${scriptPath}) 초기화 중...`, pageObject);
+      await pageObject.init();
+      console.log(`[AppCore] ${pageId} 페이지(${scriptPath}) 초기화 완료.`);
+    } else {
+      console.warn(`[AppCore] 페이지 ID '${pageId}'(${scriptPath})에 대한 초기화 함수(init)를 찾을 수 없거나 실행할 수 없습니다. 모듈 구조:`, pageModule);
+      console.warn(`[AppCore] 시도한 접근 방식: pageModule.HomePage (for index), pageModule.default, pageModule.${pageId.charAt(0).toUpperCase() + pageId.slice(1) + 'Page'}, pageModule.${pageId.charAt(0).toUpperCase() + pageId.slice(1)}, pageModule.init, window.FileToQR.pages.${pageId}`);
+    }
+  } catch (error) {
+    console.error(`[AppCore] 페이지 스크립트 (${scriptPath}) 로드 또는 초기화 실패 (페이지 ID: ${pageId}):`, error);
+    // 오류 발생 시 사용자에게 알림을 표시할 수 있습니다.
+    // showErrorMessage(`'${pageId}' 페이지 로딩 중 오류가 발생했습니다.`);
   }
 }
 
