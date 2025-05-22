@@ -98,6 +98,8 @@ async function init() {
     // 2. 유틸리티 모듈 초기화 (순서 중요)
     console.log('[AppCore] Core utility modules initialization started.');
     console.log('[AppCore] URL Utils initialization (no specific init function needed).');
+
+    // I18nUtils 초기화
     console.log('[AppCore] I18n Utils initialization started.');
     await I18n.init({
       useSavedLang: true,
@@ -105,34 +107,38 @@ async function init() {
     });
     console.log('[AppCore] I18n Utils initialization completed.');
 
-    // 3. 템플릿 유틸리티 초기화 (components.js 보다 먼저 또는 동시에 로드될 수 있도록)
-    // TemplateUtils는 위에서 직접 import 했으므로, 이를 사용합니다.
-    if (TemplateUtils && typeof TemplateUtils.init === 'function') {
-      console.log('[AppCore] Imported TemplateUtils module found, attempting initialization...');
-      try {
-        // TemplateUtils.init()은 Promise를 반환하며, 성공 시 resolve, 실패 시 reject 합니다.
-        await TemplateUtils.init(); 
-        console.log('[AppCore] TemplateUtils.init() completed successfully.');
-      } catch (initError) {
-        // TemplateUtils.init() 자체가 실패한 경우 (e.g., Handlebars 로드 실패)
-        // initError는 template-utils.js의 init()에서 reject된 Error 객체입니다.
-        const specificMessage = initError.message || 'TemplateUtils.init()에서 원인 불명의 오류 발생';
-        const errorMsg = `[AppCore] CRITICAL: TemplateUtils.init() failed. Reason: ${specificMessage}`;
-        console.error(errorMsg, initError); // 전체 에러 객체도 로깅
-        // 사용자에게 표시될 오류 메시지는 initError.message (더 구체적) 또는 일반 메시지
-        showErrorMessage(initError.message || '필수 UI 라이브러리(TemplateUtils) 초기화에 실패했습니다. 페이지를 새로고침하거나 관리자에게 문의하십시오.');
-        throw initError; // 초기화 프로세스 중단 위해 에러 다시 throw
+    // TemplateUtils 초기화 (동적 임포트 및 오류 처리 강화)
+    console.log('[AppCore] TemplateUtils initialization started.');
+    try {
+      // TemplateUtils 모듈 동적 가져오기
+      // 주의: '../utils/template-utils.js' 경로는 app-core.js 파일의 위치를 기준으로 해야 합니다.
+      const templateUtilsModule = await import('../utils/template-utils.js');
+      console.log('[AppCore] TemplateUtils module loaded.');
+
+      if (templateUtilsModule && typeof templateUtilsModule.default.init === 'function') {
+        console.log('[AppCore] TemplateUtils.init() attempting to call...');
+        await templateUtilsModule.default.init({ loadPartials: true }); // 필요한 옵션 전달
+        console.log('[AppCore] TemplateUtils.init() successfully completed.');
+      } else {
+        const errorMsg = '[CRITICAL] TemplateUtils module or its init function not found after dynamic import. Check if template-utils.js is loaded and structured correctly.';
+        console.error(errorMsg);
+        showErrorMessage('필수 UI 라이브러리(TemplateUtils) 구성 요소를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하십시오.');
+        throw new Error(errorMsg); // 초기화 프로세스 중단
       }
-    } else {
-      // 이 경우는 import TemplateUtils from '../utils/template-utils.js'; 자체가 실패했거나,
-      // 해당 모듈이 TemplateUtils 객체를 default export 하지 않거나, init 함수가 없는 경우입니다.
-      const errorMsg = '[AppCore] CRITICAL: Imported TemplateUtils module or its init function is not found. Check the import path and the template-utils.js module structure.';
-      console.error(errorMsg);
-      showErrorMessage('필수 UI 라이브러리(TemplateUtils) 구성 요소를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하십시오.');
-      throw new Error(errorMsg); // 초기화 프로세스 중단
+    } catch (error) { // TemplateUtils.init() 또는 import() 자체에서 발생한 오류를 잡음
+      const criticalErrorMsg = `[AppCore] CRITICAL ERROR during TemplateUtils initialization: ${error.message}`;
+      console.error(criticalErrorMsg, error);
+      // 사용자에게 오류 메시지 표시 (showErrorMessage 함수가 있다고 가정)
+      if (typeof showErrorMessage === 'function') {
+        showErrorMessage('필수 UI 라이브러리 초기화에 실패했습니다. 새로고침하거나 관리자에게 문의하십시오. 오류: ' + error.message);
+      } else {
+          alert('필수 UI 라이브러리 초기화에 실패했습니다. 새로고침하거나 관리자에게 문의하십시오. 오류: ' + error.message);
+      }
+      throw new Error(criticalErrorMsg); // 초기화 프로세스 중단 또는 다른 오류 처리 로직
     }
-    
-    // 4. 헤더/푸터 동적 치환 및 내부 스크립트 실행 대기 (components.js)
+    console.log('[AppCore] Core utility modules initialization completed.');
+
+    // 3. 헤더/푸터 동적 치환 및 내부 스크립트 실행 대기 (components.js)
     // 이 단계에서 헤더/푸터의 DOM이 준비되고 내부 스크립트가 실행 완료됨
     if (window.FileToQR && window.FileToQR.components && typeof window.FileToQR.components.loadDefault === 'function') {
       console.log('기본 컴포넌트(헤더/푸터) 로드 시작...');
