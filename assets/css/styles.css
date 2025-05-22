@@ -401,16 +401,16 @@ body {
 
 /* === 언어 선택기 국기 아이콘 공통 스타일 === */
 .ko-flag {
-  background-image: url('../assets/images/flags/ko.svg');
+  background-image: url('/assets/images/flags/ko.svg');
 }
 .en-flag {
-  background-image: url('../assets/images/flags/en.svg');
+  background-image: url('/assets/images/flags/en.svg');
 }
 .zh-flag {
-  background-image: url('../assets/images/flags/zh.svg');
+  background-image: url('/assets/images/flags/zh.svg');
 }
 .ja-flag {
-  background-image: url('../assets/images/flags/ja.svg');
+  background-image: url('/assets/images/flags/ja.svg');
 }
 
 .lang-label {
