@@ -15,7 +15,10 @@
   <link rel="alternate" hreflang="ja" href="/ja/convert.html">
   <link rel="alternate" hreflang="x-default" href="/convert.html">
   <link rel="stylesheet" href="/assets/css/tailwind-built.css">
+  <link rel="stylesheet" href="/assets/css/components/qr-generator.css">
   <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
+  <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
@@ -31,9 +34,85 @@
       <input type="file" id="file-upload" class="hidden">
     </label>
     <div id="converter-options" class="mb-4"></div>
-    <div id="conversion-output" class="hidden"></div>
+
+    <div id="conversion-progress-container" class="my-4 hidden">
+      <div class="flex justify-between mb-1">
+        <span id="conversion-progress-text" class="text-sm font-medium text-gray-700">파일 변환 중...</span>
+        <span id="conversion-progress-percentage" class="text-sm font-medium text-gray-700">0%</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5">
+        <div id="conversion-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <div id="conversion-output" class="my-4 hidden">
+    </div>
     <button id="download-btn" class="hidden">변환 결과 다운로드</button>
   </main>
+  <div class="qr-code-section-container my-8 py-8 bg-white shadow-md rounded-lg">
+    <div class="container mx-auto px-4">
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">QR 코드 생성기</h2>
+        <div class="qr-type-tabs mb-4 flex flex-wrap justify-center space-x-2">
+            <button class="qr-type-btn" data-type="text">텍스트</button>
+            <button class="qr-type-btn" data-type="url">URL</button>
+            <button class="qr-type-btn" data-type="vcard">vCard</button>
+            <button class="qr-type-btn" data-type="wifi">WiFi</button>
+            <button class="qr-type-btn" data-type="email">이메일</button>
+            <button class="qr-type-btn" data-type="tel">전화번호</button>
+            <button class="qr-type-btn" data-type="sms">SMS</button>
+            <button class="qr-type-btn" data-type="geo">위치</button>
+            <button class="qr-type-btn" data-type="file">파일</button>
+        </div>
+
+        <div id="qr-generator-app" class="mt-4">
+            <div id="qr-form-container" class="mb-6 p-6 bg-gray-50 rounded-lg shadow-inner">
+                <p class="text-gray-500 text-center">위 탭에서 QR 코드 유형을 선택하세요.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="qr-options-container" class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-700">QR 코드 옵션</h3>
+                    <div class="mb-4">
+                        <label for="qr-foreground-color" class="block text-sm font-medium text-gray-700 mb-1">전경색</label>
+                        <input type="color" id="qr-foreground-color" value="#000000" class="w-full h-10 p-1 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label for="qr-background-color" class="block text-sm font-medium text-gray-700 mb-1">배경색</label>
+                        <input type="color" id="qr-background-color" value="#ffffff" class="w-full h-10 p-1 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1">크기 (px)</label>
+                        <input type="number" id="qr-size" value="256" min="64" max="1024" step="16" class="w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label for="qr-error-correction" class="block text-sm font-medium text-gray-700 mb-1">오류 복원 수준</label>
+                        <select id="qr-error-correction" class="w-full p-2 border border-gray-300 rounded-md">
+                            <option value="L">낮음 (L)</option>
+                            <option value="M" selected>중간 (M)</option>
+                            <option value="Q">높음 (Q)</option>
+                            <option value="H">최상 (H)</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="qr-logo-upload" class="block text-sm font-medium text-gray-700 mb-1">로고 이미지 (선택 사항)</label>
+                        <input type="file" id="qr-logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <img id="qr-logo-preview" src="#" alt="로고 미리보기" class="hidden mt-2 w-16 h-16 object-contain rounded-md border border-gray-200">
+                        <button id="qr-logo-remove" class="hidden mt-1 text-xs text-red-500 hover:text-red-700">로고 제거</button>
+                    </div>
+                </div>
+                <div id="qr-preview-container" class="p-6 bg-gray-50 rounded-lg shadow-inner text-center">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-700">QR 코드 미리보기</h3>
+                    <div id="qr-code-display" class="mt-4 flex justify-center items-center min-h-[200px] bg-white rounded-md p-4 mb-4 border border-gray-200">
+                        <p class="text-gray-400">생성된 QR 코드가 여기에 표시됩니다.</p>
+                    </div>
+                    <div id="qr-download-buttons-container" class="space-x-2 mt-2">
+                        <button id="download-qr-png" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50" disabled>PNG 다운로드</button>
+                        <button id="download-qr-svg" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50" disabled>SVG 다운로드</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
   <div id="footer-container"></div>
 </body>
 </html> 

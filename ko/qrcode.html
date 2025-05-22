@@ -4,91 +4,179 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="무료로 다양한 콘텐츠 유형의 QR 코드를 쉽고 빠르게 생성하세요. URL, 텍스트, 연락처, 이메일 등을 QR 코드로 변환할 수 있습니다.">
-  <meta name="keywords" content="QR 코드 생성, QR 코드 만들기, 무료 QR 코드, URL QR 코드, 이메일 QR 코드, 연락처 QR 코드">
-  <title>QR 코드 생성 - FileToQR</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
-  <link rel="stylesheet" href="../assets/css/components/qr-generator.css">
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
-  <link rel="alternate" hreflang="ko" href="qrcode.html">
-  <link rel="alternate" hreflang="en" href="../en/qrcode.html">
-  <link rel="alternate" hreflang="zh" href="../zh/qrcode.html">
-  <link rel="alternate" hreflang="ja" href="../ja/qrcode.html">
-  <link rel="alternate" hreflang="x-default" href="qrcode.html">
-  <!-- Tailwind CSS (빌드 결과 사용) -->
-  <link rel="stylesheet" href="../assets/css/tailwind-built.css">
+  <meta name="description" content="FileToQR - QR 코드를 쉽게 생성하세요. 텍스트, URL, 연락처, WiFi 정보 등 다양한 종류의 QR 코드를 만들 수 있습니다.">
+  <meta name="keywords" content="QR 코드 생성기, QR 코드 만들기, 무료, FileToQR, 한국어">
+  <title>FileToQR - QR 코드 생성기 (한국어)</title>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="alternate" hreflang="ko" href="/ko/qrcode.html">
+  <link rel="alternate" hreflang="en" href="/en/qrcode.html">
+  <link rel="alternate" hreflang="zh" href="/zh/qrcode.html">
+  <link rel="alternate" hreflang="ja" href="/ja/qrcode.html">
+  <link rel="alternate" hreflang="x-default" href="/ko/qrcode.html">
+  <link rel="stylesheet" href="/assets/css/tailwind-built.css">
   <script type="module" src="/assets/js/core/app-core.js"></script>
+  <link rel="stylesheet" href="/assets/css/components/qr-generator.css">
+  <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
+  <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <div id="header-container"></div>
-  <main id="main-container">
-    <div class="qr-type-tabs mb-4">
-      <button class="qr-type-btn" data-type="text">텍스트</button>
-      <button class="qr-type-btn" data-type="url">URL</button>
-      <button class="qr-type-btn" data-type="vcard">명함</button>
-      <button class="qr-type-btn" data-type="wifi">WiFi</button>
-      <button class="qr-type-btn" data-type="file">파일</button>
-    </div>
-    <div id="qr-generator-app">
-      <!-- 폼 컨테이너 (qr-generator.js가 동적으로 채움) -->
-      <div id="qr-form-container" class="mb-6 p-6 bg-white rounded-lg shadow">
-        <!-- 기본 메시지 또는 선택된 탭의 폼이 여기에 로드됩니다. -->
-        <p class="text-gray-500">위 탭에서 QR 코드 유형을 선택하세요.</p>
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a href="index.html" class="flex items-center">
+          <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2">
+          <span class="text-2xl font-bold text-blue-600">FileToQR</span>
+        </a>
+        <nav class="flex items-center">
+          <ul class="flex space-x-6">
+            <li><a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
+            <li><a href="convert.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="qrcode.html" class="text-gray-700 hover:text-blue-600 font-medium active" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="timer.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="help.html" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
+          </ul>
+          <div class="language-selector dropdown">
+            <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경">
+              <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+              <span class="lang-label" data-i18n="lang.ko">한국어</span>
+              <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu">
+              <div class="lang-dropdown-header">
+                <span>언어 선택</span>
+              </div>
+              <div class="lang-dropdown-list">
+                <a href="/ko/qrcode.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                  <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ko">한국어</span>
+                </a>
+                <a href="/en/qrcode.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
+                  <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.en">영어</span>
+                </a>
+                <a href="/zh/qrcode.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
+                  <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.zh">중국어</span>
+                </a>
+                <a href="/ja/qrcode.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
+                  <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+                  <span class="lang-name" data-i18n="lang.ja">일본어</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </nav>
       </div>
+    </div>
+  </header>
+  <div id="ad-header" class="ad-container my-4 text-center">
+    <div class="ad-label text-xs text-gray-500">광고</div>
+    <div class="ad-slot">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+  <main class="flex-grow container mx-auto px-4 py-8">
+    <div class="qr-code-section-container my-8 py-8 bg-white shadow-md rounded-lg">
+      <div class="container mx-auto px-4">
+          <h1 class="text-3xl font-bold text-center mb-6 text-gray-800" data-i18n="page.qrcode.title">QR 코드 생성기</h1>
+          <p class="text-center text-gray-600 mb-8" data-i18n="page.qrcode.description">텍스트, URL, 연락처 정보, WiFi 설정 등 다양한 정보를 QR 코드로 변환하세요. 아래 탭에서 유형을 선택하고 정보를 입력하세요.</p>
+          <div class="qr-type-tabs mb-4 flex flex-wrap justify-center space-x-2">
+            <button class="qr-type-btn active" data-type="url" data-i18n="tab.url">URL</button>
+            <button class="qr-type-btn" data-type="text" data-i18n="tab.text">텍스트</button>
+            <button class="qr-type-btn" data-type="email" data-i18n="tab.email">이메일</button>
+            <button class="qr-type-btn" data-type="tel" data-i18n="tab.phone">전화번호</button>
+            <button class="qr-type-btn" data-type="vcard" data-i18n="tab.vcard">연락처 (vCard)</button>
+            <button class="qr-type-btn" data-type="wifi" data-i18n="tab.wifi">WiFi</button>
+            <button class="qr-type-btn" data-type="file" data-i18n="tab.file">파일</button>
+            <button class="qr-type-btn" data-type="sms" data-i18n="tab.sms">SMS</button>
+            <button class="qr-type-btn" data-type="geo" data-i18n="tab.location">위치</button>
+          </div>
 
-      <!-- 옵션 및 미리보기 영역을 감싸는 컨테이너 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- QR 코드 옵션 컨테이너 -->
-        <div id="qr-options-container" class="p-6 bg-white rounded-lg shadow">
-          <h3 class="text-xl font-semibold mb-4 text-gray-700">QR 코드 옵션</h3>
-          <!-- 색상 옵션 -->
-          <div class="mb-4">
-            <label for="qr-foreground-color" class="block text-sm font-medium text-gray-700 mb-1">전경색</label>
-            <input type="color" id="qr-foreground-color" value="#000000" class="w-full h-10 p-1 border border-gray-300 rounded-md">
+          <div id="qr-generator-app" class="mt-4">
+              <div id="qr-form-container" class="mb-6 p-6 bg-white rounded-lg shadow">
+                  <p class="text-gray-500">위 탭에서 QR 코드 유형을 선택하세요.</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div id="qr-options-container" class="p-6 bg-gray-50 rounded-lg shadow-inner">
+                      <h3 class="text-xl font-semibold mb-4 text-gray-700">QR 코드 옵션</h3>
+                      <div class="mb-4">
+                          <label for="qr-foreground-color" class="block text-sm font-medium text-gray-700 mb-1">전경색</label>
+                          <input type="color" id="qr-foreground-color" value="#000000" class="w-full h-10 p-1 border border-gray-300 rounded-md">
+                      </div>
+                      <div class="mb-4">
+                          <label for="qr-background-color" class="block text-sm font-medium text-gray-700 mb-1">배경색</label>
+                          <input type="color" id="qr-background-color" value="#ffffff" class="w-full h-10 p-1 border border-gray-300 rounded-md">
+                      </div>
+                      <div class="mb-4">
+                          <label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1">크기 (px)</label>
+                          <input type="number" id="qr-size" value="256" min="64" max="1024" step="16" class="w-full p-2 border border-gray-300 rounded-md">
+                      </div>
+                      <div class="mb-4">
+                          <label for="qr-error-correction" class="block text-sm font-medium text-gray-700 mb-1">오류 복원 수준</label>
+                          <select id="qr-error-correction" class="w-full p-2 border border-gray-300 rounded-md">
+                              <option value="L">낮음 (L)</option>
+                              <option value="M" selected>중간 (M)</option>
+                              <option value="Q">높음 (Q)</option>
+                              <option value="H">매우 높음 (H)</option>
+                          </select>
+                      </div>
+                      <div class="mb-4">
+                          <label for="qr-logo-upload" class="block text-sm font-medium text-gray-700 mb-1">로고 이미지 (선택)</label>
+                          <input type="file" id="qr-logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                          <img id="qr-logo-preview" src="#" alt="로고 미리보기" class="hidden mt-2 w-16 h-16 object-contain rounded-md border border-gray-200">
+                          <button id="qr-logo-remove" class="hidden mt-1 text-xs text-red-500 hover:text-red-700">로고 제거</button>
+                      </div>
+                  </div>
+                  <div id="qr-preview-container" class="p-6 bg-gray-50 rounded-lg shadow-inner text-center">
+                      <h3 class="text-xl font-semibold mb-4 text-gray-700">QR 코드 미리보기</h3>
+                      <div id="qr-code-display" class="mt-4 flex justify-center items-center min-h-[200px] bg-white rounded-md p-4 mb-4 border border-gray-200">
+                          <p class="text-gray-400">생성된 QR 코드가 여기에 표시됩니다.</p>
+                      </div>
+                      <div id="qr-download-buttons-container" class="space-x-2 mt-2">
+                          <button id="download-qr-png" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50" disabled>PNG 다운로드</button>
+                          <button id="download-qr-svg" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50" disabled>SVG 다운로드</button>
+                      </div>
+                  </div>
+              </div>
           </div>
-          <div class="mb-4">
-            <label for="qr-background-color" class="block text-sm font-medium text-gray-700 mb-1">배경색</label>
-            <input type="color" id="qr-background-color" value="#ffffff" class="w-full h-10 p-1 border border-gray-300 rounded-md">
-          </div>
-          <!-- 크기 옵션 -->
-          <div class="mb-4">
-            <label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1">크기 (px)</label>
-            <input type="number" id="qr-size" value="256" min="64" max="1024" step="16" class="w-full p-2 border border-gray-300 rounded-md">
-          </div>
-          <!-- 오류 복원 수준 옵션 -->
-          <div class="mb-4">
-            <label for="qr-error-correction" class="block text-sm font-medium text-gray-700 mb-1">오류 복원 수준</label>
-            <select id="qr-error-correction" class="w-full p-2 border border-gray-300 rounded-md">
-              <option value="L">낮음 (L)</option>
-              <option value="M" selected>중간 (M)</option>
-              <option value="Q">높음 (Q)</option>
-              <option value="H">매우 높음 (H)</option>
-            </select>
-          </div>
-          <!-- 로고 업로드 (선택 사항) -->
-          <div class="mb-4">
-            <label for="qr-logo-upload" class="block text-sm font-medium text-gray-700 mb-1">로고 이미지 (선택)</label>
-            <input type="file" id="qr-logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-            <img id="qr-logo-preview" src="#" alt="로고 미리보기" class="hidden mt-2 w-16 h-16 object-contain rounded-md border border-gray-200">
-            <button id="qr-logo-remove" class="hidden mt-1 text-xs text-red-500 hover:text-red-700">로고 제거</button>
-          </div>
-        </div>
-
-        <!-- QR 코드 미리보기 및 다운로드 컨테이너 -->
-        <div id="qr-preview-container" class="p-6 bg-white rounded-lg shadow text-center">
-          <h3 class="text-xl font-semibold mb-4 text-gray-700">QR 코드 미리보기</h3>
-          <div id="qr-preview" class="flex justify-center items-center min-h-[200px] bg-gray-100 rounded-md p-4 mb-4">
-            <!-- QR 코드가 여기에 표시됩니다 (Canvas 또는 SVG) -->
-            <p class="text-gray-400">생성된 QR 코드가 여기에 표시됩니다.</p>
-          </div>
-          <div id="qr-download-buttons-container" class="space-x-2">
-            <button id="download-qr-png" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50" disabled>PNG 다운로드</button>
-            <button id="download-qr-svg" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50" disabled>SVG 다운로드</button>
-          </div>
-        </div>
       </div>
     </div>
   </main>
-  <div id="footer-container"></div>
+  <footer class="bg-gray-100 mt-12">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.brand">FileToQR</h3>
+          <p class="text-gray-600 mb-4" data-i18n="footer.desc">서버에 파일을 업로드하지 않고 브라우저에서 직접 파일을 변환하고 QR 코드를 생성하세요.</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.quick">빠른 링크</h3>
+          <ul class="space-y-2">
+            <li><a href="index.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.home">홈</a></li>
+            <li><a href="convert.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.convert">파일 변환</a></li>
+            <li><a href="qrcode.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.qrcode">QR 코드</a></li>
+            <li><a href="timer.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.timer">타이머</a></li>
+            <li><a href="help.html" class="text-gray-600 hover:text-blue-600" data-i18n="nav.help">도움말</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold mb-4" data-i18n="footer.legal">법적 정보</h3>
+          <ul class="space-y-2">
+            <li><a href="privacy.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.privacy">개인정보처리방침</a></li>
+            <li><a href="terms.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.terms">이용약관</a></li>
+            <li><a href="contact.html" class="text-gray-600 hover:text-blue-600" data-i18n="footer.contact">문의하기</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+        <p data-i18n="footer.copyright">© 2025 FileToQR. 모든 권리 보유.</p>
+        <p class="mt-1" data-i18n="footer.updated">마지막 업데이트: 2025년 5월 2일</p>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

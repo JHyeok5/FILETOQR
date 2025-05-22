@@ -16,163 +16,189 @@
   <link rel="alternate" hreflang="x-default" href="/index.html">
   <link rel="stylesheet" href="/assets/css/tailwind-built.css">
   <script type="module" src="/assets/js/core/app-core.js"></script>
+  <link rel="stylesheet" href="/assets/css/components/qr-generator.css">
+  <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
+  <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <!-- 동적 헤더 컴포넌트 삽입 영역 -->
   <div id="header-container"></div>
   <div id="ad-header" class="ad-container my-4 text-center">
-    <div class="ad-label text-xs text-gray-500">광고</div>
+    <div class="ad-label text-xs text-gray-500">Advertisement</div>
     <div class="ad-slot">
       <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
   </div>
   <main class="flex-grow container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6" data-i18n="main.title">파일을 QR 코드로 변환</h1>
-    <p class="mb-4" data-i18n="main.desc">FileToQR는 다양한 파일과 텍스트, URL, 연락처 정보를 쉽고 빠르게 QR 코드로 변환할 수 있는 무료 서비스입니다.</p>
+    <h1 class="text-3xl font-bold mb-6" data-i18n="main.title">Convert Files to QR Codes</h1>
+    <p class="mb-4" data-i18n="main.desc">FileToQR is a free service that allows you to easily and quickly convert various files, text, URLs, and contact information into QR codes.</p>
     <div class="grid md:grid-cols-2 gap-8">
       <div>
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 class="text-xl font-semibold mb-4" data-i18n="main.selectContent">변환할 콘텐츠 선택</h2>
-          <div class="content-type-tabs mb-4" id="content-type-tabs">
-            <button class="active" data-type="url" data-i18n="tab.url">URL</button>
-            <button data-type="text" data-i18n="tab.text">텍스트</button>
-            <button data-type="email" data-i18n="tab.email">이메일</button>
-            <button data-type="phone" data-i18n="tab.phone">전화번호</button>
-            <button data-type="vcard" data-i18n="tab.vcard">연락처</button>
-            <button data-type="wifi" data-i18n="tab.wifi">WiFi</button>
-            <button data-type="file" data-i18n="tab.file">파일</button>
+          <h2 class="text-xl font-semibold mb-4" data-i18n="main.selectContent">Select Content to Convert</h2>
+          <div class="qr-type-tabs mb-4 flex flex-wrap justify-center space-x-2" id="content-type-tabs">
+            <button class="qr-type-btn active" data-type="url" data-i18n="tab.url">URL</button>
+            <button class="qr-type-btn" data-type="text" data-i18n="tab.text">Text</button>
+            <button class="qr-type-btn" data-type="email" data-i18n="tab.email">Email</button>
+            <button class="qr-type-btn" data-type="tel" data-i18n="tab.phone">Phone</button>
+            <button class="qr-type-btn" data-type="vcard" data-i18n="tab.vcard">vCard</button>
+            <button class="qr-type-btn" data-type="wifi" data-i18n="tab.wifi">WiFi</button>
+            <button class="qr-type-btn" data-type="file" data-i18n="tab.file">File</button>
+            <button class="qr-type-btn" data-type="sms" data-i18n="tab.sms">SMS</button>
+            <button class="qr-type-btn" data-type="geo" data-i18n="tab.location">Location</button>
           </div>
-          <div class="content-form active" id="url-form">
-            <div class="mb-4">
-              <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.url.label">웹사이트 주소</label>
-              <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.url.placeholder">
-              <p class="text-xs text-gray-500 mt-1" data-i18n="form.url.example">예: https://filetoqr.com</p>
-            </div>
-          </div>
-          <div class="content-form hidden" id="text-form">
-            <div class="mb-4">
-              <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.text.label">텍스트</label>
-              <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="내용을 입력하세요" data-i18n-placeholder="form.text.placeholder"></textarea>
-              <p class="text-xs text-gray-500 mt-1" data-i18n="form.text.desc">최대 7,089자의 숫자 또는 4,296자의 영숫자를 입력할 수 있습니다.</p>
-            </div>
-          </div>
-          <div class="content-form hidden" id="email-form">
-            <div class="mb-4">
-              <label for="email-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.label">이메일 주소</label>
-              <input type="email" id="email-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.email.placeholder">
-            </div>
-            <div class="mb-4">
-              <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.subject">제목 (선택사항)</label>
-              <input id="email-subject" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="이메일 제목" data-i18n-placeholder="form.email.subjectPlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="email-body" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.body">내용 (선택사항)</label>
-              <textarea id="email-body" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="이메일 내용" data-i18n-placeholder="form.email.bodyPlaceholder"></textarea>
-            </div>
-          </div>
-          <div class="content-form hidden" id="phone-form">
-            <div class="mb-4">
-              <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.phone.label">전화번호</label>
-              <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.phone.placeholder">
-              <p class="text-xs text-gray-500 mt-1" data-i18n="form.phone.example">국가 코드와 함께 입력하세요. 예: +82 10-1234-5678</p>
-            </div>
-          </div>
-          <div class="content-form hidden" id="vcard-form">
-            <div class="mb-4">
-              <label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.name">이름</label>
-              <input id="vcard-name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="홍길동" data-i18n-placeholder="form.vcard.namePlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.org">회사/조직 (선택사항)</label>
-              <input id="vcard-org" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ABC 회사" data-i18n-placeholder="form.vcard.orgPlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.title">직함 (선택사항)</label>
-              <input id="vcard-title" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="매니저" data-i18n-placeholder="form.vcard.titlePlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.phone">전화번호</label>
-              <input type="tel" id="vcard-phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+82 10-1234-5678" data-i18n-placeholder="form.vcard.phonePlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.email">이메일</label>
-              <input type="email" id="vcard-email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.vcard.emailPlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.website">웹사이트 (선택사항)</label>
-              <input type="url" id="vcard-website" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.vcard.websitePlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.address">주소 (선택사항)</label>
-              <textarea id="vcard-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="서울시 강남구 테헤란로 123" data-i18n-placeholder="form.vcard.addressPlaceholder"></textarea>
-            </div>
-          </div>
-          <div class="content-form hidden" id="wifi-form">
-            <div class="mb-4">
-              <label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.ssid">WiFi 이름 (SSID)</label>
-              <input id="wifi-ssid" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi 네트워크 이름" data-i18n-placeholder="form.wifi.ssidPlaceholder">
-            </div>
-            <div class="mb-4">
-              <label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.encryption">암호화 유형</label>
-              <select id="wifi-encryption" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="WPA" data-i18n="form.wifi.wpa">WPA/WPA2/WPA3</option>
-                <option value="WEP" data-i18n="form.wifi.wep">WEP</option>
-                <option value="nopass" data-i18n="form.wifi.nopass">암호 없음</option>
-              </select>
-            </div>
-            <div class="mb-4">
-              <label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.password">비밀번호</label>
-              <input type="password" id="wifi-password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi 비밀번호" data-i18n-placeholder="form.wifi.passwordPlaceholder">
-            </div>
-            <div class="flex items-center mb-4">
-              <input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-              <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700" data-i18n="form.wifi.hidden">숨겨진 네트워크</label>
-            </div>
-          </div>
-          <div class="content-form hidden" id="file-form">
-            <div class="mb-4">
-              <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.file.label">파일 선택</label>
-              <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <p class="text-xs text-gray-500 mt-1" data-i18n="form.file.desc">5MB 이하의 파일만 QR 코드로 변환이 가능합니다.</p>
-            </div>
-            <div class="file-info p-4 border rounded-md mb-4 hidden">
-              <h3 class="font-medium mb-2" data-i18n="form.file.info">파일 정보</h3>
-              <div class="grid grid-cols-2 gap-2 text-sm">
-                <div class="text-gray-600" data-i18n="form.file.name">파일명:</div>
-                <div class="file-name font-medium"></div>
-                <div class="text-gray-600" data-i18n="form.file.type">파일 유형:</div>
-                <div class="file-type font-medium"></div>
-                <div class="text-gray-600" data-i18n="form.file.size">파일 크기:</div>
-                <div class="file-size font-medium"></div>
+          <div id="qr-form-container">
+            <div class="content-form active" id="url-form">
+              <div class="mb-4">
+                <label for="url-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.url.label">Website Address</label>
+                <input type="url" id="url-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.url.placeholder">
+                <p class="text-xs text-gray-500 mt-1" data-i18n="form.url.example">e.g., https://filetoqr.com</p>
               </div>
             </div>
-            <div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
-              <p>QR 코드로 변환된 파일은 크기 제한으로 인해 작은 파일에 적합합니다. 큰 파일은 여러 QR 코드로 나누어집니다.</p>
+            <div class="content-form hidden" id="text-form">
+              <div class="mb-4">
+                <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.text.label">Text</label>
+                <textarea id="text-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Enter content" data-i18n-placeholder="form.text.placeholder"></textarea>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="form.text.desc">You can enter up to 7,089 numeric characters or 4,296 alphanumeric characters.</p>
+              </div>
+            </div>
+            <div class="content-form hidden" id="email-form">
+              <div class="mb-4">
+                <label for="email-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.label">Email Address</label>
+                <input type="email" id="email-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.email.placeholder">
+              </div>
+              <div class="mb-4">
+                <label for="email-subject" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.subject">Subject (optional)</label>
+                <input id="email-subject" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Email subject" data-i18n-placeholder="form.email.subjectPlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="email-body" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.email.body">Body (optional)</label>
+                <textarea id="email-body" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Email body" data-i18n-placeholder="form.email.bodyPlaceholder"></textarea>
+              </div>
+            </div>
+            <div class="content-form hidden" id="phone-form">
+              <div class="mb-4">
+                <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.phone.label">Phone Number</label>
+                <input type="tel" id="phone-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+1 123-456-7890" data-i18n-placeholder="form.phone.placeholder">
+                <p class="text-xs text-gray-500 mt-1" data-i18n="form.phone.example">Include country code. e.g., +1 123-456-7890</p>
+              </div>
+            </div>
+            <div class="content-form hidden" id="vcard-form">
+              <div class="mb-4">
+                <label for="vcard-name" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.name">Name</label>
+                <input id="vcard-name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="John Doe" data-i18n-placeholder="form.vcard.namePlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="vcard-org" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.org">Company/Organization (optional)</label>
+                <input id="vcard-org" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ABC Corp" data-i18n-placeholder="form.vcard.orgPlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="vcard-title" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.title">Title (optional)</label>
+                <input id="vcard-title" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Manager" data-i18n-placeholder="form.vcard.titlePlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="vcard-phone" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.phone">Phone Number</label>
+                <input type="tel" id="vcard-phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="+1 123-456-7890" data-i18n-placeholder="form.vcard.phonePlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="vcard-email" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.email">Email</label>
+                <input type="email" id="vcard-email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="example@example.com" data-i18n-placeholder="form.vcard.emailPlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="vcard-website" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.website">Website (optional)</label>
+                <input type="url" id="vcard-website" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" data-i18n-placeholder="form.vcard.websitePlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="vcard-address" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.vcard.address">Address (optional)</label>
+                <textarea id="vcard-address" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="123 Main St, Anytown, USA" data-i18n-placeholder="form.vcard.addressPlaceholder"></textarea>
+              </div>
+            </div>
+            <div class="content-form hidden" id="wifi-form">
+              <div class="mb-4">
+                <label for="wifi-ssid" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.ssid">WiFi Name (SSID)</label>
+                <input id="wifi-ssid" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi Network Name" data-i18n-placeholder="form.wifi.ssidPlaceholder">
+              </div>
+              <div class="mb-4">
+                <label for="wifi-encryption" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.encryption">Encryption Type</label>
+                <select id="wifi-encryption" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="WPA" data-i18n="form.wifi.wpa">WPA/WPA2/WPA3</option>
+                  <option value="WEP" data-i18n="form.wifi.wep">WEP</option>
+                  <option value="nopass" data-i18n="form.wifi.nopass">No Password</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label for="wifi-password" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.wifi.password">Password</label>
+                <input type="password" id="wifi-password" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="WiFi Password" data-i18n-placeholder="form.wifi.passwordPlaceholder">
+              </div>
+              <div class="flex items-center mb-4">
+                <input type="checkbox" id="wifi-hidden" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="wifi-hidden" class="ml-2 block text-sm text-gray-700" data-i18n="form.wifi.hidden">Hidden Network</label>
+              </div>
+            </div>
+            <div class="content-form hidden" id="file-form">
+              <div class="mb-4">
+                <label for="file-input" class="block text-sm font-medium text-gray-700 mb-1" data-i18n="form.file.label">Select File</label>
+                <input type="file" id="file-input" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-500 mt-1" data-i18n="form.file.desc">Only files under 5MB can be converted to QR codes.</p>
+              </div>
+              <div class="file-info p-4 border rounded-md mb-4 hidden">
+                <h3 class="font-medium mb-2" data-i18n="form.file.info">File Information</h3>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                  <div class="text-gray-600" data-i18n="form.file.name">File Name:</div>
+                  <div class="file-name font-medium"></div>
+                  <div class="text-gray-600" data-i18n="form.file.type">File Type:</div>
+                  <div class="file-type font-medium"></div>
+                  <div class="text-gray-600" data-i18n="form.file.size">File Size:</div>
+                  <div class="file-size font-medium"></div>
+                </div>
+              </div>
+              <div class="alert alert-warning p-3 bg-yellow-50 text-yellow-800 rounded-md text-sm">
+                <p>Files converted to QR codes are suitable for small files due to size limitations. Large files will be split into multiple QR codes.</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div>
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-xl font-semibold mb-4" data-i18n="tips.title">QR 코드 활용 팁</h2>
-          <div class="space-y-4">
-            <div>
-              <h3 class="font-medium text-blue-600" data-i18n="tips.scan"></h3>
-              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.scan_desc">QR 코드와 배경색 사이에 충분한 대비를 두고, 오류 수정 수준을 '높음'으로 설정하면 스캔 성공률이 높아집니다.</p>
-            </div>
-            <div>
-              <h3 class="font-medium text-blue-600" data-i18n="tips.logo"></h3>
-              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.logo_desc">로고를 넣을 때는 QR 코드 중앙 부분만 사용하고, 오류 수정 수준을 '높음' 또는 '매우 높음'으로 설정하세요.</p>
-            </div>
-            <div>
-              <h3 class="font-medium text-blue-600" data-i18n="tips.print"></h3>
-              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.print_desc">인쇄물에 사용할 QR 코드는 SVG 형식으로 다운로드하면 크기를 조정해도 품질이 유지됩니다.</p>
-            </div>
-            <div>
-              <h3 class="font-medium text-blue-600" data-i18n="tips.test"></h3>
-              <p class="text-gray-600 text-sm mt-1" data-i18n="tips.test_desc">사용하기 전에 여러 기기와 스캐너 앱에서 테스트하여 정상적으로 인식되는지 확인하세요.</p>
-            </div>
+      <div id="qr-generator-app-right-panel"> 
+        <div id="qr-options-container" class="p-6 bg-white rounded-lg shadow-md mb-6">
+          <h3 class="text-xl font-semibold mb-4 text-gray-700">QR Code Options</h3>
+          <div class="mb-4">
+            <label for="qr-foreground-color" class="block text-sm font-medium text-gray-700 mb-1">Foreground Color</label>
+            <input type="color" id="qr-foreground-color" value="#000000" class="w-full h-10 p-1 border border-gray-300 rounded-md">
+          </div>
+          <div class="mb-4">
+            <label for="qr-background-color" class="block text-sm font-medium text-gray-700 mb-1">Background Color</label>
+            <input type="color" id="qr-background-color" value="#ffffff" class="w-full h-10 p-1 border border-gray-300 rounded-md">
+          </div>
+          <div class="mb-4">
+            <label for="qr-size" class="block text-sm font-medium text-gray-700 mb-1">Size (px)</label>
+            <input type="number" id="qr-size" value="256" min="64" max="1024" step="16" class="w-full p-2 border border-gray-300 rounded-md">
+          </div>
+          <div class="mb-4">
+            <label for="qr-error-correction" class="block text-sm font-medium text-gray-700 mb-1">Error Correction</label>
+            <select id="qr-error-correction" class="w-full p-2 border border-gray-300 rounded-md">
+              <option value="L">Low (L)</option>
+              <option value="M" selected>Medium (M)</option>
+              <option value="Q">Quartile (Q)</option>
+              <option value="H">High (H)</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label for="qr-logo-upload" class="block text-sm font-medium text-gray-700 mb-1">Logo Image (optional)</label>
+            <input type="file" id="qr-logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            <img id="qr-logo-preview" src="#" alt="Logo Preview" class="hidden mt-2 w-16 h-16 object-contain rounded-md border border-gray-200">
+            <button id="qr-logo-remove" class="hidden mt-1 text-xs text-red-500 hover:text-red-700">Remove Logo</button>
+          </div>
+        </div>
+        <div id="qr-preview-container" class="p-6 bg-white rounded-lg shadow-md text-center">
+          <h3 class="text-xl font-semibold mb-4 text-gray-700">QR Code Preview</h3>
+          <div id="qr-code-display" class="mt-4 flex justify-center items-center min-h-[200px] bg-gray-100 rounded-md p-4 mb-4">
+            <p class="text-gray-400">Generated QR code will be displayed here.</p>
+          </div>
+          <div id="qr-download-buttons-container" class="space-x-2 mt-2">
+            <button id="download-qr-png" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50" disabled>Download PNG</button>
+            <button id="download-qr-svg" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50" disabled>Download SVG</button>
           </div>
         </div>
       </div>

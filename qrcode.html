@@ -19,16 +19,31 @@
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
-  <main id="main-container">
-    <!-- QR 컨트롤러가 기대하는 UI만 남기고, 불필요한 안내문구/중복 섹션 등은 모두 제거 -->
-    <div class="qr-type-tabs mb-4">
+  <main id="main-container" class="container mx-auto px-4 py-8 flex-grow">
+    <div class="qr-type-tabs mb-4 flex flex-wrap justify-center space-x-2">
       <button class="qr-type-btn" data-type="text">텍스트</button>
       <button class="qr-type-btn" data-type="url">URL</button>
       <button class="qr-type-btn" data-type="vcard">명함</button>
-    <!-- [SPA/컨트롤러 구조 일치화] 불필요 래퍼 제거, 필수 요소만 남김 -->
-    <input id="qr-input" type="text" placeholder="QR로 변환할 텍스트 또는 URL 입력" class="w-full mb-4 p-2 border rounded">
-    <button id="generate-btn" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">QR 코드 생성</button>
-    <div id="qr-output" class="mt-4"></div>
+    </div>
+
+    <div id="qr-generator-app" class="mt-4">
+      <div id="qr-form-container" class="mb-6 p-6 bg-white rounded-lg shadow">
+        <p class="text-gray-500 text-center">위 탭에서 QR 코드 유형을 선택하세요.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="qr-options-container" class="p-6 bg-white rounded-lg shadow">
+          <h3 class="text-lg font-semibold mb-4">옵션</h3>
+          <input id="qr-input" type="text" placeholder="QR로 변환할 텍스트 또는 URL 입력" class="w-full mb-4 p-2 border rounded">
+          <button id="generate-btn" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded">QR 코드 생성</button>
+        </div>
+        <div id="qr-preview-container" class="p-6 bg-white rounded-lg shadow text-center">
+          <h3 class="text-lg font-semibold mb-4">미리보기</h3>
+          <div id="qr-code-display" class="mt-4 flex justify-center items-center">
+          </div>
+          <button id="download-qr-btn" class="mt-4 btn btn-secondary hidden">다운로드</button>
+        </div>
+      </div>
+    </div>
   </main>
   <div id="footer-container"></div>
   <!-- <script>

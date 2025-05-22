@@ -398,11 +398,11 @@ const QRGenerator = {
   _handleContentTypeChange(type) {
     console.log(`[QRGenerator] _handleContentTypeChange called with type: ${type}`);
     this.state.currentOptions.type = type;
-    const qrAppContainer = document.getElementById('qr-generator-app');
+    const qrFormContainer = document.getElementById('qr-form-container');
 
-    if (!qrAppContainer) {
-      console.error('[QRGenerator] Critical: qr-generator-app container not found in _handleContentTypeChange!');
-      showErrorMessage('qrcode.errors.containerMissing', 'QR 코드 생성기의 메인 컨테이너를 찾을 수 없습니다.');
+    if (!qrFormContainer) {
+      console.error('[QRGenerator] Critical: qr-form-container not found in _handleContentTypeChange!');
+      showErrorMessage('qrcode.errors.containerMissing', 'QR 코드 생성기의 폼 컨테이너를 찾을 수 없습니다.');
         return;
       }
 
@@ -443,8 +443,8 @@ const QRGenerator = {
         // formHTML = this._getTextFormHTML();
     }
     
-    qrAppContainer.innerHTML = formHTML;
-    console.log(`[QRGenerator] Injected HTML for ${type} form into #qr-generator-app.`);
+    qrFormContainer.innerHTML = formHTML;
+    console.log(`[QRGenerator] Injected HTML for ${type} form into #qr-form-container.`);
 
     this._updateActiveTabButton(type);
     this._updateContentPlaceholder(); // 타입 변경 시 플레이스홀더 업데이트
