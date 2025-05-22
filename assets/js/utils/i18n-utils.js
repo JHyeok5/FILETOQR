@@ -398,26 +398,48 @@ const I18nUtils = {
   },
   
   /**
-   * 페이지 키(data-i18n-url)로 언어별 경로 반환
-   * @param {string} key - 페이지 키(예: 'convert', 'home', 'help' 등)
-   * @param {string} [lang=null] - 언어 코드(생략 시 현재 언어)
-   * @returns {string|null} 언어별 경로 (예: '/ko/convert.html')
-   *
-   * 예시: getUrlFromKey('convert') → '/ko/convert.html' (한국어), '/en/convert.html' (영어)
+   * i18n 키로 URL 생성
+   * @param {string} key - i18n 키 (예: 'urls.home')
+   * @param {string} [lang=null] - 언어 코드 (null이면 현재 언어 사용)
+   * @returns {string} 생성된 URL 또는 키를 찾지 못한 경우 '#'
    */
   getUrlFromKey(key, lang = null) {
     try {
-      // 페이지 ID → 실제 파일명 매핑
-      const pagePath = Config.PAGE_CONFIG.pages[key];
-      if (!pagePath) {
-        console.warn(`[i18n] 알 수 없는 페이지 키: ${key}`);
-        return null;
+      // 1. i18n 키로부터 페이지 ID 찾기
+      let pageId = null;
+      for (const [id, i18nKey] of Object.entries(Config.PAGE_CONFIG.i18nKeys)) {
+        if (i18nKey === key) {
+          pageId = id;
+          break;
+        }
       }
-      // 언어별 경로 생성
-      return UrlUtils.getI18nUrl(pagePath, lang);
+
+      if (!pageId) {
+        console.warn(`[i18n] getUrlFromKey: i18n 키 '${key}'에 해당하는 페이지 ID를 찾을 수 없습니다. Config.PAGE_CONFIG.i18nKeys를 확인하세요.`);
+        // 키에 해당하는 페이지 ID가 없으면, 키 자체가 페이지 ID일 수 있다고 가정 (예: 'home', 'convert')
+        // 또는 Config.PAGE_CONFIG.pages에 직접 해당 키가 있는지 확인
+        if (Config.PAGE_CONFIG.pages[key]) {
+            pageId = key;
+            console.log(`[i18n] getUrlFromKey: 키 '${key}'를 페이지 ID로 직접 사용합니다.`);
+        } else {
+            console.warn(`[i18n] getUrlFromKey: 키 '${key}'는 유효한 페이지 ID도 아닙니다.`);
+            return '#'; // 또는 현재 페이지 URL 반환 등 오류 처리
+        }
+      }
+
+      // 2. 페이지 ID로 HTML 경로 가져오기
+      const pageHtmlPath = Config.getPageHtmlPath(pageId);
+
+      if (!pageHtmlPath) {
+        console.warn(`[i18n] getUrlFromKey: 페이지 ID '${pageId}'(i18n 키: '${key}')에 해당하는 HTML 경로를 찾을 수 없습니다. Config.PAGE_CONFIG.pages를 확인하세요.`);
+        return '#'; // 또는 오류에 적합한 기본 URL 반환
+      }
+      
+      // 3. HTML 경로와 언어를 사용하여 최종 URL 생성
+      return UrlUtils.getI18nUrl(pageHtmlPath, lang);
     } catch (error) {
-      console.error('[i18n] getUrlFromKey 오류:', error, key, lang);
-      return null;
+      console.error(`[i18n] getUrlFromKey('${key}', '${lang}') 처리 중 오류:`, error);
+      return '#'; // 오류 발생 시 기본 URL 반환
     }
   }
 };
