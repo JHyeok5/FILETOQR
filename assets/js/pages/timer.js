@@ -12,65 +12,93 @@ let notificationManager;
 // SPA 및 type="module" 환경에서 접근 가능하도록 window에 명시적으로 할당
 const TimerPage = {
   init: () => {
-    // 중복 초기화 방지
     if (TimerPage.state && TimerPage.state.initialized) return;
     if (!TimerPage.state) TimerPage.state = {};
     TimerPage.state.initialized = true;
     console.log('타이머 페이지 초기화');
-    
     try {
-      // 모듈 인스턴스 생성
       notificationManager = new NotificationManager();
       const stopwatch = new Stopwatch();
-      
-      // 탭 전환 설정
       setupTabs({ notificationManager });
-      
-      // 각 기능 초기화
       setupMultipleTimers();
       initializeStopwatch(stopwatch);
       initializeSettings(notificationManager);
-      
-      // 타이머 추가 버튼 이벤트를 여러 방식으로 설정
-      // 1. 버튼에 직접 이벤트 리스너
-      const addTimerBtn = document.getElementById('add-timer');
-      console.log('[DEBUG] addTimerBtn:', addTimerBtn);
-      if (addTimerBtn) {
-        addTimerBtn.addEventListener('click', function(e) {
-          console.log('[DEBUG] 타이머 추가 버튼 클릭');
-          e.preventDefault();
-          addNewTimer();
-        });
-      }
-      
-      // 2. 커스텀 이벤트 리스너
-      document.addEventListener('add-new-timer', function() {
-        console.log('커스텀 이벤트로 타이머 추가');
-        addNewTimer();
-      });
-      
-      // 3. 글로벌 함수 설정
-      window.addNewTimerGlobal = function() {
-        console.log('글로벌 함수로 타이머 추가');
-        addNewTimer();
-      };
-      
-      // 이벤트 위임 방식도 추가 (동적으로 생성될 경우 대비)
-      const globalControls = document.querySelector('.timer-global-controls');
-      if (globalControls) {
-        globalControls.addEventListener('click', function(e) {
-          if (e.target && (e.target.id === 'add-timer' || e.target.closest('#add-timer'))) {
-            console.log('[DEBUG] (위임) 타이머 추가 버튼 클릭');
-            e.preventDefault();
-            addNewTimer();
+      // 이벤트 위임 방식으로 main-container에 한 번만 바인딩
+      const mainContainer = document.getElementById('main-container');
+      if (mainContainer && !mainContainer._timerDelegationBound) {
+        mainContainer.addEventListener('click', (e) => {
+          // 타이머 추가
+          if (e.target.id === 'add-timer') { addNewTimer(); return; }
+          // 타이머 컨트롤(시작/일시정지/리셋/프리셋/닫기)
+          const timerItem = e.target.closest('.timer-item');
+          if (timerItem) {
+            const timerId = timerItem.dataset.timerId;
+            const timerInstance = timers.get(timerId);
+            if (!timerInstance) return;
+            if (e.target.classList.contains('timer-start')) {
+              const hours = parseInt(timerItem.querySelector('.hours-input').value) || 0;
+              const minutes = parseInt(timerItem.querySelector('.minutes-input').value) || 0;
+              const seconds = parseInt(timerItem.querySelector('.seconds-input').value) || 0;
+              if (hours === 0 && minutes === 0 && seconds === 0) { alert('타이머 시간을 설정해주세요.'); return; }
+              timerItem.classList.remove('timer-complete');
+              timerInstance.start(hours, minutes, seconds);
+              timerItem.querySelector('.timer-start').disabled = true;
+              timerItem.querySelector('.timer-pause').disabled = false;
+              timerItem.querySelector('.hours-input').disabled = true;
+              timerItem.querySelector('.minutes-input').disabled = true;
+              timerItem.querySelector('.seconds-input').disabled = true;
+              timerItem.querySelectorAll('.preset-btn').forEach(btn => btn.disabled = true);
+              return;
+            }
+            if (e.target.classList.contains('timer-pause')) {
+              if (timerInstance.isPaused) {
+                timerInstance.resume();
+                e.target.innerHTML = '<i class="fas fa-pause"></i> 일시정지';
+              } else {
+                timerInstance.pause();
+                e.target.innerHTML = '<i class="fas fa-play"></i> 재시작';
+              }
+              return;
+            }
+            if (e.target.classList.contains('timer-reset')) {
+              timerInstance.reset();
+              timerItem.querySelector('.timer-start').disabled = false;
+              timerItem.querySelector('.timer-pause').disabled = true;
+              timerItem.querySelector('.timer-pause').innerHTML = '<i class="fas fa-pause"></i> 일시정지';
+              timerItem.querySelector('.hours-input').disabled = false;
+              timerItem.querySelector('.minutes-input').disabled = false;
+              timerItem.querySelector('.seconds-input').disabled = false;
+              timerItem.querySelectorAll('.preset-btn').forEach(btn => btn.disabled = false);
+              timerItem.classList.remove('timer-complete');
+              return;
+            }
+            if (e.target.classList.contains('close-timer')) {
+              removeTimer(timerItem, timerId);
+              return;
+            }
+            if (e.target.classList.contains('preset-btn')) {
+              const minutes = parseInt(e.target.dataset.minutes);
+              timerItem.querySelector('.hours-input').value = 0;
+              timerItem.querySelector('.minutes-input').value = minutes;
+              timerItem.querySelector('.seconds-input').value = 0;
+              timerItem.querySelector('.timer-hours').textContent = '00';
+              timerItem.querySelector('.timer-minutes').textContent = minutes.toString().padStart(2, '0');
+              timerItem.querySelector('.timer-seconds').textContent = '00';
+              return;
+            }
           }
+          // 스톱워치/포모도로 컨트롤 등도 유사하게 위임 처리(필요시 추가)
         });
+        mainContainer._timerDelegationBound = true;
       }
-      
       console.log('타이머 페이지 초기화 완료');
     } catch (error) {
       console.error('타이머 페이지 초기화 오류:', error);
     }
+  },
+  destroy: () => {
+    if (TimerPage.state) TimerPage.state.initialized = false;
+    console.log('TimerPage.destroy() 호출: 상태만 초기화');
   }
 };
 window.FileToQR = window.FileToQR || {};
