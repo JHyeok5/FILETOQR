@@ -1,27 +1,172 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="FileToQR 이용약관 - 서비스 이용에 관한 조건 및 규정을 안내합니다. 최종 업데이트: 2025년 5월 2일">
-  <meta name="keywords" content="FileToQR 이용약관, 서비스 약관, Terms of Service">
-  <title>이용약관 - FileToQR</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
-  <link rel="alternate" hreflang="ko" href="terms.html">
-  <link rel="alternate" hreflang="en" href="../en/terms.html">
-  <link rel="alternate" hreflang="zh" href="../zh/terms.html">
-  <link rel="alternate" hreflang="ja" href="../ja/terms.html">
-  <link rel="alternate" hreflang="x-default" href="terms.html">
-  <link rel="stylesheet" href="../assets/css/tailwind-built.css">
+  <meta name="description" content="FileToQR 서비스 이용약관입니다. 서비스 사용 전 반드시 확인해주시기 바랍니다.">
+  <meta name="keywords" content="이용약관, 서비스 약관, 규정, FileToQR, QR 코드">
+  <title>FileToQR - 이용약관</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/tailwind-built.css">
+  <link rel="stylesheet" href="/assets/css/components/qr-generator.css">
   <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
+  <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
+  <link rel="alternate" hreflang="ko" href="/terms.html">
+  <link rel="alternate" hreflang="en" href="/en/terms.html">
+  <link rel="alternate" hreflang="zh" href="/zh/terms.html">
+  <link rel="alternate" hreflang="ja" href="/ja/terms.html">
+  <link rel="alternate" hreflang="x-default" href="/terms.html">
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased">
   <div id="header-container"></div>
-  <main id="main-container">
-    <div class="terms-content">
-      <!-- 실제 이용약관 내용 삽입 (기존 내용 유지) -->
+  <main id="main-container" class="flex-grow w-full mx-auto px-4 py-8 sm:py-12 md:py-16 max-w-4xl">
+    <header class="mb-10 md:mb-12 text-center">
+      <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl leading-tight">이용약관</h1>
+      <p class="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">FileToQR 서비스(이하 "서비스")를 이용해주셔서 감사합니다. 본 약관은 서비스 이용과 관련하여 필요한 사항을 규정합니다.</p>
+    </header>
+
+    <section class="terms-content bg-white p-6 sm:p-8 md:p-10 rounded-xl shadow-xl mb-12 md:mb-16">
+      <p class="text-sm text-slate-500 mb-6">본 약관은 2024년 7월 26일부터 시행됩니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200 first:mt-0 first:border-t-0 first:pt-0">제1조 (목적)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">본 약관은 FileToQR (이하 "회사")가 제공하는 FileToQR 서비스 및 관련 제반 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원과의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제2조 (정의)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">본 약관에서 사용하는 용어의 정의는 다음과 같습니다.</p>
+      <ul class="list-disc list-inside pl-4 mb-4 text-slate-600 space-y-1">
+        <li>"서비스"라 함은 구현되는 단말기(PC, 모바일, 태블릿 PC 등의 각종 유무선 장치를 포함)와 상관없이 "회원"이 이용할 수 있는 FileToQR 및 관련 제반 서비스를 의미합니다.</li>
+        <li>"회원"이라 함은 회사의 "서비스"에 접속하여 본 약관에 따라 "회사"와 이용계약을 체결하고 "회사"가 제공하는 "서비스"를 이용하는 고객을 말합니다. (본 서비스는 비회원제로 운영되므로, "회원"은 "이용자"로 해석될 수 있습니다.)</li>
+        <li>"QR 코드"라 함은 "이용자"가 제공한 데이터를 기반으로 생성된 2차원 바코드를 의미합니다.</li>
+      </ul>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제3조 (약관의 게시와 개정)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">1. "회사"는 본 약관의 내용을 "이용자"가 쉽게 알 수 있도록 서비스 초기 화면에 게시합니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">2. "회사"는 "약관의 규제에 관한 법률", "정보통신망 이용촉진 및 정보보호 등에 관한 법률(이하 "정보통신망법")" 등 관련법을 위배하지 않는 범위에서 본 약관을 개정할 수 있습니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">3. "회사"가 약관을 개정할 경우에는 적용일자 및 개정사유를 명시하여 현행약관과 함께 제1항의 방식에 따라 그 개정약관의 적용일자 7일 전부터 적용일자 전일까지 공지합니다. 다만, 이용자에게 불리한 약관의 개정의 경우에는 적용일자 30일 전에 공지하며, 이메일 등의 수단을 통해 별도로 통지할 수 있습니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">4. "회사"가 전항에 따라 개정약관을 공지 또는 통지하면서 "이용자"에게 일정 기간 내에 의사표시를 하지 않으면 의사표시가 표명된 것으로 본다는 뜻을 명확하게 공지 또는 통지하였음에도 "이용자"가 명시적으로 거부의 의사표시를 하지 아니한 경우 "이용자"가 개정약관에 동의한 것으로 봅니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제4조 (서비스의 제공 및 변경)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">1. "서비스"는 다음과 같은 업무를 수행합니다.
+        <ul class="list-disc list-inside pl-4 my-2 text-slate-600 space-y-1">
+          <li>파일 또는 데이터 기반 QR 코드 생성 기능</li>
+          <li>QR 코드 옵션(색상, 로고 등) 커스터마이징 기능</li>
+          <li>생성된 QR 코드 다운로드 기능 (PNG, SVG 등)</li>
+          <li>간단한 파일 변환 기능 (지원 예정)</li>
+          <li>기타 "회사"가 추가 개발하거나 다른 회사와의 제휴계약 등을 통해 "이용자"에게 제공하는 일체의 서비스</li>
+        </ul>
+      </p>
+      <p class="text-slate-600 leading-relaxed mb-4">2. "회사"는 상당한 이유가 있는 경우에 운영상, 기술상의 필요에 따라 제공하고 있는 전부 또는 일부 "서비스"를 변경할 수 있습니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">3. "서비스"의 내용, 이용방법, 이용시간에 대하여 변경이 있는 경우에는 변경사유, 변경될 서비스의 내용 및 제공일자 등은 그 변경 전에 해당 서비스 초기화면에 게시하여야 합니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제5조 (서비스의 중단)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">1. "회사"는 컴퓨터 등 정보통신설비의 보수점검, 교체 및 고장, 통신두절 또는 운영상 상당한 이유가 있는 경우 "서비스"의 제공을 일시적으로 중단할 수 있습니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">2. "회사"는 제1항의 사유로 "서비스"의 제공이 일시적으로 중단됨으로 인하여 "이용자" 또는 제3자가 입은 손해에 대하여 배상하지 아니합니다. 단, "회사"에 고의 또는 중과실이 있는 경우에는 그러하지 아니합니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제6조 (회사의 의무)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">1. "회사"는 관련법과 본 약관이 금지하거나 미풍양속에 반하는 행위를 하지 않으며, 계속적이고 안정적으로 "서비스"를 제공하기 위하여 최선을 다하여 노력합니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">2. "회사"는 "이용자"가 안전하게 "서비스"를 이용할 수 있도록 개인정보(신용정보 포함)보호를 위한 보안 시스템을 갖추어야 하며 개인정보처리방침을 공시하고 준수합니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">3. "회사"는 서비스이용과 관련하여 "이용자"로부터 제기된 의견이나 불만이 정당하다고 인정할 경우에는 이를 처리하여야 합니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제7조 (이용자의 의무)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">1. "이용자"는 다음 행위를 하여서는 안 됩니다.
+        <ul class="list-disc list-inside pl-4 my-2 text-slate-600 space-y-1">
+          <li>불법적이거나 저작권을 침해하는 파일 또는 데이터를 이용하여 QR 코드를 생성하는 행위</li>
+          <li>타인의 정보를 도용하는 행위</li>
+          <li>"회사"가 게시한 정보의 변경</li>
+          <li>"회사"가 정한 정보 이외의 정보(컴퓨터 프로그램 등) 등의 송신 또는 게시</li>
+          <li>"회사"와 기타 제3자의 저작권 등 지적재산권에 대한 침해</li>
+          <li>"회사" 및 기타 제3자의 명예를 손상시키거나 업무를 방해하는 행위</li>
+          <li>외설 또는 폭력적인 메시지, 화상, 음성, 기타 공서양속에 반하는 정보를 "서비스"에 공개 또는 게시하는 행위</li>
+          <li>기타 불법적이거나 부당한 행위</li>
+        </ul>
+      </p>
+      <p class="text-slate-600 leading-relaxed mb-4">2. "이용자"는 관계법, 본 약관의 규정, 이용안내 및 "서비스"와 관련하여 공지한 주의사항, "회사"가 통지하는 사항 등을 준수하여야 하며, 기타 "회사"의 업무에 방해되는 행위를 하여서는 안 됩니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">3. "이용자"가 업로드한 파일 및 생성한 QR코드의 내용에 대한 모든 책임은 "이용자" 본인에게 있습니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제8조 (책임제한)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">1. "회사"는 천재지변 또는 이에 준하는 불가항력으로 인하여 "서비스"를 제공할 수 없는 경우에는 "서비스" 제공에 관한 책임이 면제됩니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">2. "회사"는 "이용자"의 귀책사유로 인한 "서비스" 이용의 장애에 대하여는 책임을 지지 않습니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">3. "회사"는 "이용자"가 "서비스"를 이용하여 기대하는 수익을 얻지 못하거나 상실한 것에 대하여 책임을 지지 않으며, 그 밖의 "서비스"를 통하여 얻은 자료로 인한 손해에 관하여 책임을 지지 않습니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">4. "회사"는 "이용자"가 게시판 등에 게시하거나 전송한 정보, 자료, 사실의 신뢰도, 정확성 등 내용에 관하여는 책임을 지지 않습니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">5. "회사"는 "이용자" 상호간 또는 "이용자"와 제3자 상호간에 "서비스"를 매개로 하여 발생한 분쟁 등에 대하여 책임을 지지 않습니다.</p>
+
+      <h2 class="text-2xl font-semibold text-slate-800 mt-8 mb-4 pt-4 border-t border-slate-200">제9조 (준거법 및 재판관할)</h2>
+      <p class="text-slate-600 leading-relaxed mb-4">1. "회사"와 "이용자" 간에 발생한 "서비스" 이용에 관한 분쟁에 대하여는 대한민국 법을 준거법으로 합니다.</p>
+      <p class="text-slate-600 leading-relaxed mb-4">2. "회사"와 "이용자"간 발생한 분쟁에 관한 소송은 민사소송법 상의 관할법원에 제소합니다.</p>
+
+      <p class="text-slate-600 leading-relaxed mt-8 pt-4 border-t border-slate-200">부칙: 본 약관은 2024년 7월 26일부터 적용됩니다.</p>
+    </section>
+
+    <div id="qr-code-generator-section" class="qr-code-section-container my-16 md:my-24 py-12 md:py-16 bg-white rounded-2xl shadow-xl">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 class="text-3xl sm:text-4xl font-bold text-center mb-10 md:mb-12 text-slate-900">QR 코드 바로 생성하기</h2>
+          <div class="qr-type-tabs mb-8 flex flex-wrap justify-center gap-2 sm:gap-3">
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out active-tab" data-type="text">텍스트</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="url">URL</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="vcard">vCard</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="wifi">WiFi</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="email">이메일</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="tel">전화번호</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="sms">SMS</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="geo">위치</button>
+              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="file">파일</button>
+          </div>
+  
+          <div id="qr-generator-app" class="mt-4">
+              <div id="qr-form-container" class="mb-6 p-6 bg-slate-100 rounded-xl shadow-md">
+                  <p class="text-slate-500 text-center text-sm">위 탭에서 QR 코드 유형을 선택하세요.</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                  <div id="qr-options-container" class="p-6 bg-slate-100 rounded-xl shadow-md">
+                      <h3 class="text-xl font-semibold mb-6 text-slate-800">QR 코드 옵션</h3>
+                      <div class="space-y-5">
+                          <div>
+                              <label for="qr-foreground-color" class="block text-sm font-medium text-slate-700 mb-1">전경색</label>
+                              <input type="color" id="qr-foreground-color" value="#000000" class="w-full h-10 p-1 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
+                          </div>
+                          <div>
+                              <label for="qr-background-color" class="block text-sm font-medium text-slate-700 mb-1">배경색</label>
+                              <input type="color" id="qr-background-color" value="#ffffff" class="w-full h-10 p-1 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
+                          </div>
+                          <div>
+                              <label for="qr-size" class="block text-sm font-medium text-slate-700 mb-1">크기 (px)</label>
+                              <input type="number" id="qr-size" value="256" min="64" max="1024" step="16" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
+                          </div>
+                          <div>
+                              <label for="qr-error-correction" class="block text-sm font-medium text-slate-700 mb-1">오류 복원 수준</label>
+                              <select id="qr-error-correction" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm bg-white">
+                                  <option value="L">낮음 (L)</option>
+                                  <option value="M" selected>중간 (M)</option>
+                                  <option value="Q">높음 (Q)</option>
+                                  <option value="H">최상 (H)</option>
+                              </select>
+                          </div>
+                          <div>
+                              <label for="qr-logo-upload" class="block text-sm font-medium text-slate-700 mb-1">로고 이미지 (선택 사항)</label>
+                              <input type="file" id="qr-logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-colors duration-150 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                              <img id="qr-logo-preview" src="#" alt="로고 미리보기" class="hidden mt-2 w-16 h-16 object-contain rounded-md border border-slate-200 bg-slate-50">
+                              <button id="qr-logo-remove" class="hidden mt-1 text-xs text-red-500 hover:text-red-700 underline focus:outline-none focus:ring-1 focus:ring-red-500 rounded">로고 제거</button>
+                          </div>
+                      </div>
+                  </div>
+                  <div id="qr-preview-container" class="p-6 bg-slate-100 rounded-xl shadow-md text-center flex flex-col justify-between">
+                      <div>
+                        <h3 class="text-xl font-semibold mb-4 text-slate-800">QR 코드 미리보기</h3>
+                        <div id="qr-code-display" class="mt-4 flex justify-center items-center min-h-[200px] sm:min-h-[256px] bg-white rounded-lg p-4 mb-4 border-2 border-dashed border-slate-300 aspect-square max-w-[256px] mx-auto overflow-hidden transition-all duration-200 ease-in-out">
+                            <p class="text-slate-400 text-sm">생성된 QR 코드가 여기에 표시됩니다.</p>
+                        </div>
+                      </div>
+                      <div id="qr-download-buttons-container" class="space-x-2 mt-auto pt-4">
+                          <button id="download-qr-png" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">PNG 다운로드</button>
+                          <button id="download-qr-svg" class="w-full sm:w-auto mt-2 sm:mt-0 px-6 py-2.5 bg-green-600 text-white font-medium rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">SVG 다운로드</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
     </div>
   </main>
   <div id="footer-container"></div>
