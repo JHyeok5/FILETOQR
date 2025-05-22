@@ -106,17 +106,21 @@ async function init() {
 
     // 3. 템플릿 유틸리티 초기화 (공통 컴포넌트 로드 전에 필요할 수 있음)
     if (typeof window.FileToQR !== 'undefined' && typeof window.FileToQR.TemplateUtils !== 'undefined' && typeof window.FileToQR.TemplateUtils.init === 'function') {
-      console.log('템플릿 유틸리티(TemplateUtils) 발견, 초기화 시작...');
+      console.log('[AppCore] TemplateUtils found, attempting initialization...');
       try {
-        await window.FileToQR.TemplateUtils.init();
-        console.log('템플릿 유틸리티(TemplateUtils) 초기화 완료.');
+        await window.FileToQR.TemplateUtils.init(); // This now throws a detailed error if Handlebars fails
+        console.log('[AppCore] TemplateUtils initialized successfully.');
       } catch (error) {
-        console.error('템플릿 유틸리티(TemplateUtils) 초기화 중 심각한 오류 발생:', error);
-        throw new Error('필수 UI 라이브러리(TemplateUtils) 로드에 실패했습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
+        // Log the detailed error from TemplateUtils.init() or Handlebars loading
+        console.error('[AppCore] CRITICAL: TemplateUtils initialization failed. Details:', error);
+        // Throw the original error to be caught by the main init() catch block
+        // This error will then be shown to the user via showErrorMessage()
+        throw error; 
       }
     } else {
-      console.warn('템플릿 유틸리티(TemplateUtils) 또는 초기화 함수(init)를 찾을 수 없습니다. template-utils.js가 올바르게 로드되었는지 확인하세요.');
-      throw new Error('필수 UI 라이브러리(TemplateUtils)를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
+      const errorMsg = '[AppCore] CRITICAL: TemplateUtils or its init function not found. Check if template-utils.js is loaded correctly.';
+      console.warn(errorMsg);
+      throw new Error('필수 UI 라이브러리(TemplateUtils) 구성 요소를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
     }
     
     // 4. 헤더/푸터 동적 치환 및 내부 스크립트 실행 대기 (components.js)
