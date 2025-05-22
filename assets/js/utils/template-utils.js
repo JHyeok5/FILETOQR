@@ -42,21 +42,25 @@ const TemplateUtils = {
     console.log('[TemplateUtils] Initialization started.');
     try {
       console.log('[TemplateUtils] Attempting to load Handlebars...');
-      await this.loadHandlebars(); // loadHandlebars will throw on error
-      console.log('[TemplateUtils] Handlebars loaded successfully.');
+      await this.loadHandlebars();
+      console.log('[TemplateUtils] Handlebars loaded successfully (or was already loaded).');
       
+      console.log('[TemplateUtils] Registering Handlebars helpers...');
       this.registerHelpers();
+      console.log('[TemplateUtils] Handlebars helpers registered.');
       
       if (options.loadPartials !== false) {
+        console.log('[TemplateUtils] Loading common partials...');
         await this.loadCommonPartials();
+        console.log('[TemplateUtils] Common partials loaded.');
       }
       
       console.log('[TemplateUtils] Initialization completed successfully.');
+      return Promise.resolve();
     } catch (error) {
-      // Log the specific error from loadHandlebars or other init steps
-      console.error('[TemplateUtils] Initialization failed.', error);
-      // Re-throw the error so the caller (app-core.js) can catch it
-      throw error; 
+      const errorMessage = `TemplateUtils 초기화 실패: Handlebars 로드 또는 기타 초기화 오류 - ${error.message}`;
+      console.error(`[TemplateUtils] Initialization failed. Details: ${error.message}`, error);
+      return Promise.reject(new Error(errorMessage));
     }
   },
 
@@ -66,46 +70,45 @@ const TemplateUtils = {
    * @private
    */
   async loadHandlebars() {
-    if (Handlebars !== null && typeof window.Handlebars !== 'undefined') {
-      console.log('[TemplateUtils] Handlebars already loaded.');
-      return;
+    if (typeof window.Handlebars === 'function' && Handlebars === window.Handlebars) {
+      console.log('[TemplateUtils] Handlebars already loaded and initialized.');
+      return Promise.resolve(window.Handlebars);
     }
-    
+    if (typeof window.Handlebars === 'function') {
+        console.log('[TemplateUtils] window.Handlebars found, re-assigning to local Handlebars variable.');
+        Handlebars = window.Handlebars;
+        return Promise.resolve(window.Handlebars);
+    }
+
     const handlebarsUrl = 'https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js';
-    console.log(`[TemplateUtils] Attempting to load Handlebars from: ${handlebarsUrl}`);
+    console.log(`[TemplateUtils] Attempting to load Handlebars from CDN: ${handlebarsUrl}`);
     
-    try {
+    return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = handlebarsUrl;
-      script.async = true;
+      script.defer = true;
 
-      await new Promise((resolve, reject) => {
-        script.onload = () => {
-          if (typeof window.Handlebars !== 'undefined') {
-            Handlebars = window.Handlebars;
-            console.log('[TemplateUtils] Handlebars loaded successfully via CDN.');
-            resolve();
-          } else {
-            const errorMsg = '[TemplateUtils] Handlebars loaded but window.Handlebars is undefined.';
-            console.error(errorMsg);
-            reject(new Error('Handlebars 로드 성공했으나 window.Handlebars가 정의되지 않음'));
-          }
-        };
-        script.onerror = (event) => {
-          // Try to get a more specific message if available
-          const specificError = event && event.message ? event.message : 'Unknown error during script loading';
-          const errorMsg = `[TemplateUtils] Failed to load Handlebars script from ${handlebarsUrl}. Error: ${specificError}`;
-          console.error(errorMsg, event);
-          reject(new Error(`Handlebars 스크립트 로드 오류 (${handlebarsUrl}): ${specificError}`));
-        };
-        document.head.appendChild(script);
-      });
-    } catch (error) {
-      // This catch block handles errors from the new Promise constructor itself or if appendChild fails,
-      // though most errors should be caught by script.onerror.
-      console.error(`[TemplateUtils] Critical error during Handlebars dynamic loading from ${handlebarsUrl}:`, error);
-      throw error; // Re-throw to be caught by init()
-    }
+      script.onload = () => {
+        if (typeof window.Handlebars !== 'undefined' && window.Handlebars) {
+          Handlebars = window.Handlebars;
+          console.log('[TemplateUtils] Handlebars loaded successfully via CDN and assigned.');
+          resolve(window.Handlebars);
+        } else {
+          const errorMsg = '[TemplateUtils] Handlebars loaded from CDN, but window.Handlebars is undefined or null.';
+          console.error(errorMsg);
+          reject(new Error('Handlebars 로드 성공했으나 window.Handlebars가 정의되지 않았습니다.'));
+        }
+      };
+
+      script.onerror = (event) => {
+        const errorMsg = `[TemplateUtils] Failed to load Handlebars script from CDN. URL: ${handlebarsUrl}`;
+        console.error(errorMsg, event);
+        reject(new Error(`Handlebars CDN 스크립트 로드에 실패했습니다. URL: ${handlebarsUrl}`));
+      };
+      
+      console.log('[TemplateUtils] Appending Handlebars script tag to head...');
+      document.head.appendChild(script);
+    });
   },
 
   /**
@@ -113,28 +116,25 @@ const TemplateUtils = {
    * @private
    */
   registerHelpers() {
-    if (!Handlebars) return;
+    if (!Handlebars) {
+        console.warn('[TemplateUtils] Handlebars is not available, cannot register helpers.');
+        return;
+    }
     
     // i18n 헬퍼 등록
     Handlebars.registerHelper('t', (key, options) => {
-      // 글로벌 i18n 객체 사용
       if (window.FileToQR && window.FileToQR.i18n) {
-        // 파라미터 추출
         const params = {};
         if (options && options.hash) {
-          Object.keys(options.hash).forEach(key => {
-            params[key] = options.hash[key];
+          Object.keys(options.hash).forEach(paramKey => {
+            params[paramKey] = options.hash[paramKey];
           });
         }
-        
         return window.FileToQR.i18n.t(key, params);
       }
-      
-      // i18n 모듈이 없는 경우 키 자체 반환
       return key;
     });
     
-    // formatDate 헬퍼 등록
     Handlebars.registerHelper('formatDate', (date, options) => {
       if (window.FileToQR && window.FileToQR.i18n) {
         const formatOptions = options && options.hash ? options.hash : {};
@@ -143,7 +143,6 @@ const TemplateUtils = {
       return date;
     });
     
-    // formatNumber 헬퍼 등록
     Handlebars.registerHelper('formatNumber', (number, options) => {
       if (window.FileToQR && window.FileToQR.i18n) {
         const formatOptions = options && options.hash ? options.hash : {};
@@ -152,50 +151,16 @@ const TemplateUtils = {
       return number;
     });
     
-    // eq 비교 헬퍼
-    Handlebars.registerHelper('eq', function(a, b, options) {
-      return a === b ? options.fn(this) : options.inverse(this);
-    });
+    Handlebars.registerHelper('eq', function(a, b, options) { return a === b ? options.fn(this) : options.inverse(this); });
+    Handlebars.registerHelper('neq', function(a, b, options) { return a !== b ? options.fn(this) : options.inverse(this); });
+    Handlebars.registerHelper('gt', function(a, b, options) { return a > b ? options.fn(this) : options.inverse(this); });
+    Handlebars.registerHelper('gte', function(a, b, options) { return a >= b ? options.fn(this) : options.inverse(this); });
+    Handlebars.registerHelper('lt', function(a, b, options) { return a < b ? options.fn(this) : options.inverse(this); });
+    Handlebars.registerHelper('lte', function(a, b, options) { return a <= b ? options.fn(this) : options.inverse(this); });
+    Handlebars.registerHelper('contains', function(arr, item, options) { return (Array.isArray(arr) && arr.includes(item)) ? options.fn(this) : options.inverse(this); });
+    Handlebars.registerHelper('classIf', function(condition, trueClass, falseClass) { return condition ? trueClass : (falseClass || ''); });
     
-    // neq 비교 헬퍼
-    Handlebars.registerHelper('neq', function(a, b, options) {
-      return a !== b ? options.fn(this) : options.inverse(this);
-    });
-    
-    // gt 비교 헬퍼
-    Handlebars.registerHelper('gt', function(a, b, options) {
-      return a > b ? options.fn(this) : options.inverse(this);
-    });
-    
-    // gte 비교 헬퍼
-    Handlebars.registerHelper('gte', function(a, b, options) {
-      return a >= b ? options.fn(this) : options.inverse(this);
-    });
-    
-    // lt 비교 헬퍼
-    Handlebars.registerHelper('lt', function(a, b, options) {
-      return a < b ? options.fn(this) : options.inverse(this);
-    });
-    
-    // lte 비교 헬퍼
-    Handlebars.registerHelper('lte', function(a, b, options) {
-      return a <= b ? options.fn(this) : options.inverse(this);
-    });
-    
-    // contains 헬퍼
-    Handlebars.registerHelper('contains', function(arr, item, options) {
-      if (Array.isArray(arr) && arr.includes(item)) {
-        return options.fn(this);
-      }
-      return options.inverse(this);
-    });
-    
-    // 조건부 클래스 헬퍼
-    Handlebars.registerHelper('classIf', function(condition, trueClass, falseClass) {
-      return condition ? trueClass : (falseClass || '');
-    });
-    
-    console.log('Handlebars 헬퍼 등록 완료');
+    console.log('[TemplateUtils] All Handlebars helpers registered.');
   },
 
   /**
@@ -205,54 +170,37 @@ const TemplateUtils = {
    */
   async loadCommonPartials() {
     if (!Handlebars) {
-      console.error('Handlebars가 로드되지 않은 상태에서 파티셜 로드 시도');
+      console.error('[TemplateUtils] Handlebars not loaded, cannot load partials.');
       return Promise.reject(new Error('Handlebars not loaded'));
     }
-    
-    console.log('공통 파티셜 로드 시작');
-    
+    console.log('[TemplateUtils] Starting to load common partials...');
     try {
-      // DOM에서 파티셜 데이터 요소 찾기
       const partialElements = document.querySelectorAll('script[type="text/x-handlebars-partial"]');
       if (partialElements.length > 0) {
-        console.log(`DOM에서 ${partialElements.length}개의 파티셜 요소 발견`);
-        
-        // DOM에서 파티셜 등록
+        console.log(`[TemplateUtils] Found ${partialElements.length} partial elements in DOM.`);
         partialElements.forEach(element => {
           const partialName = element.getAttribute('data-partial-name');
           if (partialName) {
             Handlebars.registerPartial(partialName, element.innerHTML);
-            console.log(`DOM 파티셜 등록: ${partialName}`);
+            console.log(`[TemplateUtils] Registered DOM partial: ${partialName}`);
           }
         });
       }
       
-      // 파티셜 컴포넌트 목록
-      const partials = [
-        'header',
-        'footer',
-        'loading',
-        'language-selector'
-      ];
-      
+      const partials = ['header', 'footer', 'loading', 'language-selector'];
       const basePath = PathUtils.getBasePath() || './';
-      console.log('파티셜 로드 기본 경로:', basePath);
+      console.log('[TemplateUtils] Base path for partials:', basePath);
       
-      // 각 파티셜 로드 시도
       for (const partial of partials) {
         try {
-          // 첫 번째 시도: 컴포넌트 경로
           let partialUrl = `${basePath}components/partials/${partial}.hbs`;
           let response = await fetch(partialUrl);
-          
-          // 404인 경우 다른 경로 시도
           if (!response.ok) {
-            console.log(`${partialUrl} 로드 실패, 다른 경로 시도`);
+            console.log(`[TemplateUtils] Failed to load ${partialUrl}, trying .handlebars`);
             partialUrl = `${basePath}components/partials/${partial}.handlebars`;
             response = await fetch(partialUrl);
-            
-            // 그래도 실패하면 HTML 파일 시도
             if (!response.ok) {
+              console.log(`[TemplateUtils] Failed to load ${partialUrl}, trying .html`);
               partialUrl = `${basePath}components/partials/${partial}.html`;
               response = await fetch(partialUrl);
             }
@@ -261,27 +209,24 @@ const TemplateUtils = {
           if (response.ok) {
             const template = await response.text();
             Handlebars.registerPartial(partial, template);
-            console.log(`파티셜 로드 성공: ${partial}`);
+            console.log(`[TemplateUtils] Successfully loaded partial: ${partial} from ${partialUrl}`);
           } else {
-            // 파티셜이 파일로 존재하지 않으면 DOM에서 찾기 시도
             const inlinePartial = document.getElementById(`partial-${partial}`);
             if (inlinePartial) {
               Handlebars.registerPartial(partial, inlinePartial.innerHTML);
-              console.log(`인라인 파티셜 사용: ${partial}`);
+              console.log(`[TemplateUtils] Used inline partial: ${partial}`);
             } else {
-              console.warn(`파티셜 로드 실패: ${partial}`);
+              console.warn(`[TemplateUtils] Failed to load partial file and no inline partial found for: ${partial}`);
             }
           }
         } catch (error) {
-          console.warn(`파티셜 '${partial}' 로드 오류:`, error);
+          console.warn(`[TemplateUtils] Error loading partial '${partial}':`, error);
         }
       }
-      
-      console.log('공통 파티셜 로드 완료');
-      return Promise.resolve();
+      console.log('[TemplateUtils] Common partials loading finished.');
     } catch (error) {
-      console.error('공통 파티셜 로드 중 오류 발생:', error);
-      return Promise.reject(error);
+      console.error('[TemplateUtils] Error during common partials loading:', error);
+      throw error;
     }
   },
 
@@ -291,45 +236,27 @@ const TemplateUtils = {
    * @returns {Promise<string>} 템플릿 문자열
    */
   async loadTemplate(templatePath) {
-    // 이미 캐시에 있으면 반환
     if (this._templateCache[templatePath]) {
-      return Promise.resolve(this._templateCache[templatePath]);
+      return this._templateCache[templatePath];
     }
-    
     try {
-      // 다양한 경로 패턴 시도
-      const pathVariations = [
-        templatePath,
-        `/${templatePath}`,
-        `./${templatePath}`,
-        `../${templatePath}`
-      ];
-      
+      const pathVariations = [templatePath, `/${templatePath}`, `./${templatePath}`, `../${templatePath}`];
       let templateContent = null;
-      
       for (const path of pathVariations) {
         try {
           const response = await fetch(path);
           if (response.ok) {
             templateContent = await response.text();
-            console.log(`템플릿 로드 성공: ${path}`);
+            console.log(`[TemplateUtils] Template loaded successfully: ${path}`);
             break;
           }
-        } catch (err) {
-          console.warn(`경로에서 템플릿 로드 실패: ${path}`);
-        }
+        } catch (err) { /* Continue trying other paths */ }
       }
-      
-      if (!templateContent) {
-        throw new Error(`템플릿을 찾을 수 없음: ${templatePath}`);
-      }
-      
-      // 캐시에 저장
+      if (!templateContent) throw new Error(`Template not found: ${templatePath} (tried variations)`);
       this._templateCache[templatePath] = templateContent;
-      
       return templateContent;
     } catch (error) {
-      console.error(`템플릿 로드 실패 (${templatePath}): ${error.message}`);
+      console.error(`[TemplateUtils] Failed to load template (${templatePath}): ${error.message}`);
       throw error;
     }
   },
@@ -341,24 +268,14 @@ const TemplateUtils = {
    * @returns {Function} 컴파일된 템플릿 함수
    */
   compileTemplate(template, cacheKey = null) {
-    if (!Handlebars) {
-      throw new Error('Handlebars가 로드되지 않았습니다');
-    }
-    
-    if (cacheKey && this._compiledTemplates[cacheKey]) {
-      return this._compiledTemplates[cacheKey];
-    }
-    
+    if (!Handlebars) throw new Error('[TemplateUtils] Handlebars is not loaded, cannot compile template.');
+    if (cacheKey && this._compiledTemplates[cacheKey]) return this._compiledTemplates[cacheKey];
     try {
       const compiledTemplate = Handlebars.compile(template);
-      
-      if (cacheKey) {
-        this._compiledTemplates[cacheKey] = compiledTemplate;
-      }
-      
+      if (cacheKey) this._compiledTemplates[cacheKey] = compiledTemplate;
       return compiledTemplate;
     } catch (error) {
-      console.error('템플릿 컴파일 실패:', error);
+      console.error('[TemplateUtils] Template compilation failed:', error);
       throw error;
     }
   },
@@ -373,45 +290,21 @@ const TemplateUtils = {
    */
   async loadComponent(componentName, container, basePath = '', data = {}) {
     if (!container) {
-      console.error('컴포넌트 로드 실패: 컨테이너가 없습니다');
+      console.error('[TemplateUtils] Component load failed: Container is missing for', componentName);
       return false;
     }
-    
     try {
-      // Handlebars 로드 확인
-      if (!Handlebars) {
-        await this.loadHandlebars();
-      }
-      
-      // 컴포넌트 경로 생성
+      if (!Handlebars) await this.loadHandlebars();
       const componentPath = `${basePath}components/${componentName}.html`;
-      
-      // 템플릿 로드
       const template = await this.loadTemplate(componentPath);
-      
-      // 기본 데이터에 basePath 추가
-      const templateData = {
-        ...data,
-        basePath: basePath
-      };
-      
-      // 템플릿 컴파일 및 렌더링
+      const templateData = { ...data, basePath: basePath };
       const compiledTemplate = this.compileTemplate(template, componentName);
-      const renderedHtml = compiledTemplate(templateData);
-      
-      // 컨테이너에 HTML 삽입
-      container.innerHTML = renderedHtml;
-      
-      // i18n 사용 가능한 경우 번역 적용
-      if (window.FileToQR && window.FileToQR.i18n) {
-        window.FileToQR.i18n.applyTranslations();
-      }
-      
-      console.log(`컴포넌트 로드 완료: ${componentName}`);
-      
+      container.innerHTML = compiledTemplate(templateData);
+      if (window.FileToQR && window.FileToQR.i18n) window.FileToQR.i18n.applyTranslations();
+      console.log(`[TemplateUtils] Component loaded: ${componentName}`);
       return true;
     } catch (error) {
-      console.error(`컴포넌트 로드 실패 (${componentName}): ${error.message}`);
+      console.error(`[TemplateUtils] Failed to load component (${componentName}): ${error.message}`);
       return false;
     }
   },
@@ -423,15 +316,12 @@ const TemplateUtils = {
    * @returns {string} 렌더링된 HTML
    */
   renderTemplate(template, data = {}) {
-    if (!Handlebars) {
-      throw new Error('Handlebars가 로드되지 않았습니다');
-    }
-    
+    if (!Handlebars) throw new Error('[TemplateUtils] Handlebars is not loaded, cannot render template.');
     try {
       const compiledTemplate = this.compileTemplate(template);
       return compiledTemplate(data);
     } catch (error) {
-      console.error('템플릿 렌더링 실패:', error);
+      console.error('[TemplateUtils] Template rendering failed:', error);
       throw error;
     }
   },
@@ -442,10 +332,7 @@ const TemplateUtils = {
    * @param {string} template - 파티셜 템플릿 문자열
    */
   registerPartial(name, template) {
-    if (!Handlebars) {
-      throw new Error('Handlebars가 로드되지 않았습니다');
-    }
-    
+    if (!Handlebars) throw new Error('[TemplateUtils] Handlebars is not loaded, cannot register partial.');
     Handlebars.registerPartial(name, template);
   },
 
@@ -461,6 +348,7 @@ const TemplateUtils = {
       this._templateCache = {};
       this._compiledTemplates = {};
     }
+    console.log(`[TemplateUtils] Cache cleared for: ${templatePath || 'all'}`);
   },
 
   /**
@@ -472,42 +360,34 @@ const TemplateUtils = {
    */
   renderTemplateElement(templateSelector, container, data = {}) {
     if (!Handlebars) {
-      console.error('Handlebars가 로드되지 않았습니다');
+      console.error('[TemplateUtils] Handlebars not loaded, cannot render template element.');
       return false;
     }
-    
     try {
       const templateElement = document.querySelector(templateSelector);
       if (!templateElement) {
-        console.error(`템플릿 요소를 찾을 수 없음: ${templateSelector}`);
+        console.error(`[TemplateUtils] Template element not found: ${templateSelector}`);
         return false;
       }
-      
       const template = templateElement.innerHTML;
       const compiledTemplate = this.compileTemplate(template, templateSelector);
-      const renderedHtml = compiledTemplate(data);
-      
-      container.innerHTML = renderedHtml;
-      
-      // i18n 사용 가능한 경우 번역 적용
-      if (window.FileToQR && window.FileToQR.i18n) {
-        window.FileToQR.i18n.applyTranslations();
-      }
-      
+      container.innerHTML = compiledTemplate(data);
+      if (window.FileToQR && window.FileToQR.i18n) window.FileToQR.i18n.applyTranslations();
       return true;
     } catch (error) {
-      console.error(`템플릿 렌더링 실패 (${templateSelector}): ${error.message}`);
+      console.error(`[TemplateUtils] Failed to render template element (${templateSelector}): ${error.message}`);
       return false;
     }
   }
 };
 
-// 템플릿 유틸리티를 전역 객체에 등록
-if (window.FileToQR) {
-  window.FileToQR.TemplateUtils = TemplateUtils;
+// 템플릿 유틸리티를 전역 객체에 등록 (app-core.js가 직접 import 하므로, 이 부분은 호환성 또는 다른 모듈용일 수 있음)
+if (typeof window !== 'undefined') {
+    window.FileToQR = window.FileToQR || {}; 
+    window.FileToQR.TemplateUtils = TemplateUtils;
+    console.log('[TemplateUtils] Successfully assigned to window.FileToQR.TemplateUtils');
 } else {
-  console.warn('FileToQR 전역 객체가 없어 TemplateUtils를 할당할 수 없습니다. app-core.js가 먼저 로드되어야 합니다.');
-  // 이 경우 app-core.js에서 직접 모듈을 사용해야 함
+  console.warn('[TemplateUtils] window object not found, cannot assign TemplateUtils globally.');
 }
 
 export default TemplateUtils; 
