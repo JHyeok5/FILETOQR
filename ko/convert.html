@@ -21,18 +21,20 @@
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
   <div id="header-container"></div>
-  <main id="main-container" class="flex-grow container mx-auto px-4 py-8">
+  <main id="main-container">
     <div class="converter-type-tabs mb-4">
       <button class="converter-type-btn" data-type="image">이미지</button>
       <button class="converter-type-btn" data-type="document">문서</button>
       <button class="converter-type-btn" data-type="audio">오디오</button>
       <button class="converter-type-btn" data-type="data">데이터</button>
     </div>
-    <label for="file-upload" class="block w-full cursor-pointer ...">파일 선택 또는 드래그</label>
-    <input type="file" id="file-upload" class="hidden" />
-    <div id="converter-options" class="mb-4"></div>
-    <div id="conversion-output" class="hidden"></div>
-    <button id="download-btn" class="hidden">다운로드</button>
+    <label for="file-upload" class="block w-full cursor-pointer p-4 border-2 border-dashed border-blue-300 rounded-lg text-center bg-white hover:bg-blue-50">
+        <span class="block text-lg font-medium mb-2">파일을 선택하거나 드래그하세요</span>
+        <input type="file" id="file-upload" class="hidden">
+      </label>
+      <div id="converter-options" class="mb-4"></div>
+      <div id="conversion-output" class="hidden"></div>
+    <button id="download-btn" class="hidden">변환 결과 다운로드</button>
   </main>
   <div id="footer-container"></div>
   <style>
