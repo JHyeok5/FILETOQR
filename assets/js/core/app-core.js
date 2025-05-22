@@ -698,14 +698,14 @@ async function loadPageScript(pageIdRaw) {
   let pageId = pageIdRaw;
   if (!pageId || pageId === '' || pageId === 'index') pageId = 'home';
   const pageScriptMap = {
-    'home': 'assets/js/pages/home.js',
-    'convert': 'assets/js/pages/convert.js',
-    'qrcode': 'assets/js/qr-generator/qr-generator.js',
-    'timer': 'assets/js/pages/timer.js',
-    'help': 'assets/js/pages/content.js',
-    'contact': 'assets/js/pages/content.js',
-    'privacy': 'assets/js/pages/content.js',
-    'terms': 'assets/js/pages/content.js'
+    'home': '/assets/js/pages/home.js',
+    'convert': '/assets/js/pages/convert.js',
+    'qrcode': '/assets/js/qr-generator/qr-generator.js',
+    'timer': '/assets/js/pages/timer.js',
+    'help': '/assets/js/pages/content.js',
+    'contact': '/assets/js/pages/content.js',
+    'privacy': '/assets/js/pages/content.js',
+    'terms': '/assets/js/pages/content.js'
   };
   const scriptUrl = pageScriptMap[pageId];
   if (!scriptUrl) {
