@@ -521,8 +521,8 @@ function register(name, component) {
    */
   async function loadDefaultComponents() {
     console.log('기본 컴포넌트(헤더/푸터) 로드 시작 (components.js)');
-    const headerSelector = 'body > header'; // 기본 헤더 컨테이너 (HTML에 이미 있어야 함)
-    const footerSelector = 'body > footer'; // 기본 푸터 컨테이너 (HTML에 이미 있어야 함)
+    const headerSelector = '#header-container'; // 헤더 컴포넌트가 삽입될 컨테이너 ID
+    const footerSelector = '#footer-container'; // 푸터 컴포넌트가 삽입될 컨테이너 ID
     const headerUrl = '/components/header.html';
     const footerUrl = '/components/footer.html';
 
@@ -530,69 +530,60 @@ function register(name, component) {
       const headerTarget = document.querySelector(headerSelector);
       const footerTarget = document.querySelector(footerSelector);
 
-      const loadPromises = [];
+      let headerPromise = Promise.resolve();
+      let footerPromise = Promise.resolve();
 
       if (headerTarget) {
-        console.log(`헤더 컴포넌트 로드 시도: ${headerUrl} -> ${headerSelector}`);
-        loadPromises.push(
-          insertComponent(headerSelector, headerUrl, 'replace').then(() => {
-            console.log('헤더 HTML 삽입 및 내부 스크립트 처리 완료.');
-            if (window.FileToQR && window.FileToQR.Header) {
-              if (typeof window.FileToQR.Header.initializeMobileMenuToggle === 'function') {
-                window.FileToQR.Header.initializeMobileMenuToggle();
-                console.log('헤더 모바일 메뉴 토글 초기화 호출 완료.');
-              }
-              // activateNavLinks는 app-core.js에서 i18n 및 PageManager 등의 초기화가 완료된 후 호출하는 것이
-              // 더 안전하므로 여기서는 호출하지 않습니다. app-core.js의 init 함수에서 처리합니다.
+        console.log(`[Components] Header container (${headerSelector}) found. Attempting to load header from ${headerUrl}`);
+        headerPromise = insertComponent(headerSelector, headerUrl, 'replace')
+          .then(() => {
+            console.log('[Components] Header HTML loaded and scripts (if any) executed.');
+            if (window.FileToQR && window.FileToQR.Header && typeof window.FileToQR.Header.initializeMobileMenuToggle === 'function') {
+              console.log('[Components] Initializing mobile menu toggle for header...');
+              window.FileToQR.Header.initializeMobileMenuToggle();
             } else {
-              console.warn('FileToQR.Header 네임스페이스 또는 초기화 함수를 찾을 수 없습니다.');
+              console.warn('[Components] window.FileToQR.Header.initializeMobileMenuToggle not found after header load.');
             }
-          }).catch(error => {
-            console.error('헤더 컴포넌트 로드 또는 초기화 중 오류:', error);
-            // 헤더 로드 실패 시에도 다른 컴포넌트 로드는 시도할 수 있도록 오류를 개별적으로 처리
+            // activateNavLinks는 app-core.js에서 페이지별 컨텐츠 로드 전에 호출될 것이므로 여기서는 호출하지 않음
           })
-        );
+          .catch(error => {
+            console.error(`[Components] Failed to load or initialize header into ${headerSelector}:`, error);
+          });
       } else {
-        console.warn(`기본 헤더를 삽입할 위치(${headerSelector})를 찾을 수 없습니다. HTML 구조를 확인하세요.`);
+        console.warn(`[Components] 기본 헤더를 삽입할 위치(${headerSelector})를 찾을 수 없습니다. HTML 구조를 확인하세요.`);
       }
 
       if (footerTarget) {
-        console.log(`푸터 컴포넌트 로드 시도: ${footerUrl} -> ${footerSelector}`);
-        loadPromises.push(
-          insertComponent(footerSelector, footerUrl, 'replace').then(() => {
-            console.log('푸터 HTML 삽입 및 내부 스크립트 처리 완료.');
+        console.log(`[Components] Footer container (${footerSelector}) found. Attempting to load footer from ${footerUrl}`);
+        footerPromise = insertComponent(footerSelector, footerUrl, 'replace')
+          .then(() => {
+            console.log('[Components] Footer HTML loaded and scripts (if any) executed.');
             if (window.FileToQR && window.FileToQR.Footer && typeof window.FileToQR.Footer.initializeFooter === 'function') {
+              console.log('[Components] Initializing footer specific logic...');
               window.FileToQR.Footer.initializeFooter();
-              console.log('푸터 초기화 함수 호출 완료.');
             } else {
-              console.warn('FileToQR.Footer 네임스페이스 또는 초기화 함수를 찾을 수 없습니다.');
+              console.warn('[Components] window.FileToQR.Footer.initializeFooter not found after footer load.');
             }
-          }).catch(error => {
-            console.error('푸터 컴포넌트 로드 또는 초기화 중 오류:', error);
           })
-        );
+          .catch(error => {
+            console.error(`[Components] Failed to load or initialize footer into ${footerSelector}:`, error);
+          });
       } else {
-        console.warn(`기본 푸터를 삽입할 위치(${footerSelector})를 찾을 수 없습니다. HTML 구조를 확인하세요.`);
+        console.warn(`[Components] 기본 푸터를 삽입할 위치(${footerSelector})를 찾을 수 없습니다. HTML 구조를 확인하세요.`);
       }
 
-      if (loadPromises.length > 0) {
-        // Promise.allSettled를 사용하여 일부 컴포넌트 로드 실패가 전체를 중단시키지 않도록 함
-        const results = await Promise.allSettled(loadPromises);
-        results.forEach(result => {
-          if (result.status === 'rejected') {
-            // 개별 프로미스에서 이미 오류 로깅을 했으므로 여기서는 추가 로깅 안 함
-          }
-        });
-        console.log('모든 요청된 기본 컴포넌트(헤더/푸터)의 로드 시도 완료 (components.js).');
-      } else {
-        console.log('로드할 기본 컴포넌트가 없거나, 대상 위치를 찾을 수 없습니다 (components.js).');
+      // 두 작업이 모두 완료될 때까지 기다림 (성공/실패 여부와 관계없이)
+      await Promise.allSettled([headerPromise, footerPromise]);
+
+      if (!headerTarget && !footerTarget) {
+        console.warn('로드할 기본 컴포넌트가 없거나, 대상 위치를 찾을 수 없습니다 (components.js).');
+        // 헤더/푸터 로드 실패 시에도 시스템이 중단되지는 않도록 처리
       }
+      console.log('기본 컴포넌트(헤더/푸터) 로드 시도 완료 (components.js).');
 
     } catch (error) {
-      // 이 catch 블록은 loadComponentHtml 또는 예측 못한 오류를 잡기 위함
-      console.error('기본 컴포넌트 로드 과정 중 예기치 않은 심각한 오류 발생:', error);
-      // 앱 초기화 과정에 영향을 줄 수 있으므로 오류를 다시 던질 수 있음
-      // throw error; 
+      console.error('기본 컴포넌트(헤더/푸터) 로드 중 예기치 않은 오류 발생 (components.js):', error);
+      // 여기서 throw를 하면 app-core.js의 전체 초기화가 중단될 수 있음. 이미 각 컴포넌트 로드 시 catch 있음.
     }
   }
   
