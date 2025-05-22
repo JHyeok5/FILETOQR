@@ -31,7 +31,9 @@ console.log('app-core.js 로딩 시작');
 import Config from './config.js';
 import UrlUtils from '../utils/url-utils.js';
 import I18n from '../utils/i18n-utils.js';
-import '/assets/js/core/components.js';
+import '../core/components.js';
+// TemplateUtils를 명시적으로 import합니다.
+import TemplateUtils from '../utils/template-utils.js';
 // 홈페이지 스크립트를 명시적으로 임포트하여 HomePage 객체를 사용 가능하도록 합니다.
 // 만약 HomePage가 전역 window.FileToQR.pages.home에 이미 할당된다면 이 import는 생략 가능합니다.
 // 하지만 명시적 임포트가 더 나은 모듈 관리 방식입니다.
@@ -94,33 +96,40 @@ async function init() {
     showLoadingIndicator();
 
     // 2. 유틸리티 모듈 초기화 (순서 중요)
-    console.log('기본 유틸리티 모듈 초기화 시작');
-    console.log('URL 유틸리티 초기화');
-    // URL 유틸리티는 자체 초기화 함수가 없으므로 넘어감
-    console.log('다국어 지원 초기화');
+    console.log('[AppCore] Core utility modules initialization started.');
+    console.log('[AppCore] URL Utils initialization (no specific init function needed).');
+    console.log('[AppCore] I18n Utils initialization started.');
     await I18n.init({
       useSavedLang: true,
       detectBrowserLang: true
     });
-    console.log('다국어 지원 초기화 완료.');
+    console.log('[AppCore] I18n Utils initialization completed.');
 
-    // 3. 템플릿 유틸리티 초기화 (공통 컴포넌트 로드 전에 필요할 수 있음)
-    if (typeof window.FileToQR !== 'undefined' && typeof window.FileToQR.TemplateUtils !== 'undefined' && typeof window.FileToQR.TemplateUtils.init === 'function') {
-      console.log('[AppCore] TemplateUtils found, attempting initialization...');
+    // 3. 템플릿 유틸리티 초기화 (components.js 보다 먼저 또는 동시에 로드될 수 있도록)
+    // TemplateUtils는 위에서 직접 import 했으므로, 이를 사용합니다.
+    if (TemplateUtils && typeof TemplateUtils.init === 'function') {
+      console.log('[AppCore] Imported TemplateUtils module found, attempting initialization...');
       try {
-        await window.FileToQR.TemplateUtils.init(); // This now throws a detailed error if Handlebars fails
-        console.log('[AppCore] TemplateUtils initialized successfully.');
-      } catch (error) {
-        // Log the detailed error from TemplateUtils.init() or Handlebars loading
-        console.error('[AppCore] CRITICAL: TemplateUtils initialization failed. Details:', error);
-        // Throw the original error to be caught by the main init() catch block
-        // This error will then be shown to the user via showErrorMessage()
-        throw error; 
+        // TemplateUtils.init()은 Promise를 반환하며, 성공 시 resolve, 실패 시 reject 합니다.
+        await TemplateUtils.init(); 
+        console.log('[AppCore] TemplateUtils.init() completed successfully.');
+      } catch (initError) {
+        // TemplateUtils.init() 자체가 실패한 경우 (e.g., Handlebars 로드 실패)
+        // initError는 template-utils.js의 init()에서 reject된 Error 객체입니다.
+        const specificMessage = initError.message || 'TemplateUtils.init()에서 원인 불명의 오류 발생';
+        const errorMsg = `[AppCore] CRITICAL: TemplateUtils.init() failed. Reason: ${specificMessage}`;
+        console.error(errorMsg, initError); // 전체 에러 객체도 로깅
+        // 사용자에게 표시될 오류 메시지는 initError.message (더 구체적) 또는 일반 메시지
+        showErrorMessage(initError.message || '필수 UI 라이브러리(TemplateUtils) 초기화에 실패했습니다. 페이지를 새로고침하거나 관리자에게 문의하십시오.');
+        throw initError; // 초기화 프로세스 중단 위해 에러 다시 throw
       }
     } else {
-      const errorMsg = '[AppCore] CRITICAL: TemplateUtils or its init function not found. Check if template-utils.js is loaded correctly.';
-      console.warn(errorMsg);
-      throw new Error('필수 UI 라이브러리(TemplateUtils) 구성 요소를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하세요.');
+      // 이 경우는 import TemplateUtils from '../utils/template-utils.js'; 자체가 실패했거나,
+      // 해당 모듈이 TemplateUtils 객체를 default export 하지 않거나, init 함수가 없는 경우입니다.
+      const errorMsg = '[AppCore] CRITICAL: Imported TemplateUtils module or its init function is not found. Check the import path and the template-utils.js module structure.';
+      console.error(errorMsg);
+      showErrorMessage('필수 UI 라이브러리(TemplateUtils) 구성 요소를 찾을 수 없습니다. 페이지를 새로고침하거나 관리자에게 문의하십시오.');
+      throw new Error(errorMsg); // 초기화 프로세스 중단
     }
     
     // 4. 헤더/푸터 동적 치환 및 내부 스크립트 실행 대기 (components.js)
