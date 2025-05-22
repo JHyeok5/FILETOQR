@@ -43,46 +43,90 @@ const ConvertPageController = {
   },
 
   /**
-   * 초기화 함수 (SPA 구조 대응)
+   * 초기화 함수 (SPA 구조 대응, 이벤트 위임 방식)
    * @param {boolean} force - true면 무조건 재초기화(이벤트 바인딩 포함)
    */
   async init(force = false) {
-    // force=true면 무조건 재초기화, 아니면 기존 state.initialized로 중복 방지
     if (this.state && this.state.initialized && !force) return;
     if (!this.state) this.state = {};
     this.state.initialized = true;
     try {
       console.log('파일 변환 페이지 초기화 중... (force:', force, ")");
-      // 기존 이벤트 바인딩 해제(중복 방지)
-      // 주요 바인딩 대상: .converter-type-btn, #file-upload, label[for="file-upload"], #download-btn 등
-      // 1. 변환 유형 버튼: 새로 cloneNode로 교체
-      const conversionTypeBtns = document.querySelectorAll('.converter-type-btn');
-      conversionTypeBtns.forEach(btn => {
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-      });
-      // 2. 파일 업로드 input
-      const fileUpload = document.getElementById('file-upload');
-      if (fileUpload) {
-        const newInput = fileUpload.cloneNode(true);
-        fileUpload.parentNode.replaceChild(newInput, fileUpload);
-      }
-      // 3. 드롭 영역
-      const dropArea = document.querySelector('label[for="file-upload"]');
-      if (dropArea) {
-        const newDrop = dropArea.cloneNode(true);
-        dropArea.parentNode.replaceChild(newDrop, dropArea);
-      }
-      // 4. 다운로드 버튼
-      const downloadBtn = document.getElementById('download-btn');
-      if (downloadBtn) {
-        const newBtn = downloadBtn.cloneNode(true);
-        downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
-      }
-      // 5. 기타 동적 생성 버튼(예: #convert-new-btn, #try-again-btn)은 동적으로 바인딩하므로 별도 처리 불필요
-      // UI 요소 초기화 및 이벤트 리스너 재등록
+      // UI 요소 초기화
       this._initUI();
-      this._registerEventListeners();
+      // 이벤트 위임 방식으로 한 번만 바인딩
+      const mainContainer = document.getElementById('main-container');
+      if (mainContainer && !mainContainer._convertDelegationBound) {
+        mainContainer.addEventListener('click', (e) => {
+          // 변환 유형 버튼
+          const typeBtn = e.target.closest('.converter-type-btn');
+          if (typeBtn) {
+            this._handleConversionTypeSelect(typeBtn.dataset.type);
+            return;
+          }
+          // 변환 시작 버튼
+          if (e.target.id === 'start-conversion-btn') {
+            this._startConversion();
+            return;
+          }
+          // 다운로드 버튼 (a 태그는 기본 동작)
+          // 새 파일 변환 버튼
+          if (e.target.id === 'convert-new-btn') {
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput) fileInput.value = '';
+            const outputElement = document.getElementById('conversion-output');
+            if (outputElement) outputElement.classList.add('hidden');
+            this.state.uploadedFile = null;
+            this.state.conversionInProgress = false;
+            return;
+          }
+          // 다시 시도 버튼
+          if (e.target.id === 'try-again-btn') {
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput) fileInput.value = '';
+            const outputElement = document.getElementById('conversion-output');
+            if (outputElement) outputElement.classList.add('hidden');
+            this.state.uploadedFile = null;
+            this.state.conversionInProgress = false;
+            return;
+          }
+        });
+        mainContainer.addEventListener('change', (e) => {
+          // 파일 업로드 input
+          if (e.target.id === 'file-upload') {
+            this._handleFileUpload(e.target.files[0]);
+            return;
+          }
+          // 변환 옵션 select
+          if (e.target.id === 'output-format') {
+            const startConversionBtn = document.getElementById('start-conversion-btn');
+            startConversionBtn.disabled = !e.target.value || !this.state.uploadedFile;
+            return;
+          }
+        });
+        // 드래그 앤 드롭(드롭 영역은 label[for="file-upload"])
+        const dropArea = mainContainer.querySelector('label[for="file-upload"]');
+        if (dropArea && !dropArea._convertDropBound) {
+          dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('bg-blue-100');
+          });
+          dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('bg-blue-100');
+          });
+          dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('bg-blue-100');
+            if (e.dataTransfer.files.length) {
+              const fileInput = document.getElementById('file-upload');
+              fileInput.files = e.dataTransfer.files;
+              this._handleFileUpload(e.dataTransfer.files[0]);
+            }
+          });
+          dropArea._convertDropBound = true;
+        }
+        mainContainer._convertDelegationBound = true;
+      }
       console.log('파일 변환 페이지 초기화 완료 (force:', force, ")");
     } catch (error) {
       console.error('파일 변환 페이지 초기화 실패:', error);
@@ -104,61 +148,6 @@ const ConvertPageController = {
     const conversionOutput = document.getElementById('conversion-output');
     if (conversionOutput) {
       conversionOutput.classList.add('hidden');
-    }
-  },
-
-  /**
-   * 이벤트 리스너 등록
-   * @private
-   */
-  _registerEventListeners() {
-    // 변환 유형 버튼 클릭 이벤트
-    const conversionTypeBtns = document.querySelectorAll('.converter-type-btn');
-    conversionTypeBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        this._handleConversionTypeSelect(e.currentTarget.dataset.type);
-      });
-    });
-
-    // 파일 업로드 이벤트
-    const fileUpload = document.getElementById('file-upload');
-    if (fileUpload) {
-      fileUpload.addEventListener('change', (e) => {
-        this._handleFileUpload(e.target.files[0]);
-      });
-    }
-
-    // 파일 드래그 앤 드롭 영역
-    const dropArea = document.querySelector('label[for="file-upload"]');
-    if (dropArea) {
-      dropArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropArea.classList.add('bg-blue-100');
-      });
-
-      dropArea.addEventListener('dragleave', () => {
-        dropArea.classList.remove('bg-blue-100');
-      });
-
-      dropArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropArea.classList.remove('bg-blue-100');
-        
-        if (e.dataTransfer.files.length) {
-          const fileInput = document.getElementById('file-upload');
-          fileInput.files = e.dataTransfer.files;
-          this._handleFileUpload(e.dataTransfer.files[0]);
-        }
-      });
-    }
-
-    // 다운로드 버튼 클릭 이벤트
-    const downloadBtn = document.getElementById('download-btn');
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', () => {
-        // 이미 버튼이 활성화된 상태라면 다운로드 처리는 버튼의 href에 의해 처리됨
-        console.log('다운로드 버튼 클릭됨');
-      });
     }
   },
 
@@ -686,6 +675,15 @@ const ConvertPageController = {
         }
         break;
     }
+  },
+
+  /**
+   * SPA 전환 시 기존 이벤트/상태 해제 (destroy)
+   * (이벤트 위임 방식에서는 실질적으로 불필요, 최소화)
+   */
+  destroy() {
+    this.state = { initialized: false };
+    console.log('ConvertPageController.destroy() 호출: 상태만 초기화');
   }
 };
 
