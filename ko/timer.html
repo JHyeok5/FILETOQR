@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="FileToQR - 타이머 페이지">
+  <meta name="description" content="온라인 타이머, 스톱워치, 뽀모도로 타이머. 사용하기 쉽고 정확합니다.">
   <meta name="keywords" content="QR 코드, 타이머, 무료, FileToQR">
-  <title>FileToQR - 타이머</title>
+  <title>타이머 & 스톱워치 - FileToQR</title>
   <link rel="stylesheet" href="/assets/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="alternate" hreflang="ko" href="/timer.html">
@@ -22,150 +22,81 @@
   <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
   <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <div id="header-container"></div>
-  <main id="main-container">
-    <div class="timer-tabs mb-4">
-      <button class="timer-tab-btn" data-type="timer">타이머</button>
-      <button class="timer-tab-btn" data-type="stopwatch">스톱워치</button>
-      <button class="timer-tab-btn" data-type="pomodoro">포모도로</button>
+<body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased font-sans">
+  <div id="header-container" class="sticky top-0 z-50"></div>
+
+  <div id="ad-header" class="ad-container my-4 text-center bg-slate-100 py-2">
+    <div class="ad-label text-xs text-slate-500">광고</div>
+    <div class="ad-slot">
+      <!-- 실제 광고 클라이언트 및 슬롯 ID로 교체하세요 -->
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="YYYYYYYYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
-    <div id="timer-app">
-      <!-- 타이머 탭 콘텐츠 -->
-      <div id="timer-tab-content" class="tab-content hidden p-4 sm:p-6 bg-white rounded-xl shadow-lg">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 pb-4 border-b border-slate-200">
-          <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-3 sm:mb-0">타이머</h2>
-          <button id="add-timer" class="btn btn-primary w-full sm:w-auto"><i class="fas fa-plus mr-2"></i>타이머 추가</button>
-        </div>
-        <div id="timers-list" class="space-y-6">
-          <!-- 동적으로 추가되는 타이머 아이템들이 여기에 위치합니다. -->
-          <!-- 타이머 아이템 템플릿 (JavaScript에서 복제하여 사용) -->
-          <template id="timer-item-template">
-            <div class="timer-item bg-slate-50 p-5 rounded-lg shadow-md border border-slate-200 transition-all duration-300 ease-in-out hover:shadow-lg" data-timer-id="">
-              <div class="timer-header flex justify-between items-start mb-4">
-                <input type="text" class="timer-label text-lg font-semibold text-slate-700 border-b-2 border-slate-300 focus:border-blue-500 outline-none py-1 flex-grow bg-transparent placeholder-slate-400" placeholder="타이머 이름 (예: 공부 시간)">
-                <button class="close-timer text-slate-400 hover:text-red-600 transition-colors p-1 -mr-1 -mt-1">
-                  <i class="fas fa-times fa-lg"></i>
-                </button>
-              </div>
-              <div class="timer-display text-6xl font-mono text-center my-6 py-4 bg-slate-100 rounded-lg text-slate-800 shadow-inner">
-                <span class="timer-hours">00</span>:<span class="timer-minutes">00</span>:<span class="timer-seconds">00</span>
-              </div>
-              <div class="time-inputs grid grid-cols-3 gap-3 mb-4">
-                <input type="number" class="hours-input form-input text-center appearance-none" min="0" max="99" value="0" aria-label="시간" placeholder="시">
-                <input type="number" class="minutes-input form-input text-center appearance-none" min="0" max="59" value="0" aria-label="분" placeholder="분">
-                <input type="number" class="seconds-input form-input text-center appearance-none" min="0" max="59" value="0" aria-label="초" placeholder="초">
-              </div>
-              <div class="preset-buttons flex flex-wrap justify-center gap-2 mb-5">
-                <button class="preset-btn btn btn-sm btn-light" data-minutes="5">5분</button>
-                <button class="preset-btn btn btn-sm btn-light" data-minutes="10">10분</button>
-                <button class="preset-btn btn btn-sm btn-light" data-minutes="15">15분</button>
-                <button class="preset-btn btn btn-sm btn-light" data-minutes="30">30분</button>
-                <button class="preset-btn btn btn-sm btn-light" data-hours="1">1시간</button>
-              </div>
-              <div class="timer-controls grid grid-cols-3 gap-3">
-                <button class="timer-start btn btn-success col-span-1"><i class="fas fa-play mr-1 sm:mr-2"></i> 시작</button>
-                <button class="timer-pause btn btn-warning col-span-1" disabled><i class="fas fa-pause mr-1 sm:mr-2"></i> 일시정지</button>
-                <button class="timer-reset btn btn-danger col-span-1"><i class="fas fa-redo mr-1 sm:mr-2"></i> 초기화</button>
-              </div>
-            </div>
-          </template>
-        </div>
-        <p id="request-notification-permission" class="text-sm text-slate-500 mt-6 p-3 bg-slate-100 rounded-md text-center hidden">
-          타이머 완료 시 알림을 받으려면 <button class="text-blue-600 hover:underline font-medium">알림 권한을 허용</button>해주세요.
-        </p>
-      </div>
-      <!-- 스톱워치 탭 콘텐츠 -->
-      <div id="stopwatch-tab-content" class="tab-content hidden p-4 sm:p-6 bg-white rounded-xl shadow-lg">
-        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 text-center pb-4 border-b border-slate-200">스톱워치</h2>
-        <div class="stopwatch-display text-5xl sm:text-7xl font-mono text-center mb-8 py-6 bg-slate-100 rounded-lg text-slate-800 shadow-inner">
-          <span id="stopwatch-hours">00</span>:<span id="stopwatch-minutes">00</span>:<span id="stopwatch-seconds">00</span>.<span id="stopwatch-milliseconds" class="text-3xl sm:text-4xl">00</span>
-        </div>
-        <div class="stopwatch-controls flex flex-wrap justify-center gap-3 mb-8">
-          <button id="stopwatch-start" class="btn btn-success btn-lg"><i class="fas fa-play mr-2"></i>시작</button>
-          <button id="stopwatch-pause" class="btn btn-warning btn-lg" disabled><i class="fas fa-pause mr-2"></i>일시정지</button>
-          <button id="stopwatch-reset" class="btn btn-danger btn-lg"><i class="fas fa-redo mr-2"></i>초기화</button>
-          <button id="stopwatch-lap" class="btn btn-info btn-lg" disabled><i class="fas fa-flag mr-2"></i>랩</button>
-        </div>
-        <div id="laps-container" class="bg-slate-50 p-4 rounded-lg shadow-sm">
-          <h3 class="text-lg font-semibold text-slate-700 mb-3">랩 기록</h3>
-          <ul id="laps-list" class="list-none space-y-2 max-h-60 overflow-y-auto">
-            <!-- 랩 기록이 여기에 추가됩니다. 예: <li class="lap-item text-sm text-slate-600 p-2 bg-white rounded shadow-xs">랩 1: 00:01:23.45</li> -->
-            <p class="text-slate-400 text-sm text-center py-4">랩 기록이 없습니다.</p>
-          </ul>
-        </div>
-      </div>
-      <!-- 포모도로 탭 콘텐츠 -->
-      <div id="pomodoro-tab-content" class="tab-content hidden p-4 sm:p-6 bg-white rounded-xl shadow-lg">
-        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-8 text-center pb-4 border-b border-slate-200">포모도로 타이머</h2>
-        
-        <div class="pomodoro-display text-center mb-8">
-          <div id="pomodoro-status-text" class="text-2xl font-semibold text-slate-700 mb-3">작업 시간</div>
-          <div id="pomodoro-current-mode-time" class="text-7xl sm:text-8xl font-mono text-blue-600 py-6 bg-slate-100 rounded-lg shadow-inner">25:00</div>
-          <div id="pomodoro-cycle-count" class="text-lg text-slate-500 mt-4">0/4 세션</div>
-        </div>
+  </div>
 
-        <div class="pomodoro-controls flex flex-wrap justify-center gap-3 mb-10">
-          <button id="pomodoro-start" class="btn btn-success btn-xl"><i class="fas fa-play mr-2"></i>시작</button>
-          <button id="pomodoro-pause" class="btn btn-warning btn-xl" disabled><i class="fas fa-pause mr-2"></i>일시정지</button>
-          <button id="pomodoro-reset" class="btn btn-danger btn-xl"><i class="fas fa-redo mr-2"></i>초기화</button>
-          <button id="pomodoro-skip" class="btn btn-info btn-xl"><i class="fas fa-forward mr-2"></i>건너뛰기</button>
-        </div>
+  <main id="main-container" class="flex-grow w-full mx-auto px-4 py-8 sm:py-12 max-w-3xl">
+    <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8 md:p-10">
+      <header class="mb-8 text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">타이머, 스톱워치 & 뽀모도로</h1>
+        <p class="mt-2 text-lg text-slate-600 leading-relaxed">다용도 타이머로 시간을 효과적으로 관리하세요.</p>
+      </header>
 
-        <div class="pomodoro-settings bg-slate-50 p-6 rounded-lg shadow-sm border border-slate-200 mb-8">
-          <h3 class="text-xl font-semibold mb-6 text-slate-700">포모도로 설정</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-            <div>
-              <label for="pomodoro-work-minutes" class="block text-sm font-medium text-slate-600 mb-1">작업 시간 (분)</label>
-              <input type="number" id="pomodoro-work-minutes" value="25" min="1" max="90" class="form-input w-full">
-            </div>
-            <div>
-              <label for="pomodoro-short-break-minutes" class="block text-sm font-medium text-slate-600 mb-1">짧은 휴식 (분)</label>
-              <input type="number" id="pomodoro-short-break-minutes" value="5" min="1" max="30" class="form-input w-full">
-            </div>
-            <div>
-              <label for="pomodoro-long-break-minutes" class="block text-sm font-medium text-slate-600 mb-1">긴 휴식 (분)</label>
-              <input type="number" id="pomodoro-long-break-minutes" value="15" min="1" max="60" class="form-input w-full">
-            </div>
-            <div>
-              <label for="pomodoro-cycles" class="block text-sm font-medium text-slate-600 mb-1">긴 휴식 전 세션 수</label>
-              <input type="number" id="pomodoro-cycles" value="4" min="1" max="12" class="form-input w-full">
-            </div>
-          </div>
-          <p class="text-xs text-slate-500 mt-4">
-            현재 설정: 작업 <span id="current-work-setting" class="font-medium">25</span>분 / 짧은 휴식 <span id="current-short-break-setting" class="font-medium">5</span>분 / 긴 휴식 <span id="current-long-break-setting" class="font-medium">15</span>분
-          </p>
-        </div>
+      <!-- 타이머 탭 -->
+      <nav class="timer-tabs mb-8 flex justify-center gap-2 sm:gap-3 border-b border-slate-200 pb-4">
+        <button class="timer-tab-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition active-tab" data-tab="timer">타이머</button>
+        <button class="timer-tab-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-tab="stopwatch">스톱워치</button>
+        <button class="timer-tab-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-tab="pomodoro">뽀모도로</button>
+      </nav>
 
-        <div class="pomodoro-notification-settings bg-slate-50 p-6 rounded-lg shadow-sm border border-slate-200">
-          <h3 class="text-xl font-semibold mb-6 text-slate-700">알림 설정</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 items-center">
-            <div>
-              <label for="pomodoro-notification-sound" class="block text-sm font-medium text-slate-600 mb-1">알림 소리</label>
-              <select id="pomodoro-notification-sound" class="form-select w-full">
-                <option value="bell">벨소리</option>
-                <option value="ding">딩동</option>
-                <option value="alarm">알람</option>
-                <option value="none">소리 없음</option>
-              </select>
-            </div>
-            <div>
-              <label for="pomodoro-notification-volume" class="block text-sm font-medium text-slate-600 mb-1">알림 볼륨 (<span id="pomodoro-volume-value">80</span>%)</label>
-              <input type="range" id="pomodoro-notification-volume" min="0" max="100" value="80" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer range-slider-thumb-blue">
-            </div>
-            <div class="md:col-span-2 flex items-center mt-2">
-              <input type="checkbox" id="pomodoro-auto-start" class="form-checkbox-sm">
-              <label for="pomodoro-auto-start" class="ml-2 text-sm font-medium text-slate-600">다음 세션 자동 시작</label>
-            </div>
-            <div class="md:col-span-2 flex items-center">
-              <input type="checkbox" id="pomodoro-background-notification" checked class="form-checkbox-sm">
-              <label for="pomodoro-background-notification" class="ml-2 text-sm font-medium text-slate-600">백그라운드 알림 활성화</label>
-            </div>
-          </div>
+      <!-- 타이머 섹션 -->
+      <section id="timer-section" class="timer-content text-center py-6">
+        <div class="timer-display text-6xl sm:text-7xl md:text-8xl font-mono font-bold text-slate-800 mb-6 tracking-wider">00:00:00</div>
+        <div class="mb-6 space-x-2 sm:space-x-4">
+          <input type="number" id="hours" min="0" placeholder="시" class="w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-center">
+          <input type="number" id="minutes" min="0" max="59" placeholder="분" class="w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-center">
+          <input type="number" id="seconds" min="0" max="59" placeholder="초" class="w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-center">
         </div>
-      </div>
+        <div class="space-x-2 sm:space-x-3">
+          <button id="start-timer" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition">시작</button>
+          <button id="pause-timer" class="px-6 py-2.5 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ui-theme-button-transition hidden">일시정지</button>
+          <button id="reset-timer" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 ui-theme-button-transition">초기화</button>
+        </div>
+      </section>
+
+      <!-- 스톱워치 섹션 -->
+      <section id="stopwatch-section" class="timer-content hidden text-center py-6">
+        <div class="stopwatch-display text-6xl sm:text-7xl md:text-8xl font-mono font-bold text-slate-800 mb-6 tracking-wider">00:00:00<span class="text-4xl md:text-5xl text-slate-500">.000</span></div>
+        <div class="space-x-2 sm:space-x-3 mb-6">
+          <button id="start-stopwatch" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition">시작</button>
+          <button id="pause-stopwatch" class="px-6 py-2.5 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ui-theme-button-transition hidden">일시정지</button>
+          <button id="reset-stopwatch" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 ui-theme-button-transition">초기화</button>
+          <button id="lap-stopwatch" class="px-6 py-2.5 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ui-theme-button-transition disabled:opacity-50" disabled>랩</button>
+        </div>
+        <div id="laps-list" class="text-left max-w-md mx-auto bg-slate-50 p-4 rounded-lg border border-slate-200 max-h-60 overflow-y-auto shadow-inner">
+          <h3 class="text-lg font-semibold text-slate-700 mb-2 sticky top-0 bg-slate-50 py-1">랩 기록:</h3>
+          <ul class="text-sm text-slate-600 space-y-1"></ul>
+        </div>
+      </section>
+
+      <!-- 뽀모도로 섹션 -->
+      <section id="pomodoro-section" class="timer-content hidden text-center py-6">
+        <div id="current-mode-time" class="text-6xl sm:text-7xl md:text-8xl font-mono font-bold text-slate-800 mb-4 tracking-wider">25:00</div>
+        <div id="current-mode-label" class="text-xl text-purple-600 font-semibold mb-6">작업 시간</div>
+        <div class="space-x-2 sm:space-x-3 mb-6">
+          <button id="start-pomodoro" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition">시작</button>
+          <button id="pause-pomodoro" class="px-6 py-2.5 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ui-theme-button-transition hidden">일시정지</button>
+          <button id="reset-pomodoro" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 ui-theme-button-transition">초기화</button>
+        </div>
+        <div class="text-sm text-slate-500">
+          완료한 사이클: <span id="pomodoro-cycles" class="font-semibold">0</span>
+        </div>
+        <div class="mt-4">
+            <button id="skip-pomodoro" class="px-4 py-1.5 text-sm bg-yellow-500 text-white font-medium rounded-md shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-400 ui-theme-button-transition">다음으로 건너뛰기</button>
+        </div>
+      </section>
     </div>
   </main>
+
   <div id="footer-container"></div>
   <script type="module" src="/assets/js/pages/timer.js"></script>
   <!-- <script>

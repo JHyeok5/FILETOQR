@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="텍스트, URL, 연락처 등 다양한 정보를 QR 코드로 즉시 생성하세요. FileToQR은 사용하기 쉬운 온라인 QR 코드 생성기입니다.">
   <meta name="keywords" content="QR 코드 생성, 온라인 QR 코드, 텍스트 QR, URL QR, vCard QR, FileToQR, 무료 QR 코드">
-  <title>FileToQR - QR 코드 생성</title>
+  <title>QR 코드 생성기 - FileToQR</title>
   <link rel="stylesheet" href="/assets/css/styles.css">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="alternate" hreflang="ko" href="/qrcode.html">
@@ -20,86 +20,115 @@
   <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
   <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script> 
   <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/pages/qrcode.js"></script>
+  <script type="module" src="/assets/js/qr-generator/qr-options-manager.js"></script>
+  <script type="module" src="/assets/js/qr-generator/qr-preview-updater.js"></script>
+  <script type="module" src="/assets/js/qr-generator/qr-dynamic-forms.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased">
-  <div id="header-container"></div>
-  <main id="main-container" class="flex-grow w-full mx-auto px-4 py-8 sm:py-12 md:py-16 max-w-7xl">
-    <header class="mb-10 md:mb-12 text-center">
-      <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl leading-tight">QR 코드 생성기</h1>
-      <p class="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">텍스트, URL, 연락처 등 다양한 정보를 QR 코드로 만들어보세요. 로고 삽입, 색상 변경 등 커스터마이징도 가능합니다.</p>
-    </header>
+<body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased font-sans">
+  <div id="header-container" class="sticky top-0 z-50"></div>
 
-    <!-- QR 코드 생성기 섹션 (index.html에서 가져옴) -->
-    <div id="qr-code-generator-section" class="qr-code-section-container my-0 md:my-0 py-12 md:py-16 bg-white rounded-2xl shadow-xl">
-      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-          <!-- 섹션 제목은 페이지 헤더에 이미 있으므로 여기서는 생략하거나 축소 -->
-          <!-- <h2 class="text-3xl sm:text-4xl font-bold text-center mb-10 md:mb-12 text-slate-900">QR 코드 생성기</h2> -->
-          <div class="qr-type-tabs mb-8 flex flex-wrap justify-center gap-2 sm:gap-3">
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out active-tab" data-type="text">텍스트</button> <!-- 기본 활성 탭 -->
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="url">URL</button>
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="vcard">vCard</button>
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="wifi">WiFi</button>
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="email">이메일</button>
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="tel">전화번호</button>
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="sms">SMS</button>
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="geo">위치</button>
-              <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out" data-type="file">파일</button>
-          </div>
-  
-          <div id="qr-generator-app" class="mt-4">
-              <div id="qr-form-container" class="mb-6 p-6 bg-slate-100 rounded-xl shadow-md">
-                  <p class="text-slate-500 text-center text-sm">위 탭에서 QR 코드 유형을 선택하세요.</p>
+  <div id="ad-header" class="ad-container my-4 text-center bg-slate-100 py-2">
+    <div class="ad-label text-xs text-slate-500">광고</div>
+    <div class="ad-slot">
+      <!-- 실제 광고 클라이언트 및 슬롯 ID로 교체하세요 -->
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="YYYYYYYYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+
+  <main id="main-container" class="flex-grow w-full mx-auto px-4 py-8 sm:py-12 max-w-6xl">
+    <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8 md:p-10">
+      <header class="mb-8 md:mb-10 text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">QR 코드 생성기</h1>
+        <p class="mt-2 text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">다양한 유형의 콘텐츠에 대한 맞춤형 QR 코드를 만드세요. 쉽고 빠르며 무료입니다!</p>
+      </header>
+
+      <!-- QR 코드 유형 탭 -->
+      <nav class="qr-type-tabs mb-8 flex flex-wrap justify-center gap-2 sm:gap-3 border-b border-slate-200 pb-6">
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="text">텍스트</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition active-tab" data-type="url">URL</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="vcard">vCard</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="wifi">WiFi</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="email">이메일</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="tel">전화번호</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="sms">SMS</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="geo">위치</button>
+        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ui-theme-button-transition" data-type="file">파일 (변환기 사용)</button>
+      </nav>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <!-- QR 폼 컨테이너 (동적 콘텐츠) -->
+        <div id="qr-form-container" class="md:col-span-2 p-6 bg-slate-50 rounded-xl shadow-md border border-slate-200">
+          <!-- 동적 폼 필드가 qr-dynamic-forms.js에 의해 여기에 로드됩니다 -->
+          <p class="text-slate-500 text-center">폼을 보려면 위에서 QR 코드 유형을 선택하세요.</p>
+        </div>
+
+        <!-- QR 옵션 및 미리보기 열 -->
+        <div class="md:col-span-1 space-y-6">
+          <!-- QR 코드 옵션 패널 -->
+          <section id="qr-options-container" class="p-6 bg-slate-50 rounded-xl shadow-md border border-slate-200">
+            <h3 class="text-xl font-semibold mb-5 text-slate-800">QR 코드 옵션</h3>
+            <div class="space-y-4">
+              <div>
+                <label for="qr-foreground-color" class="block text-sm font-medium text-slate-700 mb-1">전경색</label>
+                <input type="color" id="qr-foreground-color" value="#000000" class="w-full h-10 p-1 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                  <div id="qr-options-container" class="p-6 bg-slate-100 rounded-xl shadow-md">
-                      <h3 class="text-xl font-semibold mb-6 text-slate-800">QR 코드 옵션</h3>
-                      <div class="space-y-5">
-                          <div>
-                              <label for="qr-foreground-color" class="block text-sm font-medium text-slate-700 mb-1">전경색</label>
-                              <input type="color" id="qr-foreground-color" value="#000000" class="w-full h-10 p-1 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
-                          </div>
-                          <div>
-                              <label for="qr-background-color" class="block text-sm font-medium text-slate-700 mb-1">배경색</label>
-                              <input type="color" id="qr-background-color" value="#ffffff" class="w-full h-10 p-1 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
-                          </div>
-                          <div>
-                              <label for="qr-size" class="block text-sm font-medium text-slate-700 mb-1">크기 (px)</label>
-                              <input type="number" id="qr-size" value="256" min="64" max="1024" step="16" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
-                          </div>
-                          <div>
-                              <label for="qr-error-correction" class="block text-sm font-medium text-slate-700 mb-1">오류 복원 수준</label>
-                              <select id="qr-error-correction" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm bg-white">
-                                  <option value="L">낮음 (L)</option>
-                                  <option value="M" selected>중간 (M)</option>
-                                  <option value="Q">높음 (Q)</option>
-                                  <option value="H">최상 (H)</option>
-                              </select>
-                          </div>
-                          <div>
-                              <label for="qr-logo-upload" class="block text-sm font-medium text-slate-700 mb-1">로고 이미지 (선택 사항)</label>
-                              <input type="file" id="qr-logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-colors duration-150 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                              <img id="qr-logo-preview" src="#" alt="로고 미리보기" class="hidden mt-2 w-16 h-16 object-contain rounded-md border border-slate-200 bg-slate-50">
-                              <button id="qr-logo-remove" class="hidden mt-1 text-xs text-red-500 hover:text-red-700 underline focus:outline-none focus:ring-1 focus:ring-red-500 rounded">로고 제거</button>
-                          </div>
-                      </div>
-                  </div>
-                  <div id="qr-preview-container" class="p-6 bg-slate-100 rounded-xl shadow-md text-center flex flex-col justify-between">
-                      <div>
-                        <h3 class="text-xl font-semibold mb-4 text-slate-800">QR 코드 미리보기</h3>
-                        <div id="qr-code-display" class="mt-4 flex justify-center items-center min-h-[200px] sm:min-h-[256px] bg-white rounded-lg p-4 mb-4 border-2 border-dashed border-slate-300 aspect-square max-w-[256px] mx-auto overflow-hidden transition-all duration-200 ease-in-out">
-                            <p class="text-slate-400 text-sm">생성된 QR 코드가 여기에 표시됩니다.</p>
-                        </div>
-                      </div>
-                      <div id="qr-download-buttons-container" class="space-x-2 mt-auto pt-4">
-                          <button id="download-qr-png" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">PNG 다운로드</button>
-                          <button id="download-qr-svg" class="w-full sm:w-auto mt-2 sm:mt-0 px-6 py-2.5 bg-green-600 text-white font-medium rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">SVG 다운로드</button>
-                      </div>
-                  </div>
+              <div>
+                <label for="qr-background-color" class="block text-sm font-medium text-slate-700 mb-1">배경색</label>
+                <input type="color" id="qr-background-color" value="#ffffff" class="w-full h-10 p-1 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
               </div>
-          </div>
+              <div>
+                <label for="qr-size" class="block text-sm font-medium text-slate-700 mb-1">크기 (px)</label>
+                <input type="number" id="qr-size" value="256" min="64" max="1024" step="16" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm">
+              </div>
+              <div>
+                <label for="qr-error-correction" class="block text-sm font-medium text-slate-700 mb-1">오류 복원 수준</label>
+                <select id="qr-error-correction" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-150 ease-in-out shadow-sm bg-white">
+                  <option value="L">낮음 (L)</option>
+                  <option value="M" selected>중간 (M)</option>
+                  <option value="Q">보통 (Q)</option>
+                  <option value="H">높음 (H)</option>
+                </select>
+              </div>
+              <div>
+                <label for="qr-logo-upload" class="block text-sm font-medium text-slate-700 mb-1">로고 이미지 (선택 사항)</label>
+                <input type="file" id="qr-logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition-colors duration-150 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+                <img id="qr-logo-preview" src="#" alt="로고 미리보기" class="hidden mt-2 w-16 h-16 object-contain rounded-md border border-slate-200 bg-white">
+                <button id="qr-logo-remove" class="hidden mt-1 text-xs text-red-500 hover:text-red-700 underline focus:outline-none focus:ring-1 focus:ring-red-500 rounded">로고 제거</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- QR 코드 미리보기 및 다운로드 섹션 -->
+          <section id="qr-preview-container" class="p-6 bg-white rounded-xl shadow-xl text-center">
+            <h3 class="text-xl font-semibold mb-4 text-slate-800">QR 코드 미리보기</h3>
+            <div id="qr-code-display-wrapper" class="flex justify-center items-center min-h-[200px] sm:min-h-[256px] bg-slate-100 rounded-lg p-3 mb-6 border-2 border-dashed border-slate-300 aspect-square max-w-[280px] mx-auto overflow-hidden transition-all duration-200 ease-in-out">
+              <div id="qr-code-display" class="w-full h-full flex justify-center items-center">
+                <!-- QR 코드가 여기에 렌더링됩니다 -->
+                <p class="text-slate-400 text-sm p-4">콘텐츠를 입력하면 QR 코드가 여기에 나타납니다.</p>
+              </div>
+            </div>
+            <div id="qr-download-buttons-container" class="space-y-3 sm:space-y-0 sm:space-x-3">
+              <button id="download-qr-png" type="button" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                PNG 다운로드
+              </button>
+              <button id="download-qr-svg" type="button" class="w-full sm:w-auto px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                SVG 다운로드
+              </button>
+            </div>
+            <p id="qr-code-status" class="text-xs text-slate-500 mt-4">&nbsp;</p> <!-- 상태 메시지를 위한 자리 표시자 -->
+          </section>
+        </div>
       </div>
     </div>
   </main>
+
   <div id="footer-container"></div>
+  <script>
+    // qrcode.js는 탭, 폼 및 QR 생성에 대한 자체 특정 초기화를 처리해야 합니다.
+    // .active-tab 클래스 스타일이 styles.css 또는 Tailwind를 통해 선택된 탭에 대해 정의되었는지 확인합니다.
+    // 'ui-theme-button-transition' 클래스는 Tailwind 기본값 이외의 특정 전환이 필요한 경우를 위한 자리 표시자입니다.
+  </script>
 </body>
 </html>

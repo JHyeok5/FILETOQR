@@ -37,96 +37,118 @@
     })();
   </script>
 </head>
-<body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased">
-  <div id="header-container"></div>
-  <div id="ad-header" class="ad-container my-4 text-center">
+<body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased font-sans">
+  <div id="header-container" class="sticky top-0 z-50"></div>
+  <div id="ad-header" class="ad-container my-4 text-center bg-slate-100 py-2">
     <div class="ad-label text-xs text-slate-500">광고</div>
     <div class="ad-slot">
-      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="YYYYYYYYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
   </div>
-  <main id="main-container" class="flex-grow w-full mx-auto px-4 py-8 sm:py-12 md:py-16 max-w-7xl">
+  <main id="main-container" class="flex-grow w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 max-w-7xl">
     <section class="hero-section flex flex-col items-center justify-center text-center py-16 md:py-24 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl shadow-xl mb-16 md:mb-24 overflow-hidden">
       <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-16 md:h-20 mb-6 hero-logo-animation">
       <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-6 hero-title-animation leading-tight">파일을 QR 코드로, 쉽고 안전하게</h1>
-      <p class="text-lg sm:text-xl md:text-2xl text-slate-100 mb-10 hero-subtitle-animation max-w-2xl mx-auto">서버 업로드 없이, 브라우저에서 바로 파일을 변환하고 QR 코드로 공유하세요.</p>
+      <p class="text-lg sm:text-xl md:text-2xl text-slate-100 mb-10 hero-subtitle-animation max-w-2xl mx-auto leading-relaxed">서버 업로드 없이, 브라우저에서 바로 파일을 변환하고 QR 코드로 공유하세요.</p>
       <div>
-        <a href="#qr-generator-app" class="px-8 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-md hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-pink-500 focus:ring-white transition-transform transform hover:scale-105 text-lg hero-cta-animation">지금 바로 생성하기</a>
+        <a href="/ko/convert.html" class="px-8 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-md hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-pink-500 focus:ring-white transition-transform transform hover:scale-105 active:scale-95 text-lg hero-cta-animation">지금 바로 생성하기</a>
       </div>
     </section>
 
-    <section class="service-flow-section space-y-24 md:space-y-32 py-16 md:py-24">
-      <div class="feature flex flex-col md:flex-row items-center gap-8 md:gap-12 min-h-[70vh] md:min-h-[80vh] py-12 md:py-24 justify-center animate-scroll-fade-in opacity-0" data-step="1" id="feature-upload">
+    <section class="service-flow-section space-y-24 md:space-y-32 py-12 sm:py-16 lg:py-20">
+      <div class="feature flex flex-col md:flex-row items-center gap-8 md:gap-12 min-h-[60vh] md:min-h-[70vh] py-12 md:py-24 justify-center animate-scroll-fade-in opacity-0" data-step="1" id="feature-upload">
         <div class="flex-1 flex justify-center items-center p-6 md:p-8 order-1 md:order-none">
           <div class="w-24 h-24 md:w-32 md:h-32 bg-blue-100 rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-500 hover:scale-110">
             <svg class="w-12 h-12 md:w-16 md:h-16 text-blue-600" viewBox="0 0 96 96" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <rect x="16" y="16" width="64" height="80" rx="12"/>
-              <rect x="24" y="32" width="48" height="8" rx="2" fill="#fff"/>
-              <rect x="24" y="48" width="32" height="8" rx="2" fill="#fff"/>
-              <rect x="24" y="64" width="40" height="8" rx="2" fill="#fff"/>
-              <rect x="24" y="80" width="24" height="8" rx="2" fill="#fff"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M24 16C19.5817 16 16 19.5817 16 24V72C16 76.4183 19.5817 80 24 80H72C76.4183 80 80 76.4183 80 72V40C80 37.7909 78.2091 36 76 36C73.7909 36 72 37.7909 72 40V72H24V24H48C50.2091 24 52 22.2091 52 20C52 17.7909 50.2091 16 48 16H24ZM56 16C53.7909 16 52 17.7909 52 20V32C52 34.2091 53.7909 36 56 36H68C70.2091 36 72 34.2091 72 32V20C72 17.7909 70.2091 16 68 16H56ZM60 24H64V28H60V24Z" />
+              <path d="M24 48H48V52H24V48ZM24 60H56V64H24V60Z" />
             </svg>
           </div>
         </div>
         <div class="flex-1 flex flex-col items-center md:items-start justify-center text-center md:text-left order-2 md:order-none">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-blue-600 leading-snug">1. 파일을 드래그하거나 선택</h2>
-          <p class="text-slate-600 text-lg md:text-xl max-w-md">이미지, 문서, 오디오, 비디오 등 다양한 파일을 간편하게 업로드하세요. 안전하게 브라우저 내에서 처리됩니다.</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-blue-600 mb-4 leading-snug">1. 파일을 드래그하거나 선택</h2>
+          <p class="text-lg text-slate-600 md:text-xl max-w-md leading-8">이미지, 문서, 오디오, 비디오 등 다양한 파일을 간편하게 업로드하세요. 안전하게 브라우저 내에서 처리됩니다.</p>
         </div>
       </div>
-      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 min-h-[70vh] md:min-h-[80vh] py-12 md:py-24 justify-center animate-scroll-fade-in opacity-0" data-step="2" id="feature-qrcode">
+      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 min-h-[60vh] md:min-h-[70vh] py-12 md:py-24 justify-center animate-scroll-fade-in opacity-0" data-step="2" id="feature-qrcode">
         <div class="flex-1 flex justify-center items-center p-6 md:p-8 order-1 md:order-none">
           <div class="w-24 h-24 md:w-32 md:h-32 bg-purple-100 rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-500 hover:scale-110">
             <svg class="w-12 h-12 md:w-16 md:h-16 text-purple-600" viewBox="0 0 96 96" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <rect x="8" y="8" width="80" height="80" rx="16"/>
-              <rect x="20" y="20" width="16" height="16" fill="#fff"/>
-              <rect x="60" y="20" width="16" height="16" fill="#fff"/>
-              <rect x="20" y="60" width="16" height="16" fill="#fff"/>
-              <rect x="44" y="44" width="8" height="8" fill="#fff"/>
-              <rect x="60" y="60" width="8" height="8" fill="#fff"/>
-              <rect x="36" y="60" width="4" height="4" fill="#fff"/>
-              <rect x="60" y="36" width="4" height="4" fill="#fff"/>
+              <path d="M8 8H40V40H8V8ZM16 16V32H32V16H16Z" />
+              <path d="M8 56H40V88H8V56ZM16 64V80H32V64H16Z" />
+              <path d="M56 8H88V40H56V8ZM64 16V32H80V16H64Z" />
+              <path d="M56 56H64V64H56V56Z" />
+              <path d="M64 56H72V64H64V56Z" />
+              <path d="M72 56H80V64H72V56Z" />
+              <path d="M80 56H88V64H80V56Z" />
+              <path d="M56 64H64V72H56V64Z" />
+              <path d="M72 64H80V72H72V64Z" />
+              <path d="M56 72H64V80H56V72Z" />
+              <path d="M64 72H72V80H64V72Z" />
+              <path d="M72 72H80V80H72V72Z" />
+              <path d="M80 72H88V80H80V72Z" />
+              <path d="M56 80H64V88H56V80Z" />
+              <path d="M72 80H80V88H72V80Z" />
             </svg>
           </div>
         </div>
         <div class="flex-1 flex flex-col items-center md:items-start justify-center text-center md:text-left order-2 md:order-none">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-purple-600 leading-snug">2. QR 코드로 변환</h2>
-          <p class="text-slate-600 text-lg md:text-xl max-w-md">파일이 안전하게 QR 코드로 변환됩니다. 색상, 로고 등 다양하게 커스터마이징하세요!</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-purple-600 mb-4 leading-snug">2. QR 코드로 변환</h2>
+          <p class="text-lg text-slate-600 md:text-xl max-w-md leading-8">파일이 안전하게 QR 코드로 변환됩니다. 색상, 로고 등 다양하게 커스터마이징하세요!</p>
         </div>
       </div>
-      <div class="feature flex flex-col md:flex-row items-center gap-8 md:gap-12 min-h-[70vh] md:min-h-[80vh] py-12 md:py-24 justify-center animate-scroll-fade-in opacity-0" data-step="3" id="feature-share">
+      <div class="feature flex flex-col md:flex-row items-center gap-8 md:gap-12 min-h-[60vh] md:min-h-[70vh] py-12 md:py-24 justify-center animate-scroll-fade-in opacity-0" data-step="3" id="feature-share">
         <div class="flex-1 flex justify-center items-center p-6 md:p-8 order-1 md:order-none">
           <div class="w-24 h-24 md:w-32 md:h-32 bg-pink-100 rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-500 hover:scale-110">
             <svg class="w-12 h-12 md:w-16 md:h-16 text-pink-500" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="48" cy="48" r="40" fill="currentColor"/>
-              <path d="M48 32L48 64" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-              <path d="M48 32L60 44" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-              <path d="M48 32L36 44" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="48" cy="48" r="36" fill="currentColor"/>
+              <path d="M48 28 V68 M48 28 L64 44 M48 28 L32 44" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M36 60 H60" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
             </svg>
           </div>
         </div>
         <div class="flex-1 flex flex-col items-center md:items-start justify-center text-center md:text-left order-2 md:order-none">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-pink-500 leading-snug">3. 다운로드 & 공유</h2>
-          <p class="text-slate-600 text-lg md:text-xl max-w-md">생성된 QR 코드를 PNG 또는 SVG 파일로 다운로드하거나, 친구 및 동료와 바로 공유하세요.</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-pink-500 mb-4 leading-snug">3. 다운로드 & 공유</h2>
+          <p class="text-lg text-slate-600 md:text-xl max-w-md leading-8">생성된 QR 코드를 PNG 또는 SVG 파일로 다운로드하거나, 친구 및 동료와 바로 공유하세요.</p>
         </div>
       </div>
-      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 min-h-[70vh] md:min-h-[80vh] py-12 md:py-24 justify-center animate-scroll-fade-in" data-step="4" id="feature-mobile">
+      <div class="feature flex flex-col md:flex-row-reverse items-center gap-8 md:gap-12 min-h-[60vh] md:min-h-[70vh] py-12 md:py-24 justify-center animate-scroll-fade-in opacity-0" data-step="4" id="feature-mobile">
         <div class="flex-1 flex justify-center items-center p-6 md:p-8 order-1 md:order-none">
            <div id="svg-mobile-wrapper" class="w-24 h-24 md:w-32 md:h-32 bg-green-100 rounded-full flex items-center justify-center shadow-lg transform transition-transform duration-500 hover:scale-110">
             <svg class="w-12 h-12 md:w-16 md:h-16 text-green-500" id="svg-mobile" viewBox="0 0 96 96" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <rect x="24" y="12" width="48" height="72" rx="10"/>
               <rect x="32" y="20" width="32" height="48" rx="4" fill="#fff"/>
-              <circle cx="48" cy="72" r="4" fill="#10B981"/>
+              <circle cx="48" cy="76" r="4" fill="#10B981"/>
             </svg>
           </div>
         </div>
         <div class="flex-1 flex flex-col items-center md:items-start justify-center text-center md:text-left order-2 md:order-none">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-green-500 leading-snug">4. 모바일에서 스캔</h2>
-          <p class="text-slate-600 text-lg md:text-xl max-w-md">스마트폰으로 QR 코드를 스캔하여 파일을 바로 확인하거나, 링크를 열어볼 수 있습니다.</p>
+          <h2 class="text-3xl md:text-4xl font-bold text-green-500 mb-4 leading-snug">4. 모바일에서 스캔</h2>
+          <p class="text-lg text-slate-600 md:text-xl max-w-md leading-8">스마트폰으로 QR 코드를 스캔하여 파일을 바로 확인하거나, 링크를 열어볼 수 있습니다.</p>
         </div>
       </div>
     </section>
+
+    <section id="cta-section" class="py-16 md:py-24 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl shadow-inner">
+        <div class="max-w-3xl mx-auto text-center px-4">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl leading-snug">QR 코드 만들 준비가 되셨나요?</h2>
+            <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                아래 버튼을 클릭하여 QR 코드 생성 페이지로 이동하세요. 파일을 업로드하고 QR 코드를 맞춤 설정할 수 있습니다.
+            </p>
+            <div class="mt-10">
+                <a href="/ko/convert.html" 
+                   class="px-6 py-3 bg-blue-600 text-white text-lg font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105 active:scale-95">
+                    QR 생성기로 이동
+                </a>
+            </div>
+        </div>
+    </section>
   </main>
   <div id="footer-container"></div>
+  <script>
+    // 홈 페이지 특정 스크립트 초기화 (예: 스크롤 애니메이션)
+    // home.js가 자체 초기화를 처리하거나 app-core.js가 호출한다고 가정합니다.
+  </script>
 </body>
 </html>

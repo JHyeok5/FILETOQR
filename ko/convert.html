@@ -20,106 +20,108 @@
   <link rel="alternate" hreflang="x-default" href="convert.html">
   <link rel="stylesheet" href="/assets/css/tailwind-built.css">
   <script type="module" src="/assets/js/core/app-core.js"></script>
+  <script type="module" src="/assets/js/pages/converter.js"></script>
+  <script type="module" src="/assets/js/converters/file-converter-factory.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-  <div id="header-container"></div>
-  <main id="main-container">
-    <div class="converter-type-tabs mb-4">
-      <button class="converter-type-btn" data-type="image">이미지</button>
-      <button class="converter-type-btn" data-type="document">문서</button>
-      <button class="converter-type-btn" data-type="audio">오디오</button>
-      <button class="converter-type-btn" data-type="data">데이터</button>
+<body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased font-sans">
+  <div id="header-container" class="sticky top-0 z-50"></div>
+
+  <div id="ad-header" class="ad-container my-4 text-center bg-slate-100 py-2">
+    <div class="ad-label text-xs text-slate-500">광고</div>
+    <div class="ad-slot">
+      <!-- 실제 광고 클라이언트 및 슬롯 ID로 교체하세요 -->
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="YYYYYYYYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
-    <label for="file-upload" class="block w-full cursor-pointer p-4 border-2 border-dashed border-blue-300 rounded-lg text-center bg-white hover:bg-blue-50">
-        <span class="block text-lg font-medium mb-2">파일을 선택하거나 드래그하세요</span>
-        <input type="file" id="file-upload" class="hidden">
-      </label>
-      <div id="converter-options" class="my-4 p-6 bg-slate-100 rounded-xl shadow-md">
-        <!-- 초기 메시지 또는 선택된 탭에 따른 옵션 표시 -->
-        <p id="converter-options-placeholder" class="text-slate-500 text-center text-sm">상단 탭에서 변환할 파일 유형을 선택하세요.</p>
+  </div>
 
-        <!-- 이미지 변환 옵션 (기본 숨김) -->
-        <div id="image-converter-options" class="converter-option-group hidden space-y-4">
-          <h3 class="text-lg font-semibold text-slate-700">이미지 변환 옵션</h3>
+  <main id="main-container" class="flex-grow w-full mx-auto px-4 py-8 sm:py-12 max-w-4xl">
+    <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8 md:p-10">
+      <header class="mb-8 text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">파일 QR 코드 변환기</h1>
+        <p class="mt-2 text-lg text-slate-600 leading-relaxed">파일을 업로드하면 즉시 QR 코드를 생성해 드립니다.</p>
+      </header>
+
+      <!-- 파일 업로드 섹션 -->
+      <section id="file-upload-section" class="mb-8">
+        <h2 class="text-xl font-semibold text-slate-800 mb-4">1. 파일 업로드</h2>
+        <label for="file-upload" 
+               class="dropzone group flex flex-col items-center justify-center w-full h-64 p-6 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer bg-slate-50 hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200 ease-in-out">
+          <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-slate-400 group-hover:text-blue-500 transition-colors duration-200 ease-in-out" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-4 text-sm text-slate-500 group-hover:text-blue-600 transition-colors duration-200 ease-in-out">
+              <span class="font-semibold">클릭하여 업로드</span> 또는 드래그 앤 드롭
+            </p>
+            <p class="text-xs text-slate-400 group-hover:text-blue-500 transition-colors duration-200 ease-in-out">최대 파일 크기: 5MB. 지원 형식: JPG, PNG, PDF, TXT 등</p>
+          </div>
+          <input id="file-upload" name="file-upload" type="file" class="sr-only">
+        </label>
+        <div id="file-info-container" class="mt-4 text-sm text-slate-600 hidden">
+          <p><strong>파일:</strong> <span id="file-name"></span></p>
+          <p><strong>크기:</strong> <span id="file-size"></span></p>
+        </div>
+      </section>
+
+      <!-- 변환 옵션 섹션 (초기 숨김) -->
+      <section id="converter-options" class="mb-8 hidden">
+        <h2 class="text-xl font-semibold text-slate-800 mb-4">2. 변환 옵션 (선택 사항)</h2>
+        <div class="space-y-4 bg-slate-50 p-6 rounded-lg border border-slate-200">
           <div>
-            <label for="image-output-format" class="block text-sm font-medium text-slate-600 mb-1">출력 포맷</label>
-            <select id="image-output-format" name="image-output-format" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm bg-white">
-              <option value="png">PNG</option>
-              <option value="jpg">JPG</option>
-              <option value="webp">WEBP</option>
-              <option value="gif">GIF</option>
-              <option value="bmp">BMP</option>
+            <label for="error-correction" class="block text-sm font-medium text-slate-700 mb-1">오류 복원 수준:</label>
+            <select id="error-correction" name="error-correction" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm">
+              <option value="L">낮음 (L)</option>
+              <option value="M" selected>중간 (M)</option>
+              <option value="Q">보통 (Q)</option>
+              <option value="H">높음 (H)</option>
             </select>
           </div>
-          <div>
-            <label for="image-quality" class="block text-sm font-medium text-slate-600 mb-1">이미지 품질 (JPG/WEBP)</label>
-            <input type="range" id="image-quality" name="image-quality" min="1" max="100" value="90" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-            <span id="image-quality-value" class="text-sm text-slate-500">90</span>
-          </div>
-          <button id="start-image-conversion" class="w-full px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">이미지 변환 시작</button>
+          <!-- 필요시 추가 옵션 (예: QR 코드 크기, 색상, 로고) -->
         </div>
-
-        <!-- 문서 변환 옵션 (기본 숨김) -->
-        <div id="document-converter-options" class="converter-option-group hidden space-y-4">
-          <h3 class="text-lg font-semibold text-slate-700">문서 변환 옵션</h3>
-          <div>
-            <label for="document-output-format" class="block text-sm font-medium text-slate-600 mb-1">출력 포맷</label>
-            <select id="document-output-format" name="document-output-format" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm bg-white">
-              <option value="pdf">PDF</option>
-              <option value="docx">DOCX (Word)</option>
-              <option value="txt">TXT (텍스트)</option>
-            </select>
-          </div>
-          <button id="start-document-conversion" class="w-full px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">문서 변환 시작</button>
-        </div>
-
-        <!-- 오디오 변환 옵션 (기본 숨김) -->
-        <div id="audio-converter-options" class="converter-option-group hidden space-y-4">
-          <h3 class="text-lg font-semibold text-slate-700">오디오 변환 옵션</h3>
-          <div>
-            <label for="audio-output-format" class="block text-sm font-medium text-slate-600 mb-1">출력 포맷</label>
-            <select id="audio-output-format" name="audio-output-format" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm bg-white">
-              <option value="mp3">MP3</option>
-              <option value="wav">WAV</option>
-              <option value="ogg">OGG</option>
-              <option value="flac">FLAC</option>
-            </select>
-          </div>
-          <button id="start-audio-conversion" class="w-full px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">오디오 변환 시작</button>
-        </div>
-
-        <!-- 데이터 변환 옵션 (기본 숨김) -->
-        <div id="data-converter-options" class="converter-option-group hidden space-y-4">
-          <h3 class="text-lg font-semibold text-slate-700">데이터 변환 옵션</h3>
-          <div>
-            <label for="data-output-format" class="block text-sm font-medium text-slate-600 mb-1">출력 포맷</label>
-            <select id="data-output-format" name="data-output-format" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm bg-white">
-              <option value="csv">CSV</option>
-              <option value="json">JSON</option>
-              <!-- <option value="xml">XML</option> -->
-            </select>
-          </div>
-          <button id="start-data-conversion" class="w-full px-6 py-2.5 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">데이터 변환 시작</button>
-        </div>
-
+      </section>
+      
+      <!-- 실행 버튼: 변환 -->
+      <div class="text-center mb-8">
+          <button id="convert-btn" type="button" 
+                  class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105 active:scale-95 text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              QR 코드로 변환
+          </button>
       </div>
-      <div id="conversion-output" class="hidden mt-6 p-6 bg-slate-50 rounded-xl shadow">
-        <!-- 변환 결과가 여기에 표시될 수 있습니다. 예를 들어, 이미지 미리보기 또는 다운로드 링크 -->
-        <h3 class="text-lg font-semibold text-slate-700 mb-3">변환 결과</h3>
-        <div id="output-preview-area"></div>
-        <div id="output-download-area"></div>
-      </div>
-      <div id="conversion-progress-container" class="my-4 hidden">
-        <div class="flex justify-between mb-1">
-          <span id="conversion-progress-text" class="text-sm font-medium text-gray-700 dark:text-white">파일 변환 중...</span>
-          <span id="conversion-progress-percentage" class="text-sm font-medium text-gray-700 dark:text-white">0%</span>
+
+      <!-- 변환 진행률 섹션 (초기 숨김) -->
+      <section id="conversion-progress-container" class="mb-8 hidden">
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">처리 중...</h2>
+        <div class="w-full bg-slate-200 rounded-full h-4 overflow-hidden shadow-inner">
+          <div id="conversion-progress-bar" class="bg-blue-500 h-4 rounded-full transition-all duration-300 ease-out" style="width: 0%;"></div>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-          <div id="conversion-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+        <p id="progress-text" class="text-sm text-slate-500 mt-2 text-center">초기화 중...</p>
+      </section>
+
+      <!-- 변환 결과 섹션 (초기 숨김) -->
+      <section id="conversion-output" class="text-center hidden">
+        <h2 class="text-2xl font-semibold text-slate-800 mb-6">QR 코드가 준비되었습니다!</h2>
+        <div class="flex justify-center mb-6">
+          <div id="qr-code-display" class="p-4 bg-white border border-slate-200 rounded-lg shadow-md inline-block">
+            <!-- QR 코드는 JavaScript에 의해 여기에 렌더링됩니다 -->
+            <img id="qr-code-image" alt="생성된 QR 코드" class="max-w-xs mx-auto">
+          </div>
         </div>
-      </div>
-    <button id="download-btn" class="hidden">변환 결과 다운로드</button>
+        <div class="space-x-4">
+          <button id="download-qr-png" type="button" 
+                  class="px-4 py-2 bg-purple-600 text-white font-medium rounded-md shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+            PNG 다운로드
+          </button>
+          <button id="download-qr-svg" type="button" 
+                  class="px-4 py-2 border border-slate-300 text-slate-700 font-medium rounded-md shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition-colors duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+            SVG 다운로드
+          </button>
+        </div>
+        <p class="mt-6 text-sm text-slate-500">팁: QR 코드를 마우스 오른쪽 버튼으로 클릭하거나 길게 눌러 저장하거나 공유할 수도 있습니다.</p>
+      </section>
+    </div>
   </main>
+
   <div id="footer-container"></div>
   <style>
     /* 언어 선택기 스타일 */
