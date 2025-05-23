@@ -34,7 +34,7 @@ const importQRCodeLibrary = async (retryCount = 0) => {
   }
   
   // 로딩 상태 업데이트
-  const qrPreview = document.getElementById('qr-preview');
+  const qrPreview = document.getElementById('qr-code-display');
   if (qrPreview) {
     qrPreview.innerHTML = `
       <div class="loading-status text-center">
@@ -207,9 +207,9 @@ function showErrorMessage(messageKey, defaultMsg) {
     }
   }, 10000);
   // QR 프리뷰 영역에도 오류 표시
-  const qrPreview = document.getElementById('qr-preview');
-  if (qrPreview) {
-    qrPreview.innerHTML = `<div class="p-4 bg-red-100 text-red-800 rounded-lg"><h3 class="font-medium">${i18n ? i18n.translate('errors.errorOccurred', {}, '오류 발생') : '오류 발생'}</h3><p>${message}</p></div>`;
+  const qrPreviewDisplay = document.getElementById('qr-code-display');
+  if (qrPreviewDisplay) {
+    qrPreviewDisplay.innerHTML = `<div class="p-4 bg-red-100 text-red-800 rounded-lg"><h3 class="font-medium">${i18n ? i18n.translate('errors.errorOccurred', {}, '오류 발생') : '오류 발생'}</h3><p>${message}</p></div>`;
   }
 }
 
@@ -766,6 +766,32 @@ const QRGenerator = {
         }
       }
     });
+
+    // QR 생성 및 다운로드 버튼 이벤트 위임
+    appContainer.addEventListener('click', (e) => {
+      const target = e.target;
+
+      // QR 코드 생성 버튼 (모든 폼에 공통 클래스 .qr-generate-button 사용 가정)
+      if (target.matches('.qr-generate-button') || target.closest('.qr-generate-button')) {
+        e.preventDefault(); // 폼 기본 제출 방지
+        this._handleFormSubmit();
+        return;
+      }
+
+      // 다운로드 버튼들
+      if (target.id === 'download-png-btn' || (target.closest('#download-png-btn'))) {
+        this.downloadQRCode('png');
+        return;
+      }
+      if (target.id === 'download-svg-btn' || (target.closest('#download-svg-btn'))) {
+        this.downloadQRCode('svg');
+        return;
+      }
+      if (target.id === 'download-jpeg-btn' || (target.closest('#download-jpeg-btn'))) {
+        this.downloadQRCode('jpeg');
+        return;
+      }
+    });
     // body 레벨 이벤트 위임(이미 적용)
   },
 
@@ -914,7 +940,7 @@ const QRGenerator = {
   async _generateQRCode() {
     console.log('QRGenerator._generateQRCode 호출됨');
     
-    const qrPreview = document.getElementById('qr-preview');
+    const qrPreview = document.getElementById('qr-code-display');
     const downloadBtns = document.getElementById('download-options');
     
     if (!qrPreview) {
@@ -1085,7 +1111,7 @@ const QRGenerator = {
    * @private
    */
   _addLogoToCanvas(canvas) {
-    const qrPreview = document.getElementById('qr-preview');
+    const qrPreview = document.getElementById('qr-code-display');
     const downloadBtns = document.getElementById('download-buttons');
     
     if (!qrPreview) return;
@@ -1144,16 +1170,15 @@ const QRGenerator = {
    */
   _downloadQRCode(format) {
     if (!this.state.generatedQR) {
-      alert('먼저 QR 코드를 생성해주세요.');
+      showErrorMessage('qrcode.errors.generateFirst', '먼저 QR 코드를 생성해주세요.');
       return;
     }
     
     const canvas = this.state.generatedQR;
-    const content = this.state.currentOptions.content;
-    
+
     // 파일명 생성
     const filename = `qrcode_${new Date().getTime()}`;
-    
+
     if (format === 'png') {
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -1165,6 +1190,14 @@ const QRGenerator = {
     } else if (format === 'svg') {
       // 캔버스를 SVG로 변환
       this._canvasToSVG(canvas, `${filename}.svg`);
+    } else if (format === 'jpeg') { // Add JPEG support
+      const dataUrl = canvas.toDataURL('image/jpeg'); 
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `${filename}.jpeg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   },
   

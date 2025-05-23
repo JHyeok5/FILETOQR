@@ -39,6 +39,11 @@ import TemplateUtils from '../utils/template-utils.js';
 // 하지만 명시적 임포트가 더 나은 모듈 관리 방식입니다.
 // import HomePage from '../pages/home.js'; // 주석 처리: home.js가 HomePage를 전역으로 노출하므로
 
+// 페이지별 컨트롤러 임포트 (필요에 따라 동적 임포트 고려)
+// import ConvertPageController from '../pages/convert.js'; // 예시
+// import QRGenerator from '../qr-generator/qr-generator.js'; // 예시
+import TimerPageController from '../pages/timer.js';
+
 // 글로벌 네임스페이스 설정
 window.FileToQR = window.FileToQR || {};
 
@@ -272,17 +277,83 @@ function hideLoadingIndicator() {
  * @returns {Promise<void>}
  */
 async function initCurrentPage() {
+  const currentPageId = getCurrentPage();
+  console.log(`현재 페이지 ID: ${currentPageId}, 해당 페이지 초기화 시도...`);
+
   try {
-    const pageId = getCurrentPage();
-    console.log(`페이지별 초기화 시작 (app-core.js): ${pageId}`);
-    // loadPageScript는 pageId에 해당하는 스크립트를 로드하고 초기화 함수를 호출
-    await loadPageScript(pageId);
-    console.log(`${pageId} 페이지 초기화 완료 (app-core.js)`);
+    switch (currentPageId) {
+      case 'home': // 홈페이지
+        // HomePage.init()은 전역 window.FileToQR.pages.home.init()을 통해 호출되거나,
+        // 명시적 import 후 HomePage.init() 호출
+        if (window.FileToQR && window.FileToQR.pages && window.FileToQR.pages.home && typeof window.FileToQR.pages.home.init === 'function') {
+          console.log('HomePage 초기화 중...');
+          await window.FileToQR.pages.home.init();
+          console.log('HomePage 초기화 완료.');
+        } else {
+          console.warn('HomePage 또는 init 함수를 찾을 수 없습니다.');
+        }
+        break;
+      case 'convert': // 파일 변환 페이지
+        if (window.FileToQR && window.FileToQR.ConvertPageController && typeof window.FileToQR.ConvertPageController.init === 'function') {
+          console.log('ConvertPageController 초기화 중...');
+          await window.FileToQR.ConvertPageController.init();
+          console.log('ConvertPageController 초기화 완료.');
+        } else {
+           console.warn('ConvertPageController 또는 init 함수를 찾을 수 없습니다. convert.js가 로드되었는지, 전역에 노출되었는지 확인하세요.');
+           // 대체 또는 동적 로딩 시도
+           try {
+             const ConvertPageModule = await import('../pages/convert.js');
+             if (ConvertPageModule && ConvertPageModule.default && typeof ConvertPageModule.default.init === 'function') {
+               window.FileToQR.ConvertPageController = ConvertPageModule.default; // 전역 등록 (선택적)
+               console.log('ConvertPageController 동적 로드 및 초기화 중...');
+               await ConvertPageModule.default.init();
+               console.log('ConvertPageController 동적 로드 및 초기화 완료.');
+             } else {
+               console.error('convert.js 동적 로드 실패 또는 모듈 구조가 올바르지 않습니다.');
+             }
+           } catch (e) {
+             console.error('convert.js 동적 로드 중 오류:', e);
+           }
+        }
+        break;
+      case 'qrcode': // QR 코드 생성 페이지
+        if (window.FileToQR && window.FileToQR.QRGenerator && typeof window.FileToQR.QRGenerator.init === 'function') {
+            console.log('QRGenerator 초기화 중...');
+            await window.FileToQR.QRGenerator.init(); // QRGenerator 초기화
+            console.log('QRGenerator 초기화 완료.');
+            // 파일 QR 관련 초기화 (FileToQrCore.init())
+            if (window.FileToQR && window.FileToQR.FileToQrCore && typeof window.FileToQR.FileToQrCore.init === 'function') {
+                console.log('FileToQrCore 초기화 중 (qrcode 페이지)... ');
+                await window.FileToQR.FileToQrCore.init('file-dropzone-qr', 'file-upload-input-qr', 'file-upload-progress-container-qr', 'file-upload-progressbar-qr', 'file-upload-filename-qr', 'file-upload-percentage-qr', 'file-qr-status');
+                console.log('FileToQrCore 초기화 완료 (qrcode 페이지).');
+            } else {
+                console.warn('FileToQrCore 또는 그 init 함수를 찾을 수 없습니다.');
+            }
+        } else {
+            console.warn('QRGenerator 또는 그 init 함수를 찾을 수 없습니다.');
+        }
+        break;
+      case 'timer': // 타이머 페이지
+        console.log('TimerPageController 초기화 중...');
+        // TimerPageController가 정상적으로 import되었는지 확인
+        if (TimerPageController && typeof TimerPageController.init === 'function') {
+            await TimerPageController.init();
+            console.log('TimerPageController 초기화 완료.');
+        } else {
+            console.error('TimerPageController를 찾을 수 없거나 init 함수가 없습니다. timer.js를 확인하세요.');
+        }
+        break;
+      // case 'contact':
+      // case 'help':
+      // 등 다른 페이지에 대한 초기화 로직 추가
+      default:
+        console.log(`${currentPageId} 페이지에 대한 특정 초기화 로직이 없습니다.`);
+    }
   } catch (error) {
-    console.error(`페이지 초기화 실패 (app-core.js, 페이지 ID: ${getCurrentPage()}):`, error);
-    // 페이지별 초기화 실패 시 사용자에게 알릴 수 있지만, 앱 전체를 중단시키지는 않을 수 있음
-    // showErrorMessage(`페이지 '${getCurrentPage()}' 로딩 중 문제가 발생했습니다.`);
+    console.error(`${currentPageId} 페이지 초기화 중 오류 발생:`, error);
+    // 필요한 경우 사용자에게 오류 메시지 표시
   }
+  console.log('페이지별 모듈 초기화 완료.');
 }
 
 /**
