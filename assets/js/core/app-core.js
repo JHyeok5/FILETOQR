@@ -368,7 +368,7 @@ function getCurrentLanguage() {
  * 페이지 내 모든 내부 링크 업데이트
  */
 function updateInternalLinks() {
-  // 1. data-i18n-url이 있는 a 태그의 href를 실제 경로로 변환하고, 기존 이벤트 제거(복제/교체)
+  // 1. data-i18n-url이 있는 a 태그의 href만 올바르게 세팅
   const links = document.querySelectorAll('a[data-i18n-url]');
   links.forEach(link => {
     const urlKey = link.getAttribute('data-i18n-url');
@@ -379,70 +379,9 @@ function updateInternalLinks() {
       newHref = window.FileToQR.i18n.getUrlFromKey(urlKey);
     }
     if (newHref) link.setAttribute('href', newHref);
-    // 기존 이벤트 제거: 복제/교체 방식
-    const newLink = link.cloneNode(true);
-    link.parentNode.replaceChild(newLink, link);
+    // SPA 라우팅 이벤트 바인딩은 완전히 제거
   });
-
-  // 2. 다시 선택해서 SPA 라우팅 이벤트 바인딩 (내부 경로에만)
-  const newLinks = document.querySelectorAll('a[data-i18n-url]');
-  newLinks.forEach(link => {
-    const href = link.getAttribute('href');
-    if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
-    link.addEventListener('click', async function(e) {
-      // Ctrl/Shift/Meta 클릭, 새 탭 등은 기본 동작 허용
-      if (e.ctrlKey || e.shiftKey || e.metaKey || e.altKey || link.target === '_blank') return;
-      e.preventDefault();
-      // --- pageId 추출 보정 ---
-      let pageId = null;
-      try {
-        const urlParts = href.split('/');
-        let fileName = urlParts[urlParts.length - 1] || 'index.html';
-        if (fileName === '' || fileName === 'index.html') {
-          pageId = 'home';
-        } else if (fileName.endsWith('.html')) {
-          pageId = fileName.replace('.html', '');
-        } else {
-          pageId = 'home';
-        }
-      } catch (err) {
-        pageId = 'home';
-      }
-      const mainContainer = document.getElementById('main-container') || document.querySelector('main');
-      if (mainContainer) {
-        // [SPA 중복 UI 방지] 기존 main 내용 완전히 비움
-        mainContainer.innerHTML = '';
-        console.log('[SPA] main-container cleared for navigation to', href, 'at', new Date().toISOString());
-        // HTML 동적 로드
-        const response = await fetch(href);
-        if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + href);
-        const html = await response.text();
-        let tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
-        // 새 main 태그가 있으면 그 innerHTML만 삽입, 없으면 전체 삽입
-        let newMain = tempDiv.querySelector('main') || tempDiv;
-        mainContainer.innerHTML = newMain.innerHTML;
-        console.log('[SPA] main-container innerHTML set for', href, 'at', new Date().toISOString());
-        // [SPA 중복 UI 방지] main 내부에 main 태그가 중첩되어 있으면 첫 번째 main만 남기고 나머지 제거
-        const nestedMains = mainContainer.querySelectorAll('main');
-        if (nestedMains.length > 1) {
-          for (let i = 1; i < nestedMains.length; i++) {
-            nestedMains[i].remove();
-          }
-        }
-        // 주소 변경 (pushState)
-        window.history.pushState({}, '', href);
-        // 페이지별 JS 동적 로드 및 초기화
-        await loadPageScript(pageId);
-        // 내부 링크 재바인딩
-        updateInternalLinks();
-      } else {
-        window.location.href = href;
-      }
-    });
-  });
-
-  // 3. 기존 방식의 외부/상대 경로 a 태그도 동일하게 처리 (필요시)
+  // 외부 링크 처리 등은 기존대로 유지
   const externalLinks = document.querySelectorAll('a');
   externalLinks.forEach(link => {
     const href = link.getAttribute('href');
@@ -802,53 +741,6 @@ window.FileToQR.app = {
 // 그 안에서 DOMContentLoaded를 기다렸다가 init()을 호출하는 것이 안전합니다.
 document.addEventListener('DOMContentLoaded', () => {
   init();
-});
-
-// [SPA popstate 지원] 뒤로가기/앞으로가기 시 SPA 라우팅 재실행
-window.addEventListener('popstate', async function(event) {
-  try {
-    const currentUrl = window.location.pathname + window.location.search + window.location.hash;
-    // pageId 추출 로직 재사용
-    let pageId = null;
-    try {
-      const urlParts = currentUrl.split('/');
-      let fileName = urlParts[urlParts.length - 1] || 'index.html';
-      if (fileName === '' || fileName === 'index.html') {
-        pageId = 'home';
-      } else if (fileName.endsWith('.html')) {
-        pageId = fileName.replace('.html', '');
-      } else {
-        pageId = 'home';
-      }
-    } catch (err) {
-      pageId = 'home';
-    }
-    const mainContainer = document.getElementById('main-container') || document.querySelector('main');
-    if (mainContainer) {
-      mainContainer.innerHTML = '';
-      console.log('[SPA][popstate] main-container cleared for navigation to', currentUrl, 'at', new Date().toISOString());
-      const response = await fetch(currentUrl);
-      if (!response.ok) throw new Error('페이지 HTML 로드 실패: ' + currentUrl);
-      const html = await response.text();
-      let tempDiv = document.createElement('div');
-      tempDiv.innerHTML = html;
-      let newMain = tempDiv.querySelector('main') || tempDiv;
-      mainContainer.innerHTML = newMain.innerHTML;
-      console.log('[SPA][popstate] main-container innerHTML set for', currentUrl, 'at', new Date().toISOString());
-      const nestedMains = mainContainer.querySelectorAll('main');
-      if (nestedMains.length > 1) {
-        for (let i = 1; i < nestedMains.length; i++) {
-          nestedMains[i].remove();
-        }
-      }
-      await loadPageScript(pageId);
-      updateInternalLinks();
-    } else {
-      window.location.href = currentUrl;
-    }
-  } catch (e) {
-    console.error('[SPA][popstate] 처리 중 오류:', e);
-  }
 });
 
 export default window.FileToQR.app; 
