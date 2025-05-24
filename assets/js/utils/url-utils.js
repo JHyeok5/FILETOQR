@@ -301,7 +301,14 @@ const UrlUtils = {
       if (pathParts.length > 0 && supportedLangs.includes(pathParts[0])) {
         startIdx = 1;
       }
-      
+      // index.html 또는 /, /ko/, /en/ 등은 무조건 'home' 반환
+      if (
+        (pathParts.length === 0) ||
+        (pathParts.length === 1 && supportedLangs.includes(pathParts[0])) ||
+        (pathParts.length > startIdx && pathParts[pathParts.length - 1] === 'index.html')
+      ) {
+        return 'home';
+      }
       // 파일명 추출 (경로의 마지막 부분)
       if (pathParts.length > startIdx) {
         const fileName = pathParts[pathParts.length - 1];
@@ -309,12 +316,11 @@ const UrlUtils = {
         const pageId = fileName.replace(/\.html$/, '');
         return pageId;
       }
-      
       // 기본값 반환
-      return 'index';
+      return 'home';
     } catch (error) {
       console.error('페이지 ID 추출 중 오류:', error);
-      return 'index';
+      return 'home';
     }
   }
 };
