@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Tailwind base로 대체 불가한 부분만 유지. 나머지 커스텀 디자인용 CSS는 모두 삭제. */
 /* (예시) 접근성, 스크롤바, 특수 효과 등만 남김 */
 html {
