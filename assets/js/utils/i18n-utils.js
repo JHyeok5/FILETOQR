@@ -10,7 +10,6 @@
  */
 
 // 의존성
-import Config from '../core/config.js';
 import UrlUtils from './url-utils.js';
 
 // 전역 객체 설정
@@ -51,8 +50,8 @@ const I18nUtils = {
       
       // 구성 옵션 설정
       const defaultOptions = {
-        defaultLang: Config.LANGUAGE_CONFIG.defaultLanguage || 'ko',
-        supportedLangs: Config.LANGUAGE_CONFIG.supportedLanguages || ['ko', 'en', 'zh', 'ja'],
+        defaultLang: window.FileToQR.config.LANGUAGE_CONFIG.defaultLanguage || 'ko',
+        supportedLangs: window.FileToQR.config.LANGUAGE_CONFIG.supportedLanguages || ['ko', 'en', 'zh', 'ja'],
         loadTranslations: true,
         updateElements: true
       };
@@ -406,40 +405,31 @@ const I18nUtils = {
   getUrlFromKey(key, lang = null) {
     try {
       let pageId = null;
-
+      const Config = window.FileToQR.config;
       // 1. 키가 Config.PAGE_CONFIG.pages에 직접 페이지 ID로 존재하는지 확인
       if (Config.PAGE_CONFIG.pages[key]) {
         pageId = key;
-        // console.log(`[i18n] getUrlFromKey: 키 '${key}'를 페이지 ID로 직접 사용합니다.`);
       } else {
-        // 2. 키가 Config.PAGE_CONFIG.i18nKeys에 i18nKey로 등록되어 페이지 ID를 찾을 수 있는지 확인
         for (const [id, i18nVal] of Object.entries(Config.PAGE_CONFIG.i18nKeys)) {
           if (i18nVal === key) {
             pageId = id;
-            // console.log(`[i18n] getUrlFromKey: i18n 키 '${key}'를 통해 페이지 ID '${pageId}'를 찾았습니다.`);
             break;
           }
         }
       }
-
       if (!pageId) {
         console.warn(`[i18n] getUrlFromKey: 키 '${key}'에 해당하는 페이지 ID를 찾을 수 없습니다. Config.PAGE_CONFIG.pages 또는 Config.PAGE_CONFIG.i18nKeys를 확인하세요.`);
-        return '#'; // 또는 오류에 적합한 기본 URL 반환
+        return '#';
       }
-
-      // 페이지 ID로 HTML 경로 가져오기
       const pageHtmlPath = Config.getPageHtmlPath(pageId);
-
       if (!pageHtmlPath) {
         console.warn(`[i18n] getUrlFromKey: 페이지 ID '${pageId}'(원본 키: '${key}')에 해당하는 HTML 경로를 찾을 수 없습니다. Config.PAGE_CONFIG.pages를 확인하세요.`);
-        return '#'; // 또는 오류에 적합한 기본 URL 반환
+        return '#';
       }
-      
-      // HTML 경로와 언어를 사용하여 최종 URL 생성
       return UrlUtils.getI18nUrl(pageHtmlPath, lang);
     } catch (error) {
       console.error(`[i18n] getUrlFromKey('${key}', '${lang}') 처리 중 오류:`, error);
-      return '#'; // 오류 발생 시 기본 URL 반환
+      return '#';
     }
   }
 };
