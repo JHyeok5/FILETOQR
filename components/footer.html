@@ -1,93 +1,85 @@
 <!-- 
-  푸터 컴포넌트 - FileToQR 애플리케이션 
-  버전: 1.0.0
-  최종 업데이트: 2025년 7월 15일
+  푸터 컴포넌트 - FileToQR 애플리케이션 (리디자인)
+  UI 테마 가이드(.ai-guides/code/ui-theme-guide.md) 준수
 -->
-<footer class="bg-gray-100 mt-12">
-    <div class="container mx-auto px-4 py-8">
-        <div class="grid md:grid-cols-4 gap-8">
+<footer class="bg-slate-800 text-slate-200 mt-12">
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid md:grid-cols-4 gap-10 md:gap-8">
             <div>
-                <h3 class="text-lg font-semibold mb-4">FileToQR</h3>
-                <p class="text-gray-600 text-sm">파일 변환 및 QR 코드 생성 도구입니다. 쉽고 빠르게 파일을 변환하고 QR 코드를 생성하세요.</p>
+                <h3 class="text-xl font-bold mb-4 tracking-tight text-white">FileToQR</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">파일 변환 및 QR 코드 생성 도구입니다. 쉽고 빠르게 파일을 변환하고 QR 코드를 생성하세요.</p>
             </div>
             <div>
-                <h3 class="text-lg font-semibold mb-4">바로가기</h3>
+                <h3 class="text-lg font-semibold mb-4 text-slate-100">바로가기</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" data-i18n-url="home" class="text-gray-600 hover:text-blue-600">홈</a></li>
-                    <li><a href="#" data-i18n-url="convert" class="text-gray-600 hover:text-blue-600">파일 변환</a></li>
-                    <li><a href="#" data-i18n-url="qrcode" class="text-gray-600 hover:text-blue-600">QR 코드</a></li>
-                    <li><a href="#" data-i18n-url="timer" class="text-gray-600 hover:text-blue-600">타이머</a></li>
-                    <li><a href="#" data-i18n-url="help" class="text-gray-600 hover:text-blue-600">도움말</a></li>
-                    <li><a href="/lantern_game.html" class="text-gray-600 hover:text-blue-600">게임</a></li>
+                    <li><a href="#" data-i18n-url="home" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">홈</a></li>
+                    <li><a href="#" data-i18n-url="convert" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">파일 변환</a></li>
+                    <li><a href="#" data-i18n-url="qrcode" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">QR 코드</a></li>
+                    <li><a href="#" data-i18n-url="timer" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">타이머</a></li>
+                    <li><a href="#" data-i18n-url="help" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">도움말</a></li>
+                    <li><a href="/lantern_game.html" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">게임</a></li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-lg font-semibold mb-4">정책</h3>
+                <h3 class="text-lg font-semibold mb-4 text-slate-100">정책</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" data-i18n-url="privacy" class="text-gray-600 hover:text-blue-600">개인정보 처리방침</a></li>
-                    <li><a href="#" data-i18n-url="terms" class="text-gray-600 hover:text-blue-600">이용약관</a></li>
+                    <li><a href="#" data-i18n-url="privacy" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">개인정보 처리방침</a></li>
+                    <li><a href="#" data-i18n-url="terms" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">이용약관</a></li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-lg font-semibold mb-4">문의</h3>
+                <h3 class="text-lg font-semibold mb-4 text-slate-100">문의</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="#" data-i18n-url="contact" class="text-gray-600 hover:text-blue-600">문의하기</a></li>
+                    <li><a href="#" data-i18n-url="contact" class="text-slate-300 hover:text-blue-400 transition-colors duration-150">문의하기</a></li>
                 </ul>
+                <div class="flex space-x-4 mt-6">
+                    <!-- 소셜 아이콘 예시 (Heroicons/Feather 등 SVG) -->
+                    <a href="https://github.com/vibecoding/FileToQR" target="_blank" rel="noopener" aria-label="GitHub" class="hover:text-white transition-colors duration-150">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.867 8.166 6.839 9.489.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.529 2.341 1.088 2.91.832.091-.646.35-1.088.636-1.339-2.221-.253-4.555-1.111-4.555-4.945 0-1.092.39-1.987 1.029-2.686-.103-.253-.446-1.272.098-2.65 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.748-1.025 2.748-1.025.546 1.378.202 2.397.1 2.65.64.699 1.028 1.594 1.028 2.686 0 3.842-2.337 4.688-4.566 4.936.359.309.678.919.678 1.852 0 1.336-.012 2.417-.012 2.747 0 .268.18.579.688.481C19.135 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+                    </a>
+                    <!-- 추가 소셜 아이콘 필요시 여기에 SVG 추가 -->
+                </div>
             </div>
         </div>
-        <div class="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+        <div class="border-t border-slate-700 mt-10 pt-6 text-center text-slate-400 text-sm">
             <p>&copy; 2025 FileToQR. All rights reserved.</p>
         </div>
     </div>
-    
     <script>
         window.FileToQR = window.FileToQR || {};
         window.FileToQR.Footer = window.FileToQR.Footer || {};
-
         window.FileToQR.Footer.initializeFooter = function() {
             // basePath 변수가 없는 경우를 위한 폴백 스크립트
-            const links = document.querySelectorAll('footer a[href*="{{basePath}}"]'); // footer 내부의 링크만 선택하도록 수정
-            
+            const links = document.querySelectorAll('footer a[href*="{{basePath}}"]');
             if (links.length > 0) {
-                console.warn('푸터: basePath 변수가 처리되지 않았습니다. 폴백 방식으로 수정합니다.');
-                
                 links.forEach(link => {
                     const originalHref = link.getAttribute('href');
-                    const fixedHref = originalHref.replace('{{basePath}}', '.'); // 상대 경로로 수정
+                    const fixedHref = originalHref.replace('{{basePath}}', '.');
                     link.setAttribute('href', fixedHref);
-                    console.log(`푸터 링크 수정: ${originalHref} → ${fixedHref}`);
                 });
             }
-            
-            // RTL 지원을 위한 푸터 그리드 조정
             if (document.documentElement.getAttribute('dir') === 'rtl') {
                 const footerGrid = document.querySelector('footer .grid');
                 if (footerGrid) {
                     footerGrid.style.direction = 'rtl';
                 }
             }
-            
-            // 마지막 업데이트 날짜 지역화
             if (window.FileToQR && window.FileToQR.i18n) {
                 const lastUpdateElem = document.querySelector('[data-i18n="footer.lastUpdate"]');
                 if (lastUpdateElem) {
                     try {
                         const originalText = lastUpdateElem.textContent;
                         const dateMatch = originalText.match(/\d{4}년\s*\d{1,2}월\s*\d{1,2}일/);
-                        
                         if (dateMatch && dateMatch[0]) {
                             const dateStr = dateMatch[0].replace(/년|월|일/g, '-').replace(/\s+/g, '');
                             const date = new Date(dateStr);
-                            
                             if (!isNaN(date.getTime())) {
                                 const formattedDate = window.FileToQR.i18n.formatDate(date);
                                 const prefix = window.FileToQR.i18n.t('footer.lastUpdate').split(':')[0] || '최종 업데이트';
                                 lastUpdateElem.textContent = `${prefix}: ${formattedDate}`;
                             }
                         }
-                    } catch (e) {
-                        console.warn('날짜 지역화 실패:', e);
-                    }
+                    } catch (e) {}
                 }
             }
         };
