@@ -5,7 +5,32 @@
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
 </head>
 <body>
+    <div id="ranking-area" style="position: absolute; top: 10px; right: 10px; width: 220px; background-color: rgba(0,0,0,0.5); color: white; padding: 10px; font-family: sans-serif; font-size: 14px; border-radius: 5px;">
+        <h3>Local Ranking</h3>
+        <ol id="ranking-list" style="list-style-type: decimal; padding-left: 20px; margin-top: 5px; margin-bottom: 10px;"></ol>
+        <button id="clear-ranking-button" style="margin-top: 10px; padding: 5px; width: 100%; box-sizing: border-box;">Clear Ranking</button>
+    </div>
     <script>
+        // Function to display ranking
+        function displayRanking() {
+            const rankingListEl = document.getElementById('ranking-list');
+            const scores = JSON.parse(localStorage.getItem('lanternGameScores')) || [];
+            
+            rankingListEl.innerHTML = ''; // Clear existing list
+
+            if (scores && scores.length > 0) {
+                scores.forEach(score => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${score.nickname} - ${score.time}s (${score.date})`;
+                    rankingListEl.appendChild(listItem);
+                });
+            } else {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No scores yet!';
+                rankingListEl.appendChild(listItem);
+            }
+        }
+
         const config = {
             type: Phaser.AUTO,
             width: 800,
@@ -33,6 +58,17 @@
                         restitution: 0.1,
                         mass: 0.5
                     });
+
+                    // Game state variable
+                    let gameState = 'playing'; // 'playing', 'cleared', 'gameOver'
+
+                    // Timer variables
+                    let startTime = 0;
+                    let elapsedTime = 0;
+                    let timerText;
+
+                    // Score submission flag
+                    let scoreSubmitted = false;
 
                     // Tendril variables
                     let tendril = null;
@@ -81,8 +117,14 @@
                     memoryFragments.push(slantedRect);
                     drawVertices(fragmentGraphics, slantedRect);
 
+                    // Initialize and display timer text
+                    timerText = this.add.text(10, 10, 'Time: 0s', { fontSize: '16px', fill: '#fff' });
+                    startTime = this.time.now; // Start timer
+
                     // Mouse input events
                     this.input.on('pointerdown', (pointer) => {
+                        if (gameState !== 'playing') return; // Only allow input if playing
+
                         isTendrilActive = true;
                         const bodiesUnderPointer = Matter.Query.point(memoryFragments, { x: pointer.x, y: pointer.y });
 
@@ -108,6 +150,8 @@
                     });
 
                     this.input.on('pointerup', (pointer) => {
+                        if (gameState !== 'playing') return; // Only allow input if playing
+
                         isTendrilActive = false;
                         if (tendril) {
                             this.matter.world.remove(tendril);
@@ -115,9 +159,107 @@
                         }
                         tendrilGraphics.clear();
                     });
+
+                    // Display initial ranking
+                    displayRanking();
+
+                    // Add event listener for the clear ranking button
+                    const clearButton = document.getElementById('clear-ranking-button');
+                    if (clearButton) {
+                        clearButton.addEventListener('click', () => {
+                            if (confirm('Are you sure you want to clear all local scores?')) {
+                                localStorage.removeItem('lanternGameScores');
+                                displayRanking(); // Update the displayed ranking
+                                console.log('Local scores cleared.');
+                            }
+                        });
+                    }
                 },
                 update: function () {
-                    if (isTendrilActive && tendril && tendril.bodyB) {
+                    if (gameState === 'playing') {
+                        // Update elapsed time
+                        elapsedTime = Math.floor((this.time.now - startTime) / 1000);
+                        timerText.setText('Time: ' + elapsedTime + 's');
+
+                        // Game Clear Condition
+                        if (lanternSprite.y < 50) {
+                            gameState = 'cleared';
+                            console.log("Game Clear!");
+                            console.log('Final Time: ' + elapsedTime + 's');
+                            lanternSprite.setStatic(true);
+                            if (tendril) {
+                                this.matter.world.remove(tendril);
+                                tendril = null;
+                                tendrilGraphics.clear();
+                            }
+                            if (!scoreSubmitted) {
+                                scoreSubmitted = true;
+                                let playerName = prompt('Game Clear!\nFinal Time: ' + elapsedTime + 's\nEnter your 3-letter initials:', 'AAA');
+                                if (playerName && playerName.length > 0) {
+                                    playerName = playerName.substring(0, 3).toUpperCase();
+                                    const newScore = {
+                                        nickname: playerName,
+                                        time: elapsedTime,
+                                        date: new Date().toISOString().split('T')[0]
+                                    };
+                                    let scores = JSON.parse(localStorage.getItem('lanternGameScores')) || [];
+                                    scores.push(newScore);
+                                    scores.sort((a, b) => a.time - b.time);
+                                    if (scores.length > 10) {
+                                        scores = scores.slice(0, 10);
+                                    }
+                                    localStorage.setItem('lanternGameScores', JSON.stringify(scores));
+                                    console.log('Score saved:', newScore);
+                                    alert("Score saved! Refresh to play again.");
+                                    location.reload();
+                                } else {
+                                     alert("No name entered. Score not saved. Refresh to play again.");
+                                     location.reload();
+                                }
+                            }
+                        }
+
+                        // Game Over Condition
+                        if (lanternSprite.y > config.height + 50) {
+                            gameState = 'gameOver';
+                            console.log("Game Over!");
+                            console.log('Final Time: ' + elapsedTime + 's');
+                            lanternSprite.setStatic(true);
+                            if (tendril) {
+                                this.matter.world.remove(tendril);
+                                tendril = null;
+                                tendrilGraphics.clear();
+                            }
+                            if (!scoreSubmitted) {
+                                scoreSubmitted = true;
+                                let playerName = prompt('Game Over!\nFinal Time: ' + elapsedTime + 's\nEnter your 3-letter initials:', 'AAA');
+                                if (playerName && playerName.length > 0) {
+                                    playerName = playerName.substring(0, 3).toUpperCase();
+                                    const newScore = {
+                                        nickname: playerName,
+                                        time: elapsedTime,
+                                        date: new Date().toISOString().split('T')[0]
+                                    };
+                                    let scores = JSON.parse(localStorage.getItem('lanternGameScores')) || [];
+                                    scores.push(newScore);
+                                    scores.sort((a, b) => a.time - b.time);
+                                    if (scores.length > 10) {
+                                        scores = scores.slice(0, 10);
+                                    }
+                                    localStorage.setItem('lanternGameScores', JSON.stringify(scores));
+                                    console.log('Score saved:', newScore);
+                                    alert("Score saved! Refresh to play again.");
+                                    location.reload();
+                                } else {
+                                     alert("No name entered. Score not saved. Refresh to play again.");
+                                     location.reload();
+                                }
+                            }
+                        }
+                    }
+
+                    // Tendril drawing logic - only if playing and tendril is active
+                    if (gameState === 'playing' && isTendrilActive && tendril && tendril.bodyB) {
                         tendrilGraphics.clear();
                         tendrilGraphics.lineStyle(2, 0xffffff, 0.8); // thickness, color, alpha
                         tendrilGraphics.beginPath();
@@ -128,7 +270,7 @@
                         tendrilGraphics.lineTo(pointBWorldX, pointBWorldY);
                         tendrilGraphics.strokePath();
                     } else {
-                        tendrilGraphics.clear(); // Clear if tendril is not active or not attached
+                        tendrilGraphics.clear(); // Clear if not playing, tendril not active, or not attached
                     }
                 }
             }
