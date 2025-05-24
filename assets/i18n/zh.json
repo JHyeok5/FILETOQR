@@ -25,7 +25,8 @@
     "qrcode": "二维码",
     "timer": "计时器",
     "help": "帮助",
-    "contact": "联系我们"
+    "contact": "联系我们",
+    "game": "游戏"
   },
   "footer": {
     "about": "FileToQR",
@@ -41,7 +42,8 @@
     "qrcode": "二维码",
     "timer": "计时器",
     "help": "帮助",
-    "privacyPolicy": "隐私政策"
+    "privacyPolicy": "隐私政策",
+    "game": "游戏"
   },
   "home": {
     "hero": {
@@ -202,7 +204,8 @@
     "convert": "文件转换",
     "qrcode": "二维码",
     "timer": "计时器",
-    "help": "帮助"
+    "help": "帮助",
+    "game": "游戏"
   },
   "lang": {
     "ko": "韩语",
