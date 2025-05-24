@@ -486,6 +486,7 @@ function initLanguageSelector() {
       if (isOpen) {
         const firstOption = langDropdown.querySelector('.lang-option');
         if (firstOption) firstOption.focus();
+        // 드롭다운이 열릴 때 헤더 높이 고정 (absolute로 띄우므로 영향 없음)
       }
     });
 
@@ -551,17 +552,19 @@ function initLanguageSelector() {
       }
     });
     
-    // 언어 옵션 클릭/선택
+    // 언어 옵션 클릭/선택 시 드롭다운 자동 닫힘
     const langOptions = langDropdown.querySelectorAll('.lang-option');
     langOptions.forEach(option => {
       option.setAttribute('tabindex', '0'); // 키보드 포커스 가능하게
       option.addEventListener('click', function(e) {
         e.preventDefault();
         const lang = this.dataset.lang;
+        langSelector.classList.remove('open');
+        langToggle.setAttribute('aria-expanded', 'false');
+        langDropdown.setAttribute('aria-hidden', 'true');
         if (window.FileToQR.i18n && typeof window.FileToQR.i18n.navigateToLanguage === 'function') {
           window.FileToQR.i18n.navigateToLanguage(lang);
         } else {
-          console.error('I18n.navigateToLanguage 함수를 찾을 수 없습니다.');
           // 폴백: 직접 URL 변경
           const currentPath = window.location.pathname;
           const pageName = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'index.html';

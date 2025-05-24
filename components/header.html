@@ -80,6 +80,27 @@
     .nav-link.active, .nav-link[aria-current="page"] {
         @apply text-blue-600 bg-blue-50 font-bold shadow-sm;
     }
+    /* 언어 드롭다운을 헤더 내에서 absolute로 띄우고, z-index를 충분히 높게 설정 */
+    .language-selector {
+        position: relative;
+    }
+    .lang-dropdown-content {
+        position: absolute;
+        top: 110%;
+        right: 0;
+        min-width: 180px;
+        z-index: 1000;
+        box-shadow: 0 8px 24px rgba(30,41,59,0.10), 0 1.5px 4px rgba(30,41,59,0.08);
+        display: none;
+    }
+    .language-selector.open .lang-dropdown-content {
+        display: block;
+        animation: fadeIn 0.18s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 <script>
     window.FileToQR = window.FileToQR || {};
