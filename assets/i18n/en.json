@@ -38,7 +38,8 @@
     "help": "/en/help.html",
     "contact": "/en/contact.html",
     "privacy": "/en/privacy.html",
-    "terms": "/en/terms.html"
+    "terms": "/en/terms.html",
+    "game": "/game/index.html"
   },
   "meta": {
     "description": "File conversion and QR code generation platform. Convert images, documents, audio and more, and create customized QR codes.",
@@ -50,7 +51,8 @@
     "qrcode": "QR Code",
     "timer": "Timer",
     "help": "Help",
-    "contact": "Contact"
+    "contact": "Contact",
+    "game": "Game"
   },
   "footer": {
     "brand": "FileToQR",
@@ -69,7 +71,8 @@
     "timer": "Timer",
     "help": "Help",
     "privacyPolicy": "Privacy Policy",
-    "lastUpdate": "Last updated: May 2, 2025"
+    "lastUpdate": "Last updated: May 2, 2025",
+    "game": "Game"
   },
   "home": {
     "hero": {
