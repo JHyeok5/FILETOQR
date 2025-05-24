@@ -1,92 +1,33 @@
 /**
  * QR 코드 생성기 컴포넌트 스타일
  * 버전: 1.0.0
- * 최종 업데이트: 2025-05-14
+ * 최종 업데이트: 2025-05-14 -> (Refactored with Tailwind CSS)
  */
 
-/* QR 코드 프리뷰 스타일 */
-.qr-preview-container {
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
-  aspect-ratio: 1 / 1;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9f9f9;
-  overflow: hidden;
-}
+/* QR 코드 프리뷰 스타일 - Tailwind로 대체 */
+/* .qr-preview-container { ... } */
 
-/* 컬러 픽커 스타일 */
-.color-picker {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  overflow: hidden;
-  cursor: pointer;
-}
+/* 컬러 픽커 스타일 - Tailwind로 대체 */
+/* .color-picker { ... } */
+/* .color-picker input[type=\"color\"] { ... } */
 
-.color-picker input[type="color"] {
-  border: 0;
-  padding: 0;
-  width: 150%;
-  height: 150%;
-  transform: translate(-10%, -10%);
-  cursor: pointer;
-}
+/* 로고 미리보기 스타일 - Tailwind로 대체 */
+/* .logo-preview { ... } */
 
-/* 로고 미리보기 스타일 */
-.logo-preview {
-  width: 60px;
-  height: 60px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  object-fit: contain;
-  background-color: #fff;
-}
+/* 입력 타입 전환 탭 스타일 - Tailwind 및 JS로 대체 */
+/* .content-type-tabs { ... } */
+/* .content-type-tabs button { ... } */
+/* .content-type-tabs button.active { ... } */
+/* .content-type-tabs button:hover:not(.active) { ... } */
 
-/* 입력 타입 전환 탭 스타일 */
-.content-type-tabs {
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
-.content-type-tabs button {
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  border-bottom: 2px solid transparent;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.content-type-tabs button.active {
-  border-bottom: 2px solid #3B82F6;
-  color: #3B82F6;
-}
-
-.content-type-tabs button:hover:not(.active) {
-  border-bottom: 2px solid #e2e8f0;
-  color: #4B5563;
-}
-
-/* 숨김 및 표시 클래스 */
+/* 폼 표시/숨김 및 애니메이션 */
 .content-form {
-  display: none;
+  display: none; /* JS or Tailwind's hidden class will manage this */
 }
 
 .content-form.active {
   display: block;
-  animation: fadeIn 0.3s;
+  animation: fadeIn 0.3s ease-out; /* Apply fade in when made active by JS */
 }
 
 @keyframes fadeIn {
@@ -94,123 +35,29 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 다운로드 옵션 스타일 */
-#download-options {
-  opacity: 0;
-  height: 0;
-  overflow: hidden;
-  transition: opacity 0.3s, height 0.3s;
-}
+/* 다운로드 옵션 스타일 - Tailwind로 대체 */
+/* #download-options { ... } */
+/* #download-options.visible { ... } */
+/* .download-button { ... } */
+/* .download-button:hover { ... } */
+/* .download-button svg { ... } */
+/* .download-button:hover svg { ... } */
 
-#download-options.visible {
-  opacity: 1;
-  height: auto;
-  overflow: visible;
-}
+/* 설정 그룹 스타일 - Tailwind로 대체 */
+/* .settings-group { ... } */
+/* .settings-group-title { ... } */
 
-.download-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  transition: all 0.2s;
-  cursor: pointer;
-}
+/* 파일 업로드 스타일 - Tailwind로 대체 (vCard 등 동적 필드 외) */
+/* .file-input-wrapper { ... } */
+/* .file-input-label { ... } */
+/* .file-input-label:hover { ... } */
+/* .file-input-label svg { ... } */
+/* .file-input { ... } */
 
-.download-button:hover {
-  background-color: #f5f9ff;
-  border-color: #3B82F6;
-}
+/* 반응형 조정 - Tailwind가 처리 */
+/* @media (max-width: 768px) { ... } */
 
-.download-button svg {
-  width: 2rem;
-  height: 2rem;
-  margin-bottom: 0.5rem;
-  color: #4B5563;
-}
-
-.download-button:hover svg {
-  color: #3B82F6;
-}
-
-/* 설정 그룹 스타일 */
-.settings-group {
-  margin-bottom: 1.5rem;
-}
-
-.settings-group-title {
-  font-weight: 500;
-  margin-bottom: 0.75rem;
-  color: #4B5563;
-  font-size: 0.875rem;
-}
-
-/* 파일 업로드 스타일 */
-.file-input-wrapper {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.file-input-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  background-color: #f9fafb;
-  border: 1px dashed #d1d5db;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.file-input-label:hover {
-  background-color: #f3f4f6;
-  border-color: #9ca3af;
-}
-
-.file-input-label svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: #6b7280;
-  margin-right: 0.5rem;
-}
-
-.file-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-/* 반응형 조정 */
-@media (max-width: 768px) {
-  .content-type-tabs {
-    overflow-x: auto;
-    white-space: nowrap;
-    display: flex;
-    margin-bottom: 1rem;
-    padding-bottom: 0.25rem;
-  }
-  
-  .content-type-tabs button {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-  }
-  
-  .download-button svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-}
+/* --- 유지되는 스타일 --- */
 
 /* 토스트 메시지 스타일 */
 .toast {
@@ -218,10 +65,10 @@
   bottom: 20px;
   right: 20px;
   max-width: 350px;
-  background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
-  z-index: 9999;
+  background-color: white; /* bg-white */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* shadow-lg */
+  border-radius: 6px; /* rounded-md */
+  z-index: 9999; /* z-[9999] or higher if needed */
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -229,35 +76,37 @@
 }
 
 .toast-content {
-  padding: 12px 16px;
+  padding: 12px 16px; /* p-3 sm:p-4 */
   display: flex;
   align-items: center;
   flex: 1;
 }
 
 .toast-error {
-  border-left: 4px solid #EF4444;
+  border-left: 4px solid #EF4444; /* border-l-4 border-red-500 */
 }
 
 .toast-success {
-  border-left: 4px solid #10B981;
+  border-left: 4px solid #10B981; /* border-l-4 border-green-500 */
 }
 
 .toast-info {
-  border-left: 4px solid #3B82F6;
+  border-left: 4px solid #3B82F6; /* border-l-4 border-blue-500 */
 }
 
 .toast-close {
-  background: none;
+  padding: 8px 12px; /* px-3 py-2 */
+  background: transparent;
   border: none;
-  padding: 8px 12px;
-  font-size: 18px;
-  color: #6B7280;
+  font-size: 1.25rem; /* text-xl */
+  line-height: 1;
+  color: #6b7280; /* text-slate-500 */
   cursor: pointer;
+  transition: color 0.15s ease-in-out;
 }
 
 .toast-close:hover {
-  color: #1F2937;
+  color: #1f2937; /* text-slate-800 */
 }
 
 .toast-closing {
@@ -286,68 +135,45 @@
   }
 }
 
-/* 로딩 상태 스타일 */
+/* 로딩 상태 및 스피너 (qr-generator.js에서 QR 라이브러리 로드 시 사용) */
 .loading-status {
-  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2rem; /* p-8 */
+  text-align: center;
+  color: #6b7280; /* text-slate-500 */
 }
 
 .spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid rgba(59, 130, 246, 0.2);
-  border-top-color: #3B82F6;
-  border-radius: 50%;
+  width: 2rem; /* w-8 */
+  height: 2rem; /* h-8 */
+  border: 3px solid rgba(156, 163, 175, 0.3); /* border-3 border-slate-400/30 */
+  border-radius: 50%; /* rounded-full */
+  border-top-color: #6366f1; /* border-t-purple-600 (or theme color) */
   animation: spin 1s linear infinite;
+  margin-bottom: 0.75rem; /* mb-3 */
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* 오류 메시지 스타일 */
+/* 오류 메시지 (일반적인 오류 표시에 사용될 수 있음) */
 .error-message {
-  padding: 20px;
-  color: #EF4444;
-  background-color: #FEF2F2;
-  border-radius: 6px;
-  text-align: center;
-}
-
-/* 반응형 조정 */
-@media (max-width: 768px) {
-  .toast {
-    max-width: calc(100% - 32px);
-    left: 16px;
-    right: 16px;
-  }
-}
-
-/* QR Code Generator Specific Generate Button Style */
-.qr-generate-button {
-  background-color: #2563eb; /* blue-600 */
-  color: white;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem; /* px-4 py-3 */
+  background-color: #fee2e2; /* bg-red-100 */
+  color: #b91c1c; /* text-red-700 */
+  border: 1px solid #fca5a5; /* border-red-300 */
   border-radius: 0.375rem; /* rounded-md */
-  font-weight: 500; /* medium */
-  text-align: center;
-  transition: background-color 0.2s ease-in-out;
-  border: 1px solid transparent; /* Ensure consistent height with bordered buttons if any */
+  margin-top: 0.5rem; /* mt-2 */
 }
 
-.qr-generate-button:hover {
-  background-color: #1d4ed8; /* blue-700 */
-}
-
-.qr-generate-button:disabled {
-  background-color: #9ca3af; /* gray-400 */
-  color: #e5e7eb; /* gray-200 or a lighter gray for text */
-  cursor: not-allowed;
-  opacity: 0.7;
-}
+/* QR 생성 버튼 스타일 - Tailwind로 대체 */
+/* .qr-generate-button { ... } */
+/* .qr-generate-button:hover { ... } */
+/* .qr-generate-button:disabled { ... } */
 
 /* Ensure it overrides or complements existing .btn styles if necessary */
 /* For example, if .btn has padding, and you want to ensure this is specific: */

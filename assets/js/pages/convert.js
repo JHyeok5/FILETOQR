@@ -27,6 +27,8 @@ setTimeout(() => {
 // 필요한 모듈 임포트
 import ConverterCore from '../core/converter-core.js';
 import CommonUtils from '../utils/common-utils.js';
+import QROptionsManager from '../qr-generator/qr-options-manager.js';
+import QRPreviewUpdater from '../qr-generator/qr-preview-updater.js';
 
 // 전역 객체에 컨트롤러 등록
 window.FileToQR = window.FileToQR || {};
@@ -54,6 +56,44 @@ const ConvertPageController = {
       console.log('파일 변환 페이지 초기화 중... (force:', force, ")");
       // UI 요소 초기화
       this._initUI();
+
+      // QR 옵션 매니저 및 프리뷰어 초기화
+      const qrOptionsContainer = document.getElementById('converter-options');
+      if (qrOptionsContainer) {
+        QROptionsManager.init(qrOptionsContainer); // 컨테이너 전달
+        
+        // QR 코드 표시 및 이미지 ID 확인
+        const qrCodeDisplay = document.getElementById('qr-code-display');
+        const qrCodeImage = document.getElementById('qr-code-image');
+
+        if (qrCodeDisplay && qrCodeImage) {
+          QRPreviewUpdater.init({
+            qrCodeContainer: qrCodeDisplay, // 실제 컨테이너 DOM 요소 전달
+            qrImageElement: qrCodeImage,     // 실제 이미지 DOM 요소 전달
+            optionsManager: QROptionsManager, // QROptionsManager 인스턴스 전달
+            noContentMsg: 'QR code preview will appear here once a file is uploaded and options are set.',
+            initialPreviewText: 'FileToQR' // 초기 미리보기에 사용할 텍스트
+          });
+          
+          // 옵션 변경 감지하여 프리뷰 업데이트
+          // QROptionsManager가 자체적으로 이벤트를 발생시키거나, 여기서 직접 옵션 요소들의 이벤트를 리스닝
+          // 예시: QROptionsManager가 'optionsChanged' 커스텀 이벤트를 발생시킨다고 가정
+          qrOptionsContainer.addEventListener('qrOptionsChanged', () => {
+            if (this.state.uploadedFile || QRPreviewUpdater.hasPreviewableContent()) { // 파일이 있거나, 미리보기 가능한 기본 텍스트가 있다면
+              const currentQrData = this.state.uploadedFile ? this.state.uploadedFile.name : QRPreviewUpdater.getInitialPreviewText(); // 단순 예시 데이터
+              QRPreviewUpdater.generateAndUpdatePreview(currentQrData, QROptionsManager.getOptions());
+            }
+          });
+          // 초기 로드 시에도 기본 미리보기를 한 번 생성할 수 있습니다.
+          // QRPreviewUpdater.generateAndUpdatePreview(QRPreviewUpdater.getInitialPreviewText(), QROptionsManager.getOptions());
+
+        } else {
+          console.error('QR code display or image element not found for QRPreviewUpdater.');
+        }
+      } else {
+        console.warn('QR Options container (converter-options) not found. QR Options will not be available.');
+      }
+
       // 이벤트 위임 방식으로 한 번만 바인딩
       const mainContainer = document.getElementById('main-container');
       if (mainContainer && !mainContainer._convertDelegationBound) {
@@ -71,7 +111,7 @@ const ConvertPageController = {
           }
           // 다운로드 버튼 (a 태그는 기본 동작)
           // 새 파일 변환 버튼
-          if (e.target.id === 'convert-new-btn') {
+          if (e.target.id === 'convert-new-file-btn') {
             const fileInput = document.getElementById('file-upload');
             if (fileInput) fileInput.value = '';
             const outputElement = document.getElementById('conversion-output');
@@ -109,14 +149,17 @@ const ConvertPageController = {
         if (dropArea && !dropArea._convertDropBound) {
           dropArea.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropArea.classList.add('bg-blue-100');
+            dropArea.classList.add('bg-purple-100');
+            dropArea.classList.add('border-purple-500');
           });
           dropArea.addEventListener('dragleave', () => {
-            dropArea.classList.remove('bg-blue-100');
+            dropArea.classList.remove('bg-purple-100');
+            dropArea.classList.remove('border-purple-500');
           });
           dropArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropArea.classList.remove('bg-blue-100');
+            dropArea.classList.remove('bg-purple-100');
+            dropArea.classList.remove('border-purple-500');
             if (e.dataTransfer.files.length) {
               const fileInput = document.getElementById('file-upload');
               fileInput.files = e.dataTransfer.files;
@@ -159,16 +202,18 @@ const ConvertPageController = {
   _handleConversionTypeSelect(type) {
     console.log(`변환 유형 선택: ${type}`);
     
-    // 이전 선택 초기화
+    // 이전 선택 초기화 및 활성 탭 스타일 제거
     const conversionTypeBtns = document.querySelectorAll('.converter-type-btn');
     conversionTypeBtns.forEach(btn => {
-      btn.classList.remove('ring-2', 'ring-blue-500');
+      btn.classList.remove('active-tab', 'bg-purple-600', 'text-white');
+      btn.classList.add('text-slate-600', 'hover:bg-slate-100'); // 기본 스타일로 복원
     });
     
-    // 현재 선택 표시
+    // 현재 선택 표시 및 활성 탭 스타일 적용
     const selectedBtn = document.querySelector(`.converter-type-btn[data-type="${type}"]`);
     if (selectedBtn) {
-      selectedBtn.classList.add('ring-2', 'ring-blue-500');
+      selectedBtn.classList.add('active-tab', 'bg-purple-600', 'text-white');
+      selectedBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
     }
     
     // 상태 업데이트
@@ -185,129 +230,26 @@ const ConvertPageController = {
    */
   _showConversionOptions(type) {
     const optionsContainer = document.getElementById('converter-options');
-    if (!optionsContainer) return;
-    
-    let optionsHTML = '';
-    
-    switch (type) {
-      case 'image':
-        optionsHTML = `
-          <h2 class="text-xl font-semibold mb-4">이미지 변환 옵션</h2>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">출력 형식</label>
-              <select id="output-format" class="w-full p-2 border border-gray-300 rounded-md">
-                <option value="">출력 형식 선택</option>
-                <option value="png">PNG</option>
-                <option value="jpg">JPG</option>
-                <option value="webp">WebP</option>
-                <option value="gif">GIF</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">품질</label>
-              <select id="image-quality" class="w-full p-2 border border-gray-300 rounded-md">
-                <option value="high">고품질</option>
-                <option value="medium" selected>중간</option>
-                <option value="low">저품질</option>
-              </select>
-            </div>
-          </div>
-        `;
-        break;
-        
-      case 'document':
-        optionsHTML = `
-          <h2 class="text-xl font-semibold mb-4">문서 변환 옵션</h2>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">출력 형식</label>
-              <select id="output-format" class="w-full p-2 border border-gray-300 rounded-md">
-                <option value="">출력 형식 선택</option>
-                <option value="pdf">PDF</option>
-                <option value="txt">TXT</option>
-                <option value="html">HTML</option>
-              </select>
-            </div>
-          </div>
-        `;
-        break;
-        
-      case 'audio':
-        optionsHTML = `
-          <h2 class="text-xl font-semibold mb-4">오디오 변환 옵션</h2>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">출력 형식</label>
-              <select id="output-format" class="w-full p-2 border border-gray-300 rounded-md">
-                <option value="">출력 형식 선택</option>
-                <option value="mp3">MP3</option>
-                <option value="wav">WAV</option>
-                <option value="ogg">OGG</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">비트레이트</label>
-              <select id="audio-bitrate" class="w-full p-2 border border-gray-300 rounded-md">
-                <option value="320">320 kbps</option>
-                <option value="256">256 kbps</option>
-                <option value="192" selected>192 kbps</option>
-                <option value="128">128 kbps</option>
-                <option value="96">96 kbps</option>
-              </select>
-            </div>
-          </div>
-        `;
-        break;
-        
-      case 'data':
-        optionsHTML = `
-          <h2 class="text-xl font-semibold mb-4">데이터 변환 옵션</h2>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">출력 형식</label>
-              <select id="output-format" class="w-full p-2 border border-gray-300 rounded-md">
-                <option value="">출력 형식 선택</option>
-                <option value="json">JSON</option>
-                <option value="csv">CSV</option>
-                <option value="xml">XML</option>
-              </select>
-            </div>
-          </div>
-        `;
-        break;
+    if (!optionsContainer) {
+      console.warn('Converter options container (converter-options) not found in _showConversionOptions.');
+      return;
     }
     
-    // 공통 변환 버튼
-    optionsHTML += `
-      <div class="mt-4">
-        <button id="start-conversion-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-          변환 시작
-        </button>
-      </div>
-    `;
-    
-    optionsContainer.innerHTML = optionsHTML;
-    
-    // 변환 시작 버튼 활성화 조건 설정
-    const startConversionBtn = document.getElementById('start-conversion-btn');
-    const outputFormatSelect = document.getElementById('output-format');
-    
-    if (startConversionBtn && outputFormatSelect) {
-      outputFormatSelect.addEventListener('change', () => {
-        startConversionBtn.disabled = !outputFormatSelect.value || !this.state.uploadedFile;
-      });
-      
-      // 파일이 이미 업로드되어 있으면 버튼 활성화 여부 체크
-      if (this.state.uploadedFile && outputFormatSelect.value) {
-        startConversionBtn.disabled = false;
-      }
-      
-      // 변환 시작 버튼 클릭 이벤트
-      startConversionBtn.addEventListener('click', () => {
-        this._startConversion();
-      });
-    }
+    // 기존의 동적 HTML 생성 로직을 제거합니다.
+    // convert.html에 이미 QR 코드 옵션 필드들이 하드코딩되어 있으므로,
+    // 이 컨테이너를 보여주기만 하면 됩니다.
+    optionsContainer.classList.remove('hidden');
+    console.log('QR Code options section has been made visible.');
+
+    // selectedConversionType 상태는 여전히 필요할 수 있으므로 유지합니다.
+    // 이 type은 QR 코드 생성 자체보다는 다른 로직에 사용될 수 있습니다. (예: 파일 유형에 따른 데이터 처리)
+    // 만약 QR 코드 생성 전용 페이지라면, selectedConversionType은 필요 없을 수도 있습니다.
+    // 현재 구조에서는 _handleConversionTypeSelect에서 selectedConversionType을 설정하고,
+    // 여기서 그 type에 따라 UI를 변경했었으므로, type 파라미터는 일단 유지합니다.
+    console.log(`Conversion type for which options are shown: ${type}`);
+
+    // 파일 업로드 시 convert-btn 활성화 로직은 _handleFileUpload에서 처리하는 것이 더 적절해 보입니다.
+    // 여기서는 단순히 옵션 영역을 보여주는 역할에 집중합니다.
   },
 
   /**
@@ -507,137 +449,126 @@ const ConvertPageController = {
       this._updateConversionUI('processing', { progress: 0 });
       
       // ConverterCore를 사용하여 파일 변환
-      const result = await ConverterCore.convert(file, outputFormat, options, (progressData) => {
-        // 진행 상태 업데이트
-        this._updateConversionUI('processing', { progress: progressData.progress });
-      });
+      const result = await ConverterCore.convert(file, outputFormat, options);
       
       // 변환 성공 시 UI 업데이트
-      this._updateConversionUI('success', {
-        result,
-        outputFormat
-      });
+      this._updateConversionUI('success', { ...result, originalFileName: file.name });
       
       return result;
     } catch (error) {
-      console.error('파일 변환 오류:', error);
-      this._updateConversionUI('error', { message: error.message });
+      console.error('Conversion failed in _processConversion:', error);
+      this._updateConversionUI('error', { message: error.message || 'Unknown conversion error' });
       throw error;
     }
   },
 
   /**
-   * 변환 UI 업데이트
-   * @param {string} status - 상태 ('loading', 'processing', 'success', 'error')
-   * @param {Object} data - 상태에 따른 데이터
+   * 변환 관련 UI 업데이트
+   * @param {string} status - 'progress', 'success', 'error', 'reset'
+   * @param {object} data - 상태에 따른 데이터
    * @private
    */
   _updateConversionUI(status, data = {}) {
-    const outputElement = document.getElementById('conversion-output');
-    const downloadBtn = document.getElementById('download-btn');
-    const startConversionBtn = document.getElementById('start-conversion-btn');
-    const fileInput = document.getElementById('file-upload');
-    const fileInputLabel = document.querySelector('label[for="file-upload"]');
-
-    // 새로 추가된 진행 표시 요소들
-    const progressContainer = document.getElementById('conversion-progress-container');
+    const progressContainer = document.getElementById('conversion-progress-section');
     const progressBar = document.getElementById('conversion-progress-bar');
-    const progressText = document.getElementById('conversion-progress-text');
-    const progressPercentage = document.getElementById('conversion-progress-percentage');
+    const progressText = document.getElementById('progress-text');
+    const outputSection = document.getElementById('conversion-output-section');
+    const outputContainer = document.getElementById('conversion-output'); // The inner container for result details
+    const qrCodeImage = document.getElementById('qr-code-image');
+    const downloadBtn = document.getElementById('download-qr-btn'); // Assuming single download button for now
+    const convertNewBtn = document.getElementById('convert-new-file-btn');
+    const startConversionBtn = document.getElementById('start-conversion-btn');
+    const statusMessageEl = document.getElementById('status-message'); // New status message element
+    const conversionOutputTitle = outputContainer ? outputContainer.querySelector('h2') : null;
 
-    if (!outputElement || !progressContainer || !progressBar || !progressText || !progressPercentage) {
-      console.error('Conversion UI elements not found!');
-      return;
+
+    // Helper to show/hide sections
+    const showSection = (el, show) => el && (show ? el.classList.remove('hidden') : el.classList.add('hidden'));
+
+    // Reset UI elements related to previous conversion before new status update
+    if (status !== 'progress') {
+      showSection(progressContainer, false);
     }
-
-    // 초기화: 모든 관련 UI 숨기기
-    outputElement.classList.add('hidden');
-    progressContainer.classList.add('hidden');
-    if (downloadBtn) downloadBtn.classList.add('hidden');
-    outputElement.innerHTML = ''; // 이전 내용 초기화
+    if (statusMessageEl) statusMessageEl.textContent = ''; // Clear previous messages
+    if (statusMessageEl) statusMessageEl.className = 'mb-4'; // Reset classes
 
     switch (status) {
-      case 'idle': // 파일 업로드 전 또는 변환 완료 후 새 파일 대기
-        if (fileInputLabel) fileInputLabel.classList.remove('hidden');
-        if (startConversionBtn) startConversionBtn.disabled = true;
-        this.state.conversionInProgress = false;
-        break;
-
-      case 'file_selected': // 파일이 선택되었지만 아직 변환 시작 전
-        if (fileInputLabel) fileInputLabel.classList.remove('hidden'); // 파일 선택 영역은 계속 표시
-        if (outputElement && data.fileInfo) {
-            outputElement.innerHTML = `
-                <div class="p-4 bg-blue-50 rounded-lg">
-                    <h3 class="text-lg font-semibold text-blue-700">파일 선택됨:</h3>
-                    <p class="text-sm text-gray-600">${data.fileInfo.name} (${data.fileInfo.size})</p>
-                </div>
-            `;
-            outputElement.classList.remove('hidden');
-        }
-        if (startConversionBtn) {
-            const outputFormatSelect = document.getElementById('output-format');
-            startConversionBtn.disabled = !(outputFormatSelect && outputFormatSelect.value);
-        }
-        this.state.conversionInProgress = false;
-        break;
-
       case 'progress':
-        this.state.conversionInProgress = true;
-        if (fileInputLabel) fileInputLabel.classList.add('hidden'); // 변환 중에는 파일 선택 영역 숨김
-        progressContainer.classList.remove('hidden');
-        outputElement.classList.add('hidden'); // 이전 결과나 메시지 숨김
-
-        const percentage = data.percentage || 0;
-        progressBar.style.width = `${percentage}%`;
-        progressText.textContent = data.message || `변환 진행 중... (${percentage}%)`;
-        progressPercentage.textContent = `${percentage}%`;
-        
+        showSection(progressContainer, true);
+        showSection(outputSection, false);
+        if (progressBar) progressBar.style.width = `${data.percentage}%`;
+        if (progressText) progressText.textContent = data.message || 'Processing...';
         if (startConversionBtn) startConversionBtn.disabled = true;
-        if (downloadBtn) downloadBtn.classList.add('hidden');
         break;
 
       case 'success':
-        this.state.conversionInProgress = false;
-        if (fileInputLabel) fileInputLabel.classList.remove('hidden'); // 변환 완료 후 파일 선택 영역 다시 표시
-        progressContainer.classList.add('hidden');
-        outputElement.classList.remove('hidden');
+        showSection(outputSection, true);
+        outputSection.classList.remove('animate-fadeIn'); // Remove then add for re-trigger
+        void outputSection.offsetWidth; // Trigger reflow
+        outputSection.classList.add('animate-fadeIn');
 
-        outputElement.innerHTML = `
-          <div class="p-4 bg-green-50 rounded-lg text-center">
-            <h3 class="text-xl font-semibold text-green-700 mb-2">${data.message || '파일 변환 성공!'}</h3>
-            ${data.downloadUrl ? `<a href="${data.downloadUrl}" download="${data.filename}" id="generated-download-link" class="btn btn-success">결과 다운로드</a>` : ''}
-            <button id="convert-new-btn" class="btn btn-secondary ml-2">새 파일 변환</button>
-          </div>
-        `;
-        // 다운로드 버튼 로직은 필요시 a 태그를 직접 사용하거나, 별도 downloadBtn 요소로 처리
-        if (downloadBtn && data.downloadUrl) {
-            // downloadBtn.href = data.downloadUrl; // 만약 downloadBtn이 a 태그라면
-            // downloadBtn.download = data.filename;
-            // downloadBtn.classList.remove('hidden');
+        if (conversionOutputTitle) conversionOutputTitle.textContent = 'Conversion Complete!';
+        if (qrCodeImage && data.qrCodeUrl) {
+          qrCodeImage.src = data.qrCodeUrl;
+          qrCodeImage.alt = `QR Code for ${data.originalFileName}`;
+        } else if (qrCodeImage) {
+            qrCodeImage.src = "#"; // Placeholder or clear
+            qrCodeImage.alt = "QR Code not available";
         }
-        if (startConversionBtn) startConversionBtn.disabled = true;
+        
+        if (statusMessageEl) {
+            statusMessageEl.textContent = data.message || `Successfully generated QR Code for ${data.originalFileName}.`;
+            statusMessageEl.classList.add('text-green-600');
+        }
+
+        if (downloadBtn) {
+            downloadBtn.disabled = false;
+            // downloadBtn.onclick = () => { /* Call download function with data.downloadUrl or similar */ };
+        }
+        if (convertNewBtn) convertNewBtn.disabled = false;
+        if (startConversionBtn) startConversionBtn.disabled = true; // Keep disabled until new file
         break;
 
       case 'error':
-        this.state.conversionInProgress = false;
-        if (fileInputLabel) fileInputLabel.classList.remove('hidden');
-        progressContainer.classList.add('hidden');
-        outputElement.classList.remove('hidden');
-        outputElement.innerHTML = `
-          <div class="p-4 bg-red-50 rounded-lg text-center">
-            <h3 class="text-xl font-semibold text-red-700 mb-2">변환 오류</h3>
-            <p class="text-gray-700 mb-4">${data.message || '파일 변환 중 오류가 발생했습니다.'}</p>
-            <button id="try-again-btn" class="btn btn-danger">다시 시도</button>
-          </div>
-        `;
-        if (startConversionBtn) startConversionBtn.disabled = true; // 오류 발생 시 비활성화 또는 상태에 따라 처리
-        break;
+        showSection(outputSection, true);
+        outputSection.classList.remove('animate-fadeIn');
+        void outputSection.offsetWidth;
+        outputSection.classList.add('animate-fadeIn');
+
+        if (conversionOutputTitle) conversionOutputTitle.textContent = 'Conversion Failed';
+        if (qrCodeImage) {
+            qrCodeImage.src = '/assets/images/error-placeholder.svg'; // Optional: show an error image
+            qrCodeImage.alt = 'Error generating QR Code';
+        }
+        if (statusMessageEl) {
+            statusMessageEl.textContent = data.message || 'Could not process your file. Please try again.';
+            statusMessageEl.classList.add('text-red-600');
+        }
         
-      default:
-        this.state.conversionInProgress = false;
-        if (fileInputLabel) fileInputLabel.classList.remove('hidden');
-        console.warn('Unhandled conversion UI status:', status);
+        if (downloadBtn) downloadBtn.disabled = true;
+        if (convertNewBtn) convertNewBtn.disabled = false;
+        if (startConversionBtn) startConversionBtn.disabled = false; // Allow re-try with same file
+        break;
+
+      case 'reset': // For clearing UI when a new file is selected or 'convert new' is clicked
+        showSection(progressContainer, false);
+        showSection(outputSection, false);
+        if (progressBar) progressBar.style.width = '0%';
+        if (progressText) progressText.textContent = 'Initializing...';
+        if (qrCodeImage) {
+            qrCodeImage.src = '#';
+            qrCodeImage.alt = 'Generated QR Code';
+        }
+        if (statusMessageEl) {
+            statusMessageEl.textContent = '';
+            statusMessageEl.className = 'mb-4';
+        }
+        if (startConversionBtn) startConversionBtn.disabled = true; // Disabled until a file is chosen
+        if (downloadBtn) downloadBtn.disabled = true;
+        if (convertNewBtn) convertNewBtn.disabled = true; // Or hide, depending on flow
+        break;
     }
+    this.state.conversionInProgress = (status === 'progress');
   },
 
   /**

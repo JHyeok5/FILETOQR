@@ -22,6 +22,7 @@
   <script type="module" src="/assets/js/qr-generator/qr-generator.js"></script>
   <script type="module" src="/assets/js/qr-generator/file-to-qr-core.js"></script>
   <script type="module" src="/assets/js/pages/timer.js"></script>
+  <link rel="stylesheet" href="/assets/css/components/timer.css">
 </head>
 <body class="bg-slate-50 text-slate-700 min-h-screen flex flex-col antialiased font-sans">
   <div id="header-container" class="sticky top-0 z-50"></div>
@@ -36,64 +37,130 @@
   </div>
 
   <main id="main-container" class="flex-grow w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-3xl">
-    <div class="bg-white rounded-xl shadow-xl p-6 sm:p-8 md:p-10">
+    <div class="bg-white rounded-xl shadow-xl p-4 sm:p-6 md:p-10">
       <header class="mb-8 text-center">
-        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-snug">Timer, Stopwatch & Pomodoro</h1>
+        <h1 class="text-4xl font-bold tracking-tight text-slate-900 text-center leading-snug">Timer, Stopwatch & Pomodoro</h1>
         <p class="mt-2 text-lg text-slate-600 leading-relaxed">Manage your time effectively with our versatile timers.</p>
       </header>
 
       <!-- Timer Tabs -->
-      <nav class="timer-tabs mb-8 flex justify-center gap-2 sm:gap-3 border-b border-slate-200 pb-4">
-        <button class="timer-tab-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 ease-in-out active-tab" data-tab="timer">Timer</button>
-        <button class="timer-tab-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 ease-in-out" data-tab="stopwatch">Stopwatch</button>
-        <button class="timer-tab-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 ease-in-out" data-tab="pomodoro">Pomodoro</button>
+      <nav class="timer-tabs mb-8 flex flex-wrap justify-center gap-2 sm:gap-3 border-b border-slate-200 pb-6">
+        <button class="timer-tab-btn px-6 py-3 rounded-lg text-lg font-semibold text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out active-tab bg-purple-600 text-white" data-tab="timer"><i class="fas fa-stopwatch mr-2"></i>Timer</button>
+        <button class="timer-tab-btn px-6 py-3 rounded-lg text-lg font-semibold text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-tab="stopwatch"><i class="fas fa-hourglass-half mr-2"></i>Stopwatch</button>
+        <button class="timer-tab-btn px-6 py-3 rounded-lg text-lg font-semibold text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-tab="pomodoro"><i class="fas fa-seedling mr-2"></i>Pomodoro</button>
       </nav>
 
       <!-- Timer Section -->
-      <section id="timer-section" class="timer-content text-center py-6">
-        <div class="timer-display text-6xl sm:text-7xl md:text-8xl font-mono font-bold text-slate-800 mb-6 tracking-wider">00:00:00</div>
-        <div class="mb-6 space-x-2 sm:space-x-4">
-          <input type="number" id="hours" min="0" placeholder="HH" class="w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200 text-center">
-          <input type="number" id="minutes" min="0" max="59" placeholder="MM" class="w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200 text-center">
-          <input type="number" id="seconds" min="0" max="59" placeholder="SS" class="w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200 text-center">
+      <section id="timer-section" class="timer-content tab-content p-4 sm:p-6 bg-white rounded-xl shadow-xl animate-fadeIn">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 text-center pb-4 border-b border-slate-200">Timer</h2>
+        
+        <!-- Placeholder for multiple timers list - to be implemented via JS -->
+        <div id="timers-list" class="space-y-6 mb-8">
+          <div class="timer-item bg-slate-50 p-5 rounded-lg shadow-md border border-slate-200 transition-all duration-300 ease-in-out hover:shadow-lg">
+            <input type="text" class="timer-label text-lg font-semibold text-slate-700 border-b-2 border-slate-300 focus:border-blue-500 outline-none py-1 flex-grow bg-transparent placeholder-slate-400 w-full mb-4" placeholder="Timer 1 (e.g., Kitchen Timer)">
+            <div class="timer-display text-6xl font-mono text-center my-6 py-4 bg-slate-100 rounded-lg text-slate-800 shadow-inner">00:00:00</div>
+            <div class="mb-6 flex justify-center items-center space-x-2 sm:space-x-4">
+              <input type="number" min="0" placeholder="HH" class="hours-input form-input text-center appearance-none w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200">
+              <span class="text-2xl text-slate-500">:</span>
+              <input type="number" min="0" max="59" placeholder="MM" class="minutes-input form-input text-center appearance-none w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200">
+              <span class="text-2xl text-slate-500">:</span>
+              <input type="number" min="0" max="59" placeholder="SS" class="seconds-input form-input text-center appearance-none w-20 sm:w-24 p-2 text-lg border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200">
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-4">
+                <button class="preset-btn px-3 py-1 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-md" data-time="300">5 min</button>
+                <button class="preset-btn px-3 py-1 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-md" data-time="600">10 min</button>
+                <button class="preset-btn px-3 py-1 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-md" data-time="900">15 min</button>
+                <button class="preset-btn px-3 py-1 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-md" data-time="1800">30 min</button>
+            </div>
+            <div class="space-x-2 sm:space-x-3">
+              <button class="timer-start btn btn-success bg-green-500 text-white px-6 py-2.5 font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform hover:scale-105 active:scale-95"><i class="fas fa-play mr-2"></i>Start</button>
+              <button class="timer-pause btn btn-warning bg-yellow-500 text-white px-6 py-2.5 font-semibold rounded-lg shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transform hover:scale-105 active:scale-95 hidden"><i class="fas fa-pause mr-2"></i>Pause</button>
+              <button class="timer-reset btn btn-danger bg-red-500 text-white px-6 py-2.5 font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform hover:scale-105 active:scale-95"><i class="fas fa-undo mr-2"></i>Reset</button>
+            </div>
+          </div>
+          <!-- More timer items can be added here by JS -->
         </div>
-        <div class="space-x-2 sm:space-x-3">
-          <button id="start-timer" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">Start</button>
-          <button id="pause-timer" class="px-6 py-2.5 bg-purple-600 text-white font-semibold rounded-md shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95 hidden">Pause</button>
-          <button id="reset-timer" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-md shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">Reset</button>
-        </div>
+        <button id="add-timer" class="bg-blue-600 text-white px-6 py-3 font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform hover:scale-105 active:scale-95"><i class="fas fa-plus mr-2"></i>Add Timer</button>
       </section>
 
       <!-- Stopwatch Section -->
-      <section id="stopwatch-section" class="timer-content hidden text-center py-6">
-        <div class="stopwatch-display text-6xl sm:text-7xl md:text-8xl font-mono font-bold text-slate-800 mb-6 tracking-wider">00:00:00<span class="text-4xl md:text-5xl text-slate-500">.000</span></div>
-        <div class="space-x-2 sm:space-x-3 mb-6">
-          <button id="start-stopwatch" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">Start</button>
-          <button id="pause-stopwatch" class="px-6 py-2.5 bg-purple-600 text-white font-semibold rounded-md shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95 hidden">Pause</button>
-          <button id="reset-stopwatch" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-md shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">Reset</button>
-          <button id="lap-stopwatch" class="px-6 py-2.5 bg-green-500 text-white font-semibold rounded-md shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95 disabled:opacity-50">Lap</button>
+      <section id="stopwatch-section" class="timer-content tab-content hidden p-4 sm:p-6 bg-white rounded-xl shadow-xl animate-fadeIn">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 text-center pb-4 border-b border-slate-200">Stopwatch</h2>
+        <div class="stopwatch-display text-5xl sm:text-7xl font-mono text-center mb-8 py-6 bg-slate-100 rounded-lg text-slate-800 shadow-inner">00:00:00<span class="milliseconds text-3xl sm:text-4xl text-slate-500">.000</span></div>
+        <div class="space-x-2 sm:space-x-3 mb-6 flex justify-center">
+          <button id="start-stopwatch" class="btn btn-lg btn-success bg-green-500 text-white px-8 py-3 font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform hover:scale-105 active:scale-95"><i class="fas fa-play mr-2"></i>Start</button>
+          <button id="pause-stopwatch" class="btn btn-lg btn-warning bg-yellow-500 text-white px-8 py-3 font-semibold rounded-lg shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transform hover:scale-105 active:scale-95 hidden"><i class="fas fa-pause mr-2"></i>Pause</button>
+          <button id="reset-stopwatch" class="btn btn-lg btn-danger bg-red-500 text-white px-8 py-3 font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform hover:scale-105 active:scale-95"><i class="fas fa-undo mr-2"></i>Reset</button>
+          <button id="lap-stopwatch" class="btn btn-lg btn-info bg-sky-500 text-white px-8 py-3 font-semibold rounded-lg shadow-md hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transform hover:scale-105 active:scale-95 disabled:opacity-50"><i class="fas fa-flag mr-2"></i>Lap</button>
         </div>
-        <div id="laps-list" class="text-left max-w-md mx-auto bg-slate-50 p-4 rounded-lg border border-slate-200 max-h-60 overflow-y-auto shadow-inner">
-          <h3 class="text-lg font-semibold text-slate-700 mb-2 sticky top-0 bg-slate-50 py-1 leading-relaxed">Laps:</h3>
-          <ul class="text-sm text-slate-600 space-y-1 leading-normal"></ul>
+        <div id="laps-container" class="text-left max-w-md mx-auto bg-slate-50 p-4 rounded-lg shadow-sm border border-slate-200 max-h-60 overflow-y-auto">
+          <h3 class="text-lg font-semibold text-slate-700 mb-2 sticky top-0 bg-slate-50 py-1">Laps:</h3>
+          <ul id="laps-list-ul" class="text-sm text-slate-600 space-y-1">
+            <!-- Lap items (.lap-item) will be added here by JS -->
+            <!-- Example: <li class="lap-item flex justify-between items-center text-sm text-slate-700 p-2 bg-white rounded shadow-xs even:bg-slate-50"><span>Lap 1</span><span>00:01:23.456</span></li> -->
+          </ul>
         </div>
       </section>
 
       <!-- Pomodoro Section -->
-      <section id="pomodoro-section" class="timer-content hidden text-center py-6">
-        <div id="current-mode-time" class="text-6xl sm:text-7xl md:text-8xl font-mono font-bold text-slate-800 mb-4 tracking-wider">25:00</div>
-        <div id="current-mode-label" class="text-xl text-purple-600 font-semibold mb-6 leading-relaxed">Work</div>
-        <div class="space-x-2 sm:space-x-3 mb-6">
-          <button id="start-pomodoro" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">Start</button>
-          <button id="pause-pomodoro" class="px-6 py-2.5 bg-purple-600 text-white font-semibold rounded-md shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95 hidden">Pause</button>
-          <button id="reset-pomodoro" class="px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-md shadow-sm hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">Reset</button>
+      <section id="pomodoro-section" class="timer-content tab-content hidden p-4 sm:p-6 bg-white rounded-xl shadow-xl animate-fadeIn">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 text-center pb-4 border-b border-slate-200">Pomodoro</h2>
+        <div id="pomodoro-status-text" class="text-2xl font-semibold text-slate-700 mb-3 text-center">Work</div>
+        <div id="pomodoro-current-mode-time" class="text-7xl sm:text-8xl font-mono text-center py-6 bg-slate-100 rounded-lg shadow-inner text-blue-600 mb-4">25:00</div>
+        <div id="pomodoro-cycle-count" class="text-lg text-slate-500 mt-4 text-center mb-6">Cycles completed: <span id="pomodoro-cycles-display" class="font-semibold">0</span></div>
+        <div class="space-x-2 sm:space-x-3 mb-8 flex justify-center">
+          <button id="start-pomodoro" class="btn btn-xl btn-success bg-green-500 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform hover:scale-105 active:scale-95"><i class="fas fa-play mr-2"></i>Start</button>
+          <button id="pause-pomodoro" class="btn btn-xl btn-warning bg-yellow-500 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transform hover:scale-105 active:scale-95 hidden"><i class="fas fa-pause mr-2"></i>Pause</button>
+          <button id="reset-pomodoro" class="btn btn-xl btn-danger bg-red-500 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform hover:scale-105 active:scale-95"><i class="fas fa-undo mr-2"></i>Reset</button>
+          <button id="skip-pomodoro" class="btn btn-xl btn-info bg-sky-500 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-md hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transform hover:scale-105 active:scale-95"><i class="fas fa-forward mr-2"></i>Skip</button>
         </div>
-        <div class="text-sm text-slate-500 leading-normal">
-          Cycles completed: <span id="pomodoro-cycles" class="font-semibold">0</span>
+
+        <div class="pomodoro-settings bg-slate-50 p-6 rounded-lg shadow-sm border border-slate-200 mb-8 max-w-lg mx-auto">
+            <h3 class="text-xl font-semibold mb-6 text-slate-700 text-center">Pomodoro Settings</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="pomodoro-work-duration" class="block text-sm font-medium text-slate-700 mb-1">Work Duration (min)</label>
+                    <input type="number" id="pomodoro-work-duration" value="25" min="1" class="form-input mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="pomodoro-short-break-duration" class="block text-sm font-medium text-slate-700 mb-1">Short Break (min)</label>
+                    <input type="number" id="pomodoro-short-break-duration" value="5" min="1" class="form-input mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="pomodoro-long-break-duration" class="block text-sm font-medium text-slate-700 mb-1">Long Break (min)</label>
+                    <input type="number" id="pomodoro-long-break-duration" value="15" min="1" class="form-input mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="pomodoro-cycles-before-long-break" class="block text-sm font-medium text-slate-700 mb-1">Cycles for Long Break</label>
+                    <input type="number" id="pomodoro-cycles-before-long-break" value="4" min="1" class="form-input mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
+                </div>
+            </div>
+             <div class="flex items-center justify-center">
+                <button id="pomodoro-save-settings" class="btn btn-primary bg-purple-600 text-white px-6 py-2 font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"><i class="fas fa-save mr-2"></i>Save Settings</button>
+            </div>
         </div>
-        <div class="mt-4">
-            <button id="skip-pomodoro" class="px-4 py-1.5 text-sm bg-yellow-500 text-white font-medium rounded-md shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-400 transition-all duration-150 ease-in-out transform hover:scale-105 active:scale-95">Skip to Next</button>
+        
+        <div class="pomodoro-notification-settings bg-slate-50 p-6 rounded-lg shadow-sm border border-slate-200 max-w-lg mx-auto">
+            <h3 class="text-xl font-semibold mb-6 text-slate-700 text-center">Notification Settings</h3>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-slate-700">Enable Notifications</span>
+                <input type="checkbox" id="pomodoro-enable-notifications" class="form-checkbox h-5 w-5 text-purple-600 border-slate-300 rounded focus:ring-purple-500">
+            </div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-slate-700">Play Sound</span>
+                <input type="checkbox" id="pomodoro-play-sound" class="form-checkbox h-5 w-5 text-purple-600 border-slate-300 rounded focus:ring-purple-500">
+            </div>
+            <div>
+                <label for="pomodoro-volume" class="block text-sm font-medium text-slate-700 mb-1">Volume</label>
+                <input type="range" id="pomodoro-volume" min="0" max="1" step="0.1" value="0.5" class="form-range w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-0 focus:shadow-none">
+            </div>
+            <div class="mt-4 text-center">
+              <button id="request-notification-permission" class="bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="fas fa-bell mr-2"></i>Request Notification Permission
+              </button>
+            </div>
         </div>
+
       </section>
     </div>
   </main>

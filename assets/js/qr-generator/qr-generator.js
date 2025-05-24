@@ -457,14 +457,35 @@ const QRGenerator = {
   },
 
   _updateActiveTabButton(activeType) {
-    const typeButtons = document.querySelectorAll('.qr-type-tabs .qr-type-btn');
-    typeButtons.forEach(button => {
-      if (button.dataset.type === activeType) {
-        button.classList.add('active'); // 'active' 클래스로 활성 탭 스타일링
+    const tabsContainer = document.querySelector('.qr-type-tabs');
+    if (!tabsContainer) return;
+
+    const buttons = tabsContainer.querySelectorAll('.qr-type-btn');
+    buttons.forEach(button => {
+      const buttonType = button.dataset.type;
+      const icon = button.querySelector('svg');
+
+      if (buttonType === activeType) {
+        button.classList.add('active-tab', 'bg-purple-600', 'text-white');
+        button.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        if (icon) {
+          icon.classList.remove('text-slate-500');
+          icon.classList.add('text-white');
+        }
       } else {
-        button.classList.remove('active');
+        button.classList.remove('active-tab', 'bg-purple-600', 'text-white');
+        button.classList.add('text-slate-600', 'hover:bg-slate-100');
+        if (icon) {
+          icon.classList.add('text-slate-500');
+          icon.classList.remove('text-white');
+        }
       }
     });
+    // Ensure the active tab is scrolled into view if tabs are scrollable horizontally
+    const activeButton = tabsContainer.querySelector(`.qr-type-btn[data-type="${activeType}"]`);
+    if (activeButton && typeof activeButton.scrollIntoView === 'function') {
+        activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
   },
 
   // 각 콘텐츠 타입별 폼 HTML을 반환하는 메소드들
@@ -475,201 +496,178 @@ const QRGenerator = {
 
   _getURLFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="url-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <div>
-          <label for="qr-url" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.url.label', '웹사이트 URL')}</label>
-          <input type="url" id="qr-url" name="qr-url" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="${t('qrcode.forms.url.placeholder', 'https://example.com')}">
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    return \`
+      <div>
+        <label for="qr-url" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.labels.url', 'URL')}</label>
+        <input type="url" id="qr-url" name="url" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.placeholders.url', 'https://example.com')}" required>
+        <p class="mt-1 text-xs text-slate-500">${t('qrcode.helpTexts.url', 'Enter the full URL including http(s)://')}</p>
+      </div>
+    \`;
   },
 
   _getTextFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="text-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <div>
-          <label for="qr-text" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.text.label', '텍스트')}</label>
-          <textarea id="qr-text" name="qr-text" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2" placeholder="${t('qrcode.forms.text.placeholder', '여기에 텍스트를 입력하세요...')}"></textarea>
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    return \`
+      <div>
+        <label for="qr-text" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.labels.text', 'Text')}</label>
+        <textarea id="qr-text" name="text" rows="4" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.placeholders.text', 'Enter your text here')}"></textarea>
+      </div>
+    \`;
   },
 
   _getVCardFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="vcard-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <p class="text-sm text-gray-600 mb-3">${t('qrcode.forms.vcard.description', '연락처 정보를 입력하여 vCard QR 코드를 생성합니다.')}</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="vcard-name" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.vcard.name', '이름 (성과 이름)')}</label>
-            <input type="text" id="vcard-name" name="vcard-name" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.vcard.namePlaceholder', '홍길동')}">
-          </div>
-          <div>
-            <label for="vcard-org" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.vcard.organization', '회사/조직')}</label>
-            <input type="text" id="vcard-org" name="vcard-org" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.vcard.organizationPlaceholder', '주식회사 파일투큐알')}">
-          </div>
-        </div>
-        <div>
-          <label for="vcard-title" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.vcard.title', '직함')}</label>
-          <input type="text" id="vcard-title" name="vcard-title" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.vcard.titlePlaceholder', '대표')}">
-        </div>
-        <div id="vcard-phone-fields" class="space-y-2"></div>
-        <button type="button" id="vcard-add-phone" class="btn btn-secondary btn-sm">${t('qrcode.forms.vcard.addPhone', '전화번호 추가')}</button>
-        <div id="vcard-email-fields" class="space-y-2 mt-4"></div>
-        <button type="button" id="vcard-add-email" class="btn btn-secondary btn-sm">${t('qrcode.forms.vcard.addEmail', '이메일 추가')}</button>
-        <div>
-          <label for="vcard-url" class="block text-sm font-medium text-gray-700 mt-4">${t('qrcode.forms.vcard.website', '웹사이트')}</label>
-          <input type="url" id="vcard-url" name="vcard-url" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.vcard.websitePlaceholder', 'https://filetoqr.com')}">
-        </div>
-        <div>
-          <label for="vcard-address" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.vcard.address', '주소')}</label>
-          <textarea id="vcard-address" name="vcard-address" rows="3" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.vcard.addressPlaceholder', '서울특별시 강남구 테헤란로 123')}"></textarea>
-        </div>
-        <div>
-          <label for="vcard-note" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.vcard.note', '메모')}</label>
-          <textarea id="vcard-note" name="vcard-note" rows="2" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.vcard.notePlaceholder', '추가 정보')}"></textarea>
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full mt-6">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    // Helper for input fields
+    const inputField = (labelKey, labelDefault, id, type, placeholderKey, placeholderDefault, helpTextKey = null, helpTextDefault = null) => \`
+      <div class="mb-4">
+        <label for="\${id}" class="block text-sm font-medium text-slate-700 mb-1">\${t(labelKey, labelDefault)}</label>
+        <input type="\${type}" id="\${id}" name="\${id}" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="\${t(placeholderKey, placeholderDefault)}">
+        \${helpTextKey ? \`<p class="mt-1 text-xs text-slate-500">\${t(helpTextKey, helpTextDefault)}</p>\` : ''}
+      </div>
+    \`;
+    const textAreaField = (labelKey, labelDefault, id, placeholderKey, placeholderDefault) => \`
+      <div class="mb-4">
+        <label for="\${id}" class="block text-sm font-medium text-slate-700 mb-1">\${t(labelKey, labelDefault)}</label>
+        <textarea id="\${id}" name="\${id}" rows="3" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="\${t(placeholderKey, placeholderDefault)}"></textarea>
+      </div>
+    \`;
+
+    return \`
+      <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.personalInfo', 'Personal Information')}</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+        \${inputField('qrcode.vcard.labels.firstName', 'First Name', 'vcard-firstName', 'text', 'qrcode.vcard.placeholders.firstName', 'John')}
+        \${inputField('qrcode.vcard.labels.lastName', 'Last Name', 'vcard-lastName', 'text', 'qrcode.vcard.placeholders.lastName', 'Doe')}
+      </div>
+      \${inputField('qrcode.vcard.labels.organization', 'Organization', 'vcard-organization', 'text', 'qrcode.vcard.placeholders.organization', 'Acme Corp')}
+      \${inputField('qrcode.vcard.labels.jobTitle', 'Job Title', 'vcard-jobTitle', 'text', 'qrcode.vcard.placeholders.jobTitle', 'Developer')}
+      
+      <hr class="my-6 border-slate-300">
+      <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.contact', 'Contact')}</h4>
+      \${inputField('qrcode.vcard.labels.telMobile', 'Mobile Phone', 'vcard-telMobile', 'tel', 'qrcode.vcard.placeholders.telMobile', '+1-202-555-0100')}
+      \${inputField('qrcode.vcard.labels.telWork', 'Work Phone', 'vcard-telWork', 'tel', 'qrcode.vcard.placeholders.telWork', '+1-202-555-0101')}
+      \${inputField('qrcode.vcard.labels.email', 'Email', 'vcard-email', 'email', 'qrcode.vcard.placeholders.email', 'john.doe@example.com')}
+      \${inputField('qrcode.vcard.labels.website', 'Website', 'vcard-website', 'url', 'qrcode.vcard.placeholders.website', 'https://example.com')}
+
+      <hr class="my-6 border-slate-300">
+      <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.address', 'Address')}</h4>
+      \${inputField('qrcode.vcard.labels.street', 'Street', 'vcard-street', 'text', 'qrcode.vcard.placeholders.street', '123 Main St')}
+      \${inputField('qrcode.vcard.labels.city', 'City', 'vcard-city', 'text', 'qrcode.vcard.placeholders.city', 'Anytown')}
+      \${inputField('qrcode.vcard.labels.zip', 'ZIP Code', 'vcard-zip', 'text', 'qrcode.vcard.placeholders.zip', '12345')}
+      \${inputField('qrcode.vcard.labels.state', 'State/Region', 'vcard-state', 'text', 'qrcode.vcard.placeholders.state', 'CA')}
+      \${inputField('qrcode.vcard.labels.country', 'Country', 'vcard-country', 'text', 'qrcode.vcard.placeholders.country', 'USA')}
+      
+      <hr class="my-6 border-slate-300">
+      <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.notes', 'Notes')}</h4>
+      \${textAreaField('qrcode.vcard.labels.notes', 'Notes', 'vcard-notes', 'qrcode.vcard.placeholders.notes', 'Additional information')}
+    \`;
   },
 
   _getWiFiFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="wifi-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <p class="text-sm text-gray-600 mb-3">${t('qrcode.forms.wifi.description', 'WiFi 네트워크 정보를 입력하여 QR 코드를 생성합니다. 스캔하면 바로 연결할 수 있습니다.')}</p>
-        <div>
-          <label for="wifi-ssid" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.wifi.ssid', '네트워크 이름 (SSID)')}</label>
-          <input type="text" id="wifi-ssid" name="wifi-ssid" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.wifi.ssidPlaceholder', 'MyWiFiNetwork')}">
-        </div>
-        <div>
-          <label for="wifi-password" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.wifi.password', '비밀번호')}</label>
-          <input type="password" id="wifi-password" name="wifi-password" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.wifi.passwordPlaceholder', '********')}">
-        </div>
-        <div>
-          <label for="wifi-encryption" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.wifi.encryption', '암호화 방식')}</label>
-          <select id="wifi-encryption" name="wifi-encryption" class="mt-1 block w-full form-select">
-            <option value="WPA" selected>WPA/WPA2</option>
-            <option value="WEP">WEP</option>
-            <option value="nopass">${t('qrcode.forms.wifi.noEncryption', '암호화 없음')}</option>
-          </select>
-        </div>
-        <div>
-          <input type="checkbox" id="wifi-hidden" name="wifi-hidden" class="form-checkbox">
-          <label for="wifi-hidden" class="ml-2 text-sm font-medium text-gray-700">${t('qrcode.forms.wifi.hiddenNetwork', '숨겨진 네트워크')}</label>
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    return \`
+      <div class="mb-4">
+        <label for="wifi-ssid" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.wifi.labels.ssid', 'Network Name (SSID)')}</label>
+        <input type="text" id="wifi-ssid" name="ssid" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.wifi.placeholders.ssid', 'MyWiFiNetwork')}" required>
+      </div>
+      <div class="mb-4">
+        <label for="wifi-password" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.wifi.labels.password', 'Password')}</label>
+        <input type="password" id="wifi-password" name="password" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.wifi.placeholders.password', 'Password')}">
+      </div>
+      <div class="mb-4">
+        <label for="wifi-encryption" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.wifi.labels.encryption', 'Encryption')}</label>
+        <select id="wifi-encryption" name="encryption" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
+          <option value="WPA" selected>WPA/WPA2</option>
+          <option value="WEP">WEP</option>
+          <option value="nopass">None (Open Network)</option>
+        </select>
+      </div>
+      <div>
+        <label for="wifi-hidden" class="flex items-center">
+          <input type="checkbox" id="wifi-hidden" name="hidden" class="h-4 w-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500">
+          <span class="ml-2 text-sm text-slate-700">${t('qrcode.wifi.labels.hidden', 'Hidden Network')}</span>
+        </label>
+      </div>
+    \`;
   },
 
   _getEmailFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="email-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <div>
-          <label for="qr-email-address" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.email.address', '이메일 주소')}</label>
-          <input type="email" id="qr-email-address" name="qr-email-address" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.email.addressPlaceholder', 'recipient@example.com')}">
-        </div>
-        <div>
-          <label for="qr-email-subject" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.email.subject', '제목')}</label>
-          <input type="text" id="qr-email-subject" name="qr-email-subject" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.email.subjectPlaceholder', '이메일 제목')}">
-        </div>
-        <div>
-          <label for="qr-email-body" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.email.body', '내용')}</label>
-          <textarea id="qr-email-body" name="qr-email-body" rows="3" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.email.bodyPlaceholder', '이메일 내용을 입력하세요...')}"></textarea>
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    return \`
+      <div class="mb-4">
+        <label for="email-address" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.email.labels.address', 'Email Address')}</label>
+        <input type="email" id="email-address" name="address" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.email.placeholders.address', 'recipient@example.com')}" required>
+      </div>
+      <div class="mb-4">
+        <label for="email-subject" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.email.labels.subject', 'Subject (Optional)')}</label>
+        <input type="text" id="email-subject" name="subject" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.email.placeholders.subject', 'Email Subject')}">
+      </div>
+      <div>
+        <label for="email-body" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.email.labels.body', 'Message (Optional)')}</label>
+        <textarea id="email-body" name="body" rows="3" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.email.placeholders.body', 'Email message content')}"></textarea>
+      </div>
+    \`;
   },
 
   _getTelFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="tel-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <div>
-          <label for="qr-tel" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.tel.label', '전화번호')}</label>
-          <input type="tel" id="qr-tel" name="qr-tel" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.tel.placeholder', '+821012345678')}">
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    return \`
+      <div>
+        <label for="tel-number" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.tel.labels.number', 'Phone Number')}</label>
+        <input type="tel" id="tel-number" name="number" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.tel.placeholders.number', '+1-202-555-0100')}" required>
+      </div>
+    \`;
   },
 
   _getSmsFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="sms-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <div>
-          <label for="qr-sms-number" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.sms.number', '전화번호')}</label>
-          <input type="tel" id="qr-sms-number" name="qr-sms-number" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.sms.numberPlaceholder', '+821012345678')}">
-        </div>
-        <div>
-          <label for="qr-sms-body" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.sms.body', '메시지 내용')}</label>
-          <textarea id="qr-sms-body" name="qr-sms-body" rows="3" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.sms.bodyPlaceholder', '문자 메시지 내용을 입력하세요...')}"></textarea>
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    return \`
+      <div class="mb-4">
+        <label for="sms-number" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.sms.labels.number', 'Phone Number')}</label>
+        <input type="tel" id="sms-number" name="number" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.sms.placeholders.number', '+1-202-555-0100')}" required>
+      </div>
+      <div>
+        <label for="sms-message" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.sms.labels.message', 'Message (Optional)')}</label>
+        <textarea id="sms-message" name="message" rows="3" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.sms.placeholders.message', 'SMS message content')}"></textarea>
+      </div>
+    \`;
   },
 
   _getGeoFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return `
-      <form id="geo-form" class="content-form active space-y-4 p-4 bg-white shadow-md rounded-lg">
-        <div>
-          <label for="qr-geo-latitude" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.geo.latitude', '위도')}</label>
-          <input type="text" id="qr-geo-latitude" name="qr-geo-latitude" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.geo.latitudePlaceholder', '37.5665')}">
-        </div>
-        <div>
-          <label for="qr-geo-longitude" class="block text-sm font-medium text-gray-700">${t('qrcode.forms.geo.longitude', '경도')}</label>
-          <input type="text" id="qr-geo-longitude" name="qr-geo-longitude" class="mt-1 block w-full form-input" placeholder="${t('qrcode.forms.geo.longitudePlaceholder', '126.9780')}">
-        </div>
-        <button type="submit" class="btn qr-generate-button w-full">${t('qrcode.forms.generateQR', 'QR 코드 생성')}</button>
-      </form>
-    `;
+    return \`
+      <div class="mb-4">
+        <label for="geo-latitude" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.geo.labels.latitude', 'Latitude')}</label>
+        <input type="text" id="geo-latitude" name="latitude" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.geo.placeholders.latitude', 'e.g., 34.0522')}" required>
+      </div>
+      <div class="mb-4">
+        <label for="geo-longitude" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.geo.labels.longitude', 'Longitude')}</label>
+        <input type="text" id="geo-longitude" name="longitude" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.geo.placeholders.longitude', 'e.g., -118.2437')}" required>
+      </div>
+      <div>
+        <label for="geo-query" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.geo.labels.query', 'Query (Optional)')}</label>
+        <input type="text" id="geo-query" name="query" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.geo.placeholders.query', 'e.g., Eiffel Tower')}">
+        <p class="mt-1 text-xs text-slate-500">${t('qrcode.geo.helpTexts.query', 'If query is provided, latitude/longitude might be ignored by some apps.')}</p>
+      </div>
+    \`;
   },
   
   _getFileFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    // 파일 QR은 file-to-qr-core.js에서 UI를 직접 제어할 수도 있음.
-    // 여기서는 기본적인 플레이스홀더나 안내를 제공.
-    return `
-      <div id="file-qr-form" class="content-form active p-4 bg-white shadow-md rounded-lg">
-        <p class="text-gray-700">${t('qrcode.forms.file.description', '파일을 QR 코드로 변환하려면 아래 영역에 파일을 드래그하거나 선택하세요.')}</p>
-        <div id="file-dropzone-qr" class="mt-4 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md cursor-pointer hover:border-blue-500">
-          <div class="space-y-1 text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-            <div class="flex text-sm text-gray-600">
-              <label for="file-upload-input-qr" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                <span>${t('fileInput.uploadFile', '파일 선택')}</span>
-                <input id="file-upload-input-qr" name="file-upload-input-qr" type="file" class="sr-only">
-              </label>
-              <p class="pl-1">${t('fileInput.dragAndDrop', '또는 드래그 앤 드롭')}</p>
-            </div>
-            <p class="text-xs text-gray-500">${t('fileInput.fileTypes', '이미지, 문서, 오디오, 비디오 등')}</p>
-          </div>
-        </div>
-        <div id="file-upload-progress-container-qr" class="mt-4 hidden">
-          <div class="flex justify-between mb-1">
-            <span id="file-upload-filename-qr" class="text-sm font-medium text-gray-700"></span>
-            <span id="file-upload-percentage-qr" class="text-sm font-medium text-gray-700">0%</span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2.5">
-            <div id="file-upload-progressbar-qr" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-        <div id="file-qr-status" class="text-sm text-gray-700 mt-2"></div>
-         <p class="text-xs text-gray-500 mt-2">${t('qrcode.forms.file.note', '파일은 서버에 업로드되지 않고 브라우저 내에서 직접 처리됩니다.')}</p>
+    // This form primarily redirects to the convert.html page
+    // We will use very similar styling to the file upload section in convert.html for consistency
+    return \`
+      <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+        <svg class="mx-auto h-12 w-12 text-purple-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        <h4 class="text-lg font-semibold text-slate-700 mb-2">${t('qrcode.file.title', 'File to QR Code')}</h4>
+        <p class="text-sm text-slate-600 mb-4">${t('qrcode.file.description', 'To create a QR code for a file, please use our dedicated File Converter page. You can upload your file there, and it will be converted into a shareable link for your QR code.')}</p>
+        <a href="/convert.html" 
+           class="inline-flex items-center px-6 py-2.5 bg-purple-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out transform hover:scale-105">
+          ${t('qrcode.file.buttonText', 'Go to File Converter')}
+          <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+        </a>
+        <p class="mt-3 text-xs text-slate-500">${t('qrcode.file.note', 'Maximum file size and supported types are detailed on the converter page.')}</p>
       </div>
-    `;
+    \`;
   },
 
   _initVCardDynamicFields() {
@@ -684,7 +682,7 @@ const QRGenerator = {
 
     const createField = (type, container, placeholderKey, placeholderDefault, fieldNamePrefix) => {
       const fieldCount = container.querySelectorAll(`input[name^="${fieldNamePrefix}"]`).length;
-      const fieldId = `vcard-${fieldNamePrefix}-${fieldCount}`;
+      const fieldId = \`vcard-\${fieldNamePrefix}-\${fieldCount}\`;
       
       const div = document.createElement('div');
       div.className = 'flex items-center space-x-2 mb-2';
@@ -692,7 +690,7 @@ const QRGenerator = {
       const input = document.createElement('input');
       input.type = type === 'email' ? 'email' : 'tel';
       input.id = fieldId;
-      input.name = `${fieldNamePrefix}[]`; // Use array notation for multiple values
+      input.name = \`\${fieldNamePrefix}[]\`; // Use array notation for multiple values
       input.className = 'mt-1 block w-full form-input';
       input.placeholder = t(placeholderKey, placeholderDefault);
       

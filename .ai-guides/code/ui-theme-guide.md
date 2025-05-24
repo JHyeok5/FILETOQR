@@ -100,8 +100,8 @@ FileToQR의 브랜드 이미지를 강화하고 사용자에게 긍정적이고 
 -   **Fade In:** `animate-fadeIn` (아래 CSS 참고)
     \`\`\`css
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
     \`\`\`
