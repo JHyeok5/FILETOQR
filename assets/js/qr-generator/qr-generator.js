@@ -496,75 +496,75 @@ const QRGenerator = {
 
   _getURLFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return \`
+    return `
       <div>
         <label for="qr-url" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.labels.url', 'URL')}</label>
         <input type="url" id="qr-url" name="url" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.placeholders.url', 'https://example.com')}" required>
         <p class="mt-1 text-xs text-slate-500">${t('qrcode.helpTexts.url', 'Enter the full URL including http(s)://')}</p>
       </div>
-    \`;
+    `;
   },
 
   _getTextFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return \`
+    return `
       <div>
         <label for="qr-text" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.labels.text', 'Text')}</label>
         <textarea id="qr-text" name="text" rows="4" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.placeholders.text', 'Enter your text here')}"></textarea>
       </div>
-    \`;
+    `;
   },
 
   _getVCardFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
     // Helper for input fields
-    const inputField = (labelKey, labelDefault, id, type, placeholderKey, placeholderDefault, helpTextKey = null, helpTextDefault = null) => \`
+    const inputField = (labelKey, labelDefault, id, type, placeholderKey, placeholderDefault, helpTextKey = null, helpTextDefault = null) => `
       <div class="mb-4">
-        <label for="\${id}" class="block text-sm font-medium text-slate-700 mb-1">\${t(labelKey, labelDefault)}</label>
-        <input type="\${type}" id="\${id}" name="\${id}" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="\${t(placeholderKey, placeholderDefault)}">
-        \${helpTextKey ? \`<p class="mt-1 text-xs text-slate-500">\${t(helpTextKey, helpTextDefault)}</p>\` : ''}
+        <label for="${id}" class="block text-sm font-medium text-slate-700 mb-1">${t(labelKey, labelDefault)}</label>
+        <input type="${type}" id="${id}" name="${id}" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t(placeholderKey, placeholderDefault)}">
+        ${helpTextKey ? `<p class="mt-1 text-xs text-slate-500">${t(helpTextKey, helpTextDefault)}</p>` : ''}
       </div>
-    \`;
-    const textAreaField = (labelKey, labelDefault, id, placeholderKey, placeholderDefault) => \`
+    `;
+    const textAreaField = (labelKey, labelDefault, id, placeholderKey, placeholderDefault) => `
       <div class="mb-4">
-        <label for="\${id}" class="block text-sm font-medium text-slate-700 mb-1">\${t(labelKey, labelDefault)}</label>
-        <textarea id="\${id}" name="\${id}" rows="3" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="\${t(placeholderKey, placeholderDefault)}"></textarea>
+        <label for="${id}" class="block text-sm font-medium text-slate-700 mb-1">${t(labelKey, labelDefault)}</label>
+        <textarea id="${id}" name="${id}" rows="3" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t(placeholderKey, placeholderDefault)}"></textarea>
       </div>
-    \`;
+    `;
 
-    return \`
+    return `
       <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.personalInfo', 'Personal Information')}</h4>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-        \${inputField('qrcode.vcard.labels.firstName', 'First Name', 'vcard-firstName', 'text', 'qrcode.vcard.placeholders.firstName', 'John')}
-        \${inputField('qrcode.vcard.labels.lastName', 'Last Name', 'vcard-lastName', 'text', 'qrcode.vcard.placeholders.lastName', 'Doe')}
+        ${inputField('qrcode.vcard.labels.firstName', 'First Name', 'vcard-firstName', 'text', 'qrcode.vcard.placeholders.firstName', 'John')}
+        ${inputField('qrcode.vcard.labels.lastName', 'Last Name', 'vcard-lastName', 'text', 'qrcode.vcard.placeholders.lastName', 'Doe')}
       </div>
-      \${inputField('qrcode.vcard.labels.organization', 'Organization', 'vcard-organization', 'text', 'qrcode.vcard.placeholders.organization', 'Acme Corp')}
-      \${inputField('qrcode.vcard.labels.jobTitle', 'Job Title', 'vcard-jobTitle', 'text', 'qrcode.vcard.placeholders.jobTitle', 'Developer')}
+      ${inputField('qrcode.vcard.labels.organization', 'Organization', 'vcard-organization', 'text', 'qrcode.vcard.placeholders.organization', 'Acme Corp')}
+      ${inputField('qrcode.vcard.labels.jobTitle', 'Job Title', 'vcard-jobTitle', 'text', 'qrcode.vcard.placeholders.jobTitle', 'Developer')}
       
       <hr class="my-6 border-slate-300">
       <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.contact', 'Contact')}</h4>
-      \${inputField('qrcode.vcard.labels.telMobile', 'Mobile Phone', 'vcard-telMobile', 'tel', 'qrcode.vcard.placeholders.telMobile', '+1-202-555-0100')}
-      \${inputField('qrcode.vcard.labels.telWork', 'Work Phone', 'vcard-telWork', 'tel', 'qrcode.vcard.placeholders.telWork', '+1-202-555-0101')}
-      \${inputField('qrcode.vcard.labels.email', 'Email', 'vcard-email', 'email', 'qrcode.vcard.placeholders.email', 'john.doe@example.com')}
-      \${inputField('qrcode.vcard.labels.website', 'Website', 'vcard-website', 'url', 'qrcode.vcard.placeholders.website', 'https://example.com')}
+      ${inputField('qrcode.vcard.labels.telMobile', 'Mobile Phone', 'vcard-telMobile', 'tel', 'qrcode.vcard.placeholders.telMobile', '+1-202-555-0100')}
+      ${inputField('qrcode.vcard.labels.telWork', 'Work Phone', 'vcard-telWork', 'tel', 'qrcode.vcard.placeholders.telWork', '+1-202-555-0101')}
+      ${inputField('qrcode.vcard.labels.email', 'Email', 'vcard-email', 'email', 'qrcode.vcard.placeholders.email', 'john.doe@example.com')}
+      ${inputField('qrcode.vcard.labels.website', 'Website', 'vcard-website', 'url', 'qrcode.vcard.placeholders.website', 'https://example.com')}
 
       <hr class="my-6 border-slate-300">
       <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.address', 'Address')}</h4>
-      \${inputField('qrcode.vcard.labels.street', 'Street', 'vcard-street', 'text', 'qrcode.vcard.placeholders.street', '123 Main St')}
-      \${inputField('qrcode.vcard.labels.city', 'City', 'vcard-city', 'text', 'qrcode.vcard.placeholders.city', 'Anytown')}
-      \${inputField('qrcode.vcard.labels.zip', 'ZIP Code', 'vcard-zip', 'text', 'qrcode.vcard.placeholders.zip', '12345')}
-      \${inputField('qrcode.vcard.labels.state', 'State/Region', 'vcard-state', 'text', 'qrcode.vcard.placeholders.state', 'CA')}
-      \${inputField('qrcode.vcard.labels.country', 'Country', 'vcard-country', 'text', 'qrcode.vcard.placeholders.country', 'USA')}
+      ${inputField('qrcode.vcard.labels.street', 'Street', 'vcard-street', 'text', 'qrcode.vcard.placeholders.street', '123 Main St')}
+      ${inputField('qrcode.vcard.labels.city', 'City', 'vcard-city', 'text', 'qrcode.vcard.placeholders.city', 'Anytown')}
+      ${inputField('qrcode.vcard.labels.zip', 'ZIP Code', 'vcard-zip', 'text', 'qrcode.vcard.placeholders.zip', '12345')}
+      ${inputField('qrcode.vcard.labels.state', 'State/Region', 'vcard-state', 'text', 'qrcode.vcard.placeholders.state', 'CA')}
+      ${inputField('qrcode.vcard.labels.country', 'Country', 'vcard-country', 'text', 'qrcode.vcard.placeholders.country', 'USA')}
       
       <hr class="my-6 border-slate-300">
       <h4 class="text-lg font-semibold text-slate-800 mb-3">${t('qrcode.vcard.titles.notes', 'Notes')}</h4>
-      \${textAreaField('qrcode.vcard.labels.notes', 'Notes', 'vcard-notes', 'qrcode.vcard.placeholders.notes', 'Additional information')}
-    \`;
+      ${textAreaField('qrcode.vcard.labels.notes', 'Notes', 'vcard-notes', 'qrcode.vcard.placeholders.notes', 'Additional information')}
+    `;
   },
 
   _getWiFiFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return \`
+    return `
       <div class="mb-4">
         <label for="wifi-ssid" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.wifi.labels.ssid', 'Network Name (SSID)')}</label>
         <input type="text" id="wifi-ssid" name="ssid" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.wifi.placeholders.ssid', 'MyWiFiNetwork')}" required>
@@ -587,12 +587,12 @@ const QRGenerator = {
           <span class="ml-2 text-sm text-slate-700">${t('qrcode.wifi.labels.hidden', 'Hidden Network')}</span>
         </label>
       </div>
-    \`;
+    `;
   },
 
   _getEmailFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return \`
+    return `
       <div class="mb-4">
         <label for="email-address" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.email.labels.address', 'Email Address')}</label>
         <input type="email" id="email-address" name="address" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.email.placeholders.address', 'recipient@example.com')}" required>
@@ -605,22 +605,22 @@ const QRGenerator = {
         <label for="email-body" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.email.labels.body', 'Message (Optional)')}</label>
         <textarea id="email-body" name="body" rows="3" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.email.placeholders.body', 'Email message content')}"></textarea>
       </div>
-    \`;
+    `;
   },
 
   _getTelFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return \`
+    return `
       <div>
         <label for="tel-number" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.tel.labels.number', 'Phone Number')}</label>
         <input type="tel" id="tel-number" name="number" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.tel.placeholders.number', '+1-202-555-0100')}" required>
       </div>
-    \`;
+    `;
   },
 
   _getSmsFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return \`
+    return `
       <div class="mb-4">
         <label for="sms-number" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.sms.labels.number', 'Phone Number')}</label>
         <input type="tel" id="sms-number" name="number" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.sms.placeholders.number', '+1-202-555-0100')}" required>
@@ -629,12 +629,12 @@ const QRGenerator = {
         <label for="sms-message" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.sms.labels.message', 'Message (Optional)')}</label>
         <textarea id="sms-message" name="message" rows="3" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.sms.placeholders.message', 'SMS message content')}"></textarea>
       </div>
-    \`;
+    `;
   },
 
   _getGeoFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
-    return \`
+    return `
       <div class="mb-4">
         <label for="geo-latitude" class="block text-sm font-medium text-slate-700 mb-1">${t('qrcode.geo.labels.latitude', 'Latitude')}</label>
         <input type="text" id="geo-latitude" name="latitude" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.geo.placeholders.latitude', 'e.g., 34.0522')}" required>
@@ -648,14 +648,14 @@ const QRGenerator = {
         <input type="text" id="geo-query" name="query" class="mt-1 block w-full py-2 px-3 border border-slate-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" placeholder="${t('qrcode.geo.placeholders.query', 'e.g., Eiffel Tower')}">
         <p class="mt-1 text-xs text-slate-500">${t('qrcode.geo.helpTexts.query', 'If query is provided, latitude/longitude might be ignored by some apps.')}</p>
       </div>
-    \`;
+    `;
   },
   
   _getFileFormHTML() {
     const t = (k, dv) => this._getLocalizedText(k, dv);
     // This form primarily redirects to the convert.html page
     // We will use very similar styling to the file upload section in convert.html for consistency
-    return \`
+    return `
       <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
         <svg class="mx-auto h-12 w-12 text-purple-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
         <h4 class="text-lg font-semibold text-slate-700 mb-2">${t('qrcode.file.title', 'File to QR Code')}</h4>
@@ -667,7 +667,7 @@ const QRGenerator = {
         </a>
         <p class="mt-3 text-xs text-slate-500">${t('qrcode.file.note', 'Maximum file size and supported types are detailed on the converter page.')}</p>
       </div>
-    \`;
+    `;
   },
 
   _initVCardDynamicFields() {
@@ -682,7 +682,7 @@ const QRGenerator = {
 
     const createField = (type, container, placeholderKey, placeholderDefault, fieldNamePrefix) => {
       const fieldCount = container.querySelectorAll(`input[name^="${fieldNamePrefix}"]`).length;
-      const fieldId = \`vcard-\${fieldNamePrefix}-\${fieldCount}\`;
+      const fieldId = `vcard-${fieldNamePrefix}-${fieldCount}`;
       
       const div = document.createElement('div');
       div.className = 'flex items-center space-x-2 mb-2';
@@ -690,7 +690,7 @@ const QRGenerator = {
       const input = document.createElement('input');
       input.type = type === 'email' ? 'email' : 'tel';
       input.id = fieldId;
-      input.name = \`\${fieldNamePrefix}[]\`; // Use array notation for multiple values
+      input.name = `${fieldNamePrefix}[]`; // Use array notation for multiple values
       input.className = 'mt-1 block w-full form-input';
       input.placeholder = t(placeholderKey, placeholderDefault);
       
