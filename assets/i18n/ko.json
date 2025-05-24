@@ -31,7 +31,8 @@
     "help": "/help.html",
     "contact": "/contact.html",
     "privacy": "/privacy.html",
-    "terms": "/terms.html"
+    "terms": "/terms.html",
+    "game": "/game/index.html"
   },
   "meta": {
     "description": "파일 변환 및 QR 코드 생성 플랫폼. 이미지, 문서, 오디오 등 다양한 파일을 변환하고 맞춤형 QR 코드를 생성하세요.",
@@ -43,7 +44,8 @@
     "qrcode": "QR 코드",
     "timer": "타이머",
     "help": "도움말",
-    "contact": "문의하기"
+    "contact": "문의하기",
+    "game": "게임"
   },
   "footer": {
     "about": "FileToQR",
@@ -53,7 +55,8 @@
     "copyright": "© 2025 FileToQR. 모든 권리 보유.",
     "lastUpdate": "최종 업데이트: 2025년 5월 2일",
     "privacy": "개인정보 처리방침",
-    "terms": "이용약관"
+    "terms": "이용약관",
+    "game": "게임"
   },
   "home": {
     "hero": {
@@ -264,7 +267,8 @@
     "convert": "파일 변환",
     "qrcode": "QR 코드",
     "timer": "타이머",
-    "help": "도움말"
+    "help": "도움말",
+    "game": "게임"
   },
   "lang": {
     "ko": "한국어",
@@ -374,7 +378,8 @@
     "timer": "타이머",
     "help": "도움말",
     "privacyPolicy": "개인정보처리방침",
-    "lastUpdate": "최종 업데이트: 2025년 5월 2일"
+    "lastUpdate": "최종 업데이트: 2025년 5월 2일",
+    "game": "게임"
   },
   "ui": {
     "missingInput": "입력 요소가 없습니다.",
