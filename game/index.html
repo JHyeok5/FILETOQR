@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phaser and Matter.js Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+</head>
+<body>
+    <script>
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            backgroundColor: '#222222',
+            physics: {
+                default: 'matter',
+                matter: {
+                    gravity: { y: 1 }
+                }
+            },
+            scene: {
+                preload: function () {
+                    // Dynamically create a white circle image for the lantern
+                    const graphics = this.make.graphics({ x: 0, y: 0, add: false });
+                    graphics.fillStyle(0xffffff);
+                    graphics.fillCircle(16, 16, 16); // x, y, radius
+                    graphics.generateTexture('lantern', 32, 32);
+                    graphics.destroy();
+                },
+                create: function () {
+                    // Add the lantern sprite to the center of the screen
+                    const lanternSprite = this.matter.add.sprite(400, 50, 'lantern', null, {
+                        shape: { type: 'circle', radius: 16 },
+                        restitution: 0.1,
+                        mass: 0.5
+                    });
+
+                    // Tendril variables
+                    let tendril = null;
+                    let isTendrilActive = false;
+                    const tendrilGraphics = this.add.graphics();
+                    const memoryFragments = [];
+
+                    // --- Create Memory Fragments ---
+                    const fragmentGraphics = this.add.graphics();
+                    fragmentGraphics.fillStyle(0x888888); // Grey color for fragments
+
+                    function drawVertices(graphics, body) {
+                        graphics.beginPath();
+                        graphics.moveTo(body.vertices[0].x, body.vertices[0].y);
+                        for (let i = 1; i < body.vertices.length; i++) {
+                            graphics.lineTo(body.vertices[i].x, body.vertices[i].y);
+                        }
+                        graphics.closePath();
+                        graphics.fillPath();
+                    }
+
+                    // Large platform
+                    const largePlatform = this.matter.add.rectangle(400, 500, 600, 50, { 
+                        isStatic: true, 
+                        label: 'platform', 
+                        chamfer: { radius: 10 } 
+                    });
+                    memoryFragments.push(largePlatform);
+                    drawVertices(fragmentGraphics, largePlatform);
+
+                    // Small ledges
+                    const smallLedge1 = this.matter.add.rectangle(200, 350, 100, 30, { isStatic: true, label: 'small_ledge' });
+                    memoryFragments.push(smallLedge1);
+                    drawVertices(fragmentGraphics, smallLedge1);
+
+                    const smallLedge2 = this.matter.add.rectangle(600, 250, 100, 30, { isStatic: true, label: 'small_ledge' });
+                    memoryFragments.push(smallLedge2);
+                    drawVertices(fragmentGraphics, smallLedge2);
+
+                    // Slanted rectangle
+                    const slantedRect = this.matter.add.rectangle(300, 150, 150, 20, { 
+                        isStatic: true, 
+                        label: 'slanted_platform', 
+                        angle: Math.PI / 6 
+                    });
+                    memoryFragments.push(slantedRect);
+                    drawVertices(fragmentGraphics, slantedRect);
+
+                    // Mouse input events
+                    this.input.on('pointerdown', (pointer) => {
+                        isTendrilActive = true;
+                        const bodiesUnderPointer = Matter.Query.point(memoryFragments, { x: pointer.x, y: pointer.y });
+
+                        if (bodiesUnderPointer.length > 0) {
+                            const closestFragment = bodiesUnderPointer[0]; // Simplistic: take the first one
+
+                            // Calculate pointB relative to the fragment's center
+                            const pointB = {
+                                x: pointer.x - closestFragment.position.x,
+                                y: pointer.y - closestFragment.position.y
+                            };
+
+                            const initialDistance = Phaser.Math.Distance.Between(lanternSprite.x, lanternSprite.y, pointer.x, pointer.y);
+                            
+                            tendril = this.matter.add.constraint(lanternSprite.body, closestFragment, initialDistance, 0.05, {
+                                damping: 0.01,
+                                pointB: pointB
+                            });
+                            this.matter.world.add(tendril);
+                        } else {
+                            tendril = null; // No valid fragment to attach to
+                        }
+                    });
+
+                    this.input.on('pointerup', (pointer) => {
+                        isTendrilActive = false;
+                        if (tendril) {
+                            this.matter.world.remove(tendril);
+                            tendril = null;
+                        }
+                        tendrilGraphics.clear();
+                    });
+                },
+                update: function () {
+                    if (isTendrilActive && tendril && tendril.bodyB) {
+                        tendrilGraphics.clear();
+                        tendrilGraphics.lineStyle(2, 0xffffff, 0.8); // thickness, color, alpha
+                        tendrilGraphics.beginPath();
+                        tendrilGraphics.moveTo(lanternSprite.x, lanternSprite.y);
+                        // Calculate the world coordinates of pointB
+                        const pointBWorldX = tendril.bodyB.position.x + tendril.pointB.x;
+                        const pointBWorldY = tendril.bodyB.position.y + tendril.pointB.y;
+                        tendrilGraphics.lineTo(pointBWorldX, pointBWorldY);
+                        tendrilGraphics.strokePath();
+                    } else {
+                        tendrilGraphics.clear(); // Clear if tendril is not active or not attached
+                    }
+                }
+            }
+        };
+
+        const game = new Phaser.Game(config);
+    </script>
+</body>
+</html>
