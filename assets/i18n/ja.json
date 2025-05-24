@@ -25,7 +25,8 @@
     "qrcode": "QRコード",
     "timer": "タイマー",
     "help": "ヘルプ",
-    "contact": "お問い合わせ"
+    "contact": "お問い合わせ",
+    "game": "ゲーム"
   },
   "footer": {
     "about": "FileToQR",
@@ -34,7 +35,8 @@
     "copyright": "© 2025 FileToQR. All rights reserved.",
     "lastUpdate": "最終更新日: 2025年5月2日",
     "privacy": "プライバシーポリシー",
-    "terms": "利用規約"
+    "terms": "利用規約",
+    "game": "ゲーム"
   },
   "home": {
     "hero": {
@@ -200,7 +202,8 @@
     "convert": "ファイル変換",
     "qrcode": "QRコード",
     "timer": "タイマー",
-    "help": "ヘルプ"
+    "help": "ヘルプ",
+    "game": "ゲーム"
   },
   "lang": {
     "ko": "韓国語",
@@ -310,7 +313,8 @@
     "timer": "タイマー",
     "help": "ヘルプ",
     "privacyPolicy": "プライバシーポリシー",
-    "lastUpdate": "最終更新日: 2025年5月2日"
+    "lastUpdate": "最終更新日: 2025年5月2日",
+    "game": "ゲーム"
   },
   "ui": {
     "missingInput": "入力要素がありません。",
