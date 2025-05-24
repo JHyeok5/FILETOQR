@@ -6,6 +6,14 @@
 </head>
 <body>
     <script>
+        // FileToQR 네임스페이스에 game 페이지 등록 (app-core.js, i18n 등 연동 오류 방지)
+        window.FileToQR = window.FileToQR || {};
+        window.FileToQR.pages = window.FileToQR.pages || {};
+        window.FileToQR.pages.game = window.FileToQR.pages.game || {
+            init: function() {},
+            mount: function() {}
+        };
+
         // Function to display ranking
         function displayRanking() {
             const rankingListEl = document.getElementById('ranking-list');
@@ -48,34 +56,35 @@
                 },
                 create: function () {
                     // Add the lantern sprite to the center of the screen
-                    const lanternSprite = this.matter.add.sprite(400, 50, 'lantern', null, {
+                    this.lanternSprite = this.matter.add.sprite(400, 50, 'lantern', null, {
                         shape: { type: 'circle', radius: 16 },
                         restitution: 0.1,
                         mass: 0.5
                     });
 
                     // Game state variable
-                    let gameState = 'playing'; // 'playing', 'cleared', 'gameOver'
+                    this.gameState = 'playing'; // 'playing', 'cleared'
 
                     // Progress and Timer variables
-                    let startTime = 0;
-                    let elapsedTime = 0;
-                    let initialLanternY = 0;
-                    let progressText;
+                    this.startTime = 0;
+                    this.elapsedTime = 0;
+                    this.initialLanternY = 0;
+                    this.progressText = null;
 
                     // Score submission flag
-                    let scoreSubmitted = false;
+                    this.scoreSubmitted = false;
 
                     // Tendril variables
-                    let tendril = null;
-                    let isTendrilActive = false;
-                    const tendrilGraphics = this.add.graphics();
-                    const memoryFragments = [];
+                    this.tendril = null;
+                    this.isTendrilActive = false;
+                    this.tendrilGraphics = this.add.graphics();
+                    this.memoryFragments = [];
 
                     // --- Create Memory Fragments ---
                     const fragmentGraphics = this.add.graphics();
-                    fragmentGraphics.fillStyle(0x888888); // Grey color for fragments
+                    fragmentGraphics.fillStyle(0x888888);
 
+                    // Helper to draw Matter bodies
                     function drawVertices(graphics, body) {
                         graphics.beginPath();
                         graphics.moveTo(body.vertices[0].x, body.vertices[0].y);
@@ -87,76 +96,70 @@
                     }
 
                     // Large platform
-                    const largePlatform = this.matter.add.rectangle(400, 500, 600, 50, { 
-                        isStatic: true, 
-                        label: 'platform', 
-                        chamfer: { radius: 10 } 
+                    const largePlatform = this.matter.add.rectangle(400, 500, 600, 50, {
+                        isStatic: true,
+                        label: 'platform',
+                        chamfer: { radius: 10 }
                     });
-                    memoryFragments.push(largePlatform);
+                    this.memoryFragments.push(largePlatform);
                     drawVertices(fragmentGraphics, largePlatform);
 
                     // Small ledges
                     const smallLedge1 = this.matter.add.rectangle(200, 350, 100, 30, { isStatic: true, label: 'small_ledge' });
-                    memoryFragments.push(smallLedge1);
+                    this.memoryFragments.push(smallLedge1);
                     drawVertices(fragmentGraphics, smallLedge1);
 
                     const smallLedge2 = this.matter.add.rectangle(600, 250, 100, 30, { isStatic: true, label: 'small_ledge' });
-                    memoryFragments.push(smallLedge2);
+                    this.memoryFragments.push(smallLedge2);
                     drawVertices(fragmentGraphics, smallLedge2);
 
                     // Slanted rectangle
-                    const slantedRect = this.matter.add.rectangle(300, 150, 150, 20, { 
-                        isStatic: true, 
-                        label: 'slanted_platform', 
-                        angle: Math.PI / 6 
+                    const slantedRect = this.matter.add.rectangle(300, 150, 150, 20, {
+                        isStatic: true,
+                        label: 'slanted_platform',
+                        angle: Math.PI / 6
                     });
-                    memoryFragments.push(slantedRect);
+                    this.memoryFragments.push(slantedRect);
                     drawVertices(fragmentGraphics, slantedRect);
 
                     // Store initial Y position of the lantern
-                    initialLanternY = lanternSprite.y;
+                    this.initialLanternY = this.lanternSprite.y;
 
                     // Initialize and display progress text (height and time)
-                    progressText = this.add.text(config.width - 10, 10, '', { fontSize: '16px', fill: '#fff', align: 'right' }).setOrigin(1, 0);
-                    startTime = this.time.now; // Start timer
+                    this.progressText = this.add.text(config.width - 10, 10, '', { fontSize: '16px', fill: '#fff', align: 'right' }).setOrigin(1, 0);
+                    this.startTime = this.time.now;
 
                     // Mouse input events
                     this.input.on('pointerdown', (pointer) => {
-                        if (gameState !== 'playing') return; // Only allow input if playing
-
-                        isTendrilActive = true;
-                        const bodiesUnderPointer = Matter.Query.point(memoryFragments, { x: pointer.x, y: pointer.y });
-
+                        if (this.gameState !== 'playing') return;
+                        this.isTendrilActive = true;
+                        // Use Phaser's Matter namespace for Query
+                        const bodiesUnderPointer = Phaser.Physics.Matter.Matter.Query.point(this.memoryFragments, { x: pointer.x, y: pointer.y });
                         if (bodiesUnderPointer.length > 0) {
-                            const closestFragment = bodiesUnderPointer[0]; // Simplistic: take the first one
-
-                            // Calculate pointB relative to the fragment's center
+                            const closestFragment = bodiesUnderPointer[0];
                             const pointB = {
                                 x: pointer.x - closestFragment.position.x,
                                 y: pointer.y - closestFragment.position.y
                             };
-
-                            const initialDistance = Phaser.Math.Distance.Between(lanternSprite.x, lanternSprite.y, pointer.x, pointer.y);
-                            
-                            tendril = this.matter.add.constraint(lanternSprite.body, closestFragment, initialDistance, 0.05, {
+                            const initialDistance = Phaser.Math.Distance.Between(this.lanternSprite.x, this.lanternSprite.y, pointer.x, pointer.y);
+                            this.tendril = this.matter.add.constraint(this.lanternSprite.body, closestFragment, initialDistance, 0.05, {
                                 damping: 0.01,
                                 pointB: pointB
                             });
-                            this.matter.world.add(tendril);
+                            this.matter.world.add(this.tendril);
                         } else {
-                            tendril = null; // No valid fragment to attach to
+                            this.tendril = null;
                         }
                     });
 
-                    this.input.on('pointerup', (pointer) => {
-                        if (gameState !== 'playing') return; // Only allow input if playing
-
-                        isTendrilActive = false;
-                        if (tendril) {
-                            this.matter.world.remove(tendril);
-                            tendril = null;
+                    this.input.on('pointerup', () => {
+                        if (this.gameState !== 'playing') return;
+                        this.isTendrilActive = false;
+                        if (this.tendril) {
+                            this.matter.world.remove(this.tendril);
+                            this.tendril = null;
                         }
-                        tendrilGraphics.clear();
+                        this.tendrilGraphics.clear();
                     });
 
                     // Display initial ranking
@@ -168,42 +171,39 @@
                         clearButton.addEventListener('click', () => {
                             if (confirm('Are you sure you want to clear all local scores?')) {
                                 localStorage.removeItem('lanternGameScores');
-                                displayRanking(); // Update the displayed ranking
+                                displayRanking();
                                 console.log('Local scores cleared.');
                             }
                         });
                     }
                 },
                 update: function () {
-                    if (gameState === 'playing') {
+                    if (this.gameState === 'playing') {
                         // Update elapsed time
-                        elapsedTime = Math.floor((this.time.now - startTime) / 1000);
-                        
+                        this.elapsedTime = Math.floor((this.time.now - this.startTime) / 1000);
                         // Calculate current height
-                        const currentHeight = Math.max(0, Math.floor(initialLanternY - lanternSprite.y));
-                        
+                        const currentHeight = Math.max(0, Math.floor(this.initialLanternY - this.lanternSprite.y));
                         // Update progress text
-                        progressText.setText(`Height: ${currentHeight}m | Time: ${elapsedTime}s`);
-
+                        this.progressText.setText(`Height: ${currentHeight}m | Time: ${this.elapsedTime}s`);
                         // Game Clear Condition
-                        if (lanternSprite.y < 50) {
-                            gameState = 'cleared';
-                            console.log("Game Clear!");
-                            console.log('Final Time: ' + elapsedTime + 's');
-                            lanternSprite.setStatic(true);
-                            if (tendril) {
-                                this.matter.world.remove(tendril);
-                                tendril = null;
-                                tendrilGraphics.clear();
+                        if (this.lanternSprite.y < 50) {
+                            this.gameState = 'cleared';
+                            console.log('Game Clear!');
+                            console.log('Final Time: ' + this.elapsedTime + 's');
+                            this.lanternSprite.setStatic(true);
+                            if (this.tendril) {
+                                this.matter.world.remove(this.tendril);
+                                this.tendril = null;
+                                this.tendrilGraphics.clear();
                             }
-                            if (!scoreSubmitted) {
-                                scoreSubmitted = true;
-                                let playerName = prompt('Game Clear!\nFinal Time: ' + elapsedTime + 's\nEnter your 3-letter initials:', 'AAA');
+                            if (!this.scoreSubmitted) {
+                                this.scoreSubmitted = true;
+                                let playerName = prompt('Game Clear!\nFinal Time: ' + this.elapsedTime + 's\nEnter your 3-letter initials:', 'AAA');
                                 if (playerName && playerName.length > 0) {
                                     playerName = playerName.substring(0, 3).toUpperCase();
                                     const newScore = {
                                         nickname: playerName,
-                                        time: elapsedTime,
+                                        time: this.elapsedTime,
                                         date: new Date().toISOString().split('T')[0]
                                     };
                                     let scores = JSON.parse(localStorage.getItem('lanternGameScores')) || [];
@@ -214,39 +214,27 @@
                                     }
                                     localStorage.setItem('lanternGameScores', JSON.stringify(scores));
                                     console.log('Score saved:', newScore);
-                                    alert(playerName + ', your score of ' + elapsedTime + 's has been saved! Refresh to play again.');
+                                    alert(playerName + ', your score of ' + this.elapsedTime + 's has been saved! Refresh to play again.');
                                     location.reload();
                                 } else {
-                                     alert('Score not saved. Your time was ' + elapsedTime + 's. Refresh to play again.');
-                                     location.reload();
+                                    alert('Score not saved. Your time was ' + this.elapsedTime + 's. Refresh to play again.');
+                                    location.reload();
                                 }
                             }
                         }
-
-                        }
-
-                        // Game Over Condition (Logic fully removed, block kept as commented for clarity of removal)
-                        /*
-                        if (lanternSprite.y > config.height + 50) {
-                            // All game over logic including score submission was here and is now removed.
-                            // The game now only ends on clear.
-                        }
-                        */
                     }
-
-                    // Tendril drawing logic - only if playing and tendril is active
-                    if (gameState === 'playing' && isTendrilActive && tendril && tendril.bodyB) {
-                        tendrilGraphics.clear();
-                        tendrilGraphics.lineStyle(2, 0xffffff, 0.8); // thickness, color, alpha
-                        tendrilGraphics.beginPath();
-                        tendrilGraphics.moveTo(lanternSprite.x, lanternSprite.y);
-                        // Calculate the world coordinates of pointB
-                        const pointBWorldX = tendril.bodyB.position.x + tendril.pointB.x;
-                        const pointBWorldY = tendril.bodyB.position.y + tendril.pointB.y;
-                        tendrilGraphics.lineTo(pointBWorldX, pointBWorldY);
-                        tendrilGraphics.strokePath();
+                    // Tendril drawing logic
+                    if (this.gameState === 'playing' && this.isTendrilActive && this.tendril && this.tendril.bodyB) {
+                        this.tendrilGraphics.clear();
+                        this.tendrilGraphics.lineStyle(2, 0xffffff, 0.8);
+                        this.tendrilGraphics.beginPath();
+                        this.tendrilGraphics.moveTo(this.lanternSprite.x, this.lanternSprite.y);
+                        const pointBWorldX = this.tendril.bodyB.position.x + this.tendril.pointB.x;
+                        const pointBWorldY = this.tendril.bodyB.position.y + this.tendril.pointB.y;
+                        this.tendrilGraphics.lineTo(pointBWorldX, pointBWorldY);
+                        this.tendrilGraphics.strokePath();
                     } else {
-                        tendrilGraphics.clear(); // Clear if not playing, tendril not active, or not attached
+                        this.tendrilGraphics.clear();
                     }
                 }
             }
