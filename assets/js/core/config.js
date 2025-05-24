@@ -49,7 +49,14 @@ export const PAGE_CONFIG = {
     'help': { html: 'help.html', script: '../pages/content.js', isContentPage: true, contentKey: 'help' },
     'contact': { html: 'contact.html', script: '../pages/content.js', isContentPage: true, contentKey: 'contact' },
     'privacy': { html: 'privacy.html', script: '../pages/content.js', isContentPage: true, contentKey: 'privacy' },
-    'terms': { html: 'terms.html', script: '../pages/content.js', isContentPage: true, contentKey: 'terms' }
+    'terms': { html: 'terms.html', script: '../pages/content.js', isContentPage: true, contentKey: 'terms' },
+    'game': {
+      id: 'game',
+      path: '/game/index.html',
+      i18nKey: 'game',
+      title: '게임',
+      // 필요시 추가 속성
+    }
   },
   
   // i18n 경로 키와 페이지 매핑 (이 부분은 기존 구조 유지 또는 페이지 ID 직접 사용 고려)
@@ -61,7 +68,8 @@ export const PAGE_CONFIG = {
     'help': 'urls.help',
     'contact': 'urls.contact',
     'privacy': 'urls.privacy',
-    'terms': 'urls.terms'
+    'terms': 'urls.terms',
+    'game': 'urls.game'
   }
 };
 
