@@ -257,3 +257,18 @@ FileToQR의 서비스 로직은 다음 6단계로 구성되어 있습니다.
 
 **문의/피드백:**
 - 내부 개발 가이드 개선이 필요하거나, 추가 설명이 필요한 경우 `.ai-guides/` 내 담당자 또는 리드 개발자에게 문의 바랍니다. 
+
+## 페이지 식별자(page id) 및 getCurrentPage() 동작 원리
+
+FileToQR 프로젝트는 app-core.js의 getCurrentPage() 함수를 통해 현재 URL을 분석하여 논리적 "페이지 id"를 반환합니다. 이 page id는 각 페이지별 초기화 로직, 전역 네임스페이스(window.FileToQR.pages.{pageId}) 등록 등에 사용됩니다.
+
+- `/index.html`, `/ko/index.html` → `home`
+- `/convert.html`, `/ko/convert.html` → `convert`
+- `/qrcode.html`, `/ko/qrcode.html` → `qrcode`
+- 기타 페이지도 URL 패턴에 따라 적절한 page id로 매핑됨
+
+**중요:**
+- 실제 파일명과 무관하게, page id 기준으로 페이지별 초기화가 이뤄집니다.
+- 예시: `window.FileToQR.pages.home = HomePage;`로 등록하면, index.html/ko/index.html 모두에서 HomePage.init()이 호출됩니다.
+
+이 구조는 다국어/다중 페이지 환경에서 코드 재사용성과 유지보수성을 높이기 위함입니다. 
