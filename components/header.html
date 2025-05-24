@@ -1,86 +1,89 @@
 <!-- 
-  헤더 컴포넌트 - FileToQR 애플리케이션 
-  버전: 1.0.2 (반응형 햄버거 메뉴 UX 표준 적용)
-  최종 업데이트: 2025년 7월 15일
+  헤더 컴포넌트 - FileToQR 애플리케이션 (리디자인)
+  UI 테마 가이드(.ai-guides/code/ui-theme-guide.md) 준수
 -->
-<header class="bg-white shadow-sm sticky top-0 z-50">
-    <div class="container mx-auto px-4 py-4">
-        <div class="flex items-center justify-between">
-            <a href="/ko/index.html" class="flex items-center min-w-0">
-                <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-8 mr-2 shrink-0">
-                <span class="text-2xl font-bold text-blue-600 truncate whitespace-nowrap">FileToQR</span>
-            </a>
-            <!-- 햄버거 메뉴 버튼: 모바일/좁은 화면에서만 보임 -->
-            <button class="md:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="mobile-menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu">
-                <svg class="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-            <!-- PC 네비게이션: 넓은 화면에서만 보임 -->
-            <nav class="hidden md:flex items-center flex-1 justify-center min-w-0 overflow-x-auto" aria-label="주요 메뉴">
-                <ul class="flex space-x-4 md:space-x-6 min-w-0 overflow-x-auto">
-                    <li><a href="#" data-i18n-url="home" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
-                    <li><a href="#" data-i18n-url="convert" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
-                    <li><a href="#" data-i18n-url="qrcode" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
-                    <li><a href="#" data-i18n-url="timer" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
-                    <li><a href="#" data-i18n-url="help" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
-                    <li><a href="/lantern_game.html" class="text-gray-700 hover:text-blue-600 font-medium">게임</a></li>
-                </ul>
-            </nav>
-            <!-- 언어 선택기 -->
-            <div class="ml-2 flex-shrink-0">
-                <div class="language-selector dropdown">
-                    <button class="lang-dropdown-btn" id="lang-selector-toggle" aria-label="언어 변경" aria-haspopup="listbox" aria-controls="lang-dropdown-menu" aria-expanded="false">
-                        <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
-                        <span class="lang-label" data-i18n="lang.ko">한국어</span>
-                        <svg class="lang-dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <polyline points="6 9 12 15 18 9"></polyline>
+<header class="bg-white/90 backdrop-blur shadow-md sticky top-0 z-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="/ko/index.html" class="flex items-center min-w-0 group">
+            <img src="/assets/images/logo.svg" alt="FileToQR 로고" class="h-9 mr-2 shrink-0 transition-transform duration-200 group-hover:scale-105">
+            <span class="text-2xl font-bold text-blue-600 tracking-tight whitespace-nowrap">FileToQR</span>
+        </a>
+        <!-- 햄버거 메뉴 버튼: 모바일/좁은 화면에서만 보임 -->
+        <button class="md:hidden ml-2 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-blue-50 transition-colors duration-150" id="mobile-menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu">
+            <svg class="h-6 w-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        <!-- PC 네비게이션: 넓은 화면에서만 보임 -->
+        <nav class="hidden md:flex items-center flex-1 justify-center min-w-0 overflow-x-auto" aria-label="주요 메뉴">
+            <ul class="flex space-x-4 md:space-x-7 min-w-0 overflow-x-auto">
+                <li><a href="#" data-i18n-url="home" class="nav-link">홈</a></li>
+                <li><a href="#" data-i18n-url="convert" class="nav-link">파일 변환</a></li>
+                <li><a href="#" data-i18n-url="qrcode" class="nav-link">QR 코드</a></li>
+                <li><a href="#" data-i18n-url="timer" class="nav-link">타이머</a></li>
+                <li><a href="#" data-i18n-url="help" class="nav-link">도움말</a></li>
+                <li><a href="/lantern_game.html" class="nav-link">게임</a></li>
+            </ul>
+        </nav>
+        <!-- 언어 선택기 -->
+        <div class="ml-2 flex-shrink-0">
+            <div class="language-selector dropdown">
+                <button class="lang-dropdown-btn flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-100 transition-colors duration-150" id="lang-selector-toggle" aria-label="언어 변경" aria-haspopup="listbox" aria-controls="lang-dropdown-menu" aria-expanded="false">
+                    <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                    <span class="lang-label text-slate-700 text-sm font-medium" data-i18n="lang.ko">한국어</span>
+                    <svg class="lang-dropdown-arrow ml-1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </button>
-                    <div class="lang-dropdown-content" id="lang-dropdown-menu" role="menu" aria-hidden="true">
-                        <div class="lang-dropdown-header">
-                            <span>언어 선택</span>
-                        </div>
-                        <div class="lang-dropdown-list">
-                            <a href="/ko/index.html" class="lang-option active" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
-                                <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
-                                <span class="lang-name" data-i18n="lang.ko">한국어</span>
-                            </a>
-                            <a href="/en/index.html" class="lang-option" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
-                                <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
-                                <span class="lang-name" data-i18n="lang.en">영어</span>
-                            </a>
-                            <a href="/zh/index.html" class="lang-option" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
-                                <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
-                                <span class="lang-name" data-i18n="lang.zh">중국어</span>
-                            </a>
-                            <a href="/ja/index.html" class="lang-option" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
-                                <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
-                                <span class="lang-name" data-i18n="lang.ja">일본어</span>
-                            </a>
-                        </div>
+                <div class="lang-dropdown-content mt-2 shadow-lg rounded-lg bg-white ring-1 ring-slate-200" id="lang-dropdown-menu" role="menu" aria-hidden="true">
+                    <div class="lang-dropdown-header px-4 py-2 border-b border-slate-100 text-xs text-slate-500">언어 선택</div>
+                    <div class="lang-dropdown-list py-2">
+                        <a href="/ko/index.html" class="lang-option active flex items-center gap-2 px-4 py-1.5 text-blue-600 bg-blue-50 rounded font-semibold" data-lang="ko" role="menuitem" aria-label="한국어" aria-current="true">
+                            <span class="lang-flag-icon ko-flag" aria-hidden="true"></span>
+                            <span class="lang-name" data-i18n="lang.ko">한국어</span>
+                        </a>
+                        <a href="/en/index.html" class="lang-option flex items-center gap-2 px-4 py-1.5 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-150" data-lang="en" role="menuitem" aria-label="영어" aria-current="false">
+                            <span class="lang-flag-icon en-flag" aria-hidden="true"></span>
+                            <span class="lang-name" data-i18n="lang.en">영어</span>
+                        </a>
+                        <a href="/zh/index.html" class="lang-option flex items-center gap-2 px-4 py-1.5 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-150" data-lang="zh" role="menuitem" aria-label="중국어" aria-current="false">
+                            <span class="lang-flag-icon zh-flag" aria-hidden="true"></span>
+                            <span class="lang-name" data-i18n="lang.zh">중국어</span>
+                        </a>
+                        <a href="/ja/index.html" class="lang-option flex items-center gap-2 px-4 py-1.5 text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-150" data-lang="ja" role="menuitem" aria-label="일본어" aria-current="false">
+                            <span class="lang-flag-icon ja-flag" aria-hidden="true"></span>
+                            <span class="lang-name" data-i18n="lang.ja">일본어</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- 모바일 메뉴: 햄버거 클릭 시 아래로 드롭다운 -->
-        <nav class="md:hidden mt-2" id="mobile-menu" style="display:none;" aria-label="모바일 메뉴">
-            <ul class="flex flex-col space-y-2 bg-white rounded-lg shadow-md p-4">
-                <li><a href="#" data-i18n-url="home" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.home">홈</a></li>
-                <li><a href="#" data-i18n-url="convert" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.convert">파일 변환</a></li>
-                <li><a href="#" data-i18n-url="qrcode" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.qrcode">QR 코드</a></li>
-                <li><a href="#" data-i18n-url="timer" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.timer">타이머</a></li>
-                <li><a href="#" data-i18n-url="help" class="text-gray-700 hover:text-blue-600 font-medium" data-i18n="nav.help">도움말</a></li>
-                <li><a href="/lantern_game.html" class="text-gray-700 hover:text-blue-600 font-medium">게임</a></li>
-            </ul>
-        </nav>
     </div>
+    <!-- 모바일 메뉴: 햄버거 클릭 시 아래로 드롭다운 -->
+    <nav class="md:hidden mt-2 px-2" id="mobile-menu" style="display:none;" aria-label="모바일 메뉴">
+        <ul class="flex flex-col space-y-2 bg-white rounded-lg shadow-md p-4">
+            <li><a href="#" data-i18n-url="home" class="nav-link">홈</a></li>
+            <li><a href="#" data-i18n-url="convert" class="nav-link">파일 변환</a></li>
+            <li><a href="#" data-i18n-url="qrcode" class="nav-link">QR 코드</a></li>
+            <li><a href="#" data-i18n-url="timer" class="nav-link">타이머</a></li>
+            <li><a href="#" data-i18n-url="help" class="nav-link">도움말</a></li>
+            <li><a href="/lantern_game.html" class="nav-link">게임</a></li>
+        </ul>
+    </nav>
 </header>
 
+<!-- 헤더 네비게이션 스타일(활성/비활성) 및 JS -->
+<style>
+    .nav-link {
+        @apply text-slate-700 font-medium px-3 py-1.5 rounded transition-colors duration-150 hover:text-blue-600 hover:bg-blue-50;
+    }
+    .nav-link.active, .nav-link[aria-current="page"] {
+        @apply text-blue-600 bg-blue-50 font-bold shadow-sm;
+    }
+</style>
 <script>
     window.FileToQR = window.FileToQR || {};
     window.FileToQR.Header = window.FileToQR.Header || {};
-
     window.FileToQR.Header.initializeMobileMenuToggle = function() {
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -90,7 +93,6 @@
                 mobileMenu.style.display = isOpen ? 'none' : 'block';
                 mobileMenuToggle.setAttribute('aria-expanded', !isOpen);
             });
-            // 화면 크기 변경 시 메뉴 자동 닫힘
             window.addEventListener('resize', function() {
                 if (window.innerWidth >= 768) {
                     mobileMenu.style.display = 'none';
@@ -99,38 +101,25 @@
             });
         }
     };
-
     window.FileToQR.Header.activateNavLinks = function() {
         const currentPath = window.location.pathname;
-        // header 태그 내의 모든 nav a (PC 및 모바일 메뉴 모두 포함)
         const navLinks = document.querySelectorAll('header nav a'); 
-        
         navLinks.forEach(link => {
             const href = link.getAttribute('href');
-            // data-i18n-url 속성이 있는 링크에 대해서만 href를 사용합니다.
-            // 없는 경우 (예: 단순 # 링크)는 건너뜁니다.
             const i18nUrlKey = link.dataset.i18nUrl;
-
-            if (href && href !== '#' && i18nUrlKey) { // href가 실제 경로를 가리키는지, i18nUrlKey가 있는지 확인
-                // app-core.js에서 i18n 기반으로 실제 URL을 가져와서 비교해야 합니다.
-                // 여기서는 임시로 파일명 기반으로 비교, app-core.js에서 최종 처리
+            if (href && href !== '#' && i18nUrlKey) {
                 const pageMapEntry = window.FileToQR.PageManager.getPageMapEntryByI18nKey(i18nUrlKey);
                 let targetPath = pageMapEntry ? pageMapEntry.path : null;
-
                 if (targetPath) {
-                    // targetPath가 상대 경로이므로, 현재 경로와 비교하기 쉽게 만듭니다.
-                    // 예: /ko/index.html -> index.html
                     const targetFileName = targetPath.substring(targetPath.lastIndexOf('/') + 1);
                     const currentFileName = currentPath.substring(currentPath.lastIndexOf('/') + 1);
-
                     if (currentPath.endsWith(targetPath) || (currentFileName === targetFileName)) {
-                        link.classList.add('font-medium', 'text-blue-600', 'bg-blue-50', 'active');
-                         // 부모 li에도 active 클래스 추가 (선택적)
+                        link.classList.add('active');
                         if (link.parentElement && link.parentElement.tagName === 'LI') {
                             link.parentElement.classList.add('active');
                         }
                     } else {
-                        link.classList.remove('font-medium', 'text-blue-600', 'bg-blue-50', 'active');
+                        link.classList.remove('active');
                         if (link.parentElement && link.parentElement.tagName === 'LI') {
                             link.parentElement.classList.remove('active');
                         }
