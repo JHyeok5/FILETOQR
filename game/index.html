@@ -5,11 +5,6 @@
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
 </head>
 <body>
-    <div id="ranking-area" style="position: absolute; top: 10px; right: 10px; width: 220px; background-color: rgba(0,0,0,0.5); color: white; padding: 10px; font-family: sans-serif; font-size: 14px; border-radius: 5px;">
-        <h3>Local Ranking</h3>
-        <ol id="ranking-list" style="list-style-type: decimal; padding-left: 20px; margin-top: 5px; margin-bottom: 10px;"></ol>
-        <button id="clear-ranking-button" style="margin-top: 10px; padding: 5px; width: 100%; box-sizing: border-box;">Clear Ranking</button>
-    </div>
     <script>
         // Function to display ranking
         function displayRanking() {
@@ -62,10 +57,11 @@
                     // Game state variable
                     let gameState = 'playing'; // 'playing', 'cleared', 'gameOver'
 
-                    // Timer variables
+                    // Progress and Timer variables
                     let startTime = 0;
                     let elapsedTime = 0;
-                    let timerText;
+                    let initialLanternY = 0;
+                    let progressText;
 
                     // Score submission flag
                     let scoreSubmitted = false;
@@ -117,8 +113,11 @@
                     memoryFragments.push(slantedRect);
                     drawVertices(fragmentGraphics, slantedRect);
 
-                    // Initialize and display timer text
-                    timerText = this.add.text(10, 10, 'Time: 0s', { fontSize: '16px', fill: '#fff' });
+                    // Store initial Y position of the lantern
+                    initialLanternY = lanternSprite.y;
+
+                    // Initialize and display progress text (height and time)
+                    progressText = this.add.text(config.width - 10, 10, '', { fontSize: '16px', fill: '#fff', align: 'right' }).setOrigin(1, 0);
                     startTime = this.time.now; // Start timer
 
                     // Mouse input events
@@ -179,7 +178,12 @@
                     if (gameState === 'playing') {
                         // Update elapsed time
                         elapsedTime = Math.floor((this.time.now - startTime) / 1000);
-                        timerText.setText('Time: ' + elapsedTime + 's');
+                        
+                        // Calculate current height
+                        const currentHeight = Math.max(0, Math.floor(initialLanternY - lanternSprite.y));
+                        
+                        // Update progress text
+                        progressText.setText(`Height: ${currentHeight}m | Time: ${elapsedTime}s`);
 
                         // Game Clear Condition
                         if (lanternSprite.y < 50) {
@@ -278,5 +282,11 @@
 
         const game = new Phaser.Game(config);
     </script>
+    <hr style="margin-top: 30px; margin-bottom: 30px; border: 1px solid #ccc;">
+    <div id="ranking-area" style="width: 90%; max-width: 600px; margin: 20px auto; background-color: #f0f0f0; color: #333; padding: 20px; font-family: sans-serif; font-size: 16px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h3 style="margin-top: 0; color: #111;">Local Ranking</h3>
+        <ol id="ranking-list" style="list-style-type: decimal; padding-left: 40px; margin-top: 15px; margin-bottom: 20px; text-align: left;"></ol>
+        <button id="clear-ranking-button" style="margin-top: 10px; padding: 10px 20px; width: auto; box-sizing: border-box; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 15px;">Clear Ranking</button>
+    </div>
 </body>
 </html>
