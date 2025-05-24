@@ -30,38 +30,6 @@
 
   <main id="main-container" class="flex-grow w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-6xl">
     <div class="qr-code-section-container bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
-      <header class="mb-10 md:mb-12 text-center">
-        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4 animate-fade-in animate-duration-700">QR 코드 생성기</h1>
-        <p class="text-lg text-slate-600 mb-8 animate-fade-in animate-delay-150 animate-duration-700">텍스트, URL, 파일 등 다양한 데이터를 QR 코드로 만들어보세요.</p>
-      </header>
-
-      <!-- QR Code Type Tabs -->
-      <nav class="qr-type-tabs mb-8 flex flex-wrap justify-center gap-2 sm:gap-3 border-b border-slate-200 pb-6">
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="text">
-          <!-- SVG icon placeholder -->
-          <svg class="inline-block w-5 h-5 mr-1.5 align-text-bottom text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5zm2 2v2h8V7H6zm0 4v2h8v-2H6z"></path></svg>
-          Text
-        </button>
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out active-tab bg-purple-600 text-white" data-type="url">
-          <svg class="inline-block w-5 h-5 mr-1.5 align-text-bottom text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0l-4-4a2 2 0 012.828-2.828L8 5.172l2.586-2.586zM12 10a2 2 0 01-2.828 0L6.586 7.414a2 2 0 112.828-2.828L12 7.172l2.586-2.586a2 2 0 112.828 2.828l-3 3z" clip-rule="evenodd"></path></svg>
-          URL
-        </button>
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="vcard">
-          <svg class="inline-block w-5 h-5 mr-1.5 align-text-bottom text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"></path></svg>
-          vCard
-        </button>
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="wifi">
-          <svg class="inline-block w-5 h-5 mr-1.5 align-text-bottom text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.121 14.707a1 1 0 010-1.414L10.586 10 8.121 7.536a1 1 0 011.414-1.414L12 8.586l2.464-2.464a1 1 0 011.414 1.414L13.414 10l2.464 2.464a1 1 0 01-1.414 1.414L12 11.414l-2.464 2.464a1 1 0 01-1.415 0z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM2 10a8 8 0 1116 0 8 8 0 01-16 0z" clip-rule="evenodd"></path></svg>
-          WiFi
-        </button>
-        <!-- Add other buttons with similar structure and icons -->
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="email">Email</button>
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="tel">Phone</button>
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="sms">SMS</button>
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="geo">Location</button>
-        <button class="qr-type-btn px-4 py-2 rounded-md text-sm sm:text-base font-medium text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-150 ease-in-out" data-type="file">File (via Convert)</button>
-      </nav>
-
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
         <!-- QR Form Container (Dynamic Content) -->
         <div id="qr-form-container" class="md:col-span-2 mb-6 p-6 bg-slate-100 rounded-xl shadow-md animate-fadeIn">
